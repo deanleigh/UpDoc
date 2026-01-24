@@ -1,0 +1,14 @@
+{
+  "name": "create-from-pdf",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite build --watch"
+  },
+  "devDependencies": {
+    "@umbraco-cms/backoffice": "^17.1.0",
+    "typescript": "^5.0.0",
+    "vite": "^5.0.0"
+  }
+}
