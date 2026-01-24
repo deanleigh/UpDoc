@@ -1,0 +1,43 @@
+using Umbraco.Cms.Core.Composing;
+using Umbraco.Cms.Core.DependencyInjection;
+using Umbraco.Cms.Web.Common.PublishedModels;
+using Umbraco.Community.BlockPreview;
+using Umbraco.Community.BlockPreview.Extensions;
+
+namespace create_document_from_pdf_01.BlockPreviews;
+
+public class BlockPreviewComposer : IComposer
+{
+    public void Compose(IUmbracoBuilder builder)
+    {
+        builder.AddBlockPreview(options =>
+        {
+            options.BlockGrid = new BlockTypeSettings
+            {
+                Enabled = true,
+                ContentTypes =
+                [
+                    FeaturePageTitleDescription.ModelTypeAlias,
+                    FeatureRichTextEditor.ModelTypeAlias,
+                    FeatureImage.ModelTypeAlias,
+                    FeatureInternalLinksChildren.ModelTypeAlias,
+                    FeatureInternalLinks.ModelTypeAlias,
+                    FeatureInternalLinksSlideshow.ModelTypeAlias,
+                    FeatureInternalLinksPagination.ModelTypeAlias,
+                    FeatureNavigationDescendants.ModelTypeAlias,
+                    FeatureInternalLinks.ModelTypeAlias,
+                    FeatureFaqs.ModelTypeAlias,
+                    FeatureTabs.ModelTypeAlias,
+                    FeatureHtml.ModelTypeAlias,
+                    FeatureCode.ModelTypeAlias,
+                    FeatureFormContactUs.ModelTypeAlias
+                ],
+                Stylesheet = "/css/Index.css"
+            };
+            options.BlockList = new BlockTypeSettings
+            {
+                Enabled = false
+            };
+        });
+    }
+}

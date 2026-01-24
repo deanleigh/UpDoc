@@ -1,0 +1,56 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <CompressionEnabled>false</CompressionEnabled> <!-- Disable compression. E.g. for umbraco backoffice files. These files should be precompressed by node and not let dotnet handle it -->
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
+    <PackageReference Include="Umbraco.Cms" Version="17.1.0" />
+    <PackageReference Include="Umbraco.Community.BlockPreview" Version="5.0.0" />
+    <PackageReference Include="Umbraco.Community.UmbNav" Version="4.0.2" />
+    <PackageReference Include="uSync" Version="17.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Opt-in to app-local ICU to ensure consistent globalization APIs across different platforms -->
+    <PackageReference Include="Microsoft.ICU.ICU4C.Runtime" Version="72.1.0.3" />
+    <RuntimeHostConfigurationOption Include="System.Globalization.AppLocalIcu" Value="72.1.0.3" Condition="$(RuntimeIdentifier.StartsWith('linux')) or $(RuntimeIdentifier.StartsWith('win')) or ('$(RuntimeIdentifier)' == '' and !$([MSBuild]::IsOSPlatform('osx')))" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\assets\" />
+    <None Include="wwwroot\media\**\*">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="wwwroot\images\**" />
+    <Content Remove="wwwroot\images\**" />
+    <EmbeddedResource Remove="wwwroot\images\**" />
+    <None Remove="wwwroot\images\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="C:\Users\deanl\.nuget\packages\umbraco.community.umbnav\4.0.0-beta0030\contentFiles\any\net9.0\json-example.json" />
+    <Content Remove="C:\Users\deanl\.nuget\packages\umbraco.community.umbnav\4.0.0-beta0030\contentFiles\any\net9.0\package-lock.json" />
+    <Content Remove="C:\Users\deanl\.nuget\packages\umbraco.community.umbnav\4.0.0-beta0030\contentFiles\any\net9.0\package.json" />
+    <Content Remove="C:\Users\deanl\.nuget\packages\umbraco.community.umbnav\4.0.0-beta0030\contentFiles\any\net9.0\tsconfig.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="App_Plugins\icons\Thumbnails-Icons-RTE.svg" />
+  </ItemGroup>
+
+	<PropertyGroup>
+    <!-- Referenced assemblies (DLLs) will be copied to the publish directory when you build and publish your Umbraco project -->
+    <CopyReferencedAssembliesToPublishDirectory>true</CopyReferencedAssembliesToPublishDirectory>
+    <!-- Razor files are needed for the backoffice to work correctly -->
+    <CopyRazorGenerateFilesToPublishDirectory>true</CopyRazorGenerateFilesToPublishDirectory>
+  </PropertyGroup>
+
+  
+</Project>

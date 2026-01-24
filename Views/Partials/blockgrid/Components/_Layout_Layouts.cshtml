@@ -1,0 +1,44 @@
+﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<Umbraco.Cms.Core.Models.Blocks.BlockGridItem>
+@using Umbraco.Cms.Core.PropertyEditors.ValueConverters;
+
+@{
+    // No layout by default
+    Layout = null;
+
+    // Check if the layout has any areas
+    if (Model.Areas.Any() != true)
+    {
+        return;
+    }
+
+    // Get layout settings
+    var backgroundColour = Model.Settings?.Value<ColorPickerValueConverter.PickedColor>("layoutSettingsColourPicker");
+    var colorLabel = backgroundColour?.Label;
+    var colorShades = Model.Settings?.Value<decimal>("layoutSettingsColourShades");
+    var colorOpacity = Model.Settings?.Value<decimal>("layoutSettingsColourOpacity");
+    var backgroundImage = Model.Settings?.Value<Umbraco.Cms.Core.Models.MediaWithCrops>("layoutSettingsBackgroundImagePicker");
+
+    var backgroundColorClass = "";
+    if (backgroundColour != null && colorLabel != null && colorShades != null)
+    {
+        backgroundColorClass = $"bg-{colorLabel}-{colorShades}-rgb";
+    }
+
+    var backgroundOpacityClass = "";
+    if (colorOpacity != null)
+    {
+        var opacityValue = Math.Round(colorOpacity.Value * 100);
+        backgroundOpacityClass = $"bg-opacity-{opacityValue}";
+    }
+
+    var styleAttribute = "";
+    if (backgroundImage != null)
+    {
+        styleAttribute = $"background-image: url({backgroundImage.MediaUrl()});";
+    }
+}
+<div class="layout-item py-3 @backgroundColorClass @backgroundOpacityClass"
+     data-bgimage="@backgroundImage?.MediaUrl()" style="@styleAttribute"
+     data-block-alias="@Model.Content.ContentType.Alias">
+    @RenderBody()
+</div>

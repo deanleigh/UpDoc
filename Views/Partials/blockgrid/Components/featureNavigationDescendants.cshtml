@@ -1,0 +1,82 @@
+﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<Umbraco.Cms.Core.Models.Blocks.BlockGridItem>
+@*@using Umbraco.Cms.Core.Models.PublishedContent*@
+
+
+@*@{
+    // no need to use a layout for this partial
+    // the feature header is contained within the feature itself
+    Layout = "_Layout.cshtml";
+}*@
+
+@{
+    IPublishedContent vThisPage = Umbraco.AssignedContentItem;
+    int intCurLevel = vThisPage.Level;
+    IPublishedContent thisSectionPage = vThisPage.Ancestor(2)!;
+    if (vThisPage.Level == 2) { thisSectionPage = vThisPage; }
+}
+
+@{
+    void RenderLi(IPublishedContent navItem)
+    {
+        <li data-level="level-@navItem.Level" class=" @(navItem.IsAncestorOrSelf(vThisPage) ? " active" : "")@(navItem.IsDescendant(vThisPage) ? "descendant" : "")">
+            <a href="@navItem.Url()" class="list-group-item-action list-group-item list-group-item-light ps-@navItem.Level @(navItem.IsAncestorOrSelf(vThisPage) ? " active" : "")@(navItem.IsDescendant(vThisPage) ? "descendant" : "")">@navItem.Value("pageTitleShort")</a>
+            @if (navItem.IsAncestorOrSelf(vThisPage) && navItem.Children().Any())
+            {
+                <ul class="list-group nav">
+                    @foreach (IPublishedContent listItemChild in navItem.Children())
+                    {
+                        RenderLi(listItemChild);
+                    }
+                </ul>
+            }
+        </li>
+    }
+}
+
+<nav class="card d-none d-md-block ">
+    <header class="card-header">
+        <h2 class="card-title">
+            <a href="@thisSectionPage.Url()" class="list-group-item-action list-group-item">@thisSectionPage.Value("pageTitleShort")</a>
+        </h2>
+    </header>
+    <div class="">
+        <ul class="list-group nav">
+            @foreach (var navItem in thisSectionPage.Children())
+            {
+                RenderLi(navItem);
+            }
+        </ul>
+    </div>
+</nav>
+
+<nav aria-label="breadcrumb" class="d-sm-block d-md-none">
+    @{
+        // get ancestors ordered by level ascending
+        var ancestors = vThisPage.Ancestors().OrderBy(a => a.Level).ToArray();
+
+    }
+    @if (ancestors.Length > 0)
+    {
+        <ol class="breadcrumb">
+            @foreach (var ancestor in ancestors)
+            {
+                <li class="breadcrumb-item"><a href="@ancestor.Url()">@ancestor.Value("pageTitleShort")</a></li>
+            }
+            <li class="breadcrumb-item active"><a href="@vThisPage.Url()">@vThisPage.Value("pageTitleShort")</a></li>
+        </ol>
+    }
+</nav>
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,81 @@
+// Define color maps for different shades
+$all-shade-colors: map-merge-multiple(
+  $blues,
+  $indigos,
+  $purples,
+  $pinks,
+  $reds,
+  $oranges,
+  $yellows,
+  $greens,
+  $teals,
+  $cyans,
+  $corals
+);
+
+// Existing $utilities map merge (keep this for Bootstrap utility API)
+$utilities: map-merge(
+  $utilities,
+  (
+    "background-color": map-merge(
+      map-get($utilities, "background-color"),
+      (
+        values: map-merge(
+          map-get(map-get($utilities, "background-color"), "values"),
+          (
+            $all-shade-colors
+          ),
+        ),
+      ),
+    ),
+  )
+);
+
+// Add this loop for custom shade classes with opacity support:
+@each $color, $shades in (
+  "blue": $blues,
+  "indigo": $indigos,
+  "purple": $purples,
+  "pink": $pinks,
+  "red": $reds,
+  "orange": $oranges,
+  "yellow": $yellows,
+  "green": $greens,
+  "teal": $teals,
+  "cyan": $cyans,
+  "gray": $grays,
+  "coral": $corals
+) {
+  @each $shade, $hex in $shades {
+    .bg-#{$shade}-rgb {
+      --bs-bg-opacity: 1;
+      background-color: rgba(var(--bs-#{$shade}-rgb), var(--bs-bg-opacity)) !important;
+    }
+  }
+}
+
+$custom-bg-opacities: (
+    0: 0,
+    12: .125,
+    25: .25,
+    38: .375,
+    50: .5,
+    62: .625,
+    75: .75,
+    87: .875,
+    100: 1,
+);
+
+$utilities: map-merge(
+  $utilities,
+  (
+    "bg-opacity": (
+      css-var: true,
+      class: bg-opacity,
+      values: map-merge(
+        map-get(map-get($utilities, "bg-opacity"), "values"),
+        $custom-bg-opacities
+      )
+    )
+  )
+);

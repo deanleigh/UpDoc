@@ -1,0 +1,12 @@
+﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.SiteSettings>
+@using ContentModels = Umbraco.Cms.Web.Common.PublishedModels;
+@{
+    Layout = null;
+}
+
+<footer class="pt-3 bg-body-tertiary footer text-muted">
+    <div class="container">
+        <p>Hosted by <a href="https://my.umbhost.net/aff.php?aff=1535">Umbhost</a></p>
+        <p>&copy; @DateTime.Now.Year - @Model.Copyright</p>
+    </div>
+</footer>

@@ -1,0 +1,59 @@
+@using Umbraco.Community.UmbNav.Core.Extensions
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<SiteSettings>
+@{
+    Layout = null;
+    var currentPage = UmbracoContext?.PublishedRequest?.PublishedContent;
+}
+<header class="screen--header bg-body-tertiary sticky-top shadow-b pb-1">
+    <nav class="container-xxl navbar navbar-expand-lg fixed-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">
+                <img src="@Model.Logo?.GetCropUrl())" alt="" />
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="offcanvas offcanvas-start" id="navbarNav">
+                <div class="offcanvas-header">
+                    <h5 class="offcanvas-title" id="offcanvasRightLabel">In this site</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                </div>
+                <div class="offcanvas-body">
+                    <ul class="navbar-nav justify-content-end flex-grow-1 gap-3 nav nav-pills">
+                        @{
+                            foreach (var menuItem in Model.TopNavigation!)
+                            {
+                                // check for children
+                                var childClass = "";
+                                if (menuItem.Children?.Any() == true)
+                                {
+                                    childClass = "dropdown";
+                                }
+
+                                <li class="nav-item text-center @childClass">
+                                    @if (string.IsNullOrEmpty(childClass))
+                                    {
+                                        <a class="nav-link @Html.If(menuItem.IsActive(currentPage, minLevel: 2), "active")" href="@menuItem.Url()" target="@menuItem.Target">@menuItem.Name</a>
+                                    }
+                                    else
+                                    {
+                                        <a class="nav-link dropdown-toggle" href="@menuItem.Url()" target="@menuItem.Target" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                            @menuItem.Name
+                                        </a>
+                                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                            @foreach (var subItem in menuItem.Children ?? [])
+                                            {
+                                                <li><a class="dropdown-item @Html.If(subItem.IsActive, "active")" href="@subItem.Url()">@subItem.Name</a></li>
+                                            }
+                                        </ul>
+                                    }
+                                    
+                                </li>
+                            }
+                        }
+                    </ul> 
+                </div>
+            </div>
+        </div>
+    </nav>
+</header>

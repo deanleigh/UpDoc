@@ -1,0 +1,15 @@
+﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<Umbraco.Cms.Core.Models.Blocks.BlockGridItem<FeatureImage>>
+
+@{
+    Layout = "_Layout_Features.cshtml";
+}
+
+@{
+    var typedMediaPickerSingle = Model.Content.Image;
+    if (typedMediaPickerSingle != null)
+    {
+        <img src="@typedMediaPickerSingle.MediaUrl()" alt="" class="rounded-3" style="object-fit:cover; width:100%; height:100%;" />
+    } else {
+        <p>Missing image</p>
+    }
+}

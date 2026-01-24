@@ -1,0 +1,124 @@
+﻿@using Microsoft.AspNetCore.Http
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<Umbraco.Cms.Core.Models.Blocks.BlockGridItem<FeatureInternalLinksPagination>>
+@inject IHttpContextAccessor HttpContextAccessor
+
+
+@* Note: Need to give attention to pagination logic and query string handling.
+Currently uses /?page=2#pagination as the query parameter for pagination.
+This not not deal with multiple paginations on the same page. *@
+
+@{
+    Layout = "_Layout_Features.cshtml";
+
+    var currentPage = UmbracoContext?.PublishedRequest?.PublishedContent;
+    var childPages = currentPage?.Children<WebPage>()?.ToArray() ?? [];
+    
+    var pageSize = 3;
+    var isPreviewMode = HttpContextAccessor.HttpContext == null;
+    
+    var queryPageValue = HttpContextAccessor.HttpContext?.Request.Query["page"];
+    var currentPageNumber = string.IsNullOrWhiteSpace(queryPageValue) ? 1 : Convert.ToInt32(queryPageValue);
+
+    var startItemIndex = currentPageNumber * pageSize - pageSize;
+
+    var displayedPages = childPages
+        .Where(x => x.IsVisible())
+        .OrderBy(x => x.SortOrder)
+        .Skip(startItemIndex)
+        .Take(pageSize);
+}
+
+@if (childPages != null && childPages.Length > 0)
+{
+    if (!isPreviewMode)
+    {
+        <nav class="grid" id="pagination" style="place-items: center" aria-label="...">
+            <ul class="pagination g-col-12">
+                @if (currentPageNumber > 1)
+                {
+                    var prevPageQueryString = $"?page={currentPageNumber - 1}#pagination";
+
+                    <li class="page-item">
+                        <a class="page-link" href="@prevPageQueryString">Prev</a>
+                    </li>
+                }
+                else
+                {
+                    <li class="page-item disabled">
+                        <span class="page-link">Prev</span>
+                    </li>
+                }
+
+                @for (var i = 1; i <= Math.Ceiling((double)childPages.Length / pageSize); i++)
+                {
+                    var queryString = HttpContextAccessor.HttpContext?.Request.QueryString.Value;
+                    if (queryString?.Contains("page=") == true)
+                    {
+                        queryString = queryString.Replace("page=" + currentPageNumber, $"page={i}");
+                    }
+                    else
+                    {
+                        if (queryString?.Length > 0)
+                        {
+                            queryString += "&";
+                        }
+                        queryString += $"page={i}";
+                    }
+                    queryString = queryString?.TrimStart('?');
+
+                    queryString = "?" + queryString;
+
+                    queryString += "#pagination";
+
+                    <li class="page-item @(currentPageNumber == i ? "active" : "")">
+                        <a class="page-link" href="@queryString">@i</a>
+                    </li>
+                }
+
+
+                @if (currentPageNumber < Math.Ceiling((double)childPages.Length / pageSize))
+                {
+                    var nextPageQueryString = $"?page={currentPageNumber + 1}#pagination";
+
+                    <li class="page-item">
+                        <a class="page-link" href="@nextPageQueryString">Next</a>
+                    </li>
+                }
+                else
+                {
+                    <li class="page-item disabled">
+                        <span class="page-link">Next</span>
+                    </li>
+                }
+            </ul>
+        </nav>
+    }
+    else
+    {
+        <div class="alert alert-secondary mb-3">
+            <strong>Internal Links - Pagination Preview</strong>
+            <p class="mb-0">Displays child pages with pagination controls (3 per page).</p>
+        </div>
+    }
+
+    <div class="grid">
+        @foreach (var varWebpage in displayedPages)
+        {
+            var thumbnail = varWebpage.PageThumbnail;
+            <div class="g-col-12 g-col-md-6 g-col-lg-4">
+                <div class="card h-100 shadow">
+                    @if (thumbnail is not null)
+                    {
+                        <img src="@(thumbnail.GetCropUrl(width:480))" class="card-img-top" alt="...">
+                    }
+                    <div class="card-body">
+                        <h5 class="card-title pb-1"><a class="nav-link stretched-link" href="@varWebpage.Url()">@varWebpage.PageTitle</a></h5>
+                        <p class="card-text pb-2">
+                            @varWebpage.PageDescription
+                        </p>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
