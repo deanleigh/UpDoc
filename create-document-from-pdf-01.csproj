@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
+    <PackageReference Include="UglyToad.PdfPig" Version="1.7.0-custom-5" />
     <PackageReference Include="Umbraco.Cms" Version="17.1.0" />
     <PackageReference Include="Umbraco.Community.BlockPreview" Version="5.0.0" />
     <PackageReference Include="Umbraco.Community.UmbNav" Version="4.0.2" />

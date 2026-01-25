@@ -5,7 +5,7 @@ const t = [
     alias: "CreateFromPdf.EntityAction",
     name: "Create from PDF Entity Action",
     weight: 1100,
-    api: () => import("./create-from-pdf-action-W-R7_ES_.js"),
+    api: () => import("./create-from-pdf-action-Cg7wwMyV.js"),
     forEntityTypes: ["document"],
     meta: {
       icon: "icon-document",
