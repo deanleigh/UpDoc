@@ -9,7 +9,7 @@ export const manifests: Array<UmbExtensionManifest> = [
 		forEntityTypes: ['document'],
 		meta: {
 			icon: 'icon-document',
-			label: 'Create from PDF',
+			label: 'Create Document from PDF',
 		},
 	},
 	{
