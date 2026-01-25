@@ -3,6 +3,7 @@ import { html, customElement, css, state } from '@umbraco-cms/backoffice/externa
 import { UmbTextStyles } from '@umbraco-cms/backoffice/style';
 import { UmbModalBaseElement } from '@umbraco-cms/backoffice/modal';
 import type { UUIInputEvent } from '@umbraco-cms/backoffice/external/uui';
+import type { UmbInputMediaElement } from '@umbraco-cms/backoffice/media';
 
 @customElement('create-from-pdf-modal')
 export class CreateFromPdfModalElement extends UmbModalBaseElement<
@@ -12,13 +13,23 @@ export class CreateFromPdfModalElement extends UmbModalBaseElement<
 	@state()
 	private _documentName = '';
 
+	@state()
+	private _selectedMediaUnique: string | null = null;
+
 	override firstUpdated() {
-		// Initialize with empty name, user will fill in
+		// Initialize with empty values
 		this._documentName = '';
+		this._selectedMediaUnique = null;
+	}
+
+	#handleMediaChange(e: CustomEvent) {
+		const target = e.target as UmbInputMediaElement;
+		const selection = target.selection;
+		this._selectedMediaUnique = selection.length > 0 ? selection[0] : null;
 	}
 
 	#handleSave() {
-		this.value = { name: this._documentName };
+		this.value = { name: this._documentName, mediaUnique: this._selectedMediaUnique };
 		this.modalContext?.submit();
 	}
 
@@ -30,7 +41,7 @@ export class CreateFromPdfModalElement extends UmbModalBaseElement<
 		return html`
 			<umb-body-layout headline="Create from PDF">
 				<uui-box headline="Create a new document from PDF">
-					<p>Upload a PDF file to extract content and create a new document.</p>
+					<p>Select a PDF from the media library to extract content and create a new document.</p>
 
 					<umb-property-layout label="Document Name" orientation="vertical">
 						<div slot="editor">
@@ -46,11 +57,10 @@ export class CreateFromPdfModalElement extends UmbModalBaseElement<
 
 					<umb-property-layout label="PDF File" orientation="vertical">
 						<div slot="editor">
-							<uui-input
-								type="file"
-								accept=".pdf"
-								label="Select PDF file">
-							</uui-input>
+							<umb-input-media
+								max="1"
+								@change=${this.#handleMediaChange}>
+							</umb-input-media>
 						</div>
 					</umb-property-layout>
 				</uui-box>

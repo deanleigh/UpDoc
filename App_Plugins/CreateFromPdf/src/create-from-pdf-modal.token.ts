@@ -6,6 +6,7 @@ export interface UmbCreateFromPdfModalData {
 
 export interface UmbCreateFromPdfModalValue {
 	name: string;
+	mediaUnique: string | null;
 }
 
 export const UMB_CREATE_FROM_PDF_MODAL = new UmbModalToken<UmbCreateFromPdfModalData, UmbCreateFromPdfModalValue>(
