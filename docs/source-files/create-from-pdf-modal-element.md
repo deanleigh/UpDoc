@@ -1,12 +1,12 @@
 # create-from-pdf-modal.element.ts
 
-The Lit component that renders the PDF upload modal dialog.
+The Lit component that renders the PDF selection modal dialog.
 
 ## What it does
 
 Provides the UI for users to:
 1. Enter a document name
-2. Select a PDF file to upload
+2. Select a PDF from the media library
 3. Submit or cancel the operation
 
 ## Class structure
@@ -19,6 +19,9 @@ export class CreateFromPdfModalElement extends UmbModalBaseElement<
 > {
     @state()
     private _documentName = '';
+
+    @state()
+    private _selectedMediaUnique: string | null = null;
 
     // ... methods and render
 }
@@ -40,8 +43,14 @@ All Umbraco modals extend `UmbModalBaseElement<TData, TValue>`:
 ### Modal context methods
 
 ```typescript
+#handleMediaChange(e: CustomEvent) {
+    const target = e.target as UmbInputMediaElement;
+    const selection = target.selection;
+    this._selectedMediaUnique = selection.length > 0 ? selection[0] : null;
+}
+
 #handleSave() {
-    this.value = { name: this._documentName };
+    this.value = { name: this._documentName, mediaUnique: this._selectedMediaUnique };
     this.modalContext?.submit();  // Closes modal and returns value
 }
 
@@ -56,7 +65,8 @@ Uses Umbraco's UI components:
 - `umb-body-layout` - Standard modal layout with headline and action slots
 - `uui-box` - Content container with optional headline
 - `umb-property-layout` - Form field wrapper with label
-- `uui-input` - Text input and file input
+- `uui-input` - Text input for document name
+- `umb-input-media` - Media picker for selecting PDF from media library
 - `uui-button` - Action buttons
 
 ## Styles

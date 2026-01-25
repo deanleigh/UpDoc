@@ -17,7 +17,8 @@ export interface UmbCreateFromPdfModalData {
 }
 
 export interface UmbCreateFromPdfModalValue {
-    name: string;  // The document name entered by user
+    name: string;              // The document name entered by user
+    mediaUnique: string | null; // The selected media item's unique ID
 }
 ```
 
