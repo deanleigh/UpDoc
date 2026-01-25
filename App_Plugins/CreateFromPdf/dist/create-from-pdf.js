@@ -16,7 +16,7 @@ const t = [
     type: "modal",
     alias: "CreateFromPdf.Modal",
     name: "Create from PDF Modal",
-    element: () => import("./create-from-pdf-modal.element-CDMLiQ6v.js")
+    element: () => import("./create-from-pdf-modal.element-ajuF1g69.js")
   }
 ];
 export {

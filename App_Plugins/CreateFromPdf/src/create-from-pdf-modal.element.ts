@@ -60,6 +60,7 @@ export class CreateFromPdfModalElement extends UmbModalBaseElement<
 					id="close"
 					label="Close"
 					@click="${this.#handleClose}">
+					Close
 				</uui-button>
 				<uui-button
 					slot="actions"
@@ -68,6 +69,7 @@ export class CreateFromPdfModalElement extends UmbModalBaseElement<
 					color="positive"
 					label="Create"
 					@click="${this.#handleSave}">
+					Create
 				</uui-button>
 			</umb-body-layout>
 		`;
