@@ -13,5 +13,6 @@
 ## Backend (C#)
 
 * [PdfExtractionService.cs](source-files/pdf-extraction-service.md)
+* [PdfPagePropertiesService.cs](source-files/pdf-page-properties-service.md)
 * [PdfExtractionController.cs](source-files/pdf-extraction-controller.md)
 * [CreateFromPdfComposer.cs](source-files/create-from-pdf-composer.md)

@@ -19,16 +19,22 @@ public class PdfExtractionController : ControllerBase
 {
     private readonly IMediaService _mediaService;
     private readonly IPdfExtractionService _pdfExtractionService;
+    private readonly IPdfPagePropertiesService _pdfPagePropertiesService;
     private readonly IWebHostEnvironment _webHostEnvironment;
+    private readonly ILogger<PdfExtractionController> _logger;
 
     public PdfExtractionController(
         IMediaService mediaService,
         IPdfExtractionService pdfExtractionService,
-        IWebHostEnvironment webHostEnvironment)
+        IPdfPagePropertiesService pdfPagePropertiesService,
+        IWebHostEnvironment webHostEnvironment,
+        ILogger<PdfExtractionController> logger)
     {
         _mediaService = mediaService;
         _pdfExtractionService = pdfExtractionService;
+        _pdfPagePropertiesService = pdfPagePropertiesService;
         _webHostEnvironment = webHostEnvironment;
+        _logger = logger;
     }
 
     [HttpGet("extract")]
@@ -83,6 +89,64 @@ public class PdfExtractionController : ControllerBase
         {
             text = result.RawText,
             pageCount = result.PageCount
+        });
+    }
+
+    [HttpGet("page-properties")]
+    public IActionResult GetPageProperties(Guid mediaKey)
+    {
+        var media = _mediaService.GetById(mediaKey);
+        if (media == null)
+        {
+            return NotFound(new { error = "Media item not found" });
+        }
+
+        var umbracoFile = media.GetValue<string>("umbracoFile");
+        if (string.IsNullOrEmpty(umbracoFile))
+        {
+            return BadRequest(new { error = "Media item has no file" });
+        }
+
+        string filePath;
+        if (umbracoFile.StartsWith("{"))
+        {
+            var json = System.Text.Json.JsonDocument.Parse(umbracoFile);
+            filePath = json.RootElement.GetProperty("src").GetString() ?? string.Empty;
+        }
+        else
+        {
+            filePath = umbracoFile;
+        }
+
+        if (string.IsNullOrEmpty(filePath))
+        {
+            return BadRequest(new { error = "Could not determine file path" });
+        }
+
+        var absolutePath = Path.Combine(_webHostEnvironment.WebRootPath, filePath.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
+
+        if (!System.IO.File.Exists(absolutePath))
+        {
+            return NotFound(new { error = $"File not found on disk: {filePath}" });
+        }
+
+        var result = _pdfPagePropertiesService.ExtractFromFile(absolutePath);
+
+        if (!string.IsNullOrEmpty(result.Error))
+        {
+            return BadRequest(new { error = result.Error });
+        }
+
+        // Log to console for testing
+        _logger.LogInformation("=== PDF Page Properties ===");
+        _logger.LogInformation("Title → Page Title, Page Title Short: {Title}", result.Title);
+        _logger.LogInformation("Description → Page Description: {Description}", result.Description);
+        _logger.LogInformation("===========================");
+
+        return Ok(new
+        {
+            title = result.Title,
+            description = result.Description
         });
     }
 }

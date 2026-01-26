@@ -23,10 +23,10 @@ export class CreateFromPdfEntityAction extends UmbEntityActionBase<never> {
 		}
 
 		console.log('Modal returned value:', value);
-		const { name, mediaUnique } = value;
-		console.log('Name:', name, 'MediaUnique:', mediaUnique);
-		if (!name || !mediaUnique) {
-			console.log('Returning early - name or mediaUnique is empty');
+		const { mediaUnique } = value;
+		console.log('MediaUnique:', mediaUnique);
+		if (!mediaUnique) {
+			console.log('Returning early - no PDF selected');
 			return;
 		}
 
@@ -34,9 +34,9 @@ export class CreateFromPdfEntityAction extends UmbEntityActionBase<never> {
 		const authContext = await this.getContext(UMB_AUTH_CONTEXT);
 		const token = await authContext.getLatestToken();
 
-		// Call the PDF extraction API (Umbraco 17 Management API)
+		// Call the PDF page properties API
 		const response = await fetch(
-			`/umbraco/management/api/v1/createfrompdf/extract?mediaKey=${mediaUnique}`,
+			`/umbraco/management/api/v1/createfrompdf/page-properties?mediaKey=${mediaUnique}`,
 			{
 				method: 'GET',
 				headers: {
@@ -59,18 +59,21 @@ export class CreateFromPdfEntityAction extends UmbEntityActionBase<never> {
 		}
 
 		const result = await response.json();
-		console.log('PDF extraction result:', result);
-		console.log('Extracted text:', result.text);
-		console.log('Page count:', result.pageCount);
 
-		// Show success notification
+		// Log page properties to console
+		console.log('=== PDF Page Properties ===');
+		console.log('Title → Page Title, Page Title Short:', result.title);
+		console.log('Description → Page Description:', result.description);
+		console.log('===========================');
+
+		// Show success notification with extracted title
 		const notificationContext = await this.getContext(UMB_NOTIFICATION_CONTEXT);
 		notificationContext.peek('positive', {
-			data: { message: `Successfully extracted ${result.pageCount} page(s) from PDF` },
+			data: { message: `Extracted: "${result.title}"` },
 		});
 
 		// TODO: Create document with extracted content
-		console.log('Document name:', name);
+		console.log('Parent unique:', this.args.unique);
 	}
 }
 
