@@ -1,13 +1,15 @@
 # create-from-pdf-action.ts
 
-The entity action class that handles the "Create from PDF" menu click.
+The entity action class that handles the "Create Document from PDF" menu click.
 
 ## What it does
 
-When a user clicks "Create from PDF" in the document tree context menu, this action:
-1. Opens the PDF upload modal
-2. Waits for the user to submit
-3. Processes the result (document name)
+When a user clicks "Create Document from PDF" in the document tree context menu, this action:
+1. Opens the PDF selection modal
+2. Gets the document name and selected media item
+3. Calls the backend API to extract PDF text
+4. Shows success/error notifications
+5. (TODO) Creates a document with the extracted content
 
 ## Class structure
 
@@ -18,7 +20,7 @@ export class CreateFromPdfEntityAction extends UmbEntityActionBase<never> {
     }
 
     override async execute() {
-        // Opens modal and handles result
+        // Opens modal, calls API, handles result
     }
 }
 
@@ -27,31 +29,47 @@ export default CreateFromPdfEntityAction;
 
 ## Key concepts
 
-### Extending UmbEntityActionBase
+### Modal handling with cancellation
 
-All entity actions must extend `UmbEntityActionBase<T>` where `T` is the repository type (or `never` if not using a repository).
-
-### The execute() method
-
-This is called when the user clicks the menu item:
+The modal can be cancelled (clicking outside or Close button), which throws an error. This is handled gracefully:
 
 ```typescript
-override async execute() {
-    const value = await umbOpenModal(this, UMB_CREATE_FROM_PDF_MODAL, {
+let value;
+try {
+    value = await umbOpenModal(this, UMB_CREATE_FROM_PDF_MODAL, {
         data: { unique: this.args.unique ?? null },
     });
-
-    const { name } = value;
-    if (!name) return;
-
-    // TODO: Process PDF and create document
+} catch {
+    // Modal was cancelled
+    return;
 }
 ```
 
-### Modal data flow
+### Authentication for API calls
 
-- `this.args.unique` - The unique ID of the parent document (where user right-clicked)
-- `value` - The modal's return value containing the document name
+Umbraco 17 uses bearer token authentication for Management API calls:
+
+```typescript
+const authContext = await this.getContext(UMB_AUTH_CONTEXT);
+const token = await authContext.getLatestToken();
+
+const response = await fetch(url, {
+    headers: {
+        Authorization: `Bearer ${token}`,
+    },
+});
+```
+
+### Notifications
+
+Success and error notifications are shown using Umbraco's notification context:
+
+```typescript
+const notificationContext = await this.getContext(UMB_NOTIFICATION_CONTEXT);
+notificationContext.peek('positive', {
+    data: { message: 'Success message' },
+});
+```
 
 ## Imports
 
@@ -59,7 +77,16 @@ override async execute() {
 import { UMB_CREATE_FROM_PDF_MODAL } from './create-from-pdf-modal.token.js';
 import { UmbEntityActionBase } from '@umbraco-cms/backoffice/entity-action';
 import { umbOpenModal } from '@umbraco-cms/backoffice/modal';
+import { UMB_NOTIFICATION_CONTEXT } from '@umbraco-cms/backoffice/notification';
+import { UMB_AUTH_CONTEXT } from '@umbraco-cms/backoffice/auth';
 ```
+
+## Data flow
+
+1. `this.args.unique` - Parent document ID (where user right-clicked)
+2. Modal returns `{ name, mediaUnique }` - Document name and selected PDF
+3. API called with `mediaUnique` to extract PDF text
+4. API returns `{ text, pageCount }` - Extracted content
 
 ## Default export
 
