@@ -11,17 +11,22 @@ const d = new c(
     }
   }
 );
-class M extends m {
-  constructor(e, t) {
-    super(e, t);
+class y extends m {
+  constructor(t, e) {
+    super(t, e);
   }
   async execute() {
-    const e = await l(this, d, {
-      data: { unique: this.args.unique ?? null }
-    });
-    console.log("Modal returned value:", e);
-    const { name: t, mediaUnique: n } = e;
-    if (console.log("Name:", t, "MediaUnique:", n), !t || !n) {
+    let t;
+    try {
+      t = await l(this, d, {
+        data: { unique: this.args.unique ?? null }
+      });
+    } catch {
+      return;
+    }
+    console.log("Modal returned value:", t);
+    const { name: e, mediaUnique: n } = t;
+    if (console.log("Name:", e, "MediaUnique:", n), !e || !n) {
       console.log("Returning early - name or mediaUnique is empty");
       return;
     }
@@ -45,11 +50,11 @@ class M extends m {
     const o = await a.json();
     console.log("PDF extraction result:", o), console.log("Extracted text:", o.text), console.log("Page count:", o.pageCount), (await this.getContext(r)).peek("positive", {
       data: { message: `Successfully extracted ${o.pageCount} page(s) from PDF` }
-    }), console.log("Document name:", t);
+    }), console.log("Document name:", e);
   }
 }
 export {
-  M as CreateFromPdfEntityAction,
-  M as default
+  y as CreateFromPdfEntityAction,
+  y as default
 };
-//# sourceMappingURL=create-from-pdf-action-Cg7wwMyV.js.map
+//# sourceMappingURL=create-from-pdf-action-YFbsQA5I.js.map

@@ -12,9 +12,15 @@ export class CreateFromPdfEntityAction extends UmbEntityActionBase<never> {
 	}
 
 	override async execute() {
-		const value = await umbOpenModal(this, UMB_CREATE_FROM_PDF_MODAL, {
-			data: { unique: this.args.unique ?? null },
-		});
+		let value;
+		try {
+			value = await umbOpenModal(this, UMB_CREATE_FROM_PDF_MODAL, {
+				data: { unique: this.args.unique ?? null },
+			});
+		} catch {
+			// Modal was cancelled
+			return;
+		}
 
 		console.log('Modal returned value:', value);
 		const { name, mediaUnique } = value;
