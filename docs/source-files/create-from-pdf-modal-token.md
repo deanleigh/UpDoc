@@ -17,8 +17,11 @@ export interface UmbCreateFromPdfModalData {
 }
 
 export interface UmbCreateFromPdfModalValue {
-    name: string;              // The document name entered by user
+    name: string;               // The document name (pre-filled from PDF, user can edit)
     mediaUnique: string | null; // The selected media item's unique ID
+    pageTitle: string;          // Extracted from PDF title metadata
+    pageTitleShort: string;     // Same as pageTitle (for the pageTitleShort property)
+    pageDescription: string;    // Extracted from PDF description/subject metadata
 }
 ```
 
@@ -71,4 +74,5 @@ const value = await umbOpenModal(this, UMB_CREATE_FROM_PDF_MODAL, {
     data: { unique: parentId },  // TypeScript knows this must be UmbCreateFromPdfModalData
 });
 // value is typed as UmbCreateFromPdfModalValue
+// Includes: name, mediaUnique, pageTitle, pageTitleShort, pageDescription
 ```

@@ -5,7 +5,7 @@ const t = [
     alias: "CreateFromPdf.EntityAction",
     name: "Create from PDF Entity Action",
     weight: 1100,
-    api: () => import("./create-from-pdf-action-D24ssb15.js"),
+    api: () => import("./create-from-pdf-action-BvQbksSh.js"),
     forEntityTypes: ["document"],
     meta: {
       icon: "icon-document",
@@ -16,7 +16,7 @@ const t = [
     type: "modal",
     alias: "CreateFromPdf.Modal",
     name: "Create from PDF Modal",
-    element: () => import("./create-from-pdf-modal.element-CY3AkZIp.js")
+    element: () => import("./create-from-pdf-modal.element-D0VkA86r.js")
   }
 ];
 export {
