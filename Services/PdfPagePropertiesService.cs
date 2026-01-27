@@ -8,6 +8,25 @@ public interface IPdfPagePropertiesService
 {
     PdfPageProperties ExtractFromFile(string filePath);
     PdfPageProperties ExtractFromStream(Stream stream);
+    PdfSectionResult ExtractSectionByHeading(string filePath, string headingText);
+}
+
+/// <summary>
+/// Represents a section of text extracted from a PDF by heading.
+/// </summary>
+public class PdfSectionResult
+{
+    /// <summary>
+    /// The heading that was found.
+    /// </summary>
+    public string Heading { get; set; } = string.Empty;
+
+    /// <summary>
+    /// The content text extracted from under the heading.
+    /// </summary>
+    public string Content { get; set; } = string.Empty;
+
+    public string? Error { get; set; }
 }
 
 /// <summary>
@@ -64,6 +83,130 @@ public class PdfPagePropertiesService : IPdfPagePropertiesService
                 Error = $"Failed to extract PDF page properties: {ex.Message}"
             };
         }
+    }
+
+    public PdfSectionResult ExtractSectionByHeading(string filePath, string headingText)
+    {
+        try
+        {
+            using var document = PdfDocument.Open(filePath);
+            return ExtractSectionFromDocument(document, headingText);
+        }
+        catch (Exception ex)
+        {
+            return new PdfSectionResult
+            {
+                Error = $"Failed to extract PDF section: {ex.Message}"
+            };
+        }
+    }
+
+    private static PdfSectionResult ExtractSectionFromDocument(PdfDocument document, string headingText)
+    {
+        if (document.NumberOfPages == 0)
+        {
+            return new PdfSectionResult
+            {
+                Error = "PDF has no pages"
+            };
+        }
+
+        // Collect text lines from all pages
+        var allLines = new List<TextLine>();
+        for (int pageNum = 1; pageNum <= document.NumberOfPages; pageNum++)
+        {
+            var page = document.GetPage(pageNum);
+            var pageLines = ExtractTextLines(page);
+            allLines.AddRange(pageLines);
+        }
+
+        if (allLines.Count == 0)
+        {
+            return new PdfSectionResult
+            {
+                Error = "No text found in PDF"
+            };
+        }
+
+        // Find the line containing the heading (case-insensitive)
+        var headingLineIndex = -1;
+        double headingFontSize = 0;
+
+        for (int i = 0; i < allLines.Count; i++)
+        {
+            if (allLines[i].Text.Contains(headingText, StringComparison.OrdinalIgnoreCase))
+            {
+                headingLineIndex = i;
+                headingFontSize = allLines[i].AverageFontSize;
+                break;
+            }
+        }
+
+        if (headingLineIndex == -1)
+        {
+            return new PdfSectionResult
+            {
+                Error = $"Heading '{headingText}' not found in PDF"
+            };
+        }
+
+        // Check if we're searching for a "Day N" pattern (itinerary extraction)
+        var dayPattern = new Regex(@"^Day\s+\d+", RegexOptions.IgnoreCase);
+        var isSearchingForDay = dayPattern.IsMatch(headingText.Trim());
+
+        // Collect content lines - include the heading line itself for Day patterns
+        var contentLines = new List<string>();
+
+        // Include the first Day heading line
+        contentLines.Add(allLines[headingLineIndex].Text.Trim());
+
+        var fontSizeThreshold = headingFontSize * 0.95; // Headings are typically 95%+ of this heading's size
+
+        // Patterns that indicate end of itinerary content (footer sections)
+        var stopPatterns = new[] { "terms", "conditions", "booking", "contact us", "telephone", "email:", "www.", "http" };
+
+        for (int i = headingLineIndex + 1; i < allLines.Count; i++)
+        {
+            var line = allLines[i];
+
+            if (string.IsNullOrWhiteSpace(line.Text))
+                continue;
+
+            var lineText = line.Text.Trim();
+            var lineTextLower = lineText.ToLowerInvariant();
+
+            // Check if this line is a "Day N" heading (part of the itinerary)
+            var isDayHeading = dayPattern.IsMatch(lineText);
+
+            // For Day pattern searches, use different stop logic
+            if (isSearchingForDay)
+            {
+                // Stop if we hit a footer/non-itinerary section
+                if (stopPatterns.Any(p => lineTextLower.Contains(p)))
+                {
+                    break;
+                }
+
+                // Continue collecting all content (Day headings and descriptions)
+                contentLines.Add(lineText);
+            }
+            else
+            {
+                // Standard heading-based extraction: stop at similar/larger font
+                if (line.AverageFontSize >= fontSizeThreshold)
+                {
+                    break;
+                }
+
+                contentLines.Add(lineText);
+            }
+        }
+
+        return new PdfSectionResult
+        {
+            Heading = allLines[headingLineIndex].Text.Trim(),
+            Content = string.Join("\n", contentLines)
+        };
     }
 
     private static PdfPageProperties ExtractFromDocument(PdfDocument document)

@@ -33,13 +33,13 @@ export class CreateFromPdfEntityAction extends UmbEntityActionBase<never> {
 			return;
 		}
 
-		const { name, mediaUnique, pageTitle, pageTitleShort, pageDescription } = modalValue;
+		const { name, mediaUnique, pageTitle, pageTitleShort, pageDescription, itineraryContent } = modalValue;
 
 		if (!mediaUnique || !name) {
 			return;
 		}
 
-		console.log('Creating document with:', { name, pageTitle, pageTitleShort, pageDescription });
+		console.log('Creating document with:', { name, pageTitle, pageTitleShort, pageDescription, itineraryContent: itineraryContent?.substring(0, 100) });
 
 		try {
 			// Step 1: Get the parent document's document type
@@ -145,6 +145,11 @@ export class CreateFromPdfEntityAction extends UmbEntityActionBase<never> {
 			setValue('pageTitleShort', pageTitleShort);
 			setValue('pageDescription', pageDescription);
 
+			// Update contentGrid if we have itinerary content
+			if (itineraryContent) {
+				this.#updateContentGridWithItinerary(values, itineraryContent);
+			}
+
 			// Build the create request
 			const createRequest = {
 				parent: parentUnique ? { id: parentUnique } : null,
@@ -240,6 +245,117 @@ export class CreateFromPdfEntityAction extends UmbEntityActionBase<never> {
 				data: { message: 'An unexpected error occurred while creating the document.' },
 			});
 		}
+	}
+
+	/**
+	 * Updates the contentGrid value to replace the "Suggested Itinerary" RTE content
+	 */
+	#updateContentGridWithItinerary(values: Array<{ alias: string; value: unknown }>, itineraryContent: string) {
+		const contentGridValue = values.find((v) => v.alias === 'contentGrid');
+		if (!contentGridValue || !contentGridValue.value) {
+			console.log('No contentGrid found in scaffold values');
+			return;
+		}
+
+		try {
+			// Track if the value was originally a string (need to stringify back)
+			const wasString = typeof contentGridValue.value === 'string';
+			console.log('contentGrid original type:', wasString ? 'string' : 'object');
+
+			// Parse the contentGrid JSON
+			const contentGrid = wasString
+				? JSON.parse(contentGridValue.value as string)
+				: contentGridValue.value;
+
+			console.log('Parsed contentGrid:', contentGrid);
+			console.log('contentData length:', contentGrid.contentData?.length);
+
+			// Find the content block with "Suggested Itinerary" as the feature title
+			const contentData = contentGrid.contentData as Array<{
+				contentTypeKey: string;
+				key: string;
+				values: Array<{ alias: string; value: unknown }>;
+			}>;
+
+			if (!contentData) {
+				console.log('No contentData in contentGrid');
+				return;
+			}
+
+			// Look for a block that has featurePropertyFeatureTitle = "Suggested Itinerary"
+			let foundBlock = false;
+			for (const block of contentData) {
+				console.log('Checking block:', block.key, 'contentTypeKey:', block.contentTypeKey);
+				console.log('Block values:', block.values?.map((v) => ({ alias: v.alias, value: typeof v.value === 'object' ? '[object]' : v.value })));
+
+				const titleValue = block.values?.find((v) => v.alias === 'featurePropertyFeatureTitle');
+				console.log('Title value for block:', titleValue?.value);
+
+				if (titleValue && typeof titleValue.value === 'string' &&
+					titleValue.value.toLowerCase().includes('suggested itinerary')) {
+
+					console.log('Found Suggested Itinerary block:', block.key);
+					foundBlock = true;
+
+					// Find and update the richTextContent
+					const rteValue = block.values?.find((v) => v.alias === 'richTextContent');
+					if (rteValue) {
+						// Convert plain text to HTML paragraphs
+						const htmlContent = this.#convertToHtml(itineraryContent);
+						rteValue.value = {
+							blocks: {
+								contentData: [],
+								settingsData: [],
+								expose: [],
+								Layout: {},
+							},
+							markup: htmlContent,
+						};
+						console.log('Updated richTextContent with itinerary');
+					}
+					break;
+				}
+			}
+
+			if (!foundBlock) {
+				console.log('WARNING: Did not find a block with featurePropertyFeatureTitle containing "suggested itinerary"');
+			}
+
+			// Update the contentGrid value - stringify back if it was originally a string
+			contentGridValue.value = wasString ? JSON.stringify(contentGrid) : contentGrid;
+			console.log('ContentGrid updated successfully (stringified:', wasString, ')');
+
+		} catch (error) {
+			console.error('Failed to update contentGrid:', error);
+		}
+	}
+
+	/**
+	 * Converts plain text to HTML with paragraph tags
+	 */
+	#convertToHtml(text: string): string {
+		if (!text) return '';
+
+		// Split by newlines and wrap each non-empty line in paragraph tags
+		const paragraphs = text
+			.split(/\n+/)
+			.filter((line) => line.trim())
+			.map((line) => `<p>${this.#escapeHtml(line.trim())}</p>`)
+			.join('\n');
+
+		return paragraphs || `<p>${this.#escapeHtml(text)}</p>`;
+	}
+
+	/**
+	 * Escapes HTML special characters
+	 */
+	#escapeHtml(text: string): string {
+		return text
+			.replace(/&/g, '&amp;')
+			.replace(/</g, '&lt;')
+			.replace(/>/g, '&gt;')
+			.replace(/"/g, '&quot;')
+			.replace(/'/g, '&#039;');
 	}
 }
 

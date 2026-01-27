@@ -6,14 +6,15 @@ The entity action class that handles the "Create Document from PDF" menu click.
 
 When a user clicks "Create Document from PDF" in the document tree context menu, this action:
 1. Opens the PDF selection modal
-2. Modal extracts PDF properties and returns document name + extracted values
+2. Modal extracts PDF properties and returns document name + extracted values + itinerary content
 3. Gets the parent document's document type
 4. Auto-detects available blueprints for allowed child document types
 5. Scaffolds from the blueprint to get default values
 6. Creates a new document with PDF-extracted properties (pageTitle, pageTitleShort, pageDescription)
-7. Saves the document to properly persist it and trigger cache updates
-8. Shows success/error notifications
-9. Navigates to the newly created document
+7. Updates Block Grid contentGrid with itinerary content in the "Suggested Itinerary" RTE block
+8. Saves the document to properly persist it and trigger cache updates
+9. Shows success/error notifications
+10. Navigates to the newly created document
 
 ## Class structure
 
@@ -125,6 +126,50 @@ await fetch('/umbraco/management/api/v1/document', {
 });
 ```
 
+### Updating Block Grid with itinerary content
+
+If the PDF contains a "Suggested Itinerary" section, the action updates the contentGrid property.
+
+**Important:** The contentGrid value must be stringified back after modification if it was originally a JSON string. The API expects the same format as received from the scaffold.
+
+```typescript
+#updateContentGridWithItinerary(values, itineraryContent) {
+    // Track if the value was originally a string
+    const wasString = typeof contentGridValue.value === 'string';
+
+    // Parse the contentGrid JSON
+    const contentGrid = wasString
+        ? JSON.parse(contentGridValue.value)
+        : contentGridValue.value;
+
+    // Find block with featurePropertyFeatureTitle = "Suggested Itinerary"
+    for (const block of contentGrid.contentData) {
+        const titleValue = block.values?.find(v => v.alias === 'featurePropertyFeatureTitle');
+        if (titleValue?.value?.toLowerCase().includes('suggested itinerary')) {
+            // Update richTextContent with HTML-wrapped content
+            const rteValue = block.values?.find(v => v.alias === 'richTextContent');
+            rteValue.value = {
+                blocks: { contentData: [], settingsData: [], expose: [], Layout: {} },
+                markup: htmlContent,
+            };
+        }
+    }
+
+    // Stringify back if it was originally a string
+    contentGridValue.value = wasString ? JSON.stringify(contentGrid) : contentGrid;
+}
+```
+
+### Block Grid structure
+
+The `featureRichTextEditor` element type (Feature - Rich Text Editor) contains:
+- `featurePropertyFeatureTitle` (Textstring) - The block's title, e.g., "Suggested Itinerary"
+- `richTextContent` (Richtext editor) - The actual RTE content
+
+These properties are inherited from composition element types:
+- Feature Component - Feature Title
+- Feature Component - Rich Text Editor
+
 ### Authentication for API calls
 
 Umbraco uses bearer token authentication for Management API calls:
@@ -167,14 +212,15 @@ import { UmbDocumentItemRepository } from '@umbraco-cms/backoffice/document';
 ## Data flow
 
 1. `this.args.unique` - Parent document ID (where user right-clicked)
-2. Modal returns `{ name, mediaUnique, pageTitle, pageTitleShort, pageDescription }`
+2. Modal returns `{ name, mediaUnique, pageTitle, pageTitleShort, pageDescription, itineraryContent }`
 3. Action fetches parent document to get its document type unique
 4. Action finds blueprint for allowed child document types
 5. Scaffolds from blueprint to get default values
 6. Merges PDF-extracted values into scaffold
-7. POSTs to create document API
-8. Fetches and saves the document to properly persist it
-9. Shows notification and navigates to the new document
+7. Updates contentGrid with itinerary content if available
+8. POSTs to create document API
+9. Fetches and saves the document to properly persist it
+10. Shows notification and navigates to the new document
 
 ### Navigation after creation
 

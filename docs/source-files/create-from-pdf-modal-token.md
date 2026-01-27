@@ -22,6 +22,7 @@ export interface UmbCreateFromPdfModalValue {
     pageTitle: string;          // Extracted from PDF title metadata
     pageTitleShort: string;     // Same as pageTitle (for the pageTitleShort property)
     pageDescription: string;    // Extracted from PDF description/subject metadata
+    itineraryContent: string;   // Extracted "Suggested Itinerary" section content
 }
 ```
 
@@ -74,5 +75,5 @@ const value = await umbOpenModal(this, UMB_CREATE_FROM_PDF_MODAL, {
     data: { unique: parentId },  // TypeScript knows this must be UmbCreateFromPdfModalData
 });
 // value is typed as UmbCreateFromPdfModalValue
-// Includes: name, mediaUnique, pageTitle, pageTitleShort, pageDescription
+// Includes: name, mediaUnique, pageTitle, pageTitleShort, pageDescription, itineraryContent
 ```

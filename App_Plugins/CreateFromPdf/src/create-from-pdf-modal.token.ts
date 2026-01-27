@@ -10,6 +10,7 @@ export interface UmbCreateFromPdfModalValue {
 	pageTitle: string;
 	pageTitleShort: string;
 	pageDescription: string;
+	itineraryContent: string;
 }
 
 export const UMB_CREATE_FROM_PDF_MODAL = new UmbModalToken<UmbCreateFromPdfModalData, UmbCreateFromPdfModalValue>(

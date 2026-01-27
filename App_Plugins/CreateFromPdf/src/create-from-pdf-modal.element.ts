@@ -27,6 +27,9 @@ export class CreateFromPdfModalElement extends UmbModalBaseElement<
 	private _pageDescription = '';
 
 	@state()
+	private _itineraryContent = '';
+
+	@state()
 	private _isExtracting = false;
 
 	@state()
@@ -38,6 +41,7 @@ export class CreateFromPdfModalElement extends UmbModalBaseElement<
 		this._pageTitle = '';
 		this._pageTitleShort = '';
 		this._pageDescription = '';
+		this._itineraryContent = '';
 	}
 
 	async #handleMediaChange(e: CustomEvent) {
@@ -55,6 +59,7 @@ export class CreateFromPdfModalElement extends UmbModalBaseElement<
 			this._pageTitle = '';
 			this._pageTitleShort = '';
 			this._pageDescription = '';
+			this._itineraryContent = '';
 			this._documentName = '';
 			this._extractionError = null;
 		}
@@ -106,6 +111,9 @@ export class CreateFromPdfModalElement extends UmbModalBaseElement<
 				this._documentName = result.title;
 				console.log('Pre-filled document name:', this._documentName);
 			}
+
+			// Extract Suggested Itinerary section
+			await this.#extractItinerarySection(mediaUnique, token);
 		} catch (error) {
 			this._extractionError = 'Failed to connect to PDF extraction service';
 			console.error('PDF extraction error:', error);
@@ -117,6 +125,34 @@ export class CreateFromPdfModalElement extends UmbModalBaseElement<
 		}
 	}
 
+	async #extractItinerarySection(mediaUnique: string, token: string) {
+		try {
+			console.log('Extracting itinerary section (searching for Day 1)...');
+			const sectionResponse = await fetch(
+				`/umbraco/management/api/v1/createfrompdf/page-section?mediaKey=${mediaUnique}&heading=${encodeURIComponent('Day 1')}`,
+				{
+					method: 'GET',
+					headers: {
+						'Content-Type': 'application/json',
+						Authorization: `Bearer ${token}`,
+					},
+				}
+			);
+
+			if (sectionResponse.ok) {
+				const sectionResult = await sectionResponse.json();
+				console.log('Itinerary section result:', sectionResult);
+				this._itineraryContent = sectionResult.content || '';
+			} else {
+				console.log('Itinerary section not found (this is OK for PDFs without itinerary)');
+				this._itineraryContent = '';
+			}
+		} catch (error) {
+			console.error('Failed to extract itinerary section:', error);
+			this._itineraryContent = '';
+		}
+	}
+
 	#handleSave() {
 		this.value = {
 			name: this._documentName,
@@ -124,6 +160,7 @@ export class CreateFromPdfModalElement extends UmbModalBaseElement<
 			pageTitle: this._pageTitle,
 			pageTitleShort: this._pageTitleShort,
 			pageDescription: this._pageDescription,
+			itineraryContent: this._itineraryContent,
 		};
 		this.modalContext?.submit();
 	}
@@ -158,7 +195,7 @@ export class CreateFromPdfModalElement extends UmbModalBaseElement<
 	}
 
 	#renderExtractedPreview() {
-		if (!this._pageTitle && !this._pageDescription) {
+		if (!this._pageTitle && !this._pageDescription && !this._itineraryContent) {
 			return nothing;
 		}
 
@@ -170,6 +207,12 @@ export class CreateFromPdfModalElement extends UmbModalBaseElement<
 				<div class="preview-item">
 					<strong>Page Description:</strong> ${this._pageDescription || '(empty)'}
 				</div>
+				${this._itineraryContent
+					? html`<div class="preview-item itinerary-preview">
+							<strong>Suggested Itinerary:</strong>
+							<div class="itinerary-content">${this._itineraryContent.substring(0, 200)}${this._itineraryContent.length > 200 ? '...' : ''}</div>
+						</div>`
+					: nothing}
 			</uui-box>
 		`;
 	}
@@ -278,6 +321,17 @@ export class CreateFromPdfModalElement extends UmbModalBaseElement<
 
 			.preview-item:last-child {
 				margin-bottom: 0;
+			}
+
+			.itinerary-content {
+				margin-top: var(--uui-size-space-2);
+				padding: var(--uui-size-space-2);
+				background-color: var(--uui-color-surface-alt);
+				border-radius: var(--uui-border-radius);
+				font-size: var(--uui-type-small-size);
+				white-space: pre-wrap;
+				max-height: 100px;
+				overflow-y: auto;
 			}
 		`,
 	];

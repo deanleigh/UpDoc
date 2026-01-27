@@ -4,7 +4,7 @@ API controller that exposes PDF extraction functionality to the Umbraco backoffi
 
 ## What it does
 
-Provides a Management API endpoint for extracting text from PDFs:
+Provides Management API endpoints for extracting content from PDFs:
 1. Accepts a media item's unique ID (GUID)
 2. Retrieves the media item from Umbraco
 3. Gets the file path from the media properties
@@ -36,6 +36,33 @@ GET /umbraco/management/api/v1/createfrompdf/extract?mediaKey={guid}
 
 - `404 Not Found` - Media item not found or file not on disk
 - `400 Bad Request` - Media has no file or extraction failed
+
+## Section extraction endpoint
+
+```
+GET /umbraco/management/api/v1/createfrompdf/page-section?mediaKey={guid}&heading={text}
+```
+
+### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| mediaKey | Guid | The unique identifier of the media item |
+| heading | string | The heading text to search for (case-insensitive) |
+
+### Response
+
+```json
+{
+    "heading": "Suggested Itinerary",
+    "content": "Day 1: Arrive in...\nDay 2: Visit..."
+}
+```
+
+### Error responses
+
+- `404 Not Found` - Media item not found or file not on disk
+- `400 Bad Request` - Heading not found or extraction failed
 
 ## Key concepts
 

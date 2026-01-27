@@ -149,4 +149,66 @@ public class PdfExtractionController : ControllerBase
             description = result.Description
         });
     }
+
+    [HttpGet("page-section")]
+    public IActionResult GetPageSection(Guid mediaKey, string heading)
+    {
+        if (string.IsNullOrWhiteSpace(heading))
+        {
+            return BadRequest(new { error = "Heading parameter is required" });
+        }
+
+        var media = _mediaService.GetById(mediaKey);
+        if (media == null)
+        {
+            return NotFound(new { error = "Media item not found" });
+        }
+
+        var umbracoFile = media.GetValue<string>("umbracoFile");
+        if (string.IsNullOrEmpty(umbracoFile))
+        {
+            return BadRequest(new { error = "Media item has no file" });
+        }
+
+        string filePath;
+        if (umbracoFile.StartsWith("{"))
+        {
+            var json = System.Text.Json.JsonDocument.Parse(umbracoFile);
+            filePath = json.RootElement.GetProperty("src").GetString() ?? string.Empty;
+        }
+        else
+        {
+            filePath = umbracoFile;
+        }
+
+        if (string.IsNullOrEmpty(filePath))
+        {
+            return BadRequest(new { error = "Could not determine file path" });
+        }
+
+        var absolutePath = Path.Combine(_webHostEnvironment.WebRootPath, filePath.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
+
+        if (!System.IO.File.Exists(absolutePath))
+        {
+            return NotFound(new { error = $"File not found on disk: {filePath}" });
+        }
+
+        var result = _pdfPagePropertiesService.ExtractSectionByHeading(absolutePath, heading);
+
+        if (!string.IsNullOrEmpty(result.Error))
+        {
+            return BadRequest(new { error = result.Error });
+        }
+
+        _logger.LogInformation("=== PDF Section Extraction ===");
+        _logger.LogInformation("Heading found: {Heading}", result.Heading);
+        _logger.LogInformation("Content length: {Length} chars", result.Content.Length);
+        _logger.LogInformation("==============================");
+
+        return Ok(new
+        {
+            heading = result.Heading,
+            content = result.Content
+        });
+    }
 }

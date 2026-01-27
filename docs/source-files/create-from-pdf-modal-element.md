@@ -8,9 +8,10 @@ Provides the UI for users to:
 1. Enter a document name (or leave blank to auto-populate from PDF)
 2. Select a PDF from the media library
 3. Automatically extracts PDF properties (title, description) when selected
-4. Pre-fills the document name with the extracted title (if not already entered)
-5. Shows a preview of extracted properties
-6. Submit or cancel the operation
+4. Extracts "Suggested Itinerary" section content if available
+5. Pre-fills the document name with the extracted title (if not already entered)
+6. Shows a preview of extracted properties and itinerary
+7. Submit or cancel the operation
 
 ## Class structure
 
@@ -25,6 +26,7 @@ export class CreateFromPdfModalElement extends UmbModalBaseElement<
     @state() private _pageTitle = '';
     @state() private _pageTitleShort = '';
     @state() private _pageDescription = '';
+    @state() private _itineraryContent = '';
     @state() private _isExtracting = false;
     @state() private _extractionError: string | null = null;
 
@@ -75,6 +77,25 @@ async #extractPdfProperties(mediaUnique: string) {
 
 Note: The `requestUpdate()` call is necessary to ensure Lit re-renders after async state updates.
 
+### Itinerary section extraction
+
+After extracting page properties, the modal attempts to extract the itinerary content by searching for "Day 1". The backend will collect all "Day N" sections (Day 1, Day 2, Day 3, etc.) until hitting a non-Day heading:
+
+```typescript
+async #extractItinerarySection(mediaUnique: string, token: string) {
+    const response = await fetch(
+        `/umbraco/management/api/v1/createfrompdf/page-section?mediaKey=${mediaUnique}&heading=Day%201`,
+        { headers: { Authorization: `Bearer ${token}` } }
+    );
+    if (response.ok) {
+        const result = await response.json();
+        this._itineraryContent = result.content || '';
+    }
+}
+```
+
+**Note:** The search for "Day 1" triggers special handling in the backend that collects all consecutive day sections (Day 1 through Day N) as a single itinerary block.
+
 ### Modal context methods
 
 ```typescript
@@ -85,6 +106,7 @@ Note: The `requestUpdate()` call is necessary to ensure Lit re-renders after asy
         pageTitle: this._pageTitle,
         pageTitleShort: this._pageTitleShort,
         pageDescription: this._pageDescription,
+        itineraryContent: this._itineraryContent,
     };
     this.modalContext?.submit();  // Closes modal and returns value
 }
@@ -124,6 +146,7 @@ The modal shows visual feedback during and after extraction:
 After successful extraction, shows a preview box with:
 - Page Title
 - Page Description
+- Suggested Itinerary (truncated preview if available)
 
 ## Styles
 
