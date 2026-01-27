@@ -7,11 +7,12 @@ The entity action class that handles the "Create Document from PDF" menu click.
 When a user clicks "Create Document from PDF" in the document tree context menu, this action:
 1. Opens the PDF selection modal
 2. Modal extracts PDF properties and returns document name + extracted values
-3. Auto-detects available blueprints for allowed child document types
-4. Scaffolds from the blueprint to get default values
-5. Creates a new document with PDF-extracted properties (pageTitle, pageTitleShort, pageDescription)
-6. Shows success/error notifications
-7. Refreshes the page to show the new document
+3. Gets the parent document's document type
+4. Auto-detects available blueprints for allowed child document types
+5. Scaffolds from the blueprint to get default values
+6. Creates a new document with PDF-extracted properties (pageTitle, pageTitleShort, pageDescription)
+7. Shows success/error notifications
+8. Refreshes the page to show the new document
 
 ## Class structure
 
@@ -19,6 +20,7 @@ When a user clicks "Create Document from PDF" in the document tree context menu,
 export class CreateFromPdfEntityAction extends UmbEntityActionBase<never> {
     #documentTypeStructureRepository = new UmbDocumentTypeStructureRepository(this);
     #blueprintItemRepository = new UmbDocumentBlueprintItemRepository(this);
+    #documentItemRepository = new UmbDocumentItemRepository(this);
 
     constructor(host: UmbControllerHost, args: UmbEntityActionArgs<never>) {
         super(host, args);
@@ -48,14 +50,30 @@ try {
 }
 ```
 
+### Getting parent document type
+
+The action first fetches the parent document to get its document type unique, which is required for looking up allowed children:
+
+```typescript
+// Step 1: Get the parent document's document type
+let parentDocTypeUnique: string | null = null;
+
+if (parentUnique) {
+    const { data: parentItems } = await this.#documentItemRepository.requestItems([parentUnique]);
+    if (parentItems?.length) {
+        parentDocTypeUnique = parentItems[0].documentType.unique;
+    }
+}
+```
+
 ### Auto-detecting blueprints
 
 The action automatically finds the appropriate blueprint based on allowed child document types:
 
 ```typescript
-// Get allowed child document types for the parent
+// Step 2: Get allowed child document types using parent's document type
 const { data: allowedTypes } = await this.#documentTypeStructureRepository.requestAllowedChildrenOf(
-    null,
+    parentDocTypeUnique,  // Parent's document type unique (not null)
     parentUnique
 );
 
@@ -142,17 +160,19 @@ import { UMB_NOTIFICATION_CONTEXT } from '@umbraco-cms/backoffice/notification';
 import { UMB_AUTH_CONTEXT } from '@umbraco-cms/backoffice/auth';
 import { UmbDocumentTypeStructureRepository } from '@umbraco-cms/backoffice/document-type';
 import { UmbDocumentBlueprintItemRepository } from '@umbraco-cms/backoffice/document-blueprint';
+import { UmbDocumentItemRepository } from '@umbraco-cms/backoffice/document';
 ```
 
 ## Data flow
 
 1. `this.args.unique` - Parent document ID (where user right-clicked)
 2. Modal returns `{ name, mediaUnique, pageTitle, pageTitleShort, pageDescription }`
-3. Action finds blueprint for allowed child document types
-4. Scaffolds from blueprint to get default values
-5. Merges PDF-extracted values into scaffold
-6. POSTs to create document API
-7. Shows notification and refreshes page
+3. Action fetches parent document to get its document type unique
+4. Action finds blueprint for allowed child document types
+5. Scaffolds from blueprint to get default values
+6. Merges PDF-extracted values into scaffold
+7. POSTs to create document API
+8. Shows notification and refreshes page
 
 ## Default export
 

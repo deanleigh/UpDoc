@@ -67,8 +67,13 @@ async #extractPdfProperties(mediaUnique: string) {
     if (result.title && !this._documentName) {
         this._documentName = result.title;
     }
+
+    // Force re-render to ensure UI updates
+    this.requestUpdate();
 }
 ```
+
+Note: The `requestUpdate()` call is necessary to ensure Lit re-renders after async state updates.
 
 ### Modal context methods
 
