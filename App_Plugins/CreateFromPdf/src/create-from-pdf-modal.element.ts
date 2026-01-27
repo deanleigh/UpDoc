@@ -181,7 +181,18 @@ export class CreateFromPdfModalElement extends UmbModalBaseElement<
 
 		return html`
 			<umb-body-layout headline="Create from PDF">
-				<uui-box headline="Create a new document from PDF">
+				<uui-box headline="Document Name">
+					<p>Enter a document name or let it be populated from the PDF. You can edit this later.</p>
+					<uui-input
+						id="name"
+						label="name"
+						placeholder="Enter document name"
+						.value=${this._documentName}
+						@input=${(e: UUIInputEvent) => (this._documentName = e.target.value as string)}>
+					</uui-input>
+				</uui-box>
+
+				<uui-box headline="Select PDF">
 					<p>Select a PDF from the media library to extract content and create a new document.</p>
 
 					<umb-property-layout label="PDF File" orientation="vertical">
@@ -191,18 +202,6 @@ export class CreateFromPdfModalElement extends UmbModalBaseElement<
 								@change=${this.#handleMediaChange}>
 							</umb-input-media>
 							${this.#renderExtractionStatus()}
-						</div>
-					</umb-property-layout>
-
-					<umb-property-layout label="Document Name" orientation="vertical">
-						<div slot="editor">
-							<uui-input
-								id="name"
-								label="name"
-								placeholder="Enter document name"
-								.value=${this._documentName}
-								@input=${(e: UUIInputEvent) => (this._documentName = e.target.value as string)}>
-							</uui-input>
 						</div>
 					</umb-property-layout>
 				</uui-box>
@@ -235,6 +234,10 @@ export class CreateFromPdfModalElement extends UmbModalBaseElement<
 		css`
 			uui-input {
 				width: 100%;
+			}
+
+			uui-box {
+				margin-bottom: var(--uui-size-space-4);
 			}
 
 			p {

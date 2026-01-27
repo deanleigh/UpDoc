@@ -5,10 +5,10 @@ The Lit component that renders the PDF selection modal dialog.
 ## What it does
 
 Provides the UI for users to:
-1. Select a PDF from the media library
-2. Automatically extracts PDF properties (title, description) when selected
-3. Pre-fills the document name with the extracted title
-4. Allows user to edit the document name if needed
+1. Enter a document name (or leave blank to auto-populate from PDF)
+2. Select a PDF from the media library
+3. Automatically extracts PDF properties (title, description) when selected
+4. Pre-fills the document name with the extracted title (if not already entered)
 5. Shows a preview of extracted properties
 6. Submit or cancel the operation
 
@@ -96,12 +96,18 @@ Note: The `requestUpdate()` call is necessary to ensure Lit re-renders after asy
 
 ## Template structure
 
+The modal is organized into three main sections:
+
+1. **Document Name box** - At the top, with explanatory text: "Enter a document name or let it be populated from the PDF. You can edit this later."
+2. **Select PDF box** - Media picker for choosing a PDF from the media library
+3. **Extracted Properties box** - Shows the extracted Page Title and Page Description after PDF selection
+
 Uses Umbraco's UI components:
 - `umb-body-layout` - Standard modal layout with headline and action slots
-- `uui-box` - Content container with optional headline
+- `uui-box` - Content containers with headlines (Document Name, Select PDF, Extracted Properties)
 - `umb-property-layout` - Form field wrapper with label
 - `umb-input-media` - Media picker for selecting PDF from media library
-- `uui-input` - Text input for document name (pre-filled from PDF)
+- `uui-input` - Text input for document name (pre-filled from PDF if empty)
 - `uui-loader-bar` - Loading indicator during extraction
 - `uui-icon` - Status icons for success/error states
 - `uui-button` - Action buttons (disabled until extraction complete)
@@ -125,6 +131,7 @@ After successful extraction, shows a preview box with:
 static override styles = [
     UmbTextStyles,  // Umbraco's base text styles
     css`
+        uui-box { margin-bottom: var(--uui-size-space-4); }
         .extraction-status { ... }
         .extraction-status.extracting { ... }
         .extraction-status.error { ... }
