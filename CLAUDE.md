@@ -1,5 +1,25 @@
 # Claude Instructions
 
+## Umbraco Skills Marketplace
+
+This project uses the Umbraco Skills Marketplace for Claude Code. When working on Umbraco backoffice customizations, use the available skills for guidance on extension types, patterns, and testing.
+
+**Required plugins:**
+- `umbraco-cms-backoffice-skills` - 57 skills for backoffice extensions
+- `umbraco-cms-backoffice-testing-skills` - 8 skills for testing
+
+**To install (if not already installed):**
+```bash
+/plugin marketplace add umbraco/Umbraco-CMS-Backoffice-Skills
+/plugin install umbraco-cms-backoffice-skills@umbraco-backoffice-marketplace
+/plugin install umbraco-cms-backoffice-testing-skills@umbraco-backoffice-marketplace
+```
+
+**When to use skills:**
+- Before implementing any Umbraco backoffice extension, invoke the relevant skill (e.g., `/umbraco-entity-actions`, `/umbraco-modals`, `/umbraco-dashboard`)
+- For testing, use `/umbraco-testing` to choose the right testing approach
+- Skills provide official docs, patterns, and working examples
+
 ## Documentation Requirements
 
 When modifying any file in `App_Plugins/CreateFromPdf/src/`, update the corresponding documentation in `docs/source-files/`:
