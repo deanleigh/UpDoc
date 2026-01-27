@@ -187,13 +187,52 @@ export class CreateFromPdfEntityAction extends UmbEntityActionBase<never> {
 
 			console.log('Document created successfully! ID:', newDocumentId);
 
+			// Step 6: Save the document to properly persist it and trigger cache updates
+			if (newDocumentId) {
+				// First, fetch the document to get its current state
+				const getResponse = await fetch(`/umbraco/management/api/v1/document/${newDocumentId}`, {
+					method: 'GET',
+					headers: {
+						'Content-Type': 'application/json',
+						Authorization: `Bearer ${token}`,
+					},
+				});
+
+				if (getResponse.ok) {
+					const documentData = await getResponse.json();
+					console.log('Fetched document for save:', documentData);
+
+					// Save the document
+					const saveResponse = await fetch(`/umbraco/management/api/v1/document/${newDocumentId}`, {
+						method: 'PUT',
+						headers: {
+							'Content-Type': 'application/json',
+							Authorization: `Bearer ${token}`,
+						},
+						body: JSON.stringify(documentData),
+					});
+
+					if (saveResponse.ok) {
+						console.log('Document saved successfully');
+					} else {
+						console.warn('Document save failed, but document was created:', await saveResponse.text());
+					}
+				} else {
+					console.warn('Could not fetch document for save:', await getResponse.text());
+				}
+			}
+
 			notificationContext.peek('positive', {
 				data: { message: `Document "${name}" created successfully!` },
 			});
 
-			// Refresh the tree to show the new document
-			// TODO: This could be improved to navigate to the new document
-			window.location.reload();
+			// Navigate to the new document after a short delay
+			if (newDocumentId) {
+				const newPath = `/umbraco/section/content/workspace/document/edit/${newDocumentId}`;
+				setTimeout(() => {
+					window.location.href = newPath;
+				}, 150);
+			}
 
 		} catch (error) {
 			console.error('Error creating document:', error);

@@ -11,8 +11,9 @@ When a user clicks "Create Document from PDF" in the document tree context menu,
 4. Auto-detects available blueprints for allowed child document types
 5. Scaffolds from the blueprint to get default values
 6. Creates a new document with PDF-extracted properties (pageTitle, pageTitleShort, pageDescription)
-7. Shows success/error notifications
-8. Refreshes the page to show the new document
+7. Saves the document to properly persist it and trigger cache updates
+8. Shows success/error notifications
+9. Navigates to the newly created document
 
 ## Class structure
 
@@ -172,7 +173,23 @@ import { UmbDocumentItemRepository } from '@umbraco-cms/backoffice/document';
 5. Scaffolds from blueprint to get default values
 6. Merges PDF-extracted values into scaffold
 7. POSTs to create document API
-8. Shows notification and refreshes page
+8. Fetches and saves the document to properly persist it
+9. Shows notification and navigates to the new document
+
+### Navigation after creation
+
+After successfully creating the document, the action navigates to the new document with a short delay. This allows Block Preview and other async components to settle before the navigation occurs:
+
+```typescript
+if (newDocumentId) {
+    const newPath = `/umbraco/section/content/workspace/document/edit/${newDocumentId}`;
+    setTimeout(() => {
+        window.location.href = newPath;
+    }, 150);
+}
+```
+
+The delay helps avoid race condition errors with Block Preview that can occur during rapid navigation.
 
 ## Default export
 
