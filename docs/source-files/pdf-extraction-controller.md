@@ -64,6 +64,36 @@ GET /umbraco/management/api/v1/createfrompdf/page-section?mediaKey={guid}&headin
 - `404 Not Found` - Media item not found or file not on disk
 - `400 Bad Request` - Heading not found or extraction failed
 
+## Markdown extraction endpoint
+
+```
+GET /umbraco/management/api/v1/createfrompdf/extract-markdown?mediaKey={guid}
+```
+
+Extracts the full PDF content as Markdown with column detection for multi-column layouts.
+
+### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| mediaKey | Guid | The unique identifier of the media item |
+
+### Response
+
+```json
+{
+    "title": "The Castles and Gardens of Kent",
+    "subtitle": "5 days from £889",
+    "markdown": "## Day 1\n\nArrive at...\n\n## Day 2\n\nVisit...",
+    "rawText": "Full raw text for debugging"
+}
+```
+
+### Error responses
+
+- `404 Not Found` - Media item not found or file not on disk
+- `400 Bad Request` - Extraction failed
+
 ## Key concepts
 
 ### Umbraco 17 Management API

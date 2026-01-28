@@ -19,6 +19,7 @@ public interface IPdfPagePropertiesService
     PdfPageProperties ExtractFromFile(string filePath);
     PdfPageProperties ExtractFromStream(Stream stream);
     PdfSectionResult ExtractSectionByHeading(string filePath, string headingText);
+    PdfMarkdownResult ExtractAsMarkdown(string filePath);
 }
 ```
 
@@ -36,6 +37,15 @@ public class PdfSectionResult
 {
     public string Heading { get; set; }      // The heading that was found
     public string Content { get; set; }      // The content text extracted under the heading
+    public string? Error { get; set; }       // Error message if extraction failed
+}
+
+public class PdfMarkdownResult
+{
+    public string Title { get; set; }        // Document title (H1)
+    public string Subtitle { get; set; }     // Document subtitle/description
+    public string Markdown { get; set; }     // Full content as Markdown
+    public string RawText { get; set; }      // Raw text for debugging
     public string? Error { get; set; }       // Error message if extraction failed
 }
 ```
@@ -85,6 +95,23 @@ When the heading matches a "Day N" pattern (e.g., "Day 1"), the extraction conti
 // Example: Extract full itinerary by searching for "Day 1"
 var result = _pagePropertiesService.ExtractSectionByHeading(path, "Day 1");
 // Result.Content will contain Day 1, Day 2, Day 3... until end of itinerary
+```
+
+### Markdown extraction with column detection
+
+The `ExtractAsMarkdown` method extracts the full PDF content as Markdown, with intelligent column detection for multi-column layouts common in travel brochures and itineraries:
+
+1. Analyzes word positions to detect column boundaries
+2. Merges multi-column content into a single flow
+3. Identifies headings by font size and applies Markdown heading levels
+4. Preserves paragraph structure with proper spacing
+
+```csharp
+// Example: Extract full PDF as Markdown
+var result = _pagePropertiesService.ExtractAsMarkdown(path);
+// Result.Title = "The Castles and Gardens of Kent"
+// Result.Subtitle = "5 days from £889"
+// Result.Markdown = "## Day 1\n\nArrive at...\n\n## Day 2\n\nVisit..."
 ```
 
 ## Usage

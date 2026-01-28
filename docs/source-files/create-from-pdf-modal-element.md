@@ -77,24 +77,25 @@ async #extractPdfProperties(mediaUnique: string) {
 
 Note: The `requestUpdate()` call is necessary to ensure Lit re-renders after async state updates.
 
-### Itinerary section extraction
+### Itinerary section extraction (Markdown)
 
-After extracting page properties, the modal attempts to extract the itinerary content by searching for "Day 1". The backend will collect all "Day N" sections (Day 1, Day 2, Day 3, etc.) until hitting a non-Day heading:
+After extracting page properties, the modal extracts the full PDF content as Markdown using the `extract-markdown` endpoint. This Markdown is then converted to HTML in the action when updating the Block Grid:
 
 ```typescript
 async #extractItinerarySection(mediaUnique: string, token: string) {
     const response = await fetch(
-        `/umbraco/management/api/v1/createfrompdf/page-section?mediaKey=${mediaUnique}&heading=Day%201`,
+        `/umbraco/management/api/v1/createfrompdf/extract-markdown?mediaKey=${mediaUnique}`,
         { headers: { Authorization: `Bearer ${token}` } }
     );
     if (response.ok) {
         const result = await response.json();
-        this._itineraryContent = result.content || '';
+        // Store the Markdown content (will be converted to HTML in the action)
+        this._itineraryContent = result.markdown || '';
     }
 }
 ```
 
-**Note:** The search for "Day 1" triggers special handling in the backend that collects all consecutive day sections (Day 1 through Day N) as a single itinerary block.
+The Markdown extraction uses column detection to identify and merge multi-column PDF layouts (common in travel itineraries) into a single flow of content with proper heading hierarchy.
 
 ### Modal context methods
 

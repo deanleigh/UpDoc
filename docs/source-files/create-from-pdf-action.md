@@ -207,7 +207,10 @@ import { UMB_AUTH_CONTEXT } from '@umbraco-cms/backoffice/auth';
 import { UmbDocumentTypeStructureRepository } from '@umbraco-cms/backoffice/document-type';
 import { UmbDocumentBlueprintItemRepository } from '@umbraco-cms/backoffice/document-blueprint';
 import { UmbDocumentItemRepository } from '@umbraco-cms/backoffice/document';
+import { marked } from 'marked';
 ```
+
+Note: The `marked` library is used to convert Markdown content (from PDF extraction) to HTML for the rich text editor.
 
 ## Data flow
 
@@ -236,6 +239,33 @@ if (newDocumentId) {
 ```
 
 The delay helps avoid race condition errors with Block Preview that can occur during rapid navigation.
+
+### Markdown to HTML conversion
+
+The itinerary content is extracted as Markdown from the PDF and converted to HTML using the `marked` library:
+
+```typescript
+#convertToHtml(markdown: string): string {
+    if (!markdown) return '';
+
+    try {
+        const html = marked.parse(markdown, {
+            gfm: true,      // GitHub Flavored Markdown
+            breaks: false,  // Don't convert \n to <br>
+        });
+
+        if (typeof html === 'string') {
+            return html;
+        }
+
+        // Fallback for async (shouldn't happen with sync config)
+        return `<p>${markdown}</p>`;
+    } catch (error) {
+        // Fallback: wrap in paragraph tags
+        return `<p>${markdown.replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>')}</p>`;
+    }
+}
+```
 
 ## Default export
 
