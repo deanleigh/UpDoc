@@ -127,9 +127,9 @@ export class CreateFromPdfModalElement extends UmbModalBaseElement<
 
 	async #extractItinerarySection(mediaUnique: string, token: string) {
 		try {
-			console.log('Extracting itinerary section (searching for Day 1)...');
-			const sectionResponse = await fetch(
-				`/umbraco/management/api/v1/createfrompdf/page-section?mediaKey=${mediaUnique}&heading=${encodeURIComponent('Day 1')}`,
+			console.log('Extracting PDF as Markdown...');
+			const response = await fetch(
+				`/umbraco/management/api/v1/createfrompdf/extract-markdown?mediaKey=${mediaUnique}`,
 				{
 					method: 'GET',
 					headers: {
@@ -139,16 +139,22 @@ export class CreateFromPdfModalElement extends UmbModalBaseElement<
 				}
 			);
 
-			if (sectionResponse.ok) {
-				const sectionResult = await sectionResponse.json();
-				console.log('Itinerary section result:', sectionResult);
-				this._itineraryContent = sectionResult.content || '';
+			if (response.ok) {
+				const result = await response.json();
+				console.log('Markdown extraction result:', result);
+				console.log('Title:', result.title);
+				console.log('Subtitle:', result.subtitle);
+				console.log('Markdown preview:', result.markdown?.substring(0, 500));
+
+				// Store the Markdown content (will be converted to HTML in the action)
+				this._itineraryContent = result.markdown || '';
 			} else {
-				console.log('Itinerary section not found (this is OK for PDFs without itinerary)');
+				const error = await response.json();
+				console.log('Markdown extraction failed:', error);
 				this._itineraryContent = '';
 			}
 		} catch (error) {
-			console.error('Failed to extract itinerary section:', error);
+			console.error('Failed to extract Markdown:', error);
 			this._itineraryContent = '';
 		}
 	}

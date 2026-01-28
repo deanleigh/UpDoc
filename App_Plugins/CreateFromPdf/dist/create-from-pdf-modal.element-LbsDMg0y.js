@@ -1,36 +1,36 @@
 var Q = Object.create;
 var E = Object.defineProperty;
 var V = Object.getOwnPropertyDescriptor;
-var F = (t, i) => (i = Symbol[t]) ? i : Symbol.for("Symbol." + t), g = (t) => {
+var M = (t, i) => (i = Symbol[t]) ? i : Symbol.for("Symbol." + t), g = (t) => {
   throw TypeError(t);
 };
 var W = (t, i, e) => i in t ? E(t, i, { enumerable: !0, configurable: !0, writable: !0, value: e }) : t[i] = e;
-var z = (t, i) => E(t, "name", { value: i, configurable: !0 });
-var q = (t) => [, , , Q((t == null ? void 0 : t[F("metadata")]) ?? null)], I = ["class", "method", "getter", "setter", "accessor", "field", "value", "get", "set"], v = (t) => t !== void 0 && typeof t != "function" ? g("Function expected") : t, Z = (t, i, e, s, r) => ({ kind: I[t], name: i, metadata: s, addInitializer: (o) => e._ ? g("Already initialized") : r.push(v(o || null)) }), tt = (t, i) => W(i, F("metadata"), t[3]), M = (t, i, e, s) => {
-  for (var r = 0, o = t[i >> 1], c = o && o.length; r < c; r++) i & 1 ? o[r].call(e) : s = o[r].call(e, s);
-  return s;
-}, j = (t, i, e, s, r, o) => {
-  var c, u, N, x, y, a = i & 7, b = !!(i & 8), h = !!(i & 16), f = a > 3 ? t.length + 1 : a ? b ? 1 : 2 : 0, P = I[a + 5], S = a > 3 && (t[f - 1] = []), J = t[f] || (t[f] = []), p = a && (!h && !b && (r = r.prototype), a < 5 && (a > 3 || !h) && V(a < 4 ? r : { get [e]() {
-    return U(this, o);
-  }, set [e](l) {
-    return k(this, o, l);
+var P = (t, i) => E(t, "name", { value: i, configurable: !0 });
+var F = (t) => [, , , Q((t == null ? void 0 : t[M("metadata")]) ?? null)], q = ["class", "method", "getter", "setter", "accessor", "field", "value", "get", "set"], v = (t) => t !== void 0 && typeof t != "function" ? g("Function expected") : t, Z = (t, i, e, n, r) => ({ kind: q[t], name: i, metadata: n, addInitializer: (o) => e._ ? g("Already initialized") : r.push(v(o || null)) }), tt = (t, i) => W(i, M("metadata"), t[3]), j = (t, i, e, n) => {
+  for (var r = 0, o = t[i >> 1], s = o && o.length; r < s; r++) i & 1 ? o[r].call(e) : n = o[r].call(e, n);
+  return n;
+}, A = (t, i, e, n, r, o) => {
+  var s, l, S, x, b, a = i & 7, y = !!(i & 8), d = !!(i & 16), f = a > 3 ? t.length + 1 : a ? y ? 1 : 2 : 0, $ = q[a + 5], N = a > 3 && (t[f - 1] = []), J = t[f] || (t[f] = []), p = a && (!d && !y && (r = r.prototype), a < 5 && (a > 3 || !d) && V(a < 4 ? r : { get [e]() {
+    return z(this, o);
+  }, set [e](u) {
+    return U(this, o, u);
   } }, e));
-  a ? h && a < 4 && z(o, (a > 2 ? "set " : a > 1 ? "get " : "") + e) : z(r, e);
-  for (var T = s.length - 1; T >= 0; T--)
-    x = Z(a, e, N = {}, t[3], J), a && (x.static = b, x.private = h, y = x.access = { has: h ? (l) => et(r, l) : (l) => e in l }, a ^ 3 && (y.get = h ? (l) => (a ^ 1 ? U : d)(l, r, a ^ 4 ? o : p.get) : (l) => l[e]), a > 2 && (y.set = h ? (l, D) => k(l, r, D, a ^ 4 ? o : p.set) : (l, D) => l[e] = D)), u = (0, s[T])(a ? a < 4 ? h ? o : p[P] : a > 4 ? void 0 : { get: p.get, set: p.set } : r, x), N._ = 1, a ^ 4 || u === void 0 ? v(u) && (a > 4 ? S.unshift(u) : a ? h ? o = u : p[P] = u : r = u) : typeof u != "object" || u === null ? g("Object expected") : (v(c = u.get) && (p.get = c), v(c = u.set) && (p.set = c), v(c = u.init) && S.unshift(c));
-  return a || tt(t, r), p && E(r, e, p), h ? a ^ 4 ? o : p : r;
+  a ? d && a < 4 && P(o, (a > 2 ? "set " : a > 1 ? "get " : "") + e) : P(r, e);
+  for (var w = n.length - 1; w >= 0; w--)
+    x = Z(a, e, S = {}, t[3], J), a && (x.static = y, x.private = d, b = x.access = { has: d ? (u) => et(r, u) : (u) => e in u }, a ^ 3 && (b.get = d ? (u) => (a ^ 1 ? z : h)(u, r, a ^ 4 ? o : p.get) : (u) => u[e]), a > 2 && (b.set = d ? (u, T) => U(u, r, T, a ^ 4 ? o : p.set) : (u, T) => u[e] = T)), l = (0, n[w])(a ? a < 4 ? d ? o : p[$] : a > 4 ? void 0 : { get: p.get, set: p.set } : r, x), S._ = 1, a ^ 4 || l === void 0 ? v(l) && (a > 4 ? N.unshift(l) : a ? d ? o = l : p[$] = l : r = l) : typeof l != "object" || l === null ? g("Object expected") : (v(s = l.get) && (p.get = s), v(s = l.set) && (p.set = s), v(s = l.init) && N.unshift(s));
+  return a || tt(t, r), p && E(r, e, p), d ? a ^ 4 ? o : p : r;
 };
-var C = (t, i, e) => i.has(t) || g("Cannot " + e), et = (t, i) => Object(i) !== i ? g('Cannot use the "in" operator on this value') : t.has(i), U = (t, i, e) => (C(t, i, "read from private field"), e ? e.call(t) : i.get(t)), A = (t, i, e) => i.has(t) ? g("Cannot add the same private member more than once") : i instanceof WeakSet ? i.add(t) : i.set(t, e), k = (t, i, e, s) => (C(t, i, "write to private field"), s ? s.call(t, e) : i.set(t, e), e), d = (t, i, e) => (C(t, i, "access private method"), e);
-import { html as m, nothing as w, css as it, customElement as rt } from "@umbraco-cms/backoffice/external/lit";
+var C = (t, i, e) => i.has(t) || g("Cannot " + e), et = (t, i) => Object(i) !== i ? g('Cannot use the "in" operator on this value') : t.has(i), z = (t, i, e) => (C(t, i, "read from private field"), e ? e.call(t) : i.get(t)), I = (t, i, e) => i.has(t) ? g("Cannot add the same private member more than once") : i instanceof WeakSet ? i.add(t) : i.set(t, e), U = (t, i, e, n) => (C(t, i, "write to private field"), n ? n.call(t, e) : i.set(t, e), e), h = (t, i, e) => (C(t, i, "access private method"), e);
+import { html as m, nothing as D, css as it, customElement as rt } from "@umbraco-cms/backoffice/external/lit";
 import { UmbTextStyles as at } from "@umbraco-cms/backoffice/style";
 import { UmbModalBaseElement as ot } from "@umbraco-cms/backoffice/modal";
 import { UMB_AUTH_CONTEXT as st } from "@umbraco-cms/backoffice/auth";
-var B, n, G, K, O, H, L, X, Y, $, nt;
-B = [rt("create-from-pdf-modal")];
+var G, c, K, R, H, L, O, X, Y, k, nt;
+G = [rt("create-from-pdf-modal")];
 let _ = class _ extends (nt = ot) {
   constructor() {
     super(...arguments);
-    A(this, n);
+    I(this, c);
     this._documentName = "", this._selectedMediaUnique = null, this._pageTitle = "", this._pageTitleShort = "", this._pageDescription = "", this._itineraryContent = "", this._isExtracting = !1, this._extractionError = null;
   }
   firstUpdated() {
@@ -48,7 +48,7 @@ let _ = class _ extends (nt = ot) {
 						label="name"
 						placeholder="Enter document name"
 						.value=${this._documentName}
-						@input=${(s) => this._documentName = s.target.value}>
+						@input=${(n) => this._documentName = n.target.value}>
 					</uui-input>
 				</uui-box>
 
@@ -59,20 +59,20 @@ let _ = class _ extends (nt = ot) {
 						<div slot="editor">
 							<umb-input-media
 								max="1"
-								@change=${d(this, n, G)}>
+								@change=${h(this, c, K)}>
 							</umb-input-media>
-							${d(this, n, X).call(this)}
+							${h(this, c, X).call(this)}
 						</div>
 					</umb-property-layout>
 				</uui-box>
 
-				${d(this, n, Y).call(this)}
+				${h(this, c, Y).call(this)}
 
 				<uui-button
 					slot="actions"
 					id="close"
 					label="Close"
-					@click="${d(this, n, L)}">
+					@click="${h(this, c, O)}">
 					Close
 				</uui-button>
 				<uui-button
@@ -82,18 +82,18 @@ let _ = class _ extends (nt = ot) {
 					color="positive"
 					label="Create"
 					?disabled=${!e}
-					@click="${d(this, n, H)}">
+					@click="${h(this, c, L)}">
 					Create
 				</uui-button>
 			</umb-body-layout>
 		`;
   }
 };
-$ = q(nt), n = new WeakSet(), G = async function(e) {
+k = F(nt), c = new WeakSet(), K = async function(e) {
   console.log("Media change event fired", e);
   const r = e.target.selection;
-  console.log("Selection:", r), this._selectedMediaUnique = r.length > 0 ? r[0] : null, console.log("Selected media unique:", this._selectedMediaUnique), this._selectedMediaUnique ? await d(this, n, K).call(this, this._selectedMediaUnique) : (this._pageTitle = "", this._pageTitleShort = "", this._pageDescription = "", this._itineraryContent = "", this._documentName = "", this._extractionError = null);
-}, K = async function(e) {
+  console.log("Selection:", r), this._selectedMediaUnique = r.length > 0 ? r[0] : null, console.log("Selected media unique:", this._selectedMediaUnique), this._selectedMediaUnique ? await h(this, c, R).call(this, this._selectedMediaUnique) : (this._pageTitle = "", this._pageTitleShort = "", this._pageDescription = "", this._itineraryContent = "", this._documentName = "", this._extractionError = null);
+}, R = async function(e) {
   console.log("Starting PDF extraction for:", e), this._isExtracting = !0, this._extractionError = null;
   try {
     console.log("Getting auth context...");
@@ -110,39 +110,42 @@ $ = q(nt), n = new WeakSet(), G = async function(e) {
       }
     );
     if (console.log("API response status:", o.status), !o.ok) {
-      const u = await o.json();
-      console.error("API error:", u), this._extractionError = u.error || "Failed to extract PDF properties";
+      const l = await o.json();
+      console.error("API error:", l), this._extractionError = l.error || "Failed to extract PDF properties";
       return;
     }
-    const c = await o.json();
-    console.log("Extraction result:", c), this._pageTitle = c.title || "", this._pageTitleShort = c.title || "", this._pageDescription = c.description || "", console.log("Set values - title:", this._pageTitle, "description:", this._pageDescription), c.title && !this._documentName && (this._documentName = c.title, console.log("Pre-filled document name:", this._documentName)), await d(this, n, O).call(this, e, r);
-  } catch (s) {
-    this._extractionError = "Failed to connect to PDF extraction service", console.error("PDF extraction error:", s);
+    const s = await o.json();
+    console.log("Extraction result:", s), this._pageTitle = s.title || "", this._pageTitleShort = s.title || "", this._pageDescription = s.description || "", console.log("Set values - title:", this._pageTitle, "description:", this._pageDescription), s.title && !this._documentName && (this._documentName = s.title, console.log("Pre-filled document name:", this._documentName)), await h(this, c, H).call(this, e, r);
+  } catch (n) {
+    this._extractionError = "Failed to connect to PDF extraction service", console.error("PDF extraction error:", n);
   } finally {
     this._isExtracting = !1, console.log("Extraction complete, isExtracting:", this._isExtracting), this.requestUpdate();
   }
-}, O = async function(e, s) {
+}, H = async function(e, n) {
+  var r;
   try {
-    console.log("Extracting itinerary section (searching for Day 1)...");
-    const r = await fetch(
-      `/umbraco/management/api/v1/createfrompdf/page-section?mediaKey=${e}&heading=${encodeURIComponent("Day 1")}`,
+    console.log("Extracting PDF as Markdown...");
+    const o = await fetch(
+      `/umbraco/management/api/v1/createfrompdf/extract-markdown?mediaKey=${e}`,
       {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${s}`
+          Authorization: `Bearer ${n}`
         }
       }
     );
-    if (r.ok) {
-      const o = await r.json();
-      console.log("Itinerary section result:", o), this._itineraryContent = o.content || "";
-    } else
-      console.log("Itinerary section not found (this is OK for PDFs without itinerary)"), this._itineraryContent = "";
-  } catch (r) {
-    console.error("Failed to extract itinerary section:", r), this._itineraryContent = "";
+    if (o.ok) {
+      const s = await o.json();
+      console.log("Markdown extraction result:", s), console.log("Title:", s.title), console.log("Subtitle:", s.subtitle), console.log("Markdown preview:", (r = s.markdown) == null ? void 0 : r.substring(0, 500)), this._itineraryContent = s.markdown || "";
+    } else {
+      const s = await o.json();
+      console.log("Markdown extraction failed:", s), this._itineraryContent = "";
+    }
+  } catch (o) {
+    console.error("Failed to extract Markdown:", o), this._itineraryContent = "";
   }
-}, H = function() {
+}, L = function() {
   var e;
   this.value = {
     name: this._documentName,
@@ -152,7 +155,7 @@ $ = q(nt), n = new WeakSet(), G = async function(e) {
     pageDescription: this._pageDescription,
     itineraryContent: this._itineraryContent
   }, (e = this.modalContext) == null || e.submit();
-}, L = function() {
+}, O = function() {
   var e;
   (e = this.modalContext) == null || e.reject();
 }, X = function() {
@@ -165,9 +168,9 @@ $ = q(nt), n = new WeakSet(), G = async function(e) {
 			</div>` : this._pageTitle ? m`<div class="extraction-status success">
 				<uui-icon name="icon-check"></uui-icon>
 				<span>PDF properties extracted successfully</span>
-			</div>` : w;
+			</div>` : D;
 }, Y = function() {
-  return !this._pageTitle && !this._pageDescription && !this._itineraryContent ? w : m`
+  return !this._pageTitle && !this._pageDescription && !this._itineraryContent ? D : m`
 			<uui-box headline="Extracted Properties" class="preview-box">
 				<div class="preview-item">
 					<strong>Page Title:</strong> ${this._pageTitle || "(empty)"}
@@ -178,10 +181,10 @@ $ = q(nt), n = new WeakSet(), G = async function(e) {
 				${this._itineraryContent ? m`<div class="preview-item itinerary-preview">
 							<strong>Suggested Itinerary:</strong>
 							<div class="itinerary-content">${this._itineraryContent.substring(0, 200)}${this._itineraryContent.length > 200 ? "..." : ""}</div>
-						</div>` : w}
+						</div>` : D}
 			</uui-box>
 		`;
-}, _ = j($, 0, "CreateFromPdfModalElement", B, _), _.styles = [
+}, _ = A(k, 0, "CreateFromPdfModalElement", G, _), _.styles = [
   at,
   it`
 			uui-input {
@@ -243,10 +246,10 @@ $ = q(nt), n = new WeakSet(), G = async function(e) {
 				overflow-y: auto;
 			}
 		`
-], M($, 1, _);
-let R = _;
+], j(k, 1, _);
+let B = _;
 export {
-  R as CreateFromPdfModalElement,
-  R as default
+  B as CreateFromPdfModalElement,
+  B as default
 };
-//# sourceMappingURL=create-from-pdf-modal.element-DG3lRnnj.js.map
+//# sourceMappingURL=create-from-pdf-modal.element-LbsDMg0y.js.map

@@ -8,6 +8,7 @@ import { UMB_AUTH_CONTEXT } from '@umbraco-cms/backoffice/auth';
 import { UmbDocumentTypeStructureRepository } from '@umbraco-cms/backoffice/document-type';
 import { UmbDocumentBlueprintItemRepository } from '@umbraco-cms/backoffice/document-blueprint';
 import { UmbDocumentItemRepository } from '@umbraco-cms/backoffice/document';
+import { marked } from 'marked';
 
 export class CreateFromPdfEntityAction extends UmbEntityActionBase<never> {
 	#documentTypeStructureRepository = new UmbDocumentTypeStructureRepository(this);
@@ -331,31 +332,32 @@ export class CreateFromPdfEntityAction extends UmbEntityActionBase<never> {
 	}
 
 	/**
-	 * Converts plain text to HTML with paragraph tags
+	 * Converts Markdown to HTML using marked library
 	 */
-	#convertToHtml(text: string): string {
-		if (!text) return '';
+	#convertToHtml(markdown: string): string {
+		if (!markdown) return '';
 
-		// Split by newlines and wrap each non-empty line in paragraph tags
-		const paragraphs = text
-			.split(/\n+/)
-			.filter((line) => line.trim())
-			.map((line) => `<p>${this.#escapeHtml(line.trim())}</p>`)
-			.join('\n');
+		try {
+			// Configure marked for clean output
+			const html = marked.parse(markdown, {
+				gfm: true, // GitHub Flavored Markdown
+				breaks: false, // Don't convert \n to <br>
+			});
 
-		return paragraphs || `<p>${this.#escapeHtml(text)}</p>`;
-	}
+			// marked.parse can return string or Promise<string>
+			if (typeof html === 'string') {
+				console.log('Converted Markdown to HTML:', html.substring(0, 200));
+				return html;
+			}
 
-	/**
-	 * Escapes HTML special characters
-	 */
-	#escapeHtml(text: string): string {
-		return text
-			.replace(/&/g, '&amp;')
-			.replace(/</g, '&lt;')
-			.replace(/>/g, '&gt;')
-			.replace(/"/g, '&quot;')
-			.replace(/'/g, '&#039;');
+			// Fallback for async (shouldn't happen with sync config)
+			console.warn('marked returned Promise, using fallback');
+			return `<p>${markdown}</p>`;
+		} catch (error) {
+			console.error('Markdown conversion failed:', error);
+			// Fallback: wrap in paragraph tags
+			return `<p>${markdown.replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>')}</p>`;
+		}
 	}
 }
 
