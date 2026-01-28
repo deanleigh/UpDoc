@@ -2,7 +2,11 @@
   "permissions": {
     "allow": [
       "Bash(npm run build:*)",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "Bash(npm install:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nAdd Markdown extraction with column detection for PDF itineraries\n\n- Add ExtractAsMarkdown\\(\\) method to PdfPagePropertiesService\n- Add column detection to filter out sidebar content in two-column PDFs\n- Add /extract-markdown API endpoint\n- Add marked library for Markdown-to-HTML conversion in frontend\n- Update modal to use new Markdown extraction endpoint\n- Extract Day N headings as ## and body text as paragraphs\n- Stop extraction at footer/disclaimer patterns\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git push)"
     ]
   }
 }
