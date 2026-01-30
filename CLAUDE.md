@@ -20,6 +20,25 @@ This project uses the Umbraco Skills Marketplace for Claude Code. When working o
 - For testing, use `/umbraco-testing` to choose the right testing approach
 - Skills provide official docs, patterns, and working examples
 
+## Git Branching
+
+Before starting work on any feature, bug fix, or refactoring task, create a feature branch from `main`:
+
+```bash
+git checkout main
+git pull
+git checkout -b feature/short-description
+```
+
+Do not work directly on `main`. Each feature branch should represent a single, small increment of work that leaves the project in a working state. Only merge back to `main` when the feature is complete and tested.
+
+**Important:** Before creating a new feature branch, check the current branch. If the current branch is not `main`, alert the user and ask whether to:
+1. Finish and merge the current branch first
+2. Stash/commit current work and switch to `main` to create the new branch
+3. Continue working on the current branch instead
+
+Do not create a new feature branch while another feature branch is checked out without explicit user approval.
+
 ## Documentation Requirements
 
 When modifying any file in `App_Plugins/CreateFromPdf/src/`, update the corresponding documentation in `docs/source-files/`:
