@@ -65,3 +65,7 @@ After changing TypeScript files, rebuild with:
 ```
 cd App_Plugins/CreateFromPdf && npm run build
 ```
+
+## Running Site
+
+The Umbraco site may be running during development. Before performing any work that requires the site to be stopped (e.g. `dotnet build`, `dotnet run`, modifying C# files that need recompilation, or changes that lock files), prompt the user to stop the site first. Do not assume the site is stopped.
