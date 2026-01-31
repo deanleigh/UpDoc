@@ -4,22 +4,35 @@ Defines the modal token, data interface, and value interface for the blueprint p
 
 ## What it does
 
-Provides type-safe contracts for the blueprint picker dialog that opens as an interstitial step before the source sidebar modal. The dialog lets users choose which blueprint to use for the new document, or informs them if no blueprints are available.
+Provides type-safe contracts for the blueprint picker dialog that opens as an interstitial step before the source sidebar modal. The dialog presents a two-step selection flow mirroring Umbraco's native Create dialog: first the user selects a document type, then a blueprint for that type.
 
 ## Interfaces
 
 ### BlueprintOption
 
-Represents a single blueprint available for selection, including its parent document type:
+Represents a single blueprint available for selection:
 
 ```typescript
 export interface BlueprintOption {
     blueprintUnique: string;
     blueprintName: string;
-    documentTypeUnique: string;
-    documentTypeName: string;
 }
 ```
+
+### DocumentTypeOption
+
+Represents a document type that has one or more blueprints, grouping the type's metadata with its available blueprints:
+
+```typescript
+export interface DocumentTypeOption {
+    documentTypeUnique: string;
+    documentTypeName: string;
+    documentTypeIcon: string | null;
+    blueprints: BlueprintOption[];
+}
+```
+
+Only document types that have at least one blueprint are included. The `documentTypeIcon` is the icon alias from the document type definition (e.g. `icon-document`, `icon-home`), used to render the correct icon in the picker list.
 
 ### BlueprintPickerModalData
 
@@ -27,11 +40,11 @@ Data passed into the modal when opening it:
 
 ```typescript
 export interface BlueprintPickerModalData {
-    blueprints: BlueprintOption[];
+    documentTypes: DocumentTypeOption[];
 }
 ```
 
-The `blueprints` array may be empty, in which case the dialog shows a "create a blueprint first" message instead of a selection list.
+The `documentTypes` array contains allowed child document types that have blueprints. If no document types have blueprints, the array is empty and the dialog shows a "create a blueprint first" message.
 
 ### BlueprintPickerModalValue
 
@@ -69,8 +82,8 @@ import { UMB_BLUEPRINT_PICKER_MODAL } from './blueprint-picker-modal.token.js';
 import { umbOpenModal } from '@umbraco-cms/backoffice/modal';
 
 const result = await umbOpenModal(this, UMB_BLUEPRINT_PICKER_MODAL, {
-    data: { blueprints: blueprintOptions },
+    data: { documentTypes: documentTypeOptions },
 });
 // result.blueprintUnique - selected blueprint ID
-// result.documentTypeUnique - associated document type ID
+// result.documentTypeUnique - selected document type ID
 ```

@@ -55,7 +55,6 @@ export class CreateFromPdfModalElement extends UmbModalBaseElement<
 	#handleSourceTypeChange(e: Event) {
 		const target = e.target as Element & { value: string };
 		const newSourceType = target.value as SourceType | '';
-		console.log('Source type change event:', e.type, 'value:', newSourceType, 'target:', target.tagName);
 
 		// Reset source-specific state when changing source type
 		if (newSourceType !== this._sourceType) {
@@ -69,17 +68,12 @@ export class CreateFromPdfModalElement extends UmbModalBaseElement<
 		}
 
 		this._sourceType = newSourceType;
-		console.log('Source type set to:', this._sourceType);
-		this.requestUpdate();
 	}
 
 	async #handleMediaChange(e: CustomEvent) {
-		console.log('Media change event fired', e);
 		const target = e.target as UmbInputMediaElement;
 		const selection = target.selection;
-		console.log('Selection:', selection);
 		this._selectedMediaUnique = selection.length > 0 ? selection[0] : null;
-		console.log('Selected media unique:', this._selectedMediaUnique);
 
 		if (this._selectedMediaUnique) {
 			await this.#extractPdfProperties(this._selectedMediaUnique);
@@ -95,15 +89,12 @@ export class CreateFromPdfModalElement extends UmbModalBaseElement<
 	}
 
 	async #extractPdfProperties(mediaUnique: string) {
-		console.log('Starting PDF extraction for:', mediaUnique);
 		this._isExtracting = true;
 		this._extractionError = null;
 
 		try {
-			console.log('Getting auth context...');
 			const authContext = await this.getContext(UMB_AUTH_CONTEXT);
 			const token = await authContext.getLatestToken();
-			console.log('Got token, calling API...');
 
 			const response = await fetch(
 				`/umbraco/management/api/v1/createfrompdf/page-properties?mediaKey=${mediaUnique}`,
@@ -116,8 +107,6 @@ export class CreateFromPdfModalElement extends UmbModalBaseElement<
 				}
 			);
 
-			console.log('API response status:', response.status);
-
 			if (!response.ok) {
 				const error = await response.json();
 				console.error('API error:', error);
@@ -126,19 +115,15 @@ export class CreateFromPdfModalElement extends UmbModalBaseElement<
 			}
 
 			const result = await response.json();
-			console.log('Extraction result:', result);
 
 			// Set extracted values
 			this._pageTitle = result.title || '';
 			this._pageTitleShort = result.title || '';
 			this._pageDescription = result.description || '';
 
-			console.log('Set values - title:', this._pageTitle, 'description:', this._pageDescription);
-
 			// Pre-fill document name with extracted title
 			if (result.title && !this._documentName) {
 				this._documentName = result.title;
-				console.log('Pre-filled document name:', this._documentName);
 			}
 
 			// Extract Suggested Itinerary section
@@ -148,15 +133,11 @@ export class CreateFromPdfModalElement extends UmbModalBaseElement<
 			console.error('PDF extraction error:', error);
 		} finally {
 			this._isExtracting = false;
-			console.log('Extraction complete, isExtracting:', this._isExtracting);
-			// Force re-render to ensure UI updates
-			this.requestUpdate();
 		}
 	}
 
 	async #extractItinerarySection(mediaUnique: string, token: string) {
 		try {
-			console.log('Extracting PDF as Markdown...');
 			const response = await fetch(
 				`/umbraco/management/api/v1/createfrompdf/extract-markdown?mediaKey=${mediaUnique}`,
 				{
@@ -170,16 +151,9 @@ export class CreateFromPdfModalElement extends UmbModalBaseElement<
 
 			if (response.ok) {
 				const result = await response.json();
-				console.log('Markdown extraction result:', result);
-				console.log('Title:', result.title);
-				console.log('Subtitle:', result.subtitle);
-				console.log('Markdown preview:', result.markdown?.substring(0, 500));
-
 				// Store the Markdown content (will be converted to HTML in the action)
 				this._itineraryContent = result.markdown || '';
 			} else {
-				const error = await response.json();
-				console.log('Markdown extraction failed:', error);
 				this._itineraryContent = '';
 			}
 		} catch (error) {
@@ -199,11 +173,11 @@ export class CreateFromPdfModalElement extends UmbModalBaseElement<
 			pageDescription: this._pageDescription,
 			itineraryContent: this._itineraryContent,
 		};
-		this.modalContext?.submit();
+		this._submitModal();
 	}
 
 	#handleClose() {
-		this.modalContext?.reject();
+		this._rejectModal();
 	}
 
 	#renderSourceUI() {
@@ -341,6 +315,13 @@ export class CreateFromPdfModalElement extends UmbModalBaseElement<
 
 		return html`
 			<umb-body-layout headline="Create from Source">
+				<uui-box headline="Blueprint">
+					<div class="blueprint-display">
+						<umb-icon name="icon-blueprint"></umb-icon>
+						<span>${this.data?.blueprintName}</span>
+					</div>
+				</uui-box>
+
 				<uui-box headline="Document Name">
 					<p>Enter a document name or let it be populated from the source. You can edit this later.</p>
 					<uui-input
@@ -357,12 +338,11 @@ export class CreateFromPdfModalElement extends UmbModalBaseElement<
 						<div slot="editor">
 							<uui-select
 								label="Select source type"
-								placeholder="Choose a source..."
-								.value=${this._sourceType}
 								.options=${[
-									{ name: 'PDF Document', value: 'pdf' },
-									{ name: 'Web Page', value: 'web' },
-									{ name: 'Word Document', value: 'doc' },
+									{ name: 'Choose a source...', value: '', selected: this._sourceType === '' },
+									{ name: 'PDF Document', value: 'pdf', selected: this._sourceType === 'pdf' },
+									{ name: 'Web Page', value: 'web', selected: this._sourceType === 'web' },
+									{ name: 'Word Document', value: 'doc', selected: this._sourceType === 'doc' },
 								]}
 								@change=${this.#handleSourceTypeChange}>
 							</uui-select>
@@ -377,20 +357,16 @@ export class CreateFromPdfModalElement extends UmbModalBaseElement<
 				<uui-button
 					slot="actions"
 					id="close"
-					label="Close"
-					@click="${this.#handleClose}">
-					Close
-				</uui-button>
+					label=${this.localize.term('general_close')}
+					@click="${this.#handleClose}"></uui-button>
 				<uui-button
 					slot="actions"
 					id="save"
 					look="primary"
 					color="positive"
-					label="Create"
+					label=${this.localize.term('general_create')}
 					?disabled=${!canCreate}
-					@click="${this.#handleSave}">
-					Create
-				</uui-button>
+					@click="${this.#handleSave}"></uui-button>
 			</umb-body-layout>
 		`;
 	}
@@ -398,6 +374,12 @@ export class CreateFromPdfModalElement extends UmbModalBaseElement<
 	static override styles = [
 		UmbTextStyles,
 		css`
+			.blueprint-display {
+				display: flex;
+				align-items: center;
+				gap: var(--uui-size-space-3);
+			}
+
 			uui-input {
 				width: 100%;
 			}

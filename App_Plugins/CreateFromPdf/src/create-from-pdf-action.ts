@@ -1,6 +1,6 @@
 import { UMB_CREATE_FROM_PDF_MODAL } from './create-from-pdf-modal.token.js';
 import { UMB_BLUEPRINT_PICKER_MODAL } from './blueprint-picker-modal.token.js';
-import type { BlueprintOption } from './blueprint-picker-modal.token.js';
+import type { DocumentTypeOption } from './blueprint-picker-modal.token.js';
 import { UmbEntityActionBase } from '@umbraco-cms/backoffice/entity-action';
 import { umbOpenModal } from '@umbraco-cms/backoffice/modal';
 import type { UmbControllerHost } from '@umbraco-cms/backoffice/controller-api';
@@ -50,28 +50,29 @@ export class CreateFromPdfEntityAction extends UmbEntityActionBase<never> {
 				return;
 			}
 
-			// Step 3: Discover all blueprints for allowed child types
-			const blueprintOptions: BlueprintOption[] = [];
+			// Step 3: Discover blueprints for allowed child types, grouped by document type
+			const documentTypeOptions: DocumentTypeOption[] = [];
 
 			for (const docType of allowedTypes.items) {
 				const { data: blueprints } = await this.#blueprintItemRepository.requestItemsByDocumentType(docType.unique);
 				if (blueprints?.length) {
-					for (const bp of blueprints) {
-						blueprintOptions.push({
+					documentTypeOptions.push({
+						documentTypeUnique: docType.unique,
+						documentTypeName: docType.name,
+						documentTypeIcon: (docType as { icon?: string }).icon ?? null,
+						blueprints: blueprints.map((bp) => ({
 							blueprintUnique: bp.unique,
 							blueprintName: bp.name,
-							documentTypeUnique: docType.unique,
-							documentTypeName: docType.name,
-						});
-					}
+						})),
+					});
 				}
 			}
 
-			// Step 4: Open blueprint picker dialog (shows blueprints or "create one first" message)
+			// Step 4: Open blueprint picker dialog (doc type → blueprint selection)
 			let blueprintSelection;
 			try {
 				blueprintSelection = await umbOpenModal(this, UMB_BLUEPRINT_PICKER_MODAL, {
-					data: { blueprints: blueprintOptions },
+					data: { documentTypes: documentTypeOptions },
 				});
 			} catch {
 				// Dialog was cancelled
@@ -79,6 +80,8 @@ export class CreateFromPdfEntityAction extends UmbEntityActionBase<never> {
 			}
 
 			const { blueprintUnique, documentTypeUnique } = blueprintSelection;
+			const selectedDocType = documentTypeOptions.find((dt) => dt.documentTypeUnique === documentTypeUnique);
+			const selectedBlueprint = selectedDocType?.blueprints.find((bp) => bp.blueprintUnique === blueprintUnique);
 
 			console.log('Selected blueprint:', blueprintUnique, 'Document type:', documentTypeUnique);
 
@@ -86,7 +89,7 @@ export class CreateFromPdfEntityAction extends UmbEntityActionBase<never> {
 			let modalValue;
 			try {
 				modalValue = await umbOpenModal(this, UMB_CREATE_FROM_PDF_MODAL, {
-					data: { unique: parentUnique },
+					data: { unique: parentUnique, blueprintName: selectedBlueprint?.blueprintName ?? '' },
 				});
 			} catch {
 				// Modal was cancelled

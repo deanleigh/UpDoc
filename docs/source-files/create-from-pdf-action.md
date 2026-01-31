@@ -6,8 +6,8 @@ The entity action class that handles the "Create Document from PDF" menu click.
 
 When a user clicks "Create Document from Source" in the document tree context menu, this action:
 1. Gets the parent document's document type
-2. Discovers all available blueprints for allowed child document types
-3. Opens the **blueprint picker dialog** — user selects which blueprint to use (or sees "create one first" message if none exist)
+2. Discovers allowed child document types and their blueprints (grouped by document type)
+3. Opens the **blueprint picker dialog** — user selects a document type, then a blueprint for that type (or sees "create one first" message if no blueprints exist)
 4. Opens the **source sidebar modal** — user selects source type and content
 5. Scaffolds from the selected blueprint to get default values
 6. Creates a new document with extracted properties (pageTitle, pageTitleShort, pageDescription)
@@ -70,33 +70,34 @@ if (parentUnique) {
 
 ### Blueprint discovery and picker dialog
 
-The action discovers all available blueprints for allowed child document types, then opens a dialog for the user to choose:
+The action discovers blueprints for allowed child document types, grouped by document type. Only document types that have at least one blueprint are included:
 
 ```typescript
-// Step 3: Discover all blueprints for allowed child types
-const blueprintOptions: BlueprintOption[] = [];
+// Step 3: Discover blueprints for allowed child types, grouped by document type
+const documentTypeOptions: DocumentTypeOption[] = [];
 
 for (const docType of allowedTypes.items) {
     const { data: blueprints } = await this.#blueprintItemRepository.requestItemsByDocumentType(docType.unique);
     if (blueprints?.length) {
-        for (const bp of blueprints) {
-            blueprintOptions.push({
+        documentTypeOptions.push({
+            documentTypeUnique: docType.unique,
+            documentTypeName: docType.name,
+            documentTypeIcon: docType.icon ?? null,
+            blueprints: blueprints.map((bp) => ({
                 blueprintUnique: bp.unique,
                 blueprintName: bp.name,
-                documentTypeUnique: docType.unique,
-                documentTypeName: docType.name,
-            });
-        }
+            })),
+        });
     }
 }
 
-// Step 4: Open blueprint picker dialog
+// Step 4: Open blueprint picker dialog (doc type → blueprint selection)
 const blueprintSelection = await umbOpenModal(this, UMB_BLUEPRINT_PICKER_MODAL, {
-    data: { blueprints: blueprintOptions },
+    data: { documentTypes: documentTypeOptions },
 });
 ```
 
-The dialog always opens, even with one blueprint, for consistency and discoverability. If no blueprints exist, the dialog shows a message telling the user to create one first.
+The dialog presents a two-step selection flow mirroring Umbraco's native Create dialog: first the user selects a document type, then a blueprint for that type. Both steps are always shown (no smart-skipping). If no document types have blueprints, the dialog shows a message telling the user to create one first.
 
 ### Scaffolding from blueprint
 
@@ -209,7 +210,7 @@ notificationContext.peek('positive', {
 ```typescript
 import { UMB_CREATE_FROM_PDF_MODAL } from './create-from-pdf-modal.token.js';
 import { UMB_BLUEPRINT_PICKER_MODAL } from './blueprint-picker-modal.token.js';
-import type { BlueprintOption } from './blueprint-picker-modal.token.js';
+import type { DocumentTypeOption } from './blueprint-picker-modal.token.js';
 import { UmbEntityActionBase } from '@umbraco-cms/backoffice/entity-action';
 import { umbOpenModal } from '@umbraco-cms/backoffice/modal';
 import { UMB_NOTIFICATION_CONTEXT } from '@umbraco-cms/backoffice/notification';
@@ -226,8 +227,8 @@ Note: The `marked` library is used to convert Markdown content (from PDF extract
 
 1. `this.args.unique` - Parent document ID (where user right-clicked)
 2. Action fetches parent document to get its document type unique
-3. Action discovers all blueprints for allowed child document types
-4. Blueprint picker dialog returns `{ blueprintUnique, documentTypeUnique }`
+3. Action discovers allowed child document types and their blueprints (grouped by doc type)
+4. Blueprint picker dialog returns `{ blueprintUnique, documentTypeUnique }` after two-step selection
 5. Source sidebar modal returns `{ name, mediaUnique, pageTitle, pageTitleShort, pageDescription, itineraryContent }`
 6. Scaffolds from selected blueprint to get default values
 7. Merges extracted values into scaffold

@@ -3,12 +3,17 @@ import { UmbModalToken } from '@umbraco-cms/backoffice/modal';
 export interface BlueprintOption {
 	blueprintUnique: string;
 	blueprintName: string;
+}
+
+export interface DocumentTypeOption {
 	documentTypeUnique: string;
 	documentTypeName: string;
+	documentTypeIcon: string | null;
+	blueprints: BlueprintOption[];
 }
 
 export interface BlueprintPickerModalData {
-	blueprints: BlueprintOption[];
+	documentTypes: DocumentTypeOption[];
 }
 
 export interface BlueprintPickerModalValue {

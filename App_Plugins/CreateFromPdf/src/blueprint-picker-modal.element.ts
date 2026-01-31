@@ -1,5 +1,5 @@
-import type { BlueprintPickerModalData, BlueprintPickerModalValue } from './blueprint-picker-modal.token.js';
-import { html, customElement, css } from '@umbraco-cms/backoffice/external/lit';
+import type { DocumentTypeOption, BlueprintPickerModalData, BlueprintPickerModalValue } from './blueprint-picker-modal.token.js';
+import { html, customElement, css, state, repeat, when } from '@umbraco-cms/backoffice/external/lit';
 import { UmbTextStyles } from '@umbraco-cms/backoffice/style';
 import { UmbModalBaseElement } from '@umbraco-cms/backoffice/modal';
 
@@ -8,16 +8,31 @@ export class BlueprintPickerModalElement extends UmbModalBaseElement<
 	BlueprintPickerModalData,
 	BlueprintPickerModalValue
 > {
-	#handleBlueprintSelect(blueprintUnique: string, documentTypeUnique: string) {
-		this.value = { blueprintUnique, documentTypeUnique };
-		this.modalContext?.submit();
+	@state()
+	private _selectedDocType: DocumentTypeOption | null = null;
+
+	#handleDocTypeSelect(docType: DocumentTypeOption) {
+		this._selectedDocType = docType;
+	}
+
+	#handleBlueprintSelect(blueprintUnique: string) {
+		if (!this._selectedDocType) return;
+		this.value = {
+			blueprintUnique,
+			documentTypeUnique: this._selectedDocType.documentTypeUnique,
+		};
+		this._submitModal();
+	}
+
+	#handleBack() {
+		this._selectedDocType = null;
 	}
 
 	#handleClose() {
-		this.modalContext?.reject();
+		this._rejectModal();
 	}
 
-	#renderNoBlueprints() {
+	#renderNoDocumentTypes() {
 		return html`
 			<div class="no-blueprints">
 				<uui-icon name="icon-alert"></uui-icon>
@@ -33,16 +48,34 @@ export class BlueprintPickerModalElement extends UmbModalBaseElement<
 		`;
 	}
 
-	#renderBlueprintList() {
-		const blueprints = this.data?.blueprints ?? [];
+	#renderDocumentTypeList() {
+		const documentTypes = this.data?.documentTypes ?? [];
 		return html`
-			${blueprints.map(
+			${repeat(
+				documentTypes,
+				(dt) => dt.documentTypeUnique,
+				(dt) => html`
+					<uui-menu-item
+						label=${dt.documentTypeName}
+						@click=${() => this.#handleDocTypeSelect(dt)}>
+						<umb-icon slot="icon" name=${dt.documentTypeIcon || 'icon-document'}></umb-icon>
+					</uui-menu-item>
+				`,
+			)}
+		`;
+	}
+
+	#renderBlueprintList() {
+		if (!this._selectedDocType) return html``;
+		return html`
+			${repeat(
+				this._selectedDocType.blueprints,
+				(bp) => bp.blueprintUnique,
 				(bp) => html`
 					<uui-menu-item
 						label=${bp.blueprintName}
-						@click=${() => this.#handleBlueprintSelect(bp.blueprintUnique, bp.documentTypeUnique)}>
+						@click=${() => this.#handleBlueprintSelect(bp.blueprintUnique)}>
 						<umb-icon slot="icon" name="icon-blueprint"></umb-icon>
-						<span class="doc-type-hint">${bp.documentTypeName}</span>
 					</uui-menu-item>
 				`,
 			)}
@@ -50,18 +83,38 @@ export class BlueprintPickerModalElement extends UmbModalBaseElement<
 	}
 
 	override render() {
-		const hasBlueprints = (this.data?.blueprints?.length ?? 0) > 0;
+		const hasDocumentTypes = (this.data?.documentTypes?.length ?? 0) > 0;
+		const showBlueprints = this._selectedDocType !== null;
+		const headline = showBlueprints
+			? this.localize.term('blueprints_selectBlueprint')
+			: 'Choose a Document Type';
 
 		return html`
-			<umb-body-layout headline="Choose a Blueprint">
-				${hasBlueprints ? this.#renderBlueprintList() : this.#renderNoBlueprints()}
+			<uui-dialog-layout headline=${headline}>
+				${when(
+					!hasDocumentTypes,
+					() => this.#renderNoDocumentTypes(),
+					() => when(
+						showBlueprints,
+						() => this.#renderBlueprintList(),
+						() => this.#renderDocumentTypeList(),
+					),
+				)}
+				${when(
+					showBlueprints,
+					() => html`
+						<uui-button
+							slot="actions"
+							label="Back"
+							@click=${this.#handleBack}></uui-button>
+					`,
+				)}
 				<uui-button
 					slot="actions"
-					label="Close"
-					@click=${this.#handleClose}>
-					Close
-				</uui-button>
-			</umb-body-layout>
+					id="cancel"
+					label=${this.localize.term('general_cancel')}
+					@click=${this.#handleClose}></uui-button>
+			</uui-dialog-layout>
 		`;
 	}
 
@@ -91,10 +144,6 @@ export class BlueprintPickerModalElement extends UmbModalBaseElement<
 				color: var(--uui-color-text-alt);
 			}
 
-			.doc-type-hint {
-				font-size: var(--uui-type-small-size);
-				color: var(--uui-color-text-alt);
-			}
 		`,
 	];
 }

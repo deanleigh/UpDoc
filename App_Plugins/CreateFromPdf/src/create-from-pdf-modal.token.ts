@@ -4,6 +4,7 @@ export type SourceType = 'pdf' | 'web' | 'doc';
 
 export interface UmbCreateFromPdfModalData {
 	unique: string | null;
+	blueprintName: string;
 }
 
 export interface UmbCreateFromPdfModalValue {
