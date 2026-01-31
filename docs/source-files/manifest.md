@@ -5,8 +5,8 @@ Defines all extension manifests that get registered with Umbraco's extension reg
 ## What it does
 
 Exports an array of `UmbExtensionManifest` objects that tell Umbraco about our custom extensions:
-1. An **entity action** that adds "Create from PDF" to document context menus
-2. A **modal** component for the PDF upload dialog
+1. An **entity action** that adds "Create Document from Source" to document context menus
+2. A **modal** component for the source selection sidebar
 
 ## Extension 1: Entity Action
 
@@ -21,7 +21,7 @@ Exports an array of `UmbExtensionManifest` objects that tell Umbraco about our c
     forEntityTypes: ['document'],
     meta: {
         icon: 'icon-document',
-        label: 'Create from PDF',
+        label: 'Create Document from Source',
     },
 }
 ```

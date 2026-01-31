@@ -1,4 +1,4 @@
-import type { UmbCreateFromPdfModalData, UmbCreateFromPdfModalValue } from './create-from-pdf-modal.token.js';
+import type { UmbCreateFromPdfModalData, UmbCreateFromPdfModalValue, SourceType } from './create-from-pdf-modal.token.js';
 import { html, customElement, css, state, nothing } from '@umbraco-cms/backoffice/external/lit';
 import { UmbTextStyles } from '@umbraco-cms/backoffice/style';
 import { UmbModalBaseElement } from '@umbraco-cms/backoffice/modal';
@@ -13,6 +13,12 @@ export class CreateFromPdfModalElement extends UmbModalBaseElement<
 > {
 	@state()
 	private _documentName = '';
+
+	@state()
+	private _sourceType: SourceType | '' = '';
+
+	@state()
+	private _sourceUrl = '';
 
 	@state()
 	private _selectedMediaUnique: string | null = null;
@@ -37,11 +43,34 @@ export class CreateFromPdfModalElement extends UmbModalBaseElement<
 
 	override firstUpdated() {
 		this._documentName = '';
+		this._sourceType = '';
+		this._sourceUrl = '';
 		this._selectedMediaUnique = null;
 		this._pageTitle = '';
 		this._pageTitleShort = '';
 		this._pageDescription = '';
 		this._itineraryContent = '';
+	}
+
+	#handleSourceTypeChange(e: Event) {
+		const target = e.target as Element & { value: string };
+		const newSourceType = target.value as SourceType | '';
+		console.log('Source type change event:', e.type, 'value:', newSourceType, 'target:', target.tagName);
+
+		// Reset source-specific state when changing source type
+		if (newSourceType !== this._sourceType) {
+			this._selectedMediaUnique = null;
+			this._sourceUrl = '';
+			this._pageTitle = '';
+			this._pageTitleShort = '';
+			this._pageDescription = '';
+			this._itineraryContent = '';
+			this._extractionError = null;
+		}
+
+		this._sourceType = newSourceType;
+		console.log('Source type set to:', this._sourceType);
+		this.requestUpdate();
 	}
 
 	async #handleMediaChange(e: CustomEvent) {
@@ -162,7 +191,9 @@ export class CreateFromPdfModalElement extends UmbModalBaseElement<
 	#handleSave() {
 		this.value = {
 			name: this._documentName,
+			sourceType: this._sourceType as SourceType,
 			mediaUnique: this._selectedMediaUnique,
+			sourceUrl: this._sourceUrl || null,
 			pageTitle: this._pageTitle,
 			pageTitleShort: this._pageTitleShort,
 			pageDescription: this._pageDescription,
@@ -173,6 +204,73 @@ export class CreateFromPdfModalElement extends UmbModalBaseElement<
 
 	#handleClose() {
 		this.modalContext?.reject();
+	}
+
+	#renderSourceUI() {
+		switch (this._sourceType) {
+			case 'pdf':
+				return this.#renderPdfSource();
+			case 'web':
+				return this.#renderWebSource();
+			case 'doc':
+				return this.#renderDocSource();
+			default:
+				return nothing;
+		}
+	}
+
+	#renderPdfSource() {
+		return html`
+			<umb-property-layout label="PDF File" orientation="vertical">
+				<div slot="editor">
+					<umb-input-media
+						max="1"
+						@change=${this.#handleMediaChange}>
+					</umb-input-media>
+					${this.#renderExtractionStatus()}
+				</div>
+			</umb-property-layout>
+		`;
+	}
+
+	#renderWebSource() {
+		return html`
+			<umb-property-layout label="Web Page URL" orientation="vertical">
+				<div slot="editor">
+					<uui-input
+						label="URL"
+						placeholder="https://example.com/page"
+						.value=${this._sourceUrl}
+						@input=${(e: UUIInputEvent) => (this._sourceUrl = e.target.value as string)}>
+					</uui-input>
+					<div class="source-coming-soon">
+						<uui-icon name="icon-info"></uui-icon>
+						<span>Web page extraction is not yet available.</span>
+					</div>
+				</div>
+			</umb-property-layout>
+		`;
+	}
+
+	#renderDocSource() {
+		return html`
+			<umb-property-layout label="Word Document" orientation="vertical">
+				<div slot="editor">
+					<umb-input-media
+						max="1"
+						@change=${(e: CustomEvent) => {
+							const target = e.target as UmbInputMediaElement;
+							const selection = target.selection;
+							this._selectedMediaUnique = selection.length > 0 ? selection[0] : null;
+						}}>
+					</umb-input-media>
+					<div class="source-coming-soon">
+						<uui-icon name="icon-info"></uui-icon>
+						<span>Word document extraction is not yet available.</span>
+					</div>
+				</div>
+			</umb-property-layout>
+		`;
 	}
 
 	#renderExtractionStatus() {
@@ -223,15 +321,28 @@ export class CreateFromPdfModalElement extends UmbModalBaseElement<
 		`;
 	}
 
+	#getCanCreate(): boolean {
+		if (!this._documentName || this._isExtracting) return false;
+
+		switch (this._sourceType) {
+			case 'pdf':
+				return !!this._selectedMediaUnique;
+			case 'web':
+			case 'doc':
+				// Not yet functional
+				return false;
+			default:
+				return false;
+		}
+	}
+
 	override render() {
-		console.log('RENDER called - documentName:', this._documentName, 'pageTitle:', this._pageTitle);
-		const canCreate = this._documentName && this._selectedMediaUnique && !this._isExtracting;
-		console.log('canCreate:', canCreate, 'docName:', !!this._documentName, 'media:', !!this._selectedMediaUnique, 'extracting:', this._isExtracting);
+		const canCreate = this.#getCanCreate();
 
 		return html`
-			<umb-body-layout headline="Create from PDF">
+			<umb-body-layout headline="Create from Source">
 				<uui-box headline="Document Name">
-					<p>Enter a document name or let it be populated from the PDF. You can edit this later.</p>
+					<p>Enter a document name or let it be populated from the source. You can edit this later.</p>
 					<uui-input
 						id="name"
 						label="name"
@@ -241,18 +352,24 @@ export class CreateFromPdfModalElement extends UmbModalBaseElement<
 					</uui-input>
 				</uui-box>
 
-				<uui-box headline="Select PDF">
-					<p>Select a PDF from the media library to extract content and create a new document.</p>
-
-					<umb-property-layout label="PDF File" orientation="vertical">
+				<uui-box headline="Source">
+					<umb-property-layout label="Source Type" orientation="vertical">
 						<div slot="editor">
-							<umb-input-media
-								max="1"
-								@change=${this.#handleMediaChange}>
-							</umb-input-media>
-							${this.#renderExtractionStatus()}
+							<uui-select
+								label="Select source type"
+								placeholder="Choose a source..."
+								.value=${this._sourceType}
+								.options=${[
+									{ name: 'PDF Document', value: 'pdf' },
+									{ name: 'Web Page', value: 'web' },
+									{ name: 'Word Document', value: 'doc' },
+								]}
+								@change=${this.#handleSourceTypeChange}>
+							</uui-select>
 						</div>
 					</umb-property-layout>
+
+					${this.#renderSourceUI()}
 				</uui-box>
 
 				${this.#renderExtractedPreview()}
@@ -338,6 +455,22 @@ export class CreateFromPdfModalElement extends UmbModalBaseElement<
 				white-space: pre-wrap;
 				max-height: 100px;
 				overflow-y: auto;
+			}
+
+			uui-select {
+				width: 100%;
+			}
+
+			.source-coming-soon {
+				display: flex;
+				align-items: center;
+				gap: var(--uui-size-space-2);
+				margin-top: var(--uui-size-space-3);
+				padding: var(--uui-size-space-2);
+				border-radius: var(--uui-border-radius);
+				font-size: var(--uui-type-small-size);
+				background-color: var(--uui-color-surface-alt);
+				color: var(--uui-color-text-alt);
 			}
 		`,
 	];

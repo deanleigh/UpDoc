@@ -55,6 +55,11 @@ If adding a new source file:
 1. Create corresponding `.md` file in `docs/source-files/`
 2. Add entry to `docs/SUMMARY.md`
 
+## Umbraco References
+
+- UUI Storybook (base UI components): https://uui.umbraco.com/
+- Umbraco API Docs (property editor UIs, Umbraco-specific components): https://apidocs.umbraco.com/
+
 ## GitBook
 
 Documentation is synced to GitBook from the `docs/` folder. Changes to docs require push to trigger sync.

@@ -9,6 +9,14 @@ Creates a unique identifier (token) for the modal that:
 2. Defines the data types for input and output
 3. Configures modal appearance (sidebar vs dialog, size)
 
+## Types
+
+```typescript
+export type SourceType = 'pdf' | 'web' | 'doc';
+```
+
+Defines the available source types for content extraction. Currently only `pdf` is functional; `web` and `doc` are UI placeholders.
+
 ## The interfaces
 
 ```typescript
@@ -17,12 +25,14 @@ export interface UmbCreateFromPdfModalData {
 }
 
 export interface UmbCreateFromPdfModalValue {
-    name: string;               // The document name (pre-filled from PDF, user can edit)
-    mediaUnique: string | null; // The selected media item's unique ID
-    pageTitle: string;          // Extracted from PDF title metadata
-    pageTitleShort: string;     // Same as pageTitle (for the pageTitleShort property)
-    pageDescription: string;    // Extracted from PDF description/subject metadata
-    itineraryContent: string;   // Extracted "Suggested Itinerary" section content
+    name: string;                  // The document name (pre-filled from source, user can edit)
+    sourceType: SourceType;        // Which source type was selected (pdf, web, doc)
+    mediaUnique: string | null;    // The selected media item's unique ID (for pdf/doc sources)
+    sourceUrl: string | null;      // The entered URL (for web source)
+    pageTitle: string;             // Extracted from source title metadata
+    pageTitleShort: string;        // Same as pageTitle (for the pageTitleShort property)
+    pageDescription: string;       // Extracted from source description/subject metadata
+    itineraryContent: string;      // Extracted "Suggested Itinerary" section content
 }
 ```
 
@@ -75,5 +85,5 @@ const value = await umbOpenModal(this, UMB_CREATE_FROM_PDF_MODAL, {
     data: { unique: parentId },  // TypeScript knows this must be UmbCreateFromPdfModalData
 });
 // value is typed as UmbCreateFromPdfModalValue
-// Includes: name, mediaUnique, pageTitle, pageTitleShort, pageDescription, itineraryContent
+// Includes: name, sourceType, mediaUnique, sourceUrl, pageTitle, pageTitleShort, pageDescription, itineraryContent
 ```

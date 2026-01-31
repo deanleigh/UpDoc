@@ -1,6 +1,6 @@
 # Plan: Unified "Create from Source" Sidebar Modal
 
-## Status: DESIGN FINALISED — Ready for implementation
+## Status: Phase 1 IN PROGRESS — Source type dropdown implemented
 
 ---
 
@@ -45,7 +45,8 @@
 
 ### Source Type Dropdown (Content Picker Start Node Pattern)
 
-Following Umbraco's Content Picker Start Node UI pattern:
+Following Umbraco's Content Picker Start Node UI pattern
+(https://apidocs.umbraco.com/v14/ui/?path=/docs/umb-property-editor-ui-content-picker-source--docs):
 - Native `<select>` dropdown for source type selection
 - Options populated from config: "PDF", "Web Page", "Word Document", etc.
 - Selecting an option reveals source-specific UI below:
@@ -82,18 +83,23 @@ Source picker dialog changes were reverted on `feature/create-from-source-entry-
 
 ### Phase 1: Unified sidebar modal (replaces current PDF-only modal)
 
-1. Create new sidebar modal element with the finalised layout:
-   - Document name input
-   - Blueprint picker (fetch available blueprints for the parent's allowed child doc types)
-   - Source type `<select>` dropdown
-   - Conditional source-specific UI (start with PDF media picker only)
-   - Extraction status and preview area
-   - Editable Markdown Editor for extracted content
-2. Update modal token with new data/value interfaces
-3. Update entity action to pass parent context to the new modal
-4. Move document creation logic (scaffold, setValue, create API call) — keep in action or modal as appropriate
-5. Update manifest
-6. Build and test
+1. ~~Create new sidebar modal element with the finalised layout:~~
+   - ~~Document name input~~ ✅
+   - Blueprint picker (fetch available blueprints for the parent's allowed child doc types) — **TODO**
+   - ~~Source type `<select>` dropdown~~ ✅ (`uui-select` with placeholder)
+   - ~~Conditional source-specific UI~~ ✅ (PDF: media picker, Web: URL input, Doc: media picker)
+   - ~~Extraction status and preview area~~ ✅ (existing, works for PDF)
+   - Editable Markdown Editor for extracted content — **TODO**
+2. ~~Update modal token with new data/value interfaces~~ ✅ (added `sourceType`, `sourceUrl`)
+3. ~~Update entity action to pass parent context to the new modal~~ ✅ (existing action works unchanged)
+4. Move document creation logic (scaffold, setValue, create API call) — keep in action or modal as appropriate — **TODO**
+5. ~~Update manifest~~ ✅ (label changed to "Create Document from Source")
+6. ~~Build and test~~ ✅
+
+**Implementation notes:**
+- `uui-select` requires explicit `this.requestUpdate()` after state changes to trigger Lit re-render of conditional UI
+- Web Page and Word Document source types are UI scaffolding only — Create button stays disabled
+- PDF source type remains fully functional end-to-end
 
 ### Phase 2: Config file for source types and field mappings
 

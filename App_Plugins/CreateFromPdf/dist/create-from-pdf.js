@@ -9,14 +9,14 @@ const t = [
     forEntityTypes: ["document"],
     meta: {
       icon: "icon-document",
-      label: "Create Document from PDF"
+      label: "Create Document from Source"
     }
   },
   {
     type: "modal",
     alias: "CreateFromPdf.Modal",
     name: "Create from PDF Modal",
-    element: () => import("./create-from-pdf-modal.element-LbsDMg0y.js")
+    element: () => import("./create-from-pdf-modal.element-DqY0LxK7.js")
   }
 ];
 export {
