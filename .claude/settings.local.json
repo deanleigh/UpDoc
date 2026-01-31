@@ -14,7 +14,8 @@
       "WebFetch(domain:uui.umbraco.com)",
       "WebFetch(domain:www.npmjs.com)",
       "WebFetch(domain:raw.githubusercontent.com)",
-      "Bash(git restore:*)"
+      "Bash(git restore:*)",
+      "Bash(git merge:*)"
     ]
   }
 }
