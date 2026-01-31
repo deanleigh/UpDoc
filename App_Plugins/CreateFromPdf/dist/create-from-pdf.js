@@ -10,7 +10,12 @@ const t = [
     meta: {
       icon: "icon-document",
       label: "Create Document from Source"
-    }
+    },
+    conditions: [
+      {
+        alias: "Umb.Condition.EntityIsNotTrashed"
+      }
+    ]
   },
   {
     type: "modal",

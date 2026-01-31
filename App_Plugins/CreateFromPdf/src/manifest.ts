@@ -11,6 +11,11 @@ export const manifests: Array<UmbExtensionManifest> = [
 			icon: 'icon-document',
 			label: 'Create Document from Source',
 		},
+		conditions: [
+			{
+				alias: 'Umb.Condition.EntityIsNotTrashed',
+			},
+		],
 	},
 	{
 		type: 'modal',

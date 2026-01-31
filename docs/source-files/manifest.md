@@ -23,6 +23,11 @@ Exports an array of `UmbExtensionManifest` objects that tell Umbraco about our c
         icon: 'icon-document',
         label: 'Create Document from Source',
     },
+    conditions: [
+        {
+            alias: 'Umb.Condition.EntityIsNotTrashed',
+        },
+    ],
 }
 ```
 
@@ -31,6 +36,7 @@ Exports an array of `UmbExtensionManifest` objects that tell Umbraco about our c
 - `forEntityTypes: ['document']` - Only shows on document nodes
 - `weight: 1100` - Controls menu item position (higher = higher in list)
 - `api` - Lazy loads the action class when needed
+- `conditions` - `Umb.Condition.EntityIsNotTrashed` hides the action for documents in the recycle bin
 
 ## Extension 2: Modal
 
