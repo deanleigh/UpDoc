@@ -7,6 +7,7 @@ Defines all extension manifests that get registered with Umbraco's extension reg
 Exports an array of `UmbExtensionManifest` objects that tell Umbraco about our custom extensions:
 1. An **entity action** that adds "Create Document from Source" to document context menus
 2. A **modal** component for the source selection sidebar
+3. A **modal** component for the blueprint picker dialog (interstitial before the sidebar)
 
 ## Extension 1: Entity Action
 
@@ -53,6 +54,23 @@ Exports an array of `UmbExtensionManifest` objects that tell Umbraco about our c
 - `type: 'modal'` - Registers a modal dialog
 - `alias` - Must match the token alias in `create-from-pdf-modal.token.ts`
 - `element` - Lazy loads the Lit component
+
+## Extension 3: Blueprint Picker Modal
+
+```typescript
+{
+    type: 'modal',
+    alias: 'CreateFromPdf.BlueprintPickerModal',
+    name: 'Blueprint Picker Modal',
+    element: () => import('./blueprint-picker-modal.element.js'),
+}
+```
+
+**Key properties:**
+- `type: 'modal'` - Registers a modal dialog
+- `alias` - Must match the token alias in `blueprint-picker-modal.token.ts`
+- `element` - Lazy loads the Lit component
+- This is a centered dialog (not a sidebar) that opens before the source sidebar
 
 ## Important notes
 

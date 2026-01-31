@@ -1,4 +1,6 @@
 import { UMB_CREATE_FROM_PDF_MODAL } from './create-from-pdf-modal.token.js';
+import { UMB_BLUEPRINT_PICKER_MODAL } from './blueprint-picker-modal.token.js';
+import type { BlueprintOption } from './blueprint-picker-modal.token.js';
 import { UmbEntityActionBase } from '@umbraco-cms/backoffice/entity-action';
 import { umbOpenModal } from '@umbraco-cms/backoffice/modal';
 import type { UmbControllerHost } from '@umbraco-cms/backoffice/controller-api';
@@ -23,89 +25,88 @@ export class CreateFromPdfEntityAction extends UmbEntityActionBase<never> {
 		const notificationContext = await this.getContext(UMB_NOTIFICATION_CONTEXT);
 		const parentUnique = this.args.unique ?? null;
 
-		// Open modal and get values (PDF extraction happens in modal)
-		let modalValue;
-		try {
-			modalValue = await umbOpenModal(this, UMB_CREATE_FROM_PDF_MODAL, {
-				data: { unique: parentUnique },
-			});
-		} catch {
-			// Modal was cancelled
-			return;
-		}
-
-		const { name, mediaUnique, pageTitle, pageTitleShort, pageDescription, itineraryContent } = modalValue;
-
-		if (!mediaUnique || !name) {
-			return;
-		}
-
-		console.log('Creating document with:', { name, pageTitle, pageTitleShort, pageDescription, itineraryContent: itineraryContent?.substring(0, 100) });
-
 		try {
 			// Step 1: Get the parent document's document type
 			let parentDocTypeUnique: string | null = null;
 
 			if (parentUnique) {
-				console.log('Getting parent document info for:', parentUnique);
 				const { data: parentItems } = await this.#documentItemRepository.requestItems([parentUnique]);
-				console.log('Parent items:', parentItems);
-
 				if (parentItems?.length) {
 					parentDocTypeUnique = parentItems[0].documentType.unique;
-					console.log('Parent document type unique:', parentDocTypeUnique);
 				}
 			}
 
-			// Step 2: Get allowed child document types for the parent's document type
-			console.log('Getting allowed children for docType:', parentDocTypeUnique, 'parent:', parentUnique);
+			// Step 2: Get allowed child document types
 			const result = await this.#documentTypeStructureRepository.requestAllowedChildrenOf(
 				parentDocTypeUnique,
 				parentUnique
 			);
-			console.log('Full result from requestAllowedChildrenOf:', result);
 			const allowedTypes = result.data;
-			console.log('Allowed types data:', allowedTypes);
 
 			if (!allowedTypes?.items?.length) {
-				console.log('No allowed types found, items:', allowedTypes?.items);
 				notificationContext.peek('danger', {
 					data: { message: 'No document types are allowed as children of this page.' },
 				});
 				return;
 			}
 
-			console.log('Allowed document types:', allowedTypes.items);
-
-			// Step 2: Get blueprints for the allowed document types
-			let blueprint = null;
-			let documentTypeUnique = null;
+			// Step 3: Discover all blueprints for allowed child types
+			const blueprintOptions: BlueprintOption[] = [];
 
 			for (const docType of allowedTypes.items) {
 				const { data: blueprints } = await this.#blueprintItemRepository.requestItemsByDocumentType(docType.unique);
 				if (blueprints?.length) {
-					blueprint = blueprints[0]; // Use first available blueprint
-					documentTypeUnique = docType.unique;
-					break;
+					for (const bp of blueprints) {
+						blueprintOptions.push({
+							blueprintUnique: bp.unique,
+							blueprintName: bp.name,
+							documentTypeUnique: docType.unique,
+							documentTypeName: docType.name,
+						});
+					}
 				}
 			}
 
-			if (!blueprint) {
-				notificationContext.peek('danger', {
-					data: { message: 'No blueprint found for allowed document types. Please create a blueprint first.' },
+			// Step 4: Open blueprint picker dialog (shows blueprints or "create one first" message)
+			let blueprintSelection;
+			try {
+				blueprintSelection = await umbOpenModal(this, UMB_BLUEPRINT_PICKER_MODAL, {
+					data: { blueprints: blueprintOptions },
 				});
+			} catch {
+				// Dialog was cancelled
 				return;
 			}
 
-			console.log('Using blueprint:', blueprint.name, blueprint.unique);
-			console.log('Document type:', documentTypeUnique);
+			const { blueprintUnique, documentTypeUnique } = blueprintSelection;
 
-			// Step 3: Scaffold from the blueprint to get default values
+			console.log('Selected blueprint:', blueprintUnique, 'Document type:', documentTypeUnique);
+
+			// Step 5: Open source sidebar modal
+			let modalValue;
+			try {
+				modalValue = await umbOpenModal(this, UMB_CREATE_FROM_PDF_MODAL, {
+					data: { unique: parentUnique },
+				});
+			} catch {
+				// Modal was cancelled
+				return;
+			}
+
+			const { name, mediaUnique, pageTitle, pageTitleShort, pageDescription, itineraryContent } = modalValue;
+
+			if (!mediaUnique || !name) {
+				return;
+			}
+
+			console.log('Creating document with:', { name, pageTitle, pageTitleShort, pageDescription, itineraryContent: itineraryContent?.substring(0, 100) });
+
+			// Step 6: Scaffold from the selected blueprint
 			const authContext = await this.getContext(UMB_AUTH_CONTEXT);
 			const token = await authContext.getLatestToken();
 
 			const scaffoldResponse = await fetch(
-				`/umbraco/management/api/v1/document-blueprint/${blueprint.unique}/scaffold`,
+				`/umbraco/management/api/v1/document-blueprint/${blueprintUnique}/scaffold`,
 				{
 					method: 'GET',
 					headers: {
@@ -127,7 +128,7 @@ export class CreateFromPdfEntityAction extends UmbEntityActionBase<never> {
 			const scaffold = await scaffoldResponse.json();
 			console.log('Scaffold response:', scaffold);
 
-			// Step 4: Build the document creation request
+			// Step 7: Build the document creation request
 			// Start with scaffold values and override with PDF-extracted values
 			const values = scaffold.values ? [...scaffold.values] : [];
 
@@ -168,7 +169,7 @@ export class CreateFromPdfEntityAction extends UmbEntityActionBase<never> {
 
 			console.log('Create request:', JSON.stringify(createRequest, null, 2));
 
-			// Step 5: Create the document
+			// Step 8: Create the document
 			const createResponse = await fetch('/umbraco/management/api/v1/document', {
 				method: 'POST',
 				headers: {
@@ -193,7 +194,7 @@ export class CreateFromPdfEntityAction extends UmbEntityActionBase<never> {
 
 			console.log('Document created successfully! ID:', newDocumentId);
 
-			// Step 6: Save the document to properly persist it and trigger cache updates
+			// Step 9: Save the document to properly persist it and trigger cache updates
 			if (newDocumentId) {
 				// First, fetch the document to get its current state
 				const getResponse = await fetch(`/umbraco/management/api/v1/document/${newDocumentId}`, {

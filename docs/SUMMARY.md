@@ -9,6 +9,8 @@
 * [create-from-pdf-action.ts](source-files/create-from-pdf-action.md)
 * [create-from-pdf-modal.element.ts](source-files/create-from-pdf-modal-element.md)
 * [create-from-pdf-modal.token.ts](source-files/create-from-pdf-modal-token.md)
+* [blueprint-picker-modal.element.ts](source-files/blueprint-picker-modal-element.md)
+* [blueprint-picker-modal.token.ts](source-files/blueprint-picker-modal-token.md)
 
 ## Backend (C#)
 

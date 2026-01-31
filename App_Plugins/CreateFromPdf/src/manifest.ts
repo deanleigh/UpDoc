@@ -23,4 +23,10 @@ export const manifests: Array<UmbExtensionManifest> = [
 		name: 'Create from PDF Modal',
 		element: () => import('./create-from-pdf-modal.element.js'),
 	},
+	{
+		type: 'modal',
+		alias: 'CreateFromPdf.BlueprintPickerModal',
+		name: 'Blueprint Picker Modal',
+		element: () => import('./blueprint-picker-modal.element.js'),
+	},
 ];

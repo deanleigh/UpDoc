@@ -4,13 +4,13 @@ The entity action class that handles the "Create Document from PDF" menu click.
 
 ## What it does
 
-When a user clicks "Create Document from PDF" in the document tree context menu, this action:
-1. Opens the PDF selection modal
-2. Modal extracts PDF properties and returns document name + extracted values + itinerary content
-3. Gets the parent document's document type
-4. Auto-detects available blueprints for allowed child document types
-5. Scaffolds from the blueprint to get default values
-6. Creates a new document with PDF-extracted properties (pageTitle, pageTitleShort, pageDescription)
+When a user clicks "Create Document from Source" in the document tree context menu, this action:
+1. Gets the parent document's document type
+2. Discovers all available blueprints for allowed child document types
+3. Opens the **blueprint picker dialog** — user selects which blueprint to use (or sees "create one first" message if none exist)
+4. Opens the **source sidebar modal** — user selects source type and content
+5. Scaffolds from the selected blueprint to get default values
+6. Creates a new document with extracted properties (pageTitle, pageTitleShort, pageDescription)
 7. Updates Block Grid contentGrid with itinerary content in the "Suggested Itinerary" RTE block
 8. Saves the document to properly persist it and trigger cache updates
 9. Shows success/error notifications
@@ -68,27 +68,35 @@ if (parentUnique) {
 }
 ```
 
-### Auto-detecting blueprints
+### Blueprint discovery and picker dialog
 
-The action automatically finds the appropriate blueprint based on allowed child document types:
+The action discovers all available blueprints for allowed child document types, then opens a dialog for the user to choose:
 
 ```typescript
-// Step 2: Get allowed child document types using parent's document type
-const { data: allowedTypes } = await this.#documentTypeStructureRepository.requestAllowedChildrenOf(
-    parentDocTypeUnique,  // Parent's document type unique (not null)
-    parentUnique
-);
+// Step 3: Discover all blueprints for allowed child types
+const blueprintOptions: BlueprintOption[] = [];
 
-// Find blueprints for allowed document types
 for (const docType of allowedTypes.items) {
     const { data: blueprints } = await this.#blueprintItemRepository.requestItemsByDocumentType(docType.unique);
     if (blueprints?.length) {
-        blueprint = blueprints[0];
-        documentTypeUnique = docType.unique;
-        break;
+        for (const bp of blueprints) {
+            blueprintOptions.push({
+                blueprintUnique: bp.unique,
+                blueprintName: bp.name,
+                documentTypeUnique: docType.unique,
+                documentTypeName: docType.name,
+            });
+        }
     }
 }
+
+// Step 4: Open blueprint picker dialog
+const blueprintSelection = await umbOpenModal(this, UMB_BLUEPRINT_PICKER_MODAL, {
+    data: { blueprints: blueprintOptions },
+});
 ```
+
+The dialog always opens, even with one blueprint, for consistency and discoverability. If no blueprints exist, the dialog shows a message telling the user to create one first.
 
 ### Scaffolding from blueprint
 
@@ -200,6 +208,8 @@ notificationContext.peek('positive', {
 
 ```typescript
 import { UMB_CREATE_FROM_PDF_MODAL } from './create-from-pdf-modal.token.js';
+import { UMB_BLUEPRINT_PICKER_MODAL } from './blueprint-picker-modal.token.js';
+import type { BlueprintOption } from './blueprint-picker-modal.token.js';
 import { UmbEntityActionBase } from '@umbraco-cms/backoffice/entity-action';
 import { umbOpenModal } from '@umbraco-cms/backoffice/modal';
 import { UMB_NOTIFICATION_CONTEXT } from '@umbraco-cms/backoffice/notification';
@@ -215,15 +225,16 @@ Note: The `marked` library is used to convert Markdown content (from PDF extract
 ## Data flow
 
 1. `this.args.unique` - Parent document ID (where user right-clicked)
-2. Modal returns `{ name, mediaUnique, pageTitle, pageTitleShort, pageDescription, itineraryContent }`
-3. Action fetches parent document to get its document type unique
-4. Action finds blueprint for allowed child document types
-5. Scaffolds from blueprint to get default values
-6. Merges PDF-extracted values into scaffold
-7. Updates contentGrid with itinerary content if available
-8. POSTs to create document API
-9. Fetches and saves the document to properly persist it
-10. Shows notification and navigates to the new document
+2. Action fetches parent document to get its document type unique
+3. Action discovers all blueprints for allowed child document types
+4. Blueprint picker dialog returns `{ blueprintUnique, documentTypeUnique }`
+5. Source sidebar modal returns `{ name, mediaUnique, pageTitle, pageTitleShort, pageDescription, itineraryContent }`
+6. Scaffolds from selected blueprint to get default values
+7. Merges extracted values into scaffold
+8. Updates contentGrid with itinerary content if available
+9. POSTs to create document API
+10. Fetches and saves the document to properly persist it
+11. Shows notification and navigates to the new document
 
 ### Navigation after creation
 

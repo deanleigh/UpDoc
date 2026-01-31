@@ -1,6 +1,6 @@
 # Plan: Unified "Create from Source" Sidebar Modal
 
-## Status: Phase 1 IN PROGRESS — Source type dropdown implemented
+## Status: Phase 1 IN PROGRESS — Blueprint picker dialog implemented, source type dropdown implemented
 
 ---
 
@@ -9,16 +9,20 @@
 ### Workflow: Destination-first, source chosen in sidebar
 
 1. User is on a parent content node (e.g., "Group Tours")
-2. Clicks **"Create from Source"** entity action — document type is already determined by allowed children
-3. **Sidebar modal** opens with:
+2. Clicks **"Create from Source"** entity action
+3. **Blueprint picker dialog** opens (centered dialog, mirroring Umbraco's native Create flow):
+   - Lists all available blueprints for allowed child document types
+   - Each blueprint shown as a `uui-menu-item` with blueprint icon and document type name
+   - If **no blueprints exist**: shows message "To create a document from a source, you first need to create a Document Blueprint"
+   - Always shown, even with one blueprint (consistency + discoverability)
+4. User selects a blueprint → dialog closes → **Sidebar modal** opens with:
    - **Document name** input (editable, pre-filled from extracted content)
-   - **Blueprint picker** (always visible, pre-selected if only one — user can see/change which blueprint is used)
    - **Source type dropdown** (`<select>`, Content Picker Start Node pattern — populated from config)
    - **Conditional source UI** below dropdown (media picker for PDF, URL input for web, etc.)
    - **Extracted content preview/editor** (Markdown Editor for review and editing before creation)
    - **Create button**
-4. Content is extracted from chosen source → mapped to the selected blueprint's fields
-5. Document is created with mapped values
+5. Content is extracted from chosen source → mapped to the selected blueprint's fields
+6. Document is created with mapped values
 
 ### Key Design Decisions
 
@@ -26,7 +30,8 @@
 |----------|--------|-----------|
 | Modal type | Sidebar (not dialog) | Avoids confusion with Umbraco's native "Create an item under..." dialog |
 | Source type selection | `<select>` dropdown in sidebar | Content Picker Start Node pattern — compact, native, conditional UI below |
-| Blueprint picker | Always visible, pre-selected if only one | User always sees which blueprint is being used; consistent UI regardless of blueprint count |
+| Blueprint selection | Interstitial dialog before sidebar | Mirrors Umbraco's native Create flow; always shown for consistency and discoverability; separates "what to create" from "where content comes from" |
+| No blueprints | Show message, not hide action | Action always visible in menu for consistency; dialog explains prerequisite; "Create Document Blueprint" is adjacent in menu |
 | Destination vs source first | Destination first | Blueprint defines the target structure; source is just "where content comes from" |
 | Blueprint vs source relationship | Orthogonal | Same blueprint can accept content from PDF, web, or Word — source type is chosen at creation time, not tied to blueprint |
 | Field mapping tolerance | Tolerant/null-safe | Extra extracted fields silently ignored; missing fields keep blueprint defaults |
@@ -85,7 +90,7 @@ Source picker dialog changes were reverted on `feature/create-from-source-entry-
 
 1. ~~Create new sidebar modal element with the finalised layout:~~
    - ~~Document name input~~ ✅
-   - Blueprint picker (fetch available blueprints for the parent's allowed child doc types) — **TODO**
+   - ~~Blueprint picker dialog (interstitial before sidebar)~~ ✅ — dialog lists blueprints or shows "create one first" message
    - ~~Source type `<select>` dropdown~~ ✅ (`uui-select` with placeholder)
    - ~~Conditional source-specific UI~~ ✅ (PDF: media picker, Web: URL input, Doc: media picker)
    - ~~Extraction status and preview area~~ ✅ (existing, works for PDF)

@@ -1,11 +1,11 @@
-const t = [
+const e = [
   {
     type: "entityAction",
     kind: "default",
     alias: "CreateFromPdf.EntityAction",
     name: "Create from PDF Entity Action",
     weight: 1100,
-    api: () => import("./create-from-pdf-action-D8bL6p0C.js"),
+    api: () => import("./create-from-pdf-action-2yttgcvR.js"),
     forEntityTypes: ["document"],
     meta: {
       icon: "icon-document",
@@ -22,9 +22,15 @@ const t = [
     alias: "CreateFromPdf.Modal",
     name: "Create from PDF Modal",
     element: () => import("./create-from-pdf-modal.element-DqY0LxK7.js")
+  },
+  {
+    type: "modal",
+    alias: "CreateFromPdf.BlueprintPickerModal",
+    name: "Blueprint Picker Modal",
+    element: () => import("./blueprint-picker-modal.element-DGJxWxKE.js")
   }
 ];
 export {
-  t as manifests
+  e as manifests
 };
 //# sourceMappingURL=create-from-pdf.js.map
