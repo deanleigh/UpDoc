@@ -1,4 +1,4 @@
-import type { UmbCreateFromPdfModalData, UmbCreateFromPdfModalValue, SourceType } from './create-from-pdf-modal.token.js';
+import type { UmbUpDocModalData, UmbUpDocModalValue, SourceType } from './up-doc-modal.token.js';
 import { html, customElement, css, state, nothing } from '@umbraco-cms/backoffice/external/lit';
 import { UmbTextStyles } from '@umbraco-cms/backoffice/style';
 import { UmbModalBaseElement } from '@umbraco-cms/backoffice/modal';
@@ -6,10 +6,10 @@ import type { UUIInputEvent } from '@umbraco-cms/backoffice/external/uui';
 import type { UmbInputMediaElement } from '@umbraco-cms/backoffice/media';
 import { UMB_AUTH_CONTEXT } from '@umbraco-cms/backoffice/auth';
 
-@customElement('create-from-pdf-modal')
-export class CreateFromPdfModalElement extends UmbModalBaseElement<
-	UmbCreateFromPdfModalData,
-	UmbCreateFromPdfModalValue
+@customElement('up-doc-modal')
+export class UpDocModalElement extends UmbModalBaseElement<
+	UmbUpDocModalData,
+	UmbUpDocModalValue
 > {
 	@state()
 	private _documentName = '';
@@ -97,7 +97,7 @@ export class CreateFromPdfModalElement extends UmbModalBaseElement<
 			const token = await authContext.getLatestToken();
 
 			const response = await fetch(
-				`/umbraco/management/api/v1/createfrompdf/page-properties?mediaKey=${mediaUnique}`,
+				`/umbraco/management/api/v1/updoc/page-properties?mediaKey=${mediaUnique}`,
 				{
 					method: 'GET',
 					headers: {
@@ -139,7 +139,7 @@ export class CreateFromPdfModalElement extends UmbModalBaseElement<
 	async #extractItinerarySection(mediaUnique: string, token: string) {
 		try {
 			const response = await fetch(
-				`/umbraco/management/api/v1/createfrompdf/extract-markdown?mediaKey=${mediaUnique}`,
+				`/umbraco/management/api/v1/updoc/extract-markdown?mediaKey=${mediaUnique}`,
 				{
 					method: 'GET',
 					headers: {
@@ -458,10 +458,10 @@ export class CreateFromPdfModalElement extends UmbModalBaseElement<
 	];
 }
 
-export default CreateFromPdfModalElement;
+export default UpDocModalElement;
 
 declare global {
 	interface HTMLElementTagNameMap {
-		'create-from-pdf-modal': CreateFromPdfModalElement;
+		'up-doc-modal': UpDocModalElement;
 	}
 }

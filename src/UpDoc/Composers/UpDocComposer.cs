@@ -1,9 +1,9 @@
-using CreateDocumentFromPdf.Services;
+using UpDoc.Services;
 using Umbraco.Cms.Core.Composing;
 
-namespace CreateDocumentFromPdf.Composers;
+namespace UpDoc.Composers;
 
-public class CreateFromPdfComposer : IComposer
+public class UpDocComposer : IComposer
 {
     public void Compose(IUmbracoBuilder builder)
     {

@@ -1,4 +1,4 @@
-import { UMB_CREATE_FROM_PDF_MODAL } from './create-from-pdf-modal.token.js';
+import { UMB_UP_DOC_MODAL } from './up-doc-modal.token.js';
 import { UMB_BLUEPRINT_PICKER_MODAL } from './blueprint-picker-modal.token.js';
 import type { DocumentTypeOption } from './blueprint-picker-modal.token.js';
 import { UmbEntityActionBase } from '@umbraco-cms/backoffice/entity-action';
@@ -12,7 +12,7 @@ import { UmbDocumentBlueprintItemRepository } from '@umbraco-cms/backoffice/docu
 import { UmbDocumentItemRepository } from '@umbraco-cms/backoffice/document';
 import { marked } from 'marked';
 
-export class CreateFromPdfEntityAction extends UmbEntityActionBase<never> {
+export class UpDocEntityAction extends UmbEntityActionBase<never> {
 	#documentTypeStructureRepository = new UmbDocumentTypeStructureRepository(this);
 	#blueprintItemRepository = new UmbDocumentBlueprintItemRepository(this);
 	#documentItemRepository = new UmbDocumentItemRepository(this);
@@ -88,7 +88,7 @@ export class CreateFromPdfEntityAction extends UmbEntityActionBase<never> {
 			// Step 5: Open source sidebar modal
 			let modalValue;
 			try {
-				modalValue = await umbOpenModal(this, UMB_CREATE_FROM_PDF_MODAL, {
+				modalValue = await umbOpenModal(this, UMB_UP_DOC_MODAL, {
 					data: { unique: parentUnique, blueprintName: selectedBlueprint?.blueprintName ?? '' },
 				});
 			} catch {
@@ -365,4 +365,4 @@ export class CreateFromPdfEntityAction extends UmbEntityActionBase<never> {
 	}
 }
 
-export default CreateFromPdfEntityAction;
+export default UpDocEntityAction;

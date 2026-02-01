@@ -1,0 +1,13 @@
+{
+  "id": "updoc",
+  "name": "UpDoc",
+  "version": "1.0.0",
+  "extensions": [
+    {
+      "type": "bundle",
+      "alias": "UpDoc.Bundle",
+      "name": "UpDoc Bundle",
+      "js": "/App_Plugins/UpDoc/dist/updoc.js"
+    }
+  ]
+}

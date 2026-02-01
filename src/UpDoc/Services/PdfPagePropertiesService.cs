@@ -2,7 +2,7 @@ using System.Text.RegularExpressions;
 using UglyToad.PdfPig;
 using UglyToad.PdfPig.Content;
 
-namespace CreateDocumentFromPdf.Services;
+namespace UpDoc.Services;
 
 public interface IPdfPagePropertiesService
 {

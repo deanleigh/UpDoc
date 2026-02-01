@@ -22,7 +22,7 @@ export interface BlueprintPickerModalValue {
 }
 
 export const UMB_BLUEPRINT_PICKER_MODAL = new UmbModalToken<BlueprintPickerModalData, BlueprintPickerModalValue>(
-	'CreateFromPdf.BlueprintPickerModal',
+	'UpDoc.BlueprintPickerModal',
 	{
 		modal: {
 			type: 'dialog',

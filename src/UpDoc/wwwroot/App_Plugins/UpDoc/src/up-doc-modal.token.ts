@@ -2,12 +2,12 @@ import { UmbModalToken } from '@umbraco-cms/backoffice/modal';
 
 export type SourceType = 'pdf' | 'web' | 'doc';
 
-export interface UmbCreateFromPdfModalData {
+export interface UmbUpDocModalData {
 	unique: string | null;
 	blueprintName: string;
 }
 
-export interface UmbCreateFromPdfModalValue {
+export interface UmbUpDocModalValue {
 	name: string;
 	sourceType: SourceType;
 	mediaUnique: string | null;
@@ -18,8 +18,8 @@ export interface UmbCreateFromPdfModalValue {
 	itineraryContent: string;
 }
 
-export const UMB_CREATE_FROM_PDF_MODAL = new UmbModalToken<UmbCreateFromPdfModalData, UmbCreateFromPdfModalValue>(
-	'CreateFromPdf.Modal',
+export const UMB_UP_DOC_MODAL = new UmbModalToken<UmbUpDocModalData, UmbUpDocModalValue>(
+	'UpDoc.Modal',
 	{
 		modal: {
 			type: 'sidebar',

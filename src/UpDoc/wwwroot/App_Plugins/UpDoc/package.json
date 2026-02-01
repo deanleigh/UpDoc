@@ -1,5 +1,5 @@
 {
-  "name": "create-from-pdf",
+  "name": "updoc",
   "version": "1.0.0",
   "type": "module",
   "scripts": {
@@ -7,9 +7,8 @@
     "dev": "vite build --watch"
   },
   "devDependencies": {
-    "@umbraco-cms/backoffice": "^17.1.0",
-    "typescript": "^5.0.0",
-    "vite": "^5.0.0"
+    "typescript": "^5.4.0",
+    "vite": "^5.4.0"
   },
   "dependencies": {
     "marked": "^17.0.1"

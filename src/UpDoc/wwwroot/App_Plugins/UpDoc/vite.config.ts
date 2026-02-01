@@ -5,7 +5,7 @@ export default defineConfig({
     lib: {
       entry: 'src/index.ts',
       formats: ['es'],
-      fileName: 'create-from-pdf'
+      fileName: 'updoc'
     },
     outDir: 'dist',
     emptyDirFirst: true,

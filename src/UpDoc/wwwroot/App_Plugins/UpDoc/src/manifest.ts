@@ -2,10 +2,10 @@ export const manifests: Array<UmbExtensionManifest> = [
 	{
 		type: 'entityAction',
 		kind: 'default',
-		alias: 'CreateFromPdf.EntityAction',
-		name: 'Create from PDF Entity Action',
+		alias: 'UpDoc.EntityAction',
+		name: 'UpDoc Entity Action',
 		weight: 1100,
-		api: () => import('./create-from-pdf-action.js'),
+		api: () => import('./up-doc-action.js'),
 		forEntityTypes: ['document'],
 		meta: {
 			icon: 'icon-document',
@@ -19,13 +19,13 @@ export const manifests: Array<UmbExtensionManifest> = [
 	},
 	{
 		type: 'modal',
-		alias: 'CreateFromPdf.Modal',
-		name: 'Create from PDF Modal',
-		element: () => import('./create-from-pdf-modal.element.js'),
+		alias: 'UpDoc.Modal',
+		name: 'UpDoc Modal',
+		element: () => import('./up-doc-modal.element.js'),
 	},
 	{
 		type: 'modal',
-		alias: 'CreateFromPdf.BlueprintPickerModal',
+		alias: 'UpDoc.BlueprintPickerModal',
 		name: 'Blueprint Picker Modal',
 		element: () => import('./blueprint-picker-modal.element.js'),
 	},

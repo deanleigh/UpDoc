@@ -1,5 +1,5 @@
 using Asp.Versioning;
-using CreateDocumentFromPdf.Services;
+using UpDoc.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Umbraco.Cms.Core.Services;
@@ -7,12 +7,12 @@ using Umbraco.Cms.Api.Common.Attributes;
 using Umbraco.Cms.Api.Common.Filters;
 using Umbraco.Cms.Web.Common.Authorization;
 
-namespace CreateDocumentFromPdf.Controllers;
+namespace UpDoc.Controllers;
 
 [ApiController]
 [ApiVersion("1.0")]
-[Route("umbraco/management/api/v{version:apiVersion}/createfrompdf")]
-[MapToApi("createfrompdf")]
+[Route("umbraco/management/api/v{version:apiVersion}/updoc")]
+[MapToApi("updoc")]
 [Authorize(Policy = AuthorizationPolicies.BackOfficeAccess)]
 [JsonOptionsName("UmbracoManagementApi")]
 public class PdfExtractionController : ControllerBase
