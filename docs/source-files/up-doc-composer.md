@@ -1,19 +1,20 @@
-# CreateFromPdfComposer.cs
+# UpDocComposer.cs
 
-Umbraco composer that registers services for the Create from PDF extension.
+Umbraco composer that registers services for the UpDoc extension.
 
 ## What it does
 
-Registers the PDF extraction service with Umbraco's dependency injection container during application startup.
+Registers the PDF extraction services with Umbraco's dependency injection container during application startup.
 
 ## Code
 
 ```csharp
-public class CreateFromPdfComposer : IComposer
+public class UpDocComposer : IComposer
 {
     public void Compose(IUmbracoBuilder builder)
     {
         builder.Services.AddScoped<IPdfExtractionService, PdfExtractionService>();
+        builder.Services.AddScoped<IPdfPagePropertiesService, PdfPagePropertiesService>();
     }
 }
 ```

@@ -61,7 +61,7 @@ export interface BlueprintPickerModalValue {
 
 ```typescript
 export const UMB_BLUEPRINT_PICKER_MODAL = new UmbModalToken<BlueprintPickerModalData, BlueprintPickerModalValue>(
-    'CreateFromPdf.BlueprintPickerModal',
+    'UpDoc.BlueprintPickerModal',
     {
         modal: {
             type: 'dialog',
@@ -73,7 +73,7 @@ export const UMB_BLUEPRINT_PICKER_MODAL = new UmbModalToken<BlueprintPickerModal
 
 - `type: 'dialog'` - Centered dialog (not a sidebar), matching Umbraco's native Create flow pattern
 - `size: 'small'` - Compact dialog appropriate for a simple selection list
-- The alias `CreateFromPdf.BlueprintPickerModal` must match the manifest registration
+- The alias `UpDoc.BlueprintPickerModal` must match the manifest registration
 
 ## Usage
 

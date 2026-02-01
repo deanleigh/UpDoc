@@ -1,3 +1,5 @@
+> **Note:** This document uses the old "CreateFromPdf" naming. The project has been renamed to **UpDoc**. File paths, namespaces, API routes, and Umbraco aliases have all been updated. See `CLAUDE.md` for current naming conventions.
+
 # Refactor Plan: Convert to Configurable Generic Package
 
 ## Document Purpose

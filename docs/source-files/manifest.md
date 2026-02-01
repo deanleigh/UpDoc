@@ -15,10 +15,10 @@ Exports an array of `UmbExtensionManifest` objects that tell Umbraco about our c
 {
     type: 'entityAction',
     kind: 'default',
-    alias: 'CreateFromPdf.EntityAction',
-    name: 'Create from PDF Entity Action',
+    alias: 'UpDoc.EntityAction',
+    name: 'UpDoc Entity Action',
     weight: 1100,
-    api: () => import('./create-from-pdf-action.js'),
+    api: () => import('./up-doc-action.js'),
     forEntityTypes: ['document'],
     meta: {
         icon: 'icon-document',
@@ -44,15 +44,15 @@ Exports an array of `UmbExtensionManifest` objects that tell Umbraco about our c
 ```typescript
 {
     type: 'modal',
-    alias: 'CreateFromPdf.Modal',
-    name: 'Create from PDF Modal',
-    element: () => import('./create-from-pdf-modal.element.js'),
+    alias: 'UpDoc.Modal',
+    name: 'UpDoc Modal',
+    element: () => import('./up-doc-modal.element.js'),
 }
 ```
 
 **Key properties:**
 - `type: 'modal'` - Registers a modal dialog
-- `alias` - Must match the token alias in `create-from-pdf-modal.token.ts`
+- `alias` - Must match the token alias in `up-doc-modal.token.ts`
 - `element` - Lazy loads the Lit component
 
 ## Extension 3: Blueprint Picker Modal
@@ -60,7 +60,7 @@ Exports an array of `UmbExtensionManifest` objects that tell Umbraco about our c
 ```typescript
 {
     type: 'modal',
-    alias: 'CreateFromPdf.BlueprintPickerModal',
+    alias: 'UpDoc.BlueprintPickerModal',
     name: 'Blueprint Picker Modal',
     element: () => import('./blueprint-picker-modal.element.js'),
 }

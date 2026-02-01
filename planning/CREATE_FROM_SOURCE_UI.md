@@ -1,3 +1,5 @@
+> **Note:** This document uses the old "CreateFromPdf" naming. The project has been renamed to **UpDoc**. File paths, namespaces, API routes, and Umbraco aliases have all been updated. See `CLAUDE.md` for current naming conventions.
+
 # Feature Plan: Create Document from Source — Single Entry Point
 
 ## Overview

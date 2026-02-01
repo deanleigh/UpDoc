@@ -1,4 +1,4 @@
-# create-from-pdf-modal.element.ts
+# up-doc-modal.element.ts
 
 The Lit component that renders the "Create from Source" sidebar modal.
 
@@ -19,10 +19,10 @@ Currently only the PDF source type is fully functional. Web Page and Word Docume
 ## Class structure
 
 ```typescript
-@customElement('create-from-pdf-modal')
-export class CreateFromPdfModalElement extends UmbModalBaseElement<
-    UmbCreateFromPdfModalData,
-    UmbCreateFromPdfModalValue
+@customElement('up-doc-modal')
+export class UpDocModalElement extends UmbModalBaseElement<
+    UmbUpDocModalData,
+    UmbUpDocModalValue
 > {
     @state() private _documentName = '';
     @state() private _sourceType: SourceType | '' = '';
@@ -59,7 +59,7 @@ async #extractPdfProperties(mediaUnique: string) {
     const token = await authContext.getLatestToken();
 
     const response = await fetch(
-        `/umbraco/management/api/v1/createfrompdf/page-properties?mediaKey=${mediaUnique}`,
+        `/umbraco/management/api/v1/updoc/page-properties?mediaKey=${mediaUnique}`,
         {
             headers: { Authorization: `Bearer ${token}` },
         }
@@ -89,7 +89,7 @@ After extracting page properties, the modal extracts the full PDF content as Mar
 ```typescript
 async #extractItinerarySection(mediaUnique: string, token: string) {
     const response = await fetch(
-        `/umbraco/management/api/v1/createfrompdf/extract-markdown?mediaKey=${mediaUnique}`,
+        `/umbraco/management/api/v1/updoc/extract-markdown?mediaKey=${mediaUnique}`,
         { headers: { Authorization: `Bearer ${token}` } }
     );
     if (response.ok) {
@@ -215,9 +215,9 @@ static override styles = [
 ```typescript
 declare global {
     interface HTMLElementTagNameMap {
-        'create-from-pdf-modal': CreateFromPdfModalElement;
+        'up-doc-modal': UpDocModalElement;
     }
 }
 ```
 
-This provides TypeScript support when using `document.createElement('create-from-pdf-modal')`.
+This provides TypeScript support when using `document.createElement('up-doc-modal')`.

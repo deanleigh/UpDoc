@@ -1,5 +1,13 @@
 # Claude Instructions
 
+## Project Structure
+
+This project is a two-project solution:
+
+- **`src/UpDoc/`** — The Razor Class Library (RCL). This is the installable NuGet package containing the Umbraco extension.
+- **`src/UpDoc.TestSite/`** — The Umbraco host site used for development and testing. References the RCL via `<ProjectReference>`.
+- **`UpDoc.sln`** — Solution file at the repo root.
+
 ## Umbraco Skills Marketplace
 
 This project uses the Umbraco Skills Marketplace for Claude Code. When working on Umbraco backoffice customizations, use the available skills for guidance on extension types, patterns, and testing.
@@ -41,19 +49,34 @@ Do not create a new feature branch while another feature branch is checked out w
 
 ## Documentation Requirements
 
-When modifying any file in `App_Plugins/CreateFromPdf/src/`, update the corresponding documentation in `docs/source-files/`:
+When modifying any file in `src/UpDoc/wwwroot/App_Plugins/UpDoc/src/`, update the corresponding documentation in `docs/source-files/`:
 
 | Source File | Documentation File |
 |-------------|-------------------|
 | index.ts | docs/source-files/index.md |
 | manifest.ts | docs/source-files/manifest.md |
-| create-from-pdf-action.ts | docs/source-files/create-from-pdf-action.md |
-| create-from-pdf-modal.element.ts | docs/source-files/create-from-pdf-modal-element.md |
-| create-from-pdf-modal.token.ts | docs/source-files/create-from-pdf-modal-token.md |
+| up-doc-action.ts | docs/source-files/up-doc-action.md |
+| up-doc-modal.element.ts | docs/source-files/up-doc-modal-element.md |
+| up-doc-modal.token.ts | docs/source-files/up-doc-modal-token.md |
+| blueprint-picker-modal.element.ts | docs/source-files/blueprint-picker-modal-element.md |
+| blueprint-picker-modal.token.ts | docs/source-files/blueprint-picker-modal-token.md |
 
 If adding a new source file:
 1. Create corresponding `.md` file in `docs/source-files/`
 2. Add entry to `docs/SUMMARY.md`
+
+## Naming Conventions
+
+| Context | Format | Value |
+|---------|--------|-------|
+| Brand / display | PascalCase | UpDoc |
+| C# namespace | PascalCase | `UpDoc.*` |
+| Umbraco aliases | Dot notation | `UpDoc.EntityAction`, `UpDoc.Modal`, etc. |
+| npm package | lowercase | `updoc` |
+| App_Plugins folder | PascalCase | `App_Plugins/UpDoc/` |
+| File names | kebab-case | `up-doc-action.ts`, `up-doc-modal.element.ts` |
+| Custom HTML elements | kebab-case | `<up-doc-modal>` |
+| API route | lowercase | `/umbraco/management/api/v1/updoc` |
 
 ## Umbraco References
 
@@ -66,11 +89,25 @@ Documentation is synced to GitBook from the `docs/` folder. Changes to docs requ
 
 ## Build
 
+### Frontend (TypeScript)
+
 After changing TypeScript files, rebuild with:
 ```
-cd App_Plugins/CreateFromPdf && npm run build
+cd src/UpDoc/wwwroot/App_Plugins/UpDoc && npm run build
+```
+
+### .NET Solution
+
+Build the full solution with:
+```
+dotnet build UpDoc.sln
 ```
 
 ## Running Site
+
+The test site can be run with:
+```
+dotnet run --project src/UpDoc.TestSite/UpDoc.TestSite.csproj
+```
 
 The Umbraco site may be running during development. Before performing any work that requires the site to be stopped (e.g. `dotnet build`, `dotnet run`, modifying C# files that need recompilation, or changes that lock files), prompt the user to stop the site first. Do not assume the site is stopped.

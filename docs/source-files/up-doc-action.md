@@ -1,6 +1,6 @@
-# create-from-pdf-action.ts
+# up-doc-action.ts
 
-The entity action class that handles the "Create Document from PDF" menu click.
+The entity action class that handles the "Create Document from Source" menu click.
 
 ## What it does
 
@@ -19,7 +19,7 @@ When a user clicks "Create Document from Source" in the document tree context me
 ## Class structure
 
 ```typescript
-export class CreateFromPdfEntityAction extends UmbEntityActionBase<never> {
+export class UpDocEntityAction extends UmbEntityActionBase<never> {
     #documentTypeStructureRepository = new UmbDocumentTypeStructureRepository(this);
     #blueprintItemRepository = new UmbDocumentBlueprintItemRepository(this);
     #documentItemRepository = new UmbDocumentItemRepository(this);
@@ -43,7 +43,7 @@ The modal can be cancelled (clicking outside or Close button), which throws an e
 ```typescript
 let modalValue;
 try {
-    modalValue = await umbOpenModal(this, UMB_CREATE_FROM_PDF_MODAL, {
+    modalValue = await umbOpenModal(this, UMB_UP_DOC_MODAL, {
         data: { unique: parentUnique },
     });
 } catch {
@@ -113,7 +113,7 @@ const scaffold = await scaffoldResponse.json();
 
 ### Creating the document
 
-The document is created with merged values (scaffold defaults + PDF-extracted):
+The document is created with merged values (scaffold defaults + extracted):
 
 ```typescript
 const createRequest = {
@@ -208,7 +208,7 @@ notificationContext.peek('positive', {
 ## Imports
 
 ```typescript
-import { UMB_CREATE_FROM_PDF_MODAL } from './create-from-pdf-modal.token.js';
+import { UMB_UP_DOC_MODAL } from './up-doc-modal.token.js';
 import { UMB_BLUEPRINT_PICKER_MODAL } from './blueprint-picker-modal.token.js';
 import type { DocumentTypeOption } from './blueprint-picker-modal.token.js';
 import { UmbEntityActionBase } from '@umbraco-cms/backoffice/entity-action';

@@ -14,7 +14,7 @@ Provides Management API endpoints for extracting content from PDFs:
 ## Endpoint
 
 ```
-GET /umbraco/management/api/v1/createfrompdf/extract?mediaKey={guid}
+GET /umbraco/management/api/v1/updoc/extract?mediaKey={guid}
 ```
 
 ### Parameters
@@ -40,7 +40,7 @@ GET /umbraco/management/api/v1/createfrompdf/extract?mediaKey={guid}
 ## Section extraction endpoint
 
 ```
-GET /umbraco/management/api/v1/createfrompdf/page-section?mediaKey={guid}&heading={text}
+GET /umbraco/management/api/v1/updoc/page-section?mediaKey={guid}&heading={text}
 ```
 
 ### Parameters
@@ -67,7 +67,7 @@ GET /umbraco/management/api/v1/createfrompdf/page-section?mediaKey={guid}&headin
 ## Markdown extraction endpoint
 
 ```
-GET /umbraco/management/api/v1/createfrompdf/extract-markdown?mediaKey={guid}
+GET /umbraco/management/api/v1/updoc/extract-markdown?mediaKey={guid}
 ```
 
 Extracts the full PDF content as Markdown with column detection for multi-column layouts.
@@ -100,7 +100,7 @@ Extracts the full PDF content as Markdown with column detection for multi-column
 
 Uses the new Management API pattern introduced in Umbraco 14+:
 - `[ApiVersion("1.0")]` - API versioning
-- `[MapToApi("createfrompdf")]` - API grouping for Swagger
+- `[MapToApi("updoc")]` - API grouping for Swagger
 - `[Authorize(Policy = AuthorizationPolicies.BackOfficeAccess)]` - Backoffice auth
 - `[JsonOptionsName("UmbracoManagementApi")]` - Umbraco JSON serialization
 
@@ -116,13 +116,15 @@ The controller handles both formats.
 
 - `IMediaService` - Umbraco media service
 - `IPdfExtractionService` - PDF extraction service
+- `IPdfPagePropertiesService` - PDF page properties service
 - `IWebHostEnvironment` - For resolving file paths
+- `ILogger<PdfExtractionController>` - Logging
 
 ## Frontend usage
 
 ```typescript
 const response = await fetch(
-    `/umbraco/management/api/v1/createfrompdf/extract?mediaKey=${mediaUnique}`,
+    `/umbraco/management/api/v1/updoc/extract?mediaKey=${mediaUnique}`,
     {
         method: 'GET',
         headers: {

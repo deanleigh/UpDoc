@@ -72,4 +72,4 @@ public class MyController : ControllerBase
 
 ## Registration
 
-Registered via `CreateFromPdfComposer` as a scoped service.
+Registered via `UpDocComposer` as a scoped service.

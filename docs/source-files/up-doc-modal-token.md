@@ -1,4 +1,4 @@
-# create-from-pdf-modal.token.ts
+# up-doc-modal.token.ts
 
 Defines the modal token and TypeScript interfaces for type-safe modal communication.
 
@@ -20,11 +20,11 @@ Defines the available source types for content extraction. Currently only `pdf` 
 ## The interfaces
 
 ```typescript
-export interface UmbCreateFromPdfModalData {
+export interface UmbUpDocModalData {
     unique: string | null;  // Parent document ID
 }
 
-export interface UmbCreateFromPdfModalValue {
+export interface UmbUpDocModalValue {
     name: string;                  // The document name (pre-filled from source, user can edit)
     sourceType: SourceType;        // Which source type was selected (pdf, web, doc)
     mediaUnique: string | null;    // The selected media item's unique ID (for pdf/doc sources)
@@ -39,11 +39,11 @@ export interface UmbCreateFromPdfModalValue {
 ## The token
 
 ```typescript
-export const UMB_CREATE_FROM_PDF_MODAL = new UmbModalToken<
-    UmbCreateFromPdfModalData,
-    UmbCreateFromPdfModalValue
+export const UMB_UP_DOC_MODAL = new UmbModalToken<
+    UmbUpDocModalData,
+    UmbUpDocModalValue
 >(
-    'CreateFromPdf.Modal',  // Must match manifest alias
+    'UpDoc.Modal',  // Must match manifest alias
     {
         modal: {
             type: 'sidebar',  // Opens as sidebar panel
@@ -79,11 +79,11 @@ A generic class that provides:
 When opening the modal:
 
 ```typescript
-import { UMB_CREATE_FROM_PDF_MODAL } from './create-from-pdf-modal.token.js';
+import { UMB_UP_DOC_MODAL } from './up-doc-modal.token.js';
 
-const value = await umbOpenModal(this, UMB_CREATE_FROM_PDF_MODAL, {
-    data: { unique: parentId },  // TypeScript knows this must be UmbCreateFromPdfModalData
+const value = await umbOpenModal(this, UMB_UP_DOC_MODAL, {
+    data: { unique: parentId },  // TypeScript knows this must be UmbUpDocModalData
 });
-// value is typed as UmbCreateFromPdfModalValue
+// value is typed as UmbUpDocModalValue
 // Includes: name, sourceType, mediaUnique, sourceUrl, pageTitle, pageTitleShort, pageDescription, itineraryContent
 ```

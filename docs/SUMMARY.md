@@ -6,9 +6,9 @@
 
 * [index.ts](source-files/index.md)
 * [manifest.ts](source-files/manifest.md)
-* [create-from-pdf-action.ts](source-files/create-from-pdf-action.md)
-* [create-from-pdf-modal.element.ts](source-files/create-from-pdf-modal-element.md)
-* [create-from-pdf-modal.token.ts](source-files/create-from-pdf-modal-token.md)
+* [up-doc-action.ts](source-files/up-doc-action.md)
+* [up-doc-modal.element.ts](source-files/up-doc-modal-element.md)
+* [up-doc-modal.token.ts](source-files/up-doc-modal-token.md)
 * [blueprint-picker-modal.element.ts](source-files/blueprint-picker-modal-element.md)
 * [blueprint-picker-modal.token.ts](source-files/blueprint-picker-modal-token.md)
 
@@ -17,4 +17,4 @@
 * [PdfExtractionService.cs](source-files/pdf-extraction-service.md)
 * [PdfPagePropertiesService.cs](source-files/pdf-page-properties-service.md)
 * [PdfExtractionController.cs](source-files/pdf-extraction-controller.md)
-* [CreateFromPdfComposer.cs](source-files/create-from-pdf-composer.md)
+* [UpDocComposer.cs](source-files/up-doc-composer.md)

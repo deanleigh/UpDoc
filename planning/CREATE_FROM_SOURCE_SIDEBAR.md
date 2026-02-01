@@ -1,3 +1,5 @@
+> **Note:** This document uses the old "CreateFromPdf" naming. The project has been renamed to **UpDoc**. File paths, namespaces, API routes, and Umbraco aliases have all been updated. See `CLAUDE.md` for current naming conventions.
+
 # Plan: Unified "Create from Source" Sidebar Modal
 
 ## Status: Phase 1 IN PROGRESS — Blueprint picker dialog implemented, source type dropdown implemented
