@@ -18,9 +18,19 @@ using Umbraco.Extensions;
 
 namespace Umbraco.Cms.Web.Common.PublishedModels
 {
+	// Mixin Content Type with alias "contentGridGroupTour"
+	/// <summary>Group Tour - Content</summary>
+	public partial interface IContentGridGroupTour : IPublishedElement
+	{
+		/// <summary>Block Grid Editor - Tour</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "17.1.0+2832436")]
+		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
+		global::Umbraco.Cms.Core.Models.Blocks.BlockGridModel ContentGridTour { get; }
+	}
+
 	/// <summary>Group Tour - Content</summary>
 	[PublishedModel("contentGridGroupTour")]
-	public partial class ContentGridGroupTour : PublishedElementModel
+	public partial class ContentGridGroupTour : PublishedElementModel, IContentGridGroupTour
 	{
 		// helpers
 #pragma warning disable 0109 // new is redundant
@@ -50,11 +60,16 @@ namespace Umbraco.Cms.Web.Common.PublishedModels
 		// properties
 
 		///<summary>
-		/// Block Grid Editor: Hover 'Block Grid Editor' then click the 3 dots to switch to Sort Mode (a simplified view for rearranging the page). The Block Grid Editor allows you to add Layout Blocks consisting of one or more Areas which in turn may contain Feature Blocks such as Text or Images
+		/// Block Grid Editor - Tour: Hover 'Block Grid Editor' then click the 3 dots to switch to Sort Mode (a simplified view for rearranging the page). The Block Grid Editor allows you to add Layout Blocks consisting of one or more Areas which in turn may contain Feature Blocks such as Text or Images
 		///</summary>
 		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "17.1.0+2832436")]
 		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
-		[ImplementPropertyType("contentGrid")]
-		public virtual global::Umbraco.Cms.Core.Models.Blocks.BlockGridModel ContentGrid => this.Value<global::Umbraco.Cms.Core.Models.Blocks.BlockGridModel>(_publishedValueFallback, "contentGrid");
+		[ImplementPropertyType("contentGridTour")]
+		public virtual global::Umbraco.Cms.Core.Models.Blocks.BlockGridModel ContentGridTour => GetContentGridTour(this, _publishedValueFallback);
+
+		/// <summary>Static getter for Block Grid Editor - Tour</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "17.1.0+2832436")]
+		[return: global::System.Diagnostics.CodeAnalysis.MaybeNull]
+		public static global::Umbraco.Cms.Core.Models.Blocks.BlockGridModel GetContentGridTour(IContentGridGroupTour that, IPublishedValueFallback publishedValueFallback) => that.Value<global::Umbraco.Cms.Core.Models.Blocks.BlockGridModel>(publishedValueFallback, "contentGridTour");
 	}
 }

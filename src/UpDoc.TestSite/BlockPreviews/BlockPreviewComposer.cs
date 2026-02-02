@@ -19,6 +19,7 @@ public class BlockPreviewComposer : IComposer
                 [
                     FeaturePageTitleDescription.ModelTypeAlias,
                     FeatureRichTextEditor.ModelTypeAlias,
+                    FeatureRichTextEditorItinery.ModelTypeAlias,
                     FeatureImage.ModelTypeAlias,
                     FeatureInternalLinksChildren.ModelTypeAlias,
                     FeatureInternalLinks.ModelTypeAlias,
