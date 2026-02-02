@@ -1,5 +1,17 @@
 # Claude Instructions
 
+## Session Startup (MANDATORY)
+
+At the start of **every session or continued conversation**, you MUST read the following files using the Read tool before doing ANY other work. Do not rely on summaries, system reminders, or compacted context for these files — read them fresh every time.
+
+1. `planning/REFACTOR_TO_CONFIGURABLE.md` — Config-driven extraction and mapping architecture
+2. `planning/CREATE_FROM_SOURCE_SIDEBAR.md` — Unified sidebar modal design
+3. `planning/CREATE_FROM_SOURCE_UI.md` — Single entry point UI design
+
+These files contain agreed-upon design decisions, config schemas, and implementation roadmaps. You must have their full content in your working context before answering questions, entering plan mode, or writing any code. If you find yourself unsure about an architectural decision, the answer is almost certainly in these files.
+
+---
+
 ## Project Structure
 
 This project is a two-project solution:
@@ -30,14 +42,9 @@ This project uses the Umbraco Skills Marketplace for Claude Code. When working o
 
 ## Planning Files
 
-The `planning/` folder contains architectural planning documents for this project. **When entering plan mode, always read the relevant planning files first** before doing any exploration or design work. These files contain design decisions, config schemas, and implementation roadmaps that have been agreed upon with the user.
+The `planning/` folder contains architectural planning documents for this project. These files are read at session startup (see **Session Startup** above) and must be in your working context at all times.
 
-Key planning files:
-- `planning/REFACTOR_TO_CONFIGURABLE.md` — Config-driven extraction and mapping architecture
-- `planning/CREATE_FROM_SOURCE_SIDEBAR.md` — Unified sidebar modal design
-- `planning/CREATE_FROM_SOURCE_UI.md` — Single entry point UI design
-
-Do not duplicate or contradict decisions already made in these files. If the current task relates to an existing planning document, build on it rather than designing from scratch.
+Do not duplicate or contradict decisions already made in these files. If the current task relates to an existing planning document, build on it rather than designing from scratch. Never ask the user questions that are already answered in the planning files.
 
 ## Git Branching
 
