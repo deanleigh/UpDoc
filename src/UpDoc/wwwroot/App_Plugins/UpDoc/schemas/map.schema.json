@@ -1,0 +1,179 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://updoc.dev/schemas/map.schema.json",
+  "title": "UpDoc Map File",
+  "description": "Defines extraction rules and property mappings for creating Umbraco documents from source content.",
+  "type": "object",
+  "required": ["name", "documentTypeAlias", "sourceTypes", "propertyMappings"],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable name for this map (e.g. 'Group Tour Page')."
+    },
+    "documentTypeAlias": {
+      "type": "string",
+      "description": "The Umbraco document type alias this map targets."
+    },
+    "blueprintId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "The GUID of the Umbraco document blueprint. Required for this iteration, optional in future."
+    },
+    "sourceTypes": {
+      "type": "object",
+      "description": "Extraction rules per source type.",
+      "properties": {
+        "pdf": { "$ref": "#/$defs/sourceTypeConfig" },
+        "web": { "$ref": "#/$defs/sourceTypeConfig" },
+        "word": { "$ref": "#/$defs/sourceTypeConfig" }
+      },
+      "additionalProperties": false
+    },
+    "propertyMappings": {
+      "type": "array",
+      "description": "Maps extracted sections to Umbraco document properties.",
+      "items": { "$ref": "#/$defs/propertyMapping" }
+    }
+  },
+  "$defs": {
+    "sourceTypeConfig": {
+      "type": "object",
+      "required": ["enabled"],
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Whether this source type is available for this document type."
+        },
+        "extraction": {
+          "$ref": "#/$defs/pdfExtractionRules"
+        }
+      },
+      "additionalProperties": false
+    },
+    "pdfExtractionRules": {
+      "type": "object",
+      "description": "Rules for extracting content from a PDF.",
+      "properties": {
+        "columnDetection": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true,
+              "description": "Whether to detect and filter multi-column layouts."
+            },
+            "thresholdPercent": {
+              "type": "number",
+              "default": 0.35,
+              "description": "Page width percentage below which content is considered sidebar."
+            }
+          },
+          "additionalProperties": false
+        },
+        "titleDetection": {
+          "type": "object",
+          "properties": {
+            "fontSizeThreshold": {
+              "type": "number",
+              "default": 0.85,
+              "description": "Multiplier of max font size. Lines at or above this are titles."
+            }
+          },
+          "additionalProperties": false
+        },
+        "descriptionPattern": {
+          "type": "string",
+          "description": "Regex pattern to identify the description line (e.g. '\\d+ days from £\\d+')."
+        },
+        "content": {
+          "type": "object",
+          "description": "Rules for extracting the main content body.",
+          "properties": {
+            "startPattern": {
+              "type": "string",
+              "description": "Regex pattern that marks the start of content capture (e.g. '^Day\\s+\\d+')."
+            },
+            "stopPatterns": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Lowercase text patterns that stop content capture (footer/disclaimer indicators)."
+            },
+            "headingLevel": {
+              "type": "string",
+              "enum": ["h1", "h2", "h3", "h4"],
+              "default": "h2",
+              "description": "Markdown heading level for content section headings."
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "propertyMapping": {
+      "type": "object",
+      "required": ["from", "to"],
+      "properties": {
+        "from": {
+          "type": "object",
+          "required": ["sectionType"],
+          "properties": {
+            "sectionType": {
+              "type": "string",
+              "description": "The extracted section key (e.g. 'title', 'description', 'content')."
+            }
+          },
+          "additionalProperties": false
+        },
+        "to": {
+          "type": "object",
+          "properties": {
+            "property": {
+              "type": "string",
+              "description": "Target Umbraco property alias for simple value mapping."
+            },
+            "alsoMapTo": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Additional property aliases to receive the same value."
+            },
+            "blockGrid": {
+              "type": "string",
+              "description": "Block grid property alias when targeting a block within a grid."
+            },
+            "blockSearch": {
+              "type": "object",
+              "description": "How to find the target block within the block grid.",
+              "required": ["property", "value"],
+              "properties": {
+                "property": {
+                  "type": "string",
+                  "description": "Property alias to search within blocks."
+                },
+                "value": {
+                  "type": "string",
+                  "description": "Value to match (case-insensitive contains)."
+                }
+              },
+              "additionalProperties": false
+            },
+            "targetProperty": {
+              "type": "string",
+              "description": "Property alias within the found block to write to."
+            },
+            "convertMarkdown": {
+              "type": "boolean",
+              "default": false,
+              "description": "Whether to convert Markdown to HTML before writing."
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

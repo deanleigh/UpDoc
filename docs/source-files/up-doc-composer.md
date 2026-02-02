@@ -15,6 +15,7 @@ public class UpDocComposer : IComposer
     {
         builder.Services.AddScoped<IPdfExtractionService, PdfExtractionService>();
         builder.Services.AddScoped<IPdfPagePropertiesService, PdfPagePropertiesService>();
+        builder.Services.AddSingleton<IMapFileService, MapFileService>();
     }
 }
 ```
@@ -28,16 +29,20 @@ Umbraco's composition pattern for registering services:
 - Runs before the application starts
 - Used for DI registration, event subscriptions, etc.
 
-### Service lifetime
+### Service lifetimes
 
 `AddScoped` means:
 - One instance per HTTP request
 - Disposed at the end of the request
 - Appropriate for services that may hold request-specific state
+- Used for `IPdfExtractionService` and `IPdfPagePropertiesService`
+
+`AddSingleton` means:
+- One instance for entire application lifetime
+- Used for `IMapFileService` because it caches map files in memory after first load and the data is read-only
 
 ### Alternatives
 
-- `AddSingleton` - One instance for entire application lifetime
 - `AddTransient` - New instance every time it's requested
 
 ## When to use composers

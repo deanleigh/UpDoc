@@ -5,13 +5,13 @@ The Lit component that renders the "Create from Source" sidebar modal.
 ## What it does
 
 Provides the UI for users to:
-1. Enter a document name (or leave blank to auto-populate from source)
-2. Choose a source type (PDF Document, Web Page, or Word Document)
-3. Configure the source (pick a media item, paste a URL, etc.)
-4. For PDF sources: automatically extracts PDF properties (title, description) when selected
-5. Extracts "Suggested Itinerary" section content if available (PDF only)
+1. See which blueprint was selected (displayed at the top)
+2. Enter a document name (or leave blank to auto-populate from source)
+3. Choose a source type (PDF Document, Web Page, or Word Document)
+4. Configure the source (pick a media item, paste a URL, etc.)
+5. For PDF sources: automatically extracts sections using the map file's extraction rules when a media item is selected
 6. Pre-fills the document name with the extracted title (if not already entered)
-7. Shows a preview of extracted properties and itinerary
+7. Shows a dynamic preview of all extracted sections
 8. Submit or cancel the operation
 
 Currently only the PDF source type is fully functional. Web Page and Word Document source types show their respective UI (URL input and media picker) but display "not yet available" messages and the Create button remains disabled.
@@ -28,10 +28,8 @@ export class UpDocModalElement extends UmbModalBaseElement<
     @state() private _sourceType: SourceType | '' = '';
     @state() private _sourceUrl = '';
     @state() private _selectedMediaUnique: string | null = null;
-    @state() private _pageTitle = '';
-    @state() private _pageTitleShort = '';
-    @state() private _pageDescription = '';
-    @state() private _itineraryContent = '';
+    @state() private _extractedSections: Record<string, string> = {};
+    @state() private _propertyMappings: PropertyMapping[] = [];
     @state() private _isExtracting = false;
     @state() private _extractionError: string | null = null;
 
@@ -39,96 +37,100 @@ export class UpDocModalElement extends UmbModalBaseElement<
 }
 ```
 
+The previous individual property state fields (`_pageTitle`, `_pageTitleShort`, `_pageDescription`, `_itineraryContent`) have been replaced by:
+- `_extractedSections` -- a `Record<string, string>` holding all extracted values keyed by section type (e.g., "title", "description", "content")
+- `_propertyMappings` -- a `PropertyMapping[]` from the map file, passed through to the action
+
 ## Key concepts
 
 ### Extending UmbModalBaseElement
 
 All Umbraco modals extend `UmbModalBaseElement<TData, TValue>`:
-- `TData` - The data passed TO the modal when opening
-- `TValue` - The data returned FROM the modal when submitted
+- `TData` -- The data passed TO the modal when opening
+- `TValue` -- The data returned FROM the modal when submitted
 
-### Automatic PDF extraction
+### Unified extraction via #extractFromSource
 
-When a PDF is selected, the modal automatically calls the backend API to extract properties:
+The previous `#extractPdfProperties` and `#extractItinerarySection` methods have been replaced by a single `#extractFromSource` method that calls the `extractSections` function from `map-file.service.ts`:
 
 ```typescript
-async #extractPdfProperties(mediaUnique: string) {
+async #extractFromSource(mediaUnique: string) {
     this._isExtracting = true;
+    this._extractionError = null;
 
-    const authContext = await this.getContext(UMB_AUTH_CONTEXT);
-    const token = await authContext.getLatestToken();
-
-    const response = await fetch(
-        `/umbraco/management/api/v1/updoc/page-properties?mediaKey=${mediaUnique}`,
-        {
-            headers: { Authorization: `Bearer ${token}` },
+    try {
+        const blueprintId = this.data?.blueprintId;
+        if (!blueprintId) {
+            this._extractionError = 'No blueprint ID available';
+            return;
         }
-    );
 
-    const result = await response.json();
-    this._pageTitle = result.title || '';
-    this._pageTitleShort = result.title || '';
-    this._pageDescription = result.description || '';
+        const authContext = await this.getContext(UMB_AUTH_CONTEXT);
+        const token = await authContext.getLatestToken();
 
-    // Pre-fill document name with extracted title
-    if (result.title && !this._documentName) {
-        this._documentName = result.title;
+        const result = await extractSections(mediaUnique, blueprintId, token);
+
+        if (!result) {
+            this._extractionError = 'Failed to extract content from source';
+            return;
+        }
+
+        this._extractedSections = result.sections;
+        this._propertyMappings = result.propertyMappings;
+
+        // Pre-fill document name with extracted title
+        if (result.sections['title'] && !this._documentName) {
+            this._documentName = result.sections['title'];
+        }
+    } catch (error) {
+        this._extractionError = 'Failed to connect to extraction service';
+    } finally {
+        this._isExtracting = false;
     }
-
-    // Force re-render to ensure UI updates
-    this.requestUpdate();
 }
 ```
 
-Note: The `requestUpdate()` call is necessary to ensure Lit re-renders after async state updates.
+This method delegates all extraction logic to the backend, which uses the map file's `PdfExtractionRules` to determine how to parse the PDF.
 
-### Itinerary section extraction (Markdown)
+### Dynamic extracted content preview
 
-After extracting page properties, the modal extracts the full PDF content as Markdown using the `extract-markdown` endpoint. This Markdown is then converted to HTML in the action when updating the Block Grid:
+The preview section now renders all extracted sections dynamically using `Object.entries`:
 
 ```typescript
-async #extractItinerarySection(mediaUnique: string, token: string) {
-    const response = await fetch(
-        `/umbraco/management/api/v1/updoc/extract-markdown?mediaKey=${mediaUnique}`,
-        { headers: { Authorization: `Bearer ${token}` } }
-    );
-    if (response.ok) {
-        const result = await response.json();
-        // Store the Markdown content (will be converted to HTML in the action)
-        this._itineraryContent = result.markdown || '';
-    }
+#renderExtractedPreview() {
+    const sections = this._extractedSections;
+    const hasContent = Object.values(sections).some((v) => v.length > 0);
+    if (!hasContent) return nothing;
+
+    return html`
+        <uui-box headline="Extracted Content" class="preview-box">
+            ${Object.entries(sections).map(([key, value]) => {
+                if (!value) return nothing;
+                const truncated = value.length > 200 ? `${value.substring(0, 200)}...` : value;
+                return html`
+                    <div class="preview-item">
+                        <strong>${key}:</strong>
+                        <div class="preview-value">${truncated}</div>
+                    </div>
+                `;
+            })}
+        </uui-box>
+    `;
 }
 ```
 
-The Markdown extraction uses column detection to identify and merge multi-column PDF layouts (common in travel itineraries) into a single flow of content with proper heading hierarchy.
+This replaces the previous hardcoded preview that showed only Page Title, Page Description, and Suggested Itinerary.
 
 ### Source type selection
 
-The `uui-select` dropdown uses the `placeholder` attribute to show "Choose a source..." when no source type is selected. When the user changes the source type, all source-specific state is reset (selected media, URL, extracted properties). This ensures a clean slate when switching between source types.
-
-Note: An explicit `requestUpdate()` call is required after setting `_sourceType` to ensure Lit re-renders the conditional source UI. This is necessary due to how `uui-select` dispatches change events within shadow DOM.
-
-```typescript
-#handleSourceTypeChange(e: Event) {
-    const target = e.target as Element & { value: string };
-    const newSourceType = target.value as SourceType | '';
-    // Reset source-specific state when changing source type
-    if (newSourceType !== this._sourceType) {
-        this._selectedMediaUnique = null;
-        this._sourceUrl = '';
-        // ... reset extracted properties
-    }
-    this._sourceType = newSourceType;
-    this.requestUpdate();
-}
-```
+The `uui-select` dropdown uses the `placeholder` attribute to show "Choose a source..." when no source type is selected. When the user changes the source type, all source-specific state is reset (selected media, URL, extracted sections, property mappings). This ensures a clean slate when switching between source types.
 
 ### Conditional source UI rendering
 
 Each source type renders its own UI via `#renderSourceUI()`:
-- **PDF** (`#renderPdfSource()`) - Media picker + extraction status (fully functional)
-- **Web** (`#renderWebSource()`) - URL input + "not yet available" message
-- **Doc** (`#renderDocSource()`) - Media picker + "not yet available" message
+- **PDF** (`#renderPdfSource()`) -- Media picker + extraction status (fully functional)
+- **Web** (`#renderWebSource()`) -- URL input + "not yet available" message
+- **Doc** (`#renderDocSource()`) -- Media picker + "not yet available" message
 
 ### Create button enablement
 
@@ -146,51 +148,45 @@ The `#getCanCreate()` method controls when the Create button is enabled:
         sourceType: this._sourceType as SourceType,
         mediaUnique: this._selectedMediaUnique,
         sourceUrl: this._sourceUrl || null,
-        pageTitle: this._pageTitle,
-        pageTitleShort: this._pageTitleShort,
-        pageDescription: this._pageDescription,
-        itineraryContent: this._itineraryContent,
+        extractedSections: this._extractedSections,
+        propertyMappings: this._propertyMappings,
     };
-    this.modalContext?.submit();  // Closes modal and returns value
+    this._submitModal();
 }
 
 #handleClose() {
-    this.modalContext?.reject();  // Closes modal without returning
+    this._rejectModal();
 }
 ```
 
+The `#handleSave` method now returns `extractedSections` and `propertyMappings` instead of the previous individual fields.
+
 ## Template structure
 
-The modal is organized into three main sections:
+The modal is organized into four main sections:
 
-1. **Document Name box** - At the top, with explanatory text: "Enter a document name or let it be populated from the source. You can edit this later."
-2. **Source box** - Contains a source type dropdown (`uui-select`) and conditional source-specific UI below it
-3. **Extracted Properties box** - Shows the extracted Page Title and Page Description after source processing
+1. **Blueprint box** -- Shows the selected blueprint name with an icon
+2. **Document Name box** -- Text input with explanatory text: "Enter a document name or let it be populated from the source. You can edit this later."
+3. **Source box** -- Contains a source type dropdown (`uui-select`) and conditional source-specific UI below it
+4. **Extracted Content box** -- Dynamically renders all extracted sections after source processing
 
 Uses Umbraco's UI components:
-- `umb-body-layout` - Standard modal layout with headline "Create from Source" and action slots
-- `uui-box` - Content containers with headlines (Document Name, Source, Extracted Properties)
-- `uui-select` - Dropdown for choosing source type (PDF Document, Web Page, Word Document)
-- `umb-property-layout` - Form field wrapper with label
-- `umb-input-media` - Media picker for selecting PDF/Doc from media library
-- `uui-input` - Text input for document name and web page URL
-- `uui-loader-bar` - Loading indicator during extraction
-- `uui-icon` - Status icons for success/error/info states
-- `uui-button` - Action buttons (disabled until source configured and extraction complete)
+- `umb-body-layout` -- Standard modal layout with headline "Create from Source" and action slots
+- `uui-box` -- Content containers with headlines (Blueprint, Document Name, Source, Extracted Content)
+- `uui-select` -- Dropdown for choosing source type (PDF Document, Web Page, Word Document)
+- `umb-property-layout` -- Form field wrapper with label
+- `umb-input-media` -- Media picker for selecting PDF/Doc from media library
+- `uui-input` -- Text input for document name and web page URL
+- `uui-loader-bar` -- Loading indicator during extraction
+- `uui-icon` -- Status icons for success/error/info states
+- `uui-button` -- Action buttons (disabled until source configured and extraction complete)
 
 ## Extraction status display
 
 The modal shows visual feedback during and after extraction:
-- **Extracting**: Loading bar with "Extracting PDF properties..." message
+- **Extracting**: Loading bar with "Extracting content from source..." message
 - **Error**: Red box with error message
-- **Success**: Green box with "PDF properties extracted successfully"
-
-## Extracted properties preview
-
-After successful extraction, shows a preview box with:
-- Page Title
-- Page Description
-- Suggested Itinerary (truncated preview if available)
+- **Success**: Green box with "Content extracted successfully"
 
 ## Styles
 
@@ -198,17 +194,34 @@ After successful extraction, shows a preview box with:
 static override styles = [
     UmbTextStyles,  // Umbraco's base text styles
     css`
+        .blueprint-display { display: flex; align-items: center; gap: ...; }
+        uui-input { width: 100%; }
         uui-box { margin-bottom: var(--uui-size-space-4); }
-        uui-select { width: 100%; }
         .extraction-status { ... }
         .extraction-status.extracting { ... }
         .extraction-status.error { ... }
         .extraction-status.success { ... }
-        .source-coming-soon { ... }  // Info message for non-functional sources
         .preview-box { ... }
+        .preview-item { ... }
+        .preview-value { ... white-space: pre-wrap; max-height: 100px; overflow-y: auto; }
+        .source-coming-soon { ... }
     `
 ];
 ```
+
+## Imports
+
+```typescript
+import type { UmbUpDocModalData, UmbUpDocModalValue, SourceType } from './up-doc-modal.token.js';
+import type { PropertyMapping } from './map-file.types.js';
+import { extractSections } from './map-file.service.js';
+import { html, customElement, css, state, nothing } from '@umbraco-cms/backoffice/external/lit';
+import { UmbTextStyles } from '@umbraco-cms/backoffice/style';
+import { UmbModalBaseElement } from '@umbraco-cms/backoffice/modal';
+import { UMB_AUTH_CONTEXT } from '@umbraco-cms/backoffice/auth';
+```
+
+Note: The modal now imports `extractSections` from `map-file.service.js` and `PropertyMapping` from `map-file.types.js` instead of making direct fetch calls to individual endpoints.
 
 ## Global declaration
 

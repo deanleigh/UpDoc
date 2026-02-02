@@ -7,14 +7,15 @@ The entity action class that handles the "Create Document from Source" menu clic
 When a user clicks "Create Document from Source" in the document tree context menu, this action:
 1. Gets the parent document's document type
 2. Discovers allowed child document types and their blueprints (grouped by document type)
-3. Opens the **blueprint picker dialog** — user selects a document type, then a blueprint for that type (or sees "create one first" message if no blueprints exist)
-4. Opens the **source sidebar modal** — user selects source type and content
-5. Scaffolds from the selected blueprint to get default values
-6. Creates a new document with extracted properties (pageTitle, pageTitleShort, pageDescription)
-7. Updates Block Grid contentGrid with itinerary content in the "Suggested Itinerary" RTE block
-8. Saves the document to properly persist it and trigger cache updates
-9. Shows success/error notifications
-10. Navigates to the newly created document
+3. Opens the **blueprint picker dialog** -- user selects a document type, then a blueprint for that type (or sees "create one first" message if no blueprints exist)
+4. Opens the **source sidebar modal** -- passes the selected `blueprintId` so the modal can look up the map file and extract sections accordingly
+5. Destructures `extractedSections` and `propertyMappings` from the modal return value
+6. Scaffolds from the selected blueprint to get default values
+7. Loops over `propertyMappings` to dynamically apply each mapping (simple property or block grid)
+8. Creates a new document via the Management API
+9. Saves the document to properly persist it and trigger cache updates
+10. Shows success/error notifications
+11. Navigates to the newly created document
 
 ## Class structure
 
@@ -29,7 +30,7 @@ export class UpDocEntityAction extends UmbEntityActionBase<never> {
     }
 
     override async execute() {
-        // Opens modal, finds blueprint, creates document
+        // Opens modals, discovers blueprints, creates document
     }
 }
 ```
@@ -44,7 +45,11 @@ The modal can be cancelled (clicking outside or Close button), which throws an e
 let modalValue;
 try {
     modalValue = await umbOpenModal(this, UMB_UP_DOC_MODAL, {
-        data: { unique: parentUnique },
+        data: {
+            unique: parentUnique,
+            blueprintName: selectedBlueprint?.blueprintName ?? '',
+            blueprintId: blueprintUnique,
+        },
     });
 } catch {
     // Modal was cancelled
@@ -52,12 +57,13 @@ try {
 }
 ```
 
+Note that `blueprintId` is passed in the modal data so the modal can use it to fetch the map file and extract sections.
+
 ### Getting parent document type
 
 The action first fetches the parent document to get its document type unique, which is required for looking up allowed children:
 
 ```typescript
-// Step 1: Get the parent document's document type
 let parentDocTypeUnique: string | null = null;
 
 if (parentUnique) {
@@ -73,7 +79,6 @@ if (parentUnique) {
 The action discovers blueprints for allowed child document types, grouped by document type. Only document types that have at least one blueprint are included:
 
 ```typescript
-// Step 3: Discover blueprints for allowed child types, grouped by document type
 const documentTypeOptions: DocumentTypeOption[] = [];
 
 for (const docType of allowedTypes.items) {
@@ -91,76 +96,78 @@ for (const docType of allowedTypes.items) {
     }
 }
 
-// Step 4: Open blueprint picker dialog (doc type → blueprint selection)
 const blueprintSelection = await umbOpenModal(this, UMB_BLUEPRINT_PICKER_MODAL, {
     data: { documentTypes: documentTypeOptions },
 });
 ```
 
-The dialog presents a two-step selection flow mirroring Umbraco's native Create dialog: first the user selects a document type, then a blueprint for that type. Both steps are always shown (no smart-skipping). If no document types have blueprints, the dialog shows a message telling the user to create one first.
+### Destructuring modal return value
 
-### Scaffolding from blueprint
-
-The scaffold endpoint returns the blueprint's default values:
+The modal now returns `extractedSections` (a `Record<string, string>`) and `propertyMappings` (a `PropertyMapping[]`) instead of individual fields like `pageTitle`, `pageTitleShort`, etc.:
 
 ```typescript
-const scaffoldResponse = await fetch(
-    `/umbraco/management/api/v1/document-blueprint/${blueprint.unique}/scaffold`,
-    { headers: { Authorization: `Bearer ${token}` } }
-);
-const scaffold = await scaffoldResponse.json();
+const { name, mediaUnique, extractedSections, propertyMappings } = modalValue;
 ```
 
-### Creating the document
+### Dynamic property mapping
 
-The document is created with merged values (scaffold defaults + extracted):
+Instead of hardcoded `setValue` calls, the action loops over `propertyMappings` from the map file and applies each one:
 
 ```typescript
-const createRequest = {
-    parent: { id: parentUnique },
-    documentType: { id: documentTypeUnique },
-    template: scaffold.template ? { id: scaffold.template.id } : null,
-    values: [
-        // Scaffold values + overridden with:
-        { alias: 'pageTitle', value: pageTitle },
-        { alias: 'pageTitleShort', value: pageTitleShort },
-        { alias: 'pageDescription', value: pageDescription },
-    ],
-    variants: [{ name, culture: null, segment: null }],
-};
+for (const mapping of propertyMappings) {
+    const sectionValue = extractedSections[mapping.from.sectionType];
+    if (!sectionValue) continue;
 
-await fetch('/umbraco/management/api/v1/document', {
-    method: 'POST',
-    body: JSON.stringify(createRequest),
-});
+    if (mapping.to.blockGrid) {
+        // Block grid mapping
+        this.#applyBlockMapping(values, mapping, sectionValue);
+    } else if (mapping.to.property) {
+        // Simple property mapping
+        setValue(mapping.to.property, sectionValue);
+
+        // Also map to additional properties
+        if (mapping.to.alsoMapTo) {
+            for (const alias of mapping.to.alsoMapTo) {
+                setValue(alias, sectionValue);
+            }
+        }
+    }
+}
 ```
 
-### Updating Block Grid with itinerary content
+This replaces the previous hardcoded `pageTitle`, `pageTitleShort`, `pageDescription` assignments and the `#updateContentGridWithItinerary` method.
 
-If the PDF contains a "Suggested Itinerary" section, the action updates the contentGrid property.
+### Block grid mapping via #applyBlockMapping
 
-**Important:** The contentGrid value must be stringified back after modification if it was originally a JSON string. The API expects the same format as received from the scaffold.
+The generic `#applyBlockMapping` method replaces the former `#updateContentGridWithItinerary`. It finds a block within a block grid by searching for a property value match, then writes the extracted content to the target property:
 
 ```typescript
-#updateContentGridWithItinerary(values, itineraryContent) {
-    // Track if the value was originally a string
-    const wasString = typeof contentGridValue.value === 'string';
+#applyBlockMapping(
+    values: Array<{ alias: string; value: unknown }>,
+    mapping: PropertyMapping,
+    sectionValue: string
+) {
+    const gridAlias = mapping.to.blockGrid;
+    const blockSearch = mapping.to.blockSearch;
+    const targetProperty = mapping.to.targetProperty;
 
-    // Parse the contentGrid JSON
+    // Find the grid in scaffold values, parse if stringified
     const contentGrid = wasString
-        ? JSON.parse(contentGridValue.value)
+        ? JSON.parse(contentGridValue.value as string)
         : contentGridValue.value;
 
-    // Find block with featurePropertyFeatureTitle = "Suggested Itinerary"
-    for (const block of contentGrid.contentData) {
-        const titleValue = block.values?.find(v => v.alias === 'featurePropertyFeatureTitle');
-        if (titleValue?.value?.toLowerCase().includes('suggested itinerary')) {
-            // Update richTextContent with HTML-wrapped content
-            const rteValue = block.values?.find(v => v.alias === 'richTextContent');
-            rteValue.value = {
-                blocks: { contentData: [], settingsData: [], expose: [], Layout: {} },
-                markup: htmlContent,
-            };
+    // Search contentData for matching block
+    for (const block of contentData) {
+        const searchValue = block.values?.find((v) => v.alias === blockSearch.property);
+        if (searchValue?.value?.toLowerCase().includes(blockSearch.value.toLowerCase())) {
+            const targetValue = block.values?.find((v) => v.alias === targetProperty);
+            if (mapping.to.convertMarkdown) {
+                const htmlContent = markdownToHtml(sectionValue);
+                targetValue.value = buildRteValue(htmlContent);
+            } else {
+                targetValue.value = sectionValue;
+            }
+            break;
         }
     }
 
@@ -169,15 +176,19 @@ If the PDF contains a "Suggested Itinerary" section, the action updates the cont
 }
 ```
 
-### Block Grid structure
+When `convertMarkdown` is true, the method uses `markdownToHtml` and `buildRteValue` from `transforms.ts` to convert the Markdown content into the Umbraco RTE value structure.
 
-The `featureRichTextEditor` element type (Feature - Rich Text Editor) contains:
-- `featurePropertyFeatureTitle` (Textstring) - The block's title, e.g., "Suggested Itinerary"
-- `richTextContent` (Richtext editor) - The actual RTE content
+### Scaffolding from blueprint
 
-These properties are inherited from composition element types:
-- Feature Component - Feature Title
-- Feature Component - Rich Text Editor
+The scaffold endpoint returns the blueprint's default values:
+
+```typescript
+const scaffoldResponse = await fetch(
+    `/umbraco/management/api/v1/document-blueprint/${blueprintUnique}/scaffold`,
+    { headers: { Authorization: `Bearer ${token}` } }
+);
+const scaffold = await scaffoldResponse.json();
+```
 
 ### Authentication for API calls
 
@@ -211,6 +222,8 @@ notificationContext.peek('positive', {
 import { UMB_UP_DOC_MODAL } from './up-doc-modal.token.js';
 import { UMB_BLUEPRINT_PICKER_MODAL } from './blueprint-picker-modal.token.js';
 import type { DocumentTypeOption } from './blueprint-picker-modal.token.js';
+import type { PropertyMapping } from './map-file.types.js';
+import { markdownToHtml, buildRteValue } from './transforms.js';
 import { UmbEntityActionBase } from '@umbraco-cms/backoffice/entity-action';
 import { umbOpenModal } from '@umbraco-cms/backoffice/modal';
 import { UMB_NOTIFICATION_CONTEXT } from '@umbraco-cms/backoffice/notification';
@@ -218,28 +231,26 @@ import { UMB_AUTH_CONTEXT } from '@umbraco-cms/backoffice/auth';
 import { UmbDocumentTypeStructureRepository } from '@umbraco-cms/backoffice/document-type';
 import { UmbDocumentBlueprintItemRepository } from '@umbraco-cms/backoffice/document-blueprint';
 import { UmbDocumentItemRepository } from '@umbraco-cms/backoffice/document';
-import { marked } from 'marked';
 ```
 
-Note: The `marked` library is used to convert Markdown content (from PDF extraction) to HTML for the rich text editor.
+Note: The `marked` library is no longer imported directly. Markdown conversion is now handled via `transforms.ts`.
 
 ## Data flow
 
-1. `this.args.unique` - Parent document ID (where user right-clicked)
+1. `this.args.unique` -- Parent document ID (where user right-clicked)
 2. Action fetches parent document to get its document type unique
 3. Action discovers allowed child document types and their blueprints (grouped by doc type)
 4. Blueprint picker dialog returns `{ blueprintUnique, documentTypeUnique }` after two-step selection
-5. Source sidebar modal returns `{ name, mediaUnique, pageTitle, pageTitleShort, pageDescription, itineraryContent }`
+5. Source sidebar modal receives `{ unique, blueprintName, blueprintId }` and returns `{ name, mediaUnique, extractedSections, propertyMappings }`
 6. Scaffolds from selected blueprint to get default values
-7. Merges extracted values into scaffold
-8. Updates contentGrid with itinerary content if available
-9. POSTs to create document API
-10. Fetches and saves the document to properly persist it
-11. Shows notification and navigates to the new document
+7. Loops over `propertyMappings`, applying each mapping to scaffold values
+8. POSTs to create document API
+9. Fetches and saves the document to properly persist it
+10. Shows notification and navigates to the new document
 
 ### Navigation after creation
 
-After successfully creating the document, the action navigates to the new document with a short delay. This allows Block Preview and other async components to settle before the navigation occurs:
+After successfully creating the document, the action navigates to the new document with a short delay:
 
 ```typescript
 if (newDocumentId) {
@@ -252,33 +263,6 @@ if (newDocumentId) {
 
 The delay helps avoid race condition errors with Block Preview that can occur during rapid navigation.
 
-### Markdown to HTML conversion
-
-The itinerary content is extracted as Markdown from the PDF and converted to HTML using the `marked` library:
-
-```typescript
-#convertToHtml(markdown: string): string {
-    if (!markdown) return '';
-
-    try {
-        const html = marked.parse(markdown, {
-            gfm: true,      // GitHub Flavored Markdown
-            breaks: false,  // Don't convert \n to <br>
-        });
-
-        if (typeof html === 'string') {
-            return html;
-        }
-
-        // Fallback for async (shouldn't happen with sync config)
-        return `<p>${markdown}</p>`;
-    } catch (error) {
-        // Fallback: wrap in paragraph tags
-        return `<p>${markdown.replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>')}</p>`;
-    }
-}
-```
-
 ## Default export
 
-The class is exported both as named and default export - the default export is what the manifest's `api` loader expects.
+The class is exported both as named and default export -- the default export is what the manifest's `api` loader expects.

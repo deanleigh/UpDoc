@@ -21,28 +21,31 @@ Defines the available source types for content extraction. Currently only `pdf` 
 
 ```typescript
 export interface UmbUpDocModalData {
-    unique: string | null;  // Parent document ID
+    unique: string | null;     // Parent document ID
+    blueprintName: string;     // Display name of the selected blueprint
+    blueprintId: string;       // Blueprint GUID, used to look up the map file
 }
 
 export interface UmbUpDocModalValue {
-    name: string;                  // The document name (pre-filled from source, user can edit)
-    sourceType: SourceType;        // Which source type was selected (pdf, web, doc)
-    mediaUnique: string | null;    // The selected media item's unique ID (for pdf/doc sources)
-    sourceUrl: string | null;      // The entered URL (for web source)
-    pageTitle: string;             // Extracted from source title metadata
-    pageTitleShort: string;        // Same as pageTitle (for the pageTitleShort property)
-    pageDescription: string;       // Extracted from source description/subject metadata
-    itineraryContent: string;      // Extracted "Suggested Itinerary" section content
+    name: string;                                    // The document name (pre-filled from source, user can edit)
+    sourceType: SourceType;                          // Which source type was selected (pdf, web, doc)
+    mediaUnique: string | null;                      // The selected media item's unique ID (for pdf/doc sources)
+    sourceUrl: string | null;                        // The entered URL (for web source)
+    extractedSections: Record<string, string>;       // Extracted sections keyed by type (title, description, content)
+    propertyMappings: PropertyMapping[];             // Mapping definitions from the map file
 }
 ```
+
+The `UmbUpDocModalData` interface now includes `blueprintId` so the modal can pass it to the `extractSections` API call, which needs it to look up the correct map file on the backend.
+
+The `UmbUpDocModalValue` interface replaces the previous individual fields (`pageTitle`, `pageTitleShort`, `pageDescription`, `itineraryContent`) with:
+- `extractedSections` -- a flexible `Record<string, string>` containing all extracted values keyed by section type
+- `propertyMappings` -- the `PropertyMapping[]` from the map file, so the action knows how to apply each section
 
 ## The token
 
 ```typescript
-export const UMB_UP_DOC_MODAL = new UmbModalToken<
-    UmbUpDocModalData,
-    UmbUpDocModalValue
->(
+export const UMB_UP_DOC_MODAL = new UmbModalToken<UmbUpDocModalData, UmbUpDocModalValue>(
     'UpDoc.Modal',  // Must match manifest alias
     {
         modal: {
@@ -64,15 +67,24 @@ A generic class that provides:
 
 ### Modal types
 
-- `'sidebar'` - Slides in from the right (used here)
-- `'dialog'` - Centered overlay dialog
+- `'sidebar'` -- Slides in from the right (used here)
+- `'dialog'` -- Centered overlay dialog
 
 ### Sidebar sizes
 
-- `'small'` - Narrow sidebar (used here)
-- `'medium'` - Standard width
-- `'large'` - Wide sidebar
-- `'full'` - Full width
+- `'small'` -- Narrow sidebar (used here)
+- `'medium'` -- Standard width
+- `'large'` -- Wide sidebar
+- `'full'` -- Full width
+
+## Imports
+
+```typescript
+import { UmbModalToken } from '@umbraco-cms/backoffice/modal';
+import type { PropertyMapping } from './map-file.types.js';
+```
+
+The `PropertyMapping` type is imported from `map-file.types.js` for use in `UmbUpDocModalValue`.
 
 ## Usage
 
@@ -82,8 +94,12 @@ When opening the modal:
 import { UMB_UP_DOC_MODAL } from './up-doc-modal.token.js';
 
 const value = await umbOpenModal(this, UMB_UP_DOC_MODAL, {
-    data: { unique: parentId },  // TypeScript knows this must be UmbUpDocModalData
+    data: {
+        unique: parentId,
+        blueprintName: 'My Blueprint',
+        blueprintId: blueprintUnique,
+    },  // TypeScript knows this must be UmbUpDocModalData
 });
 // value is typed as UmbUpDocModalValue
-// Includes: name, sourceType, mediaUnique, sourceUrl, pageTitle, pageTitleShort, pageDescription, itineraryContent
+// Includes: name, sourceType, mediaUnique, sourceUrl, extractedSections, propertyMappings
 ```

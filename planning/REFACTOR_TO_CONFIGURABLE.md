@@ -130,9 +130,152 @@ Named by document type (not blueprint GUID) because:
 - Map files should cause **no failures** if the referenced document type or blueprint is deleted from Umbraco — orphaned map files are simply ignored
 - Missing map files do not break the UpDoc entity action — the user sees a helpful message instead of an error
 
+### Phase 1 Status: COMPLETED
+
+Phase 1 (single map file per document type) is implemented on the `feature/map-file-config` branch. It parameterizes values (thresholds, patterns, property aliases) but the extraction **algorithm** remains hardcoded in `PdfPagePropertiesService.cs`. This prevents UpDoc from being a generic shell application — every PDF must follow the same structural assumptions (title = biggest font, description = regex, content = start/stop patterns).
+
 ---
 
-## Executive Summary
+## Architecture Decision: Multi-File Extraction (Phase 2)
+
+> **Supersedes** the single map file approach for extraction rules. The `propertyMappings` concept from Phase 1 carries forward into the new `map.json`.
+
+### Problem
+
+The single map file conflates three concerns:
+1. **Source extraction** — how to pull structured sections out of a PDF/web page/Word doc
+2. **Destination mapping** — which Umbraco properties/blocks receive the extracted data
+3. The extraction algorithm is baked into C# rather than driven by config
+
+Different PDFs have completely different layouts. Some have the title positioned by coordinates, others by font size. Some are single-column, others multi-column. The map file must be able to express *how* to extract, not just tweak parameters of a fixed algorithm.
+
+### Folder-per-Document-Type Structure
+
+```
+updoc/maps/group-tour/
+  extract-pdf.json       # How to extract named sections from a PDF
+  extract-web.json       # How to extract named sections from a web page (future)
+  extract-word.json      # How to extract named sections from a Word doc (future)
+  map.json               # Routes named sections → Umbraco properties/blocks
+```
+
+Each folder represents one document type. The folder name is the document type alias in kebab-case.
+
+### Separation of Concerns
+
+**Extraction files** (`extract-*.json`) define HOW to get data from a specific source type. Each produces a common vocabulary of **named sections** (e.g., `title`, `description`, `itinerary`, `features`, `accommodation`). The extraction strategy is per-section and fully config-driven.
+
+**Map file** (`map.json`) defines WHERE extracted sections go in Umbraco. It consumes the named sections without knowing or caring whether they came from a PDF, web page, or Word doc. This is the `propertyMappings` concept from Phase 1, but decoupled from extraction.
+
+**Key benefit:** Adding a new source type (web, Word) means adding a new `extract-*.json` file and a new C# extractor — the `map.json` stays the same. Different PDF layouts for the same document type = different `extract-pdf.json`, same `map.json`.
+
+### Config-Driven Extraction Strategies
+
+Instead of a fixed algorithm with tweakable parameters, each section in an extraction file declares its own **strategy**:
+
+| Strategy | What it does | Example use |
+|----------|-------------|-------------|
+| `largestFont` | Text at/above a font size threshold | Title detection |
+| `regex` | Match a pattern against line text | "5 days from £1,199" |
+| `region` | Extract from a bounding box (x/y coordinates) | Precisely positioned content |
+| `betweenPatterns` | Capture everything between start/stop markers | Itinerary body (Day 1... Day 5) |
+| `afterLabel` | Text following a known label | "Departing: 30th Sept" |
+
+Each section rule carries optional **modifiers**:
+- `pages` — which page(s) to search (default: all)
+- `columnFilter` — whether to apply column detection (default: false)
+- `region` — optional bounding box constraint `{ x: [min, max], y: [min, max] }`
+- `joinLines` — how to combine multi-line matches (`space`, `newline`, `markdown`)
+- `outputFormat` — `text`, `markdown`, `html`
+
+### Example: extract-pdf.json
+
+```json
+{
+  "$schema": "../../schemas/extract-pdf.schema.json",
+  "sections": [
+    {
+      "name": "title",
+      "strategy": "largestFont",
+      "pages": [1],
+      "fontSizeThreshold": 0.85,
+      "columnFilter": false,
+      "joinLines": "space"
+    },
+    {
+      "name": "description",
+      "strategy": "regex",
+      "pages": [1],
+      "pattern": "\\d+\\s*days?\\s+from\\s+£[\\d,]+.*",
+      "columnFilter": false
+    },
+    {
+      "name": "itinerary",
+      "strategy": "betweenPatterns",
+      "pages": "all",
+      "startPattern": "^Day\\s+\\d+",
+      "stopPatterns": ["terms", "conditions", "booking", "contact us"],
+      "columnFilter": true,
+      "headingLevel": "h2",
+      "outputFormat": "markdown"
+    }
+  ]
+}
+```
+
+### Example: map.json
+
+```json
+{
+  "$schema": "../../schemas/map.schema.json",
+  "documentTypeAlias": "groupTour",
+  "blueprintId": "b33c0169-ddd7-40c9-b75f-0fa116455ea9",
+  "mappings": [
+    {
+      "section": "title",
+      "targets": [
+        { "property": "pageTitle" },
+        { "property": "pageTitleShort" }
+      ]
+    },
+    {
+      "section": "description",
+      "targets": [
+        { "property": "pageDescription" }
+      ]
+    },
+    {
+      "section": "itinerary",
+      "targets": [
+        {
+          "blockGrid": "contentGrid",
+          "blockSearch": { "property": "sectionTitle", "value": "Suggested Itinerary" },
+          "targetProperty": "content",
+          "convertMarkdown": true
+        }
+      ]
+    }
+  ]
+}
+```
+
+### What Stays in C#
+
+The C# service becomes a **generic rule executor**:
+- PdfPig infrastructure: word extraction, line grouping, font size calculation, column detection
+- A strategy dispatcher: given a section rule, execute the named strategy and return text
+- No hardcoded assumptions about what "title" or "description" means
+
+### Open Questions
+
+- How does the API discover which folder to use? Scan all `map.json` files for matching `blueprintId`?
+- Should extraction files reference a shared "column detection" config or is it per-section?
+- Sections that appear multiple times in the PDF (e.g., title on both pages) — support `occurrence: "first"` / `"last"` / `"all"`?
+- Should `map.json` hold `documentTypeAlias` and `blueprintId`, or should there be a top-level `config.json` in the folder?
+
+---
+
+## Executive Summary (Original — Partially Superseded)
 
 **Current State:** Working POC with hardcoded client-specific extraction rules for PDF only
 **Target State:** Configurable multi-source package ("Create Document from Source") supporting PDF, Web, and Word extraction

@@ -1,4 +1,5 @@
 using Asp.Versioning;
+using UpDoc.Models;
 using UpDoc.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
@@ -22,6 +23,7 @@ public class PdfExtractionController : ControllerBase
     private readonly IMediaService _mediaService;
     private readonly IPdfExtractionService _pdfExtractionService;
     private readonly IPdfPagePropertiesService _pdfPagePropertiesService;
+    private readonly IMapFileService _mapFileService;
     private readonly IWebHostEnvironment _webHostEnvironment;
     private readonly ILogger<PdfExtractionController> _logger;
 
@@ -29,12 +31,14 @@ public class PdfExtractionController : ControllerBase
         IMediaService mediaService,
         IPdfExtractionService pdfExtractionService,
         IPdfPagePropertiesService pdfPagePropertiesService,
+        IMapFileService mapFileService,
         IWebHostEnvironment webHostEnvironment,
         ILogger<PdfExtractionController> logger)
     {
         _mediaService = mediaService;
         _pdfExtractionService = pdfExtractionService;
         _pdfPagePropertiesService = pdfPagePropertiesService;
+        _mapFileService = mapFileService;
         _webHostEnvironment = webHostEnvironment;
         _logger = logger;
     }
@@ -272,5 +276,84 @@ public class PdfExtractionController : ControllerBase
             markdown = result.Markdown,
             rawText = result.RawText
         });
+    }
+
+    [HttpGet("maps/{blueprintId}")]
+    public IActionResult GetMapForBlueprint(Guid blueprintId)
+    {
+        var mapFile = _mapFileService.GetMapForBlueprint(blueprintId);
+        if (mapFile == null)
+        {
+            return NotFound(new { error = $"No map file found for blueprint {blueprintId}" });
+        }
+
+        return Ok(mapFile);
+    }
+
+    [HttpGet("extract-sections")]
+    public IActionResult ExtractSections(Guid mediaKey, Guid blueprintId)
+    {
+        var mapFile = _mapFileService.GetMapForBlueprint(blueprintId);
+        if (mapFile == null)
+        {
+            return NotFound(new { error = $"No map file found for blueprint {blueprintId}" });
+        }
+
+        var pdfConfig = mapFile.SourceTypes.Pdf;
+        if (pdfConfig?.Extraction == null)
+        {
+            return BadRequest(new { error = "Map file has no PDF extraction rules configured" });
+        }
+
+        var absolutePath = ResolveMediaFilePath(mediaKey);
+        if (absolutePath == null)
+        {
+            return NotFound(new { error = "Media item not found or file not on disk" });
+        }
+
+        var result = _pdfPagePropertiesService.ExtractSections(absolutePath, pdfConfig.Extraction);
+
+        if (!string.IsNullOrEmpty(result.Error))
+        {
+            return BadRequest(new { error = result.Error });
+        }
+
+        _logger.LogInformation("=== PDF Section Extraction (Map-driven) ===");
+        foreach (var section in result.Sections)
+        {
+            _logger.LogInformation("{Key}: {Length} chars", section.Key, section.Value.Length);
+        }
+        _logger.LogInformation("=============================================");
+
+        return Ok(new
+        {
+            sections = result.Sections,
+            propertyMappings = mapFile.PropertyMappings,
+        });
+    }
+
+    private string? ResolveMediaFilePath(Guid mediaKey)
+    {
+        var media = _mediaService.GetById(mediaKey);
+        if (media == null) return null;
+
+        var umbracoFile = media.GetValue<string>("umbracoFile");
+        if (string.IsNullOrEmpty(umbracoFile)) return null;
+
+        string filePath;
+        if (umbracoFile.StartsWith("{"))
+        {
+            var json = System.Text.Json.JsonDocument.Parse(umbracoFile);
+            filePath = json.RootElement.GetProperty("src").GetString() ?? string.Empty;
+        }
+        else
+        {
+            filePath = umbracoFile;
+        }
+
+        if (string.IsNullOrEmpty(filePath)) return null;
+
+        var absolutePath = Path.Combine(_webHostEnvironment.WebRootPath, filePath.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
+        return System.IO.File.Exists(absolutePath) ? absolutePath : null;
     }
 }

@@ -11,5 +11,6 @@ public class UpDocComposer : IComposer
     {
         builder.Services.AddScoped<IPdfExtractionService, PdfExtractionService>();
         builder.Services.AddScoped<IPdfPagePropertiesService, PdfPagePropertiesService>();
+        builder.Services.AddSingleton<IMapFileService, MapFileService>();
     }
 }

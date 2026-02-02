@@ -1,6 +1,7 @@
 using System.Text.RegularExpressions;
 using UglyToad.PdfPig;
 using UglyToad.PdfPig.Content;
+using UpDoc.Models;
 
 namespace UpDoc.Services;
 
@@ -10,6 +11,12 @@ public interface IPdfPagePropertiesService
     PdfPageProperties ExtractFromStream(Stream stream);
     PdfSectionResult ExtractSectionByHeading(string filePath, string headingText);
     PdfMarkdownResult ExtractAsMarkdown(string filePath);
+
+    /// <summary>
+    /// Extracts structured sections from a PDF using rules defined in a map file.
+    /// Returns typed sections (title, description, content) driven by the extraction config.
+    /// </summary>
+    ExtractionResult ExtractSections(string filePath, PdfExtractionRules rules);
 }
 
 /// <summary>
@@ -56,6 +63,16 @@ public class PdfSectionResult
     /// </summary>
     public string Content { get; set; } = string.Empty;
 
+    public string? Error { get; set; }
+}
+
+/// <summary>
+/// Structured extraction result with typed sections, driven by map file rules.
+/// </summary>
+public class ExtractionResult
+{
+    public Dictionary<string, string> Sections { get; set; } = new();
+    public string RawText { get; set; } = string.Empty;
     public string? Error { get; set; }
 }
 
@@ -145,6 +162,181 @@ public class PdfPagePropertiesService : IPdfPagePropertiesService
                 Error = $"Failed to extract PDF as Markdown: {ex.Message}"
             };
         }
+    }
+
+    public ExtractionResult ExtractSections(string filePath, PdfExtractionRules rules)
+    {
+        try
+        {
+            using var document = PdfDocument.Open(filePath);
+            return ExtractSectionsFromDocument(document, rules);
+        }
+        catch (Exception ex)
+        {
+            return new ExtractionResult
+            {
+                Error = $"Failed to extract PDF sections: {ex.Message}"
+            };
+        }
+    }
+
+    private static ExtractionResult ExtractSectionsFromDocument(PdfDocument document, PdfExtractionRules rules)
+    {
+        if (document.NumberOfPages == 0)
+        {
+            return new ExtractionResult { Error = "PDF has no pages" };
+        }
+
+        var filterToMainColumn = rules.ColumnDetection?.Enabled ?? true;
+
+        // Extract title and description from page 1 WITHOUT column filtering.
+        // Titles typically span the full page width and column filtering clips them.
+        var firstPageLines = ExtractTextLines(document.GetPage(1), filterToMainColumn: false);
+
+        // Extract content from all pages WITH column filtering (excludes sidebar text)
+        var allLines = new List<TextLine>();
+        for (int pageNum = 1; pageNum <= document.NumberOfPages; pageNum++)
+        {
+            var page = document.GetPage(pageNum);
+            var pageLines = ExtractTextLines(page, filterToMainColumn: filterToMainColumn);
+            allLines.AddRange(pageLines);
+        }
+
+        if (firstPageLines.Count == 0 && allLines.Count == 0)
+        {
+            return new ExtractionResult { Error = "No text found in PDF" };
+        }
+
+        var rawText = string.Join("\n", allLines.Select(l => $"[{l.AverageFontSize:F1}] {l.Text}"));
+
+        // Use first page unfiltered lines for title/description font analysis
+        var fontSizes = firstPageLines.Where(l => !string.IsNullOrWhiteSpace(l.Text))
+                                .Select(l => l.AverageFontSize)
+                                .OrderByDescending(s => s)
+                                .ToList();
+
+        if (fontSizes.Count == 0)
+        {
+            return new ExtractionResult { Error = "No text with measurable font found" };
+        }
+
+        var maxFontSize = fontSizes.First();
+        var titleThreshold = maxFontSize * (rules.TitleDetection?.FontSizeThreshold ?? 0.85);
+
+        // Build patterns from rules
+        Regex? startPattern = null;
+        if (!string.IsNullOrEmpty(rules.Content?.StartPattern))
+        {
+            startPattern = new Regex(rules.Content.StartPattern, RegexOptions.IgnoreCase);
+        }
+
+        Regex? descriptionRegex = null;
+        if (!string.IsNullOrEmpty(rules.DescriptionPattern))
+        {
+            descriptionRegex = new Regex(rules.DescriptionPattern, RegexOptions.IgnoreCase);
+        }
+
+        var stopPatterns = rules.Content?.StopPatterns ?? new List<string>();
+        var headingPrefix = (rules.Content?.HeadingLevel ?? "h2") switch
+        {
+            "h1" => "#",
+            "h2" => "##",
+            "h3" => "###",
+            "h4" => "####",
+            _ => "##"
+        };
+
+        // Step 1: Extract title and description from first page (unfiltered lines)
+        string title = string.Empty;
+        string description = string.Empty;
+        bool foundTitle = false;
+        bool foundDescription = false;
+
+        foreach (var line in firstPageLines)
+        {
+            var text = line.Text.Trim();
+            if (string.IsNullOrWhiteSpace(text))
+                continue;
+
+            // Extract title (largest font at top)
+            if (!foundTitle && line.AverageFontSize >= titleThreshold)
+            {
+                title = string.IsNullOrEmpty(title) ? text : $"{title} {text}";
+                continue;
+            }
+            else if (!string.IsNullOrEmpty(title) && !foundTitle)
+            {
+                foundTitle = true;
+            }
+
+            // Extract description by pattern
+            if (!foundDescription && descriptionRegex != null && descriptionRegex.IsMatch(text))
+            {
+                description = text;
+                foundDescription = true;
+                continue;
+            }
+        }
+
+        // Step 2: Extract content from all pages (column-filtered lines)
+        var markdown = new System.Text.StringBuilder();
+        var currentParagraph = new System.Text.StringBuilder();
+        bool foundContentStart = false;
+
+        foreach (var line in allLines)
+        {
+            var text = line.Text.Trim();
+            if (string.IsNullOrWhiteSpace(text))
+                continue;
+
+            var textLower = text.ToLowerInvariant();
+
+            // Check stop patterns after content has started
+            if (foundContentStart && stopPatterns.Any(p => textLower.Contains(p)))
+                break;
+
+            // Check for content start pattern
+            if (startPattern != null && startPattern.IsMatch(text))
+            {
+                foundContentStart = true;
+
+                // Flush current paragraph
+                if (currentParagraph.Length > 0)
+                {
+                    markdown.AppendLine(currentParagraph.ToString().Trim());
+                    markdown.AppendLine();
+                    currentParagraph.Clear();
+                }
+
+                markdown.AppendLine($"{headingPrefix} {text}");
+                markdown.AppendLine();
+            }
+            else if (foundContentStart)
+            {
+                if (currentParagraph.Length > 0)
+                    currentParagraph.Append(' ');
+                currentParagraph.Append(text);
+            }
+        }
+
+        // Flush final paragraph
+        if (currentParagraph.Length > 0)
+        {
+            markdown.AppendLine(currentParagraph.ToString().Trim());
+        }
+
+        var sections = new Dictionary<string, string>
+        {
+            ["title"] = title,
+            ["description"] = description,
+            ["content"] = markdown.ToString().Trim()
+        };
+
+        return new ExtractionResult
+        {
+            Sections = sections,
+            RawText = rawText
+        };
     }
 
     private static PdfMarkdownResult ExtractMarkdownFromDocument(PdfDocument document)

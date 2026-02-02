@@ -1,6 +1,8 @@
 import { UMB_UP_DOC_MODAL } from './up-doc-modal.token.js';
 import { UMB_BLUEPRINT_PICKER_MODAL } from './blueprint-picker-modal.token.js';
 import type { DocumentTypeOption } from './blueprint-picker-modal.token.js';
+import type { PropertyMapping } from './map-file.types.js';
+import { markdownToHtml, buildRteValue } from './transforms.js';
 import { UmbEntityActionBase } from '@umbraco-cms/backoffice/entity-action';
 import { umbOpenModal } from '@umbraco-cms/backoffice/modal';
 import type { UmbControllerHost } from '@umbraco-cms/backoffice/controller-api';
@@ -10,7 +12,6 @@ import { UMB_AUTH_CONTEXT } from '@umbraco-cms/backoffice/auth';
 import { UmbDocumentTypeStructureRepository } from '@umbraco-cms/backoffice/document-type';
 import { UmbDocumentBlueprintItemRepository } from '@umbraco-cms/backoffice/document-blueprint';
 import { UmbDocumentItemRepository } from '@umbraco-cms/backoffice/document';
-import { marked } from 'marked';
 
 export class UpDocEntityAction extends UmbEntityActionBase<never> {
 	#documentTypeStructureRepository = new UmbDocumentTypeStructureRepository(this);
@@ -85,24 +86,28 @@ export class UpDocEntityAction extends UmbEntityActionBase<never> {
 
 			console.log('Selected blueprint:', blueprintUnique, 'Document type:', documentTypeUnique);
 
-			// Step 5: Open source sidebar modal
+			// Step 5: Open source sidebar modal (passes blueprintId for map file lookup)
 			let modalValue;
 			try {
 				modalValue = await umbOpenModal(this, UMB_UP_DOC_MODAL, {
-					data: { unique: parentUnique, blueprintName: selectedBlueprint?.blueprintName ?? '' },
+					data: {
+						unique: parentUnique,
+						blueprintName: selectedBlueprint?.blueprintName ?? '',
+						blueprintId: blueprintUnique,
+					},
 				});
 			} catch {
 				// Modal was cancelled
 				return;
 			}
 
-			const { name, mediaUnique, pageTitle, pageTitleShort, pageDescription, itineraryContent } = modalValue;
+			const { name, mediaUnique, extractedSections, propertyMappings } = modalValue;
 
 			if (!mediaUnique || !name) {
 				return;
 			}
 
-			console.log('Creating document with:', { name, pageTitle, pageTitleShort, pageDescription, itineraryContent: itineraryContent?.substring(0, 100) });
+			console.log('Creating document with:', { name, sections: Object.keys(extractedSections) });
 
 			// Step 6: Scaffold from the selected blueprint
 			const authContext = await this.getContext(UMB_AUTH_CONTEXT);
@@ -131,11 +136,9 @@ export class UpDocEntityAction extends UmbEntityActionBase<never> {
 			const scaffold = await scaffoldResponse.json();
 			console.log('Scaffold response:', scaffold);
 
-			// Step 7: Build the document creation request
-			// Start with scaffold values and override with PDF-extracted values
+			// Step 7: Apply property mappings from the map file
 			const values = scaffold.values ? [...scaffold.values] : [];
 
-			// Helper to set or update a value
 			const setValue = (alias: string, value: string) => {
 				const existing = values.find((v: { alias: string }) => v.alias === alias);
 				if (existing) {
@@ -145,14 +148,25 @@ export class UpDocEntityAction extends UmbEntityActionBase<never> {
 				}
 			};
 
-			// Set the PDF-extracted properties
-			setValue('pageTitle', pageTitle);
-			setValue('pageTitleShort', pageTitleShort);
-			setValue('pageDescription', pageDescription);
+			// Apply each mapping from the map file
+			for (const mapping of propertyMappings) {
+				const sectionValue = extractedSections[mapping.from.sectionType];
+				if (!sectionValue) continue;
 
-			// Update contentGrid if we have itinerary content
-			if (itineraryContent) {
-				this.#updateContentGridWithItinerary(values, itineraryContent);
+				if (mapping.to.blockGrid) {
+					// Block grid mapping
+					this.#applyBlockMapping(values, mapping, sectionValue);
+				} else if (mapping.to.property) {
+					// Simple property mapping
+					setValue(mapping.to.property, sectionValue);
+
+					// Also map to additional properties
+					if (mapping.to.alsoMapTo) {
+						for (const alias of mapping.to.alsoMapTo) {
+							setValue(alias, sectionValue);
+						}
+					}
+				}
 			}
 
 			// Build the create request
@@ -199,7 +213,6 @@ export class UpDocEntityAction extends UmbEntityActionBase<never> {
 
 			// Step 9: Save the document to properly persist it and trigger cache updates
 			if (newDocumentId) {
-				// First, fetch the document to get its current state
 				const getResponse = await fetch(`/umbraco/management/api/v1/document/${newDocumentId}`, {
 					method: 'GET',
 					headers: {
@@ -212,7 +225,6 @@ export class UpDocEntityAction extends UmbEntityActionBase<never> {
 					const documentData = await getResponse.json();
 					console.log('Fetched document for save:', documentData);
 
-					// Save the document
 					const saveResponse = await fetch(`/umbraco/management/api/v1/document/${newDocumentId}`, {
 						method: 'PUT',
 						headers: {
@@ -253,29 +265,33 @@ export class UpDocEntityAction extends UmbEntityActionBase<never> {
 	}
 
 	/**
-	 * Updates the contentGrid value to replace the "Suggested Itinerary" RTE content
+	 * Applies a block grid mapping from a map file property mapping definition.
+	 * Finds a block within the grid by searching for a property value match,
+	 * then writes the extracted content to the target property within that block.
 	 */
-	#updateContentGridWithItinerary(values: Array<{ alias: string; value: unknown }>, itineraryContent: string) {
-		const contentGridValue = values.find((v) => v.alias === 'contentGrid');
+	#applyBlockMapping(
+		values: Array<{ alias: string; value: unknown }>,
+		mapping: PropertyMapping,
+		sectionValue: string
+	) {
+		const gridAlias = mapping.to.blockGrid;
+		const blockSearch = mapping.to.blockSearch;
+		const targetProperty = mapping.to.targetProperty;
+
+		if (!gridAlias || !blockSearch || !targetProperty) return;
+
+		const contentGridValue = values.find((v) => v.alias === gridAlias);
 		if (!contentGridValue || !contentGridValue.value) {
-			console.log('No contentGrid found in scaffold values');
+			console.log(`No ${gridAlias} found in scaffold values`);
 			return;
 		}
 
 		try {
-			// Track if the value was originally a string (need to stringify back)
 			const wasString = typeof contentGridValue.value === 'string';
-			console.log('contentGrid original type:', wasString ? 'string' : 'object');
-
-			// Parse the contentGrid JSON
 			const contentGrid = wasString
 				? JSON.parse(contentGridValue.value as string)
 				: contentGridValue.value;
 
-			console.log('Parsed contentGrid:', contentGrid);
-			console.log('contentData length:', contentGrid.contentData?.length);
-
-			// Find the content block with "Suggested Itinerary" as the feature title
 			const contentData = contentGrid.contentData as Array<{
 				contentTypeKey: string;
 				key: string;
@@ -283,84 +299,42 @@ export class UpDocEntityAction extends UmbEntityActionBase<never> {
 			}>;
 
 			if (!contentData) {
-				console.log('No contentData in contentGrid');
+				console.log(`No contentData in ${gridAlias}`);
 				return;
 			}
 
-			// Look for a block that has featurePropertyFeatureTitle = "Suggested Itinerary"
+			// Search for the matching block
 			let foundBlock = false;
 			for (const block of contentData) {
-				console.log('Checking block:', block.key, 'contentTypeKey:', block.contentTypeKey);
-				console.log('Block values:', block.values?.map((v) => ({ alias: v.alias, value: typeof v.value === 'object' ? '[object]' : v.value })));
+				const searchValue = block.values?.find((v) => v.alias === blockSearch.property);
 
-				const titleValue = block.values?.find((v) => v.alias === 'featurePropertyFeatureTitle');
-				console.log('Title value for block:', titleValue?.value);
+				if (searchValue && typeof searchValue.value === 'string' &&
+					searchValue.value.toLowerCase().includes(blockSearch.value.toLowerCase())) {
 
-				if (titleValue && typeof titleValue.value === 'string' &&
-					titleValue.value.toLowerCase().includes('suggested itinerary')) {
-
-					console.log('Found Suggested Itinerary block:', block.key);
+					console.log(`Found matching block for "${blockSearch.value}":`, block.key);
 					foundBlock = true;
 
-					// Find and update the richTextContent
-					const rteValue = block.values?.find((v) => v.alias === 'richTextContent');
-					if (rteValue) {
-						// Convert plain text to HTML paragraphs
-						const htmlContent = this.#convertToHtml(itineraryContent);
-						rteValue.value = {
-							blocks: {
-								contentData: [],
-								settingsData: [],
-								expose: [],
-								Layout: {},
-							},
-							markup: htmlContent,
-						};
-						console.log('Updated richTextContent with itinerary');
+					const targetValue = block.values?.find((v) => v.alias === targetProperty);
+					if (targetValue) {
+						if (mapping.to.convertMarkdown) {
+							const htmlContent = markdownToHtml(sectionValue);
+							targetValue.value = buildRteValue(htmlContent);
+						} else {
+							targetValue.value = sectionValue;
+						}
+						console.log(`Updated ${targetProperty} in block`);
 					}
 					break;
 				}
 			}
 
 			if (!foundBlock) {
-				console.log('WARNING: Did not find a block with featurePropertyFeatureTitle containing "suggested itinerary"');
+				console.log(`WARNING: Did not find a block matching ${blockSearch.property} = "${blockSearch.value}"`);
 			}
 
-			// Update the contentGrid value - stringify back if it was originally a string
 			contentGridValue.value = wasString ? JSON.stringify(contentGrid) : contentGrid;
-			console.log('ContentGrid updated successfully (stringified:', wasString, ')');
-
 		} catch (error) {
-			console.error('Failed to update contentGrid:', error);
-		}
-	}
-
-	/**
-	 * Converts Markdown to HTML using marked library
-	 */
-	#convertToHtml(markdown: string): string {
-		if (!markdown) return '';
-
-		try {
-			// Configure marked for clean output
-			const html = marked.parse(markdown, {
-				gfm: true, // GitHub Flavored Markdown
-				breaks: false, // Don't convert \n to <br>
-			});
-
-			// marked.parse can return string or Promise<string>
-			if (typeof html === 'string') {
-				console.log('Converted Markdown to HTML:', html.substring(0, 200));
-				return html;
-			}
-
-			// Fallback for async (shouldn't happen with sync config)
-			console.warn('marked returned Promise, using fallback');
-			return `<p>${markdown}</p>`;
-		} catch (error) {
-			console.error('Markdown conversion failed:', error);
-			// Fallback: wrap in paragraph tags
-			return `<p>${markdown.replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>')}</p>`;
+			console.error(`Failed to apply block mapping to ${gridAlias}:`, error);
 		}
 	}
 }

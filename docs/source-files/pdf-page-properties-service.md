@@ -20,6 +20,7 @@ public interface IPdfPagePropertiesService
     PdfPageProperties ExtractFromStream(Stream stream);
     PdfSectionResult ExtractSectionByHeading(string filePath, string headingText);
     PdfMarkdownResult ExtractAsMarkdown(string filePath);
+    ExtractionResult ExtractSections(string filePath, PdfExtractionRules rules);
 }
 ```
 
@@ -47,6 +48,13 @@ public class PdfMarkdownResult
     public string Markdown { get; set; }     // Full content as Markdown
     public string RawText { get; set; }      // Raw text for debugging
     public string? Error { get; set; }       // Error message if extraction failed
+}
+
+public class ExtractionResult
+{
+    public Dictionary<string, string> Sections { get; set; } = new();  // Keyed by type: title, description, content
+    public string RawText { get; set; } = string.Empty;                // Raw text with font sizes for debugging
+    public string? Error { get; set; }                                 // Error message if extraction failed
 }
 ```
 
@@ -113,6 +121,27 @@ var result = _pagePropertiesService.ExtractAsMarkdown(path);
 // Result.Subtitle = "5 days from £889"
 // Result.Markdown = "## Day 1\n\nArrive at...\n\n## Day 2\n\nVisit..."
 ```
+
+### Map-driven section extraction (ExtractSections)
+
+The `ExtractSections` method extracts structured sections from a PDF using rules defined in a `PdfExtractionRules` object (from a map file). Instead of hardcoded patterns, it uses configurable rules for title detection, description matching, content start/stop boundaries, and heading levels.
+
+```csharp
+var result = _pagePropertiesService.ExtractSections(path, mapFile.SourceTypes.Pdf.Extraction);
+// result.Sections["title"] = "The Castles and Gardens of Kent"
+// result.Sections["description"] = "5 days from £889"
+// result.Sections["content"] = "## Day 1\n\nArrive at..."
+```
+
+The extraction process:
+1. Extracts text lines from all pages (with optional column detection filtering)
+2. Identifies the title using the `TitleDetection.FontSizeThreshold` ratio against the largest font
+3. Matches the description using the `DescriptionPattern` regex
+4. Captures content between the `Content.StartPattern` regex and any `Content.StopPatterns`
+5. Formats content headings using the configured `Content.HeadingLevel` (h1-h4)
+6. Returns a `Dictionary<string, string>` with keys: `title`, `description`, `content`
+
+The private `ExtractSectionsFromDocument` method implements this logic, using `Regex` objects built from the map file rules instead of the hardcoded patterns used by `ExtractAsMarkdown`.
 
 ## Usage
 

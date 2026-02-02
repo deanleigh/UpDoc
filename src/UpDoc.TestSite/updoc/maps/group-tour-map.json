@@ -1,0 +1,66 @@
+{
+  "$schema": "https://updoc.dev/schemas/map.schema.json",
+  "name": "Group Tour Page",
+  "documentTypeAlias": "groupTour",
+  "blueprintId": "b33c0169-ddd7-40c9-b75f-0fa116455ea9",
+  "sourceTypes": {
+    "pdf": {
+      "enabled": true,
+      "extraction": {
+        "columnDetection": {
+          "enabled": true,
+          "thresholdPercent": 0.35
+        },
+        "titleDetection": {
+          "fontSizeThreshold": 0.85
+        },
+        "descriptionPattern": "\\d+\\s*days?\\s+from\\s+£\\d+",
+        "content": {
+          "startPattern": "^Day\\s+\\d+",
+          "stopPatterns": [
+            "terms",
+            "conditions",
+            "booking",
+            "contact us",
+            "telephone",
+            "email:",
+            "www.",
+            "http",
+            "nb:",
+            "nb:-",
+            "please note",
+            "reserve the right"
+          ],
+          "headingLevel": "h2"
+        }
+      }
+    }
+  },
+  "propertyMappings": [
+    {
+      "from": { "sectionType": "title" },
+      "to": {
+        "property": "pageTitle",
+        "alsoMapTo": ["pageTitleShort"]
+      }
+    },
+    {
+      "from": { "sectionType": "description" },
+      "to": {
+        "property": "pageDescription"
+      }
+    },
+    {
+      "from": { "sectionType": "content" },
+      "to": {
+        "blockGrid": "contentGrid",
+        "blockSearch": {
+          "property": "featurePropertyFeatureTitle",
+          "value": "Suggested Itinerary"
+        },
+        "targetProperty": "richTextContent",
+        "convertMarkdown": true
+      }
+    }
+  ]
+}

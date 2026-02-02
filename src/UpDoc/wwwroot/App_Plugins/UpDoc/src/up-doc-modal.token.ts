@@ -1,10 +1,12 @@
 import { UmbModalToken } from '@umbraco-cms/backoffice/modal';
+import type { PropertyMapping } from './map-file.types.js';
 
 export type SourceType = 'pdf' | 'web' | 'doc';
 
 export interface UmbUpDocModalData {
 	unique: string | null;
 	blueprintName: string;
+	blueprintId: string;
 }
 
 export interface UmbUpDocModalValue {
@@ -12,10 +14,8 @@ export interface UmbUpDocModalValue {
 	sourceType: SourceType;
 	mediaUnique: string | null;
 	sourceUrl: string | null;
-	pageTitle: string;
-	pageTitleShort: string;
-	pageDescription: string;
-	itineraryContent: string;
+	extractedSections: Record<string, string>;
+	propertyMappings: PropertyMapping[];
 }
 
 export const UMB_UP_DOC_MODAL = new UmbModalToken<UmbUpDocModalData, UmbUpDocModalValue>(

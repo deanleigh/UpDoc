@@ -1,4 +1,6 @@
 import type { UmbUpDocModalData, UmbUpDocModalValue, SourceType } from './up-doc-modal.token.js';
+import type { PropertyMapping } from './map-file.types.js';
+import { extractSections } from './map-file.service.js';
 import { html, customElement, css, state, nothing } from '@umbraco-cms/backoffice/external/lit';
 import { UmbTextStyles } from '@umbraco-cms/backoffice/style';
 import { UmbModalBaseElement } from '@umbraco-cms/backoffice/modal';
@@ -24,16 +26,10 @@ export class UpDocModalElement extends UmbModalBaseElement<
 	private _selectedMediaUnique: string | null = null;
 
 	@state()
-	private _pageTitle = '';
+	private _extractedSections: Record<string, string> = {};
 
 	@state()
-	private _pageTitleShort = '';
-
-	@state()
-	private _pageDescription = '';
-
-	@state()
-	private _itineraryContent = '';
+	private _propertyMappings: PropertyMapping[] = [];
 
 	@state()
 	private _isExtracting = false;
@@ -46,24 +42,19 @@ export class UpDocModalElement extends UmbModalBaseElement<
 		this._sourceType = '';
 		this._sourceUrl = '';
 		this._selectedMediaUnique = null;
-		this._pageTitle = '';
-		this._pageTitleShort = '';
-		this._pageDescription = '';
-		this._itineraryContent = '';
+		this._extractedSections = {};
+		this._propertyMappings = [];
 	}
 
 	#handleSourceTypeChange(e: Event) {
 		const target = e.target as Element & { value: string };
 		const newSourceType = target.value as SourceType | '';
 
-		// Reset source-specific state when changing source type
 		if (newSourceType !== this._sourceType) {
 			this._selectedMediaUnique = null;
 			this._sourceUrl = '';
-			this._pageTitle = '';
-			this._pageTitleShort = '';
-			this._pageDescription = '';
-			this._itineraryContent = '';
+			this._extractedSections = {};
+			this._propertyMappings = [];
 			this._extractionError = null;
 		}
 
@@ -76,89 +67,48 @@ export class UpDocModalElement extends UmbModalBaseElement<
 		this._selectedMediaUnique = selection.length > 0 ? selection[0] : null;
 
 		if (this._selectedMediaUnique) {
-			await this.#extractPdfProperties(this._selectedMediaUnique);
+			await this.#extractFromSource(this._selectedMediaUnique);
 		} else {
-			// Clear extracted values if no media selected
-			this._pageTitle = '';
-			this._pageTitleShort = '';
-			this._pageDescription = '';
-			this._itineraryContent = '';
+			this._extractedSections = {};
+			this._propertyMappings = [];
 			this._documentName = '';
 			this._extractionError = null;
 		}
 	}
 
-	async #extractPdfProperties(mediaUnique: string) {
+	async #extractFromSource(mediaUnique: string) {
 		this._isExtracting = true;
 		this._extractionError = null;
 
 		try {
-			const authContext = await this.getContext(UMB_AUTH_CONTEXT);
-			const token = await authContext.getLatestToken();
-
-			const response = await fetch(
-				`/umbraco/management/api/v1/updoc/page-properties?mediaKey=${mediaUnique}`,
-				{
-					method: 'GET',
-					headers: {
-						'Content-Type': 'application/json',
-						Authorization: `Bearer ${token}`,
-					},
-				}
-			);
-
-			if (!response.ok) {
-				const error = await response.json();
-				console.error('API error:', error);
-				this._extractionError = error.error || 'Failed to extract PDF properties';
+			const blueprintId = this.data?.blueprintId;
+			if (!blueprintId) {
+				this._extractionError = 'No blueprint ID available';
 				return;
 			}
 
-			const result = await response.json();
+			const authContext = await this.getContext(UMB_AUTH_CONTEXT);
+			const token = await authContext.getLatestToken();
 
-			// Set extracted values
-			this._pageTitle = result.title || '';
-			this._pageTitleShort = result.title || '';
-			this._pageDescription = result.description || '';
+			const result = await extractSections(mediaUnique, blueprintId, token);
+
+			if (!result) {
+				this._extractionError = 'Failed to extract content from source';
+				return;
+			}
+
+			this._extractedSections = result.sections;
+			this._propertyMappings = result.propertyMappings;
 
 			// Pre-fill document name with extracted title
-			if (result.title && !this._documentName) {
-				this._documentName = result.title;
+			if (result.sections['title'] && !this._documentName) {
+				this._documentName = result.sections['title'];
 			}
-
-			// Extract Suggested Itinerary section
-			await this.#extractItinerarySection(mediaUnique, token);
 		} catch (error) {
-			this._extractionError = 'Failed to connect to PDF extraction service';
-			console.error('PDF extraction error:', error);
+			this._extractionError = 'Failed to connect to extraction service';
+			console.error('Extraction error:', error);
 		} finally {
 			this._isExtracting = false;
-		}
-	}
-
-	async #extractItinerarySection(mediaUnique: string, token: string) {
-		try {
-			const response = await fetch(
-				`/umbraco/management/api/v1/updoc/extract-markdown?mediaKey=${mediaUnique}`,
-				{
-					method: 'GET',
-					headers: {
-						'Content-Type': 'application/json',
-						Authorization: `Bearer ${token}`,
-					},
-				}
-			);
-
-			if (response.ok) {
-				const result = await response.json();
-				// Store the Markdown content (will be converted to HTML in the action)
-				this._itineraryContent = result.markdown || '';
-			} else {
-				this._itineraryContent = '';
-			}
-		} catch (error) {
-			console.error('Failed to extract Markdown:', error);
-			this._itineraryContent = '';
 		}
 	}
 
@@ -168,10 +118,8 @@ export class UpDocModalElement extends UmbModalBaseElement<
 			sourceType: this._sourceType as SourceType,
 			mediaUnique: this._selectedMediaUnique,
 			sourceUrl: this._sourceUrl || null,
-			pageTitle: this._pageTitle,
-			pageTitleShort: this._pageTitleShort,
-			pageDescription: this._pageDescription,
-			itineraryContent: this._itineraryContent,
+			extractedSections: this._extractedSections,
+			propertyMappings: this._propertyMappings,
 		};
 		this._submitModal();
 	}
@@ -251,7 +199,7 @@ export class UpDocModalElement extends UmbModalBaseElement<
 		if (this._isExtracting) {
 			return html`<div class="extraction-status extracting">
 				<uui-loader-bar></uui-loader-bar>
-				<span>Extracting PDF properties...</span>
+				<span>Extracting content from source...</span>
 			</div>`;
 		}
 
@@ -262,10 +210,11 @@ export class UpDocModalElement extends UmbModalBaseElement<
 			</div>`;
 		}
 
-		if (this._pageTitle) {
+		const hasContent = Object.values(this._extractedSections).some((v) => v.length > 0);
+		if (hasContent) {
 			return html`<div class="extraction-status success">
 				<uui-icon name="icon-check"></uui-icon>
-				<span>PDF properties extracted successfully</span>
+				<span>Content extracted successfully</span>
 			</div>`;
 		}
 
@@ -273,24 +222,24 @@ export class UpDocModalElement extends UmbModalBaseElement<
 	}
 
 	#renderExtractedPreview() {
-		if (!this._pageTitle && !this._pageDescription && !this._itineraryContent) {
+		const sections = this._extractedSections;
+		const hasContent = Object.values(sections).some((v) => v.length > 0);
+		if (!hasContent) {
 			return nothing;
 		}
 
 		return html`
-			<uui-box headline="Extracted Properties" class="preview-box">
-				<div class="preview-item">
-					<strong>Page Title:</strong> ${this._pageTitle || '(empty)'}
-				</div>
-				<div class="preview-item">
-					<strong>Page Description:</strong> ${this._pageDescription || '(empty)'}
-				</div>
-				${this._itineraryContent
-					? html`<div class="preview-item itinerary-preview">
-							<strong>Suggested Itinerary:</strong>
-							<div class="itinerary-content">${this._itineraryContent.substring(0, 200)}${this._itineraryContent.length > 200 ? '...' : ''}</div>
-						</div>`
-					: nothing}
+			<uui-box headline="Extracted Content" class="preview-box">
+				${Object.entries(sections).map(([key, value]) => {
+					if (!value) return nothing;
+					const truncated = value.length > 200 ? `${value.substring(0, 200)}...` : value;
+					return html`
+						<div class="preview-item">
+							<strong>${key}:</strong>
+							<div class="preview-value">${truncated}</div>
+						</div>
+					`;
+				})}
 			</uui-box>
 		`;
 	}
@@ -303,7 +252,6 @@ export class UpDocModalElement extends UmbModalBaseElement<
 				return !!this._selectedMediaUnique;
 			case 'web':
 			case 'doc':
-				// Not yet functional
 				return false;
 			default:
 				return false;
@@ -428,8 +376,8 @@ export class UpDocModalElement extends UmbModalBaseElement<
 				margin-bottom: 0;
 			}
 
-			.itinerary-content {
-				margin-top: var(--uui-size-space-2);
+			.preview-value {
+				margin-top: var(--uui-size-space-1);
 				padding: var(--uui-size-space-2);
 				background-color: var(--uui-color-surface-alt);
 				border-radius: var(--uui-border-radius);

@@ -94,6 +94,72 @@ Extracts the full PDF content as Markdown with column detection for multi-column
 - `404 Not Found` - Media item not found or file not on disk
 - `400 Bad Request` - Extraction failed
 
+## Map file endpoint
+
+```
+GET /umbraco/management/api/v1/updoc/maps/{blueprintId}
+```
+
+Returns the map file configuration for a given blueprint.
+
+### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| blueprintId | Guid | The blueprint unique identifier |
+
+### Response
+
+Returns the full `MapFile` JSON object (name, documentTypeAlias, blueprintId, sourceTypes, propertyMappings).
+
+### Error responses
+
+- `404 Not Found` -- No map file found for the given blueprint
+
+## Section extraction endpoint (map-driven)
+
+```
+GET /umbraco/management/api/v1/updoc/extract-sections?mediaKey={guid}&blueprintId={guid}
+```
+
+Extracts structured sections from a PDF using the extraction rules defined in the map file for the given blueprint.
+
+### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| mediaKey | Guid | The unique identifier of the media item |
+| blueprintId | Guid | The blueprint unique identifier (used to look up the map file) |
+
+### Response
+
+```json
+{
+    "sections": {
+        "title": "The Castles and Gardens of Kent",
+        "description": "5 days from £889",
+        "content": "## Day 1\n\nArrive at..."
+    },
+    "propertyMappings": [
+        {
+            "from": { "sectionType": "title" },
+            "to": { "property": "pageTitle", "alsoMapTo": ["pageTitleShort"] }
+        }
+    ]
+}
+```
+
+The response includes both the extracted `sections` and the `propertyMappings` from the map file, so the frontend can apply each mapping to the document being created.
+
+### Error responses
+
+- `404 Not Found` -- No map file found for the blueprint, or media item not found
+- `400 Bad Request` -- Map file has no PDF extraction rules, or extraction failed
+
+### Private helper: ResolveMediaFilePath
+
+The new endpoints use a shared `ResolveMediaFilePath(Guid mediaKey)` private method that encapsulates the media lookup and file path resolution logic (handling both JSON and simple path formats for `umbracoFile`). Returns `null` if the media item is not found or the file does not exist on disk.
+
 ## Key concepts
 
 ### Umbraco 17 Management API
@@ -114,11 +180,12 @@ The controller handles both formats.
 
 ## Dependencies
 
-- `IMediaService` - Umbraco media service
-- `IPdfExtractionService` - PDF extraction service
-- `IPdfPagePropertiesService` - PDF page properties service
-- `IWebHostEnvironment` - For resolving file paths
-- `ILogger<PdfExtractionController>` - Logging
+- `IMediaService` -- Umbraco media service
+- `IPdfExtractionService` -- PDF extraction service
+- `IPdfPagePropertiesService` -- PDF page properties service
+- `IMapFileService` -- Map file service for blueprint-to-map lookups
+- `IWebHostEnvironment` -- For resolving file paths
+- `ILogger<PdfExtractionController>` -- Logging
 
 ## Frontend usage
 
