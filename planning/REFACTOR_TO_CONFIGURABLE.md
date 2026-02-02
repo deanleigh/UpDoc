@@ -17,7 +17,118 @@ This document guides the refactoring of the "Create Document from PDF" Umbraco e
 - No code duplication or version drift between two repos
 - Config files (and eventually a dashboard) provide the customisation boundary
 
-**The boundary:** The package code is generic. The `config.json` (and later, dashboard-managed database settings) is client-specific.
+**The boundary:** The package code is generic. The config files (and later, dashboard-managed database settings) are client-specific.
+
+---
+
+## Architecture Decision: Map Files
+
+### What is a Map File?
+
+A **Map File** defines how content is extracted from a source document (PDF, web page, or Word document) and how that extracted content is mapped to properties on an Umbraco document. Each map file is self-contained — it describes both the **extraction rules** (what to look for in the source) and the **property mappings** (where to put it in the destination). A site may have multiple map files, one for each document type or blueprint that can be created from a source.
+
+### Naming
+
+Map files are named after the **document type** they target, using kebab-case with a `-map` suffix:
+
+- `group-tour-map.json`
+- `product-map.json`
+- `service-map.json`
+- `blog-post-map.json`
+
+Named by document type (not blueprint GUID) because:
+- Human-readable and immediately clear what each file is for
+- Survives the future transition to blueprint-optional (a GUID filename would be meaningless without a blueprint)
+- Consistent with the project's kebab-case file naming convention
+
+### One Map File Per Document Type / Blueprint
+
+**Decision:** Each map file contains BOTH extraction rules AND property mappings. No shared/global config. No separation of extraction from mapping.
+
+**Rationale:**
+- A site may have many document types (Product, Service, Group Tour, Blog Post, etc.), each with completely different extraction rules and property mappings
+- Extraction rules and property mappings are tightly coupled to the destination — "what to extract" depends on "where to put it"
+- Separating extraction from mapping creates a management problem: naming profiles, referencing between files, keeping them in sync
+- If two document types genuinely need identical extraction rules, duplicating the extraction section is a minor cost compared to the complexity of an indirection layer
+- Each map file is self-contained and independently understandable
+
+### File Location
+
+**Decision:** `updoc/maps/` at the site root (follows the uSync pattern).
+
+**Rationale:**
+- Map files are **site-specific** — they must not live inside the RCL package or they'd be overwritten on package updates
+- They must be committed to git and travel with the site across deployments
+- The `updoc/` root folder follows the established Umbraco ecosystem pattern (uSync uses `uSync/` at the site root for its serialized content files)
+- Clear separation from the package code (`src/UpDoc/`) and from Umbraco runtime data (`umbraco/Data/`)
+- The path is configurable via `appsettings.json` for sites that need a different location
+
+**For the test site:** `src/UpDoc.TestSite/updoc/maps/`
+
+### Map File Structure
+
+```json
+{
+  "$schema": "https://updoc.dev/schemas/map.schema.json",
+  "name": "Group Tour Page",
+  "documentTypeAlias": "groupTour",
+  "blueprintId": "b33c0169-ddd7-40c9-b75f-0fa116455ea9",
+  "sourceTypes": {
+    "pdf": {
+      "enabled": true,
+      "extraction": {
+        "columnDetection": { "enabled": true, "thresholdPercent": 0.35 },
+        "titleDetection": { "fontSizeThreshold": 0.85 },
+        "descriptionPattern": "\\d+\\s*days?\\s+from\\s+£\\d+",
+        "content": {
+          "startPattern": "^Day\\s+\\d+",
+          "stopPatterns": ["terms", "conditions", "booking", "contact us", "telephone", "email:", "www.", "http", "nb:", "nb:-", "please note", "reserve the right"],
+          "headingLevel": "h2"
+        }
+      }
+    }
+  },
+  "propertyMappings": [
+    {
+      "from": { "sectionType": "title" },
+      "to": { "property": "pageTitle", "alsoMapTo": ["pageTitleShort"] }
+    },
+    {
+      "from": { "sectionType": "description" },
+      "to": { "property": "pageDescription" }
+    },
+    {
+      "from": { "sectionType": "content" },
+      "to": {
+        "blockGrid": "contentGrid",
+        "blockSearch": { "property": "featurePropertyFeatureTitle", "value": "Suggested Itinerary" },
+        "targetProperty": "richTextContent",
+        "convertMarkdown": true
+      }
+    }
+  ]
+}
+```
+
+**Key fields:**
+- `documentTypeAlias` — the Umbraco document type alias (used as the primary lookup key)
+- `blueprintId` — optional, links to a specific blueprint (required for this iteration, optional in future)
+- `sourceTypes` — extraction rules per source type (only `pdf` is functional now)
+- `propertyMappings` — maps extracted sections to Umbraco document properties
+
+### How It Works
+
+1. User selects a blueprint in the picker
+2. UpDoc resolves the blueprint's document type alias
+3. UpDoc scans `updoc/maps/` for a map file matching that document type (reads `documentTypeAlias` from each file)
+4. If no map file exists, UpDoc shows a message explaining that a map file needs to be created
+5. The map file tells the backend how to extract content AND the frontend how to map it
+6. Map files are cached after first load
+
+### Resilience
+
+- Map files should cause **no failures** if the referenced document type or blueprint is deleted from Umbraco — orphaned map files are simply ignored
+- Missing map files do not break the UpDoc entity action — the user sees a helpful message instead of an error
 
 ---
 
@@ -178,91 +289,7 @@ Config File (config.json) — temporary, replaced by dashboard later
 
 Config files are the interim mechanism for customisation. They will be replaced by a visual dashboard that stores mappings in the Umbraco database. The `IConfigurationService` interface abstracts this — the extraction services don't care whether config comes from a JSON file or a database.
 
-**File Location:** `/App_Plugins/CreateFromPdf/config.json`
-
-```json
-{
-  "$schema": "./config.schema.json",
-  "version": "1.0",
-
-  "sourceTypes": {
-    "pdf": {
-      "enabled": true,
-      "label": "PDF Document",
-      "icon": "icon-document",
-      "extraction": {
-        "columnDetection": {
-          "enabled": true,
-          "thresholdPercent": 0.35,
-          "comment": "Filter sidebar content - 35% of page width"
-        },
-        "titleDetection": {
-          "fontSizeThreshold": 0.85,
-          "comment": "Lines with font size >= 85% of max are titles"
-        },
-        "descriptionPattern": "\\d+\\s*days?\\s*from\\s*£\\d+",
-        "content": {
-          "startPattern": "Day\\s+\\d+",
-          "stopPatterns": ["terms", "conditions", "please note", "nb:"],
-          "headingLevel": "h2",
-          "comment": "Capture from first 'Day N' until footer patterns"
-        }
-      }
-    },
-    "web": {
-      "enabled": false,
-      "label": "Web Page",
-      "icon": "icon-globe",
-      "comment": "Future: Web page extraction rules"
-    },
-    "word": {
-      "enabled": false,
-      "label": "Word Document",
-      "icon": "icon-edit",
-      "comment": "Future: Word document extraction rules"
-    }
-  },
-
-  "blueprints": [
-    {
-      "name": "Group Tour Page",
-      "blueprintId": "b33c0169-ddd7-40c9-b75f-0fa116455ea9",
-      "comment": "Client-specific: Tailored Travels group tour blueprint",
-      "propertyMappings": [
-        {
-          "from": { "sectionType": "title" },
-          "to": {
-            "property": "pageTitle",
-            "alsoMapTo": ["pageTitleShort"]
-          }
-        },
-        {
-          "from": { "sectionType": "description" },
-          "to": { "property": "pageDescription" }
-        },
-        {
-          "from": { "sectionType": "content" },
-          "to": {
-            "blockGrid": "contentGrid",
-            "blockSearch": {
-              "property": "featurePropertyFeatureTitle",
-              "value": "Suggested Itinerary"
-            },
-            "targetProperty": "richTextContent",
-            "convertMarkdown": true
-          }
-        }
-      ]
-    }
-  ]
-}
-```
-
-**Key changes from original schema:**
-- `sourceTypes` replaces `extraction` — each source type declares whether it's enabled, its label and icon (used in the source type picker UI)
-- `blueprints` replaces `mappings` — now includes a `name` field for display and makes the blueprint-based approach explicit
-- Source type picker reads `sourceTypes` to know what to show
-- Frontend reads `blueprints` to know how to map extracted sections to document properties
+> **SUPERSEDED:** The original design used a single `config.json` containing all blueprints and a shared extraction config. This has been replaced by **Map Files** — one per document type, stored in `updoc/maps/` at the site root. See "Architecture Decision: Map Files" above for the full design.
 
 ### Extracted Data Format (Intermediate JSON)
 
@@ -1349,6 +1376,20 @@ The config.json files are a temporary stepping stone. The end goal is a **backof
 4. **Export/Import** — export config as JSON for version control or sharing between environments
 
 **Separate planning document:** The dashboard design will be documented in `planning/CONFIGURATION_DASHBOARD.md` when ready.
+
+---
+
+## TODO — Open Items
+
+Items that need to be addressed during or after implementation:
+
+- [ ] **Consider map file deletion workflow.** When a document type or blueprint is deleted from Umbraco, orphaned map files remain in `updoc/maps/`. Currently these are silently ignored (no failure), but over time they accumulate. Need to decide: should UpDoc detect orphaned map files and prompt the user to clean them up? Should there be a dashboard action to list/delete orphaned maps? Should deletion of a document type or blueprint trigger a notification that the associated map file can be removed? This also applies in reverse — if a map file is deleted but the document type/blueprint still exists, UpDoc should gracefully handle that (it already does: shows "no map file found" message). The key concern is lifecycle management: map files and Umbraco content types have independent lifecycles, and we need a strategy for keeping them in sync without creating hard dependencies.
+
+- [ ] **Decide on map file path configurability.** Default is `updoc/maps/` at site root. Should this be configurable via `appsettings.json`? Likely yes, but defer until needed.
+
+- [ ] **Discuss uSync integration with uSync maintainer.** Map files follow a similar pattern to uSync's serialized content files. Worth exploring whether uSync could be aware of UpDoc map files, or if there are conventions we should follow for compatibility.
+
+- [ ] **Blueprint-optional support.** Currently `blueprintId` is required in map files. In a future iteration, map files should work with just `documentTypeAlias` (no blueprint). The map file schema already supports this — `blueprintId` just needs to become optional in the code.
 
 ---
 

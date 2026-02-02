@@ -28,6 +28,17 @@ This project uses the Umbraco Skills Marketplace for Claude Code. When working o
 - For testing, use `/umbraco-testing` to choose the right testing approach
 - Skills provide official docs, patterns, and working examples
 
+## Planning Files
+
+The `planning/` folder contains architectural planning documents for this project. **When entering plan mode, always read the relevant planning files first** before doing any exploration or design work. These files contain design decisions, config schemas, and implementation roadmaps that have been agreed upon with the user.
+
+Key planning files:
+- `planning/REFACTOR_TO_CONFIGURABLE.md` — Config-driven extraction and mapping architecture
+- `planning/CREATE_FROM_SOURCE_SIDEBAR.md` — Unified sidebar modal design
+- `planning/CREATE_FROM_SOURCE_UI.md` — Single entry point UI design
+
+Do not duplicate or contradict decisions already made in these files. If the current task relates to an existing planning document, build on it rather than designing from scratch.
+
 ## Git Branching
 
 Before starting work on any feature, bug fix, or refactoring task, create a feature branch from `main`:
