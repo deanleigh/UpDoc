@@ -136,28 +136,44 @@ Phase 1 (single map file per document type) was implemented on the `feature/map-
 
 ### Phase 2 Status: COMPLETED
 
-Phase 2 (three-file architecture) is implemented on the `feature/three-file-config-architecture` branch. The folder structure is:
+Phase 2 (three-file architecture) is implemented. The folder structure is:
 
 ```
 updoc/maps/group-tour/
-  source.json        # Extraction rules with named sections and strategies
-  destination.json   # Available target fields in the document type
-  map.json           # Wiring: source sections → destination fields
+  source-pdf.json           # Extraction rules with named sections and strategies
+  destination-blueprint.json # Available target fields in the document type
+  map.json                   # Wiring: source sections → destination fields
 ```
+
+**Note:** File naming was updated in Phase 3 to indicate source type (`source-pdf.json`) and destination type (`destination-blueprint.json`).
 
 **Key changes from the original Phase 2 design:**
 - Combined `extract-pdf.json`, `extract-web.json`, etc. into a single `source.json` with a `sourceTypes` array
 - Added `destination.json` as a separate file (not in original design) to explicitly document available import targets
-- The extraction **algorithm** is still hardcoded, but now uses a compatibility layer that converts `source.json` sections to legacy `PdfExtractionRules`
+- ~~The extraction **algorithm** is still hardcoded, but now uses a compatibility layer that converts `source.json` sections to legacy `PdfExtractionRules`~~ **COMPLETE**: Extraction is now truly strategy-driven
+
+**Completed:**
+- ✅ Refactored `PdfPagePropertiesService` to be strategy-driven via `ExtractSectionsFromConfig()`
+- ✅ Each section in `source-pdf.json` is extracted according to its `strategy` property
+- ✅ Implemented strategies: `largestFont`, `regex`, `betweenPatterns`
+- ✅ Sections are returned keyed by their `key` property (title, description, itinerary, features, accommodation)
 
 **Remaining work:**
-- Refactor `PdfPagePropertiesService` to be truly strategy-driven (execute extraction based on section strategy, not fixed algorithm)
 - Implement additional extraction strategies (`region`, `afterLabel`, etc.)
 - Add web and Word document extractors
 
 ---
 
 ## Phase 3: File Naming & Multi-Source Support
+
+### Status: COMPLETED (File Naming)
+
+File naming convention has been implemented:
+- ✅ Renamed `source.json` → `source-pdf.json`
+- ✅ Renamed `destination.json` → `destination-blueprint.json`
+- ✅ Updated `MapFileService` to look for new file names
+
+Multi-source support (web, Word) is future work.
 
 ### File Naming Convention
 
