@@ -157,6 +157,72 @@ updoc/maps/group-tour/
 
 ---
 
+## Phase 3: File Naming & Multi-Source Support
+
+### File Naming Convention
+
+Config files should be named to indicate their source type or destination type:
+
+```
+updoc/maps/group-tour/
+  source-pdf.json           # PDF extraction rules
+  source-web.json           # Web scraping rules (future)
+  source-word.json          # Word document extraction (future)
+  destination-blueprint.json # Maps to a blueprint (current)
+  destination-doctype.json   # Maps directly to doc type (future)
+  map.json                   # Wiring between source sections and destination fields
+```
+
+**Rationale:**
+- `source.json` doesn't indicate what kind of source (PDF vs Web vs Word)
+- Different source types have fundamentally different extraction strategies
+- `destination-blueprint.json` vs `destination-doctype.json` supports future flexibility (blueprint-optional)
+
+**Migration:**
+- Rename `source.json` → `source-pdf.json`
+- Rename `destination.json` → `destination-blueprint.json`
+- Update `MapFileService` to look for these new names
+
+### Architectural Concern: Schema Prescriptiveness
+
+**READ THIS DURING PLANNING**
+
+The current JSON Schema files (`source.schema.json`, `destination.schema.json`, `map.schema.json`) contain explicit enums and hardcoded strategy names:
+
+```json
+"strategy": {
+  "enum": ["largestFont", "regex", "betweenPatterns", "region", "afterLabel", "cssSelector", "xpath"]
+}
+```
+
+If we add a new strategy, we must update:
+- The schema
+- The C# models
+- The TypeScript types
+- The extraction service
+
+This is tight coupling disguised as configuration. The schema may be too prescriptive.
+
+**Validation needed:** Implement additional source types (Word, Markdown, Web) to stress-test the architecture and discover:
+- What's truly common across all sources
+- What's source-specific
+- Where the schema is too rigid
+- Where it's too loose
+
+### Next Steps: Validate Architecture with Multiple Source Types
+
+| Source | Complexity | What We Learn |
+|--------|------------|---------------|
+| Markdown | Trivial | Already structured, validates the "easy path" |
+| Word | Easy | Heading-based extraction, similar to PDF |
+| Web | Medium | CSS selectors, XPath - completely different paradigm |
+
+Implementing these will reveal whether our separation of concerns actually holds, or whether we've just moved coupling into JSON files.
+
+**Do not finalize the schema structure until at least one additional source type is implemented.**
+
+---
+
 ## Architecture Decision: Multi-File Extraction (Phase 2)
 
 > **Supersedes** the single map file approach for extraction rules. The `propertyMappings` concept from Phase 1 carries forward into the new `map.json`.

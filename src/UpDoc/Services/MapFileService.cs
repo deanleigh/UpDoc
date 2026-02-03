@@ -115,7 +115,7 @@ public class MapFileService : IMapFileService
             // Check source exists
             if (!validSourceKeys.Contains(mapping.Source))
             {
-                errors.Add($"map.json: source '{mapping.Source}' not found in source.json");
+                errors.Add($"map.json: source '{mapping.Source}' not found in source-pdf.json");
             }
 
             // Check each destination exists
@@ -123,7 +123,7 @@ public class MapFileService : IMapFileService
             {
                 if (!validDestinationKeys.Contains(dest.Target))
                 {
-                    errors.Add($"map.json: target '{dest.Target}' not found in destination.json");
+                    errors.Add($"map.json: target '{dest.Target}' not found in destination-blueprint.json");
                 }
             }
         }
@@ -138,7 +138,7 @@ public class MapFileService : IMapFileService
         {
             if (!mappedSources.Contains(section.Key))
             {
-                errors.Add($"WARN: source.json section '{section.Key}' (required: true) has no mapping");
+                errors.Add($"WARN: source-pdf.json section '{section.Key}' (required: true) has no mapping");
             }
         }
 
@@ -208,20 +208,20 @@ public class MapFileService : IMapFileService
     private DocumentTypeConfig? LoadDocumentTypeConfig(string folderPath)
     {
         var folderName = Path.GetFileName(folderPath);
-        var sourceFile = Path.Combine(folderPath, "source.json");
-        var destinationFile = Path.Combine(folderPath, "destination.json");
+        var sourceFile = Path.Combine(folderPath, "source-pdf.json");
+        var destinationFile = Path.Combine(folderPath, "destination-blueprint.json");
         var mapFile = Path.Combine(folderPath, "map.json");
 
         // All three files must exist
         if (!File.Exists(sourceFile))
         {
-            _logger.LogWarning("Config folder {Folder} missing source.json, skipping.", folderName);
+            _logger.LogWarning("Config folder {Folder} missing source-pdf.json, skipping.", folderName);
             return null;
         }
 
         if (!File.Exists(destinationFile))
         {
-            _logger.LogWarning("Config folder {Folder} missing destination.json, skipping.", folderName);
+            _logger.LogWarning("Config folder {Folder} missing destination-blueprint.json, skipping.", folderName);
             return null;
         }
 
