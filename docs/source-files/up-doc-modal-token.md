@@ -23,24 +23,24 @@ Defines the available source types for content extraction. Currently only `pdf` 
 export interface UmbUpDocModalData {
     unique: string | null;     // Parent document ID
     blueprintName: string;     // Display name of the selected blueprint
-    blueprintId: string;       // Blueprint GUID, used to look up the map file
+    blueprintId: string;       // Blueprint GUID, used to fetch config
 }
 
 export interface UmbUpDocModalValue {
-    name: string;                                    // The document name (pre-filled from source, user can edit)
-    sourceType: SourceType;                          // Which source type was selected (pdf, web, doc)
-    mediaUnique: string | null;                      // The selected media item's unique ID (for pdf/doc sources)
+    name: string;                                    // The document name
+    sourceType: SourceType;                          // Which source type was selected
+    mediaUnique: string | null;                      // The selected media item's ID
     sourceUrl: string | null;                        // The entered URL (for web source)
-    extractedSections: Record<string, string>;       // Extracted sections keyed by type (title, description, content)
-    propertyMappings: PropertyMapping[];             // Mapping definitions from the map file
+    extractedSections: Record<string, string>;       // Extracted sections keyed by key
+    config: DocumentTypeConfig | null;               // Full config for property mapping
 }
 ```
 
-The `UmbUpDocModalData` interface now includes `blueprintId` so the modal can pass it to the `extractSections` API call, which needs it to look up the correct map file on the backend.
+The `UmbUpDocModalData` interface includes `blueprintId` so the modal can pass it to the `extractSections` API call, which needs it to look up the correct config files on the backend.
 
-The `UmbUpDocModalValue` interface replaces the previous individual fields (`pageTitle`, `pageTitleShort`, `pageDescription`, `itineraryContent`) with:
-- `extractedSections` -- a flexible `Record<string, string>` containing all extracted values keyed by section type
-- `propertyMappings` -- the `PropertyMapping[]` from the map file, so the action knows how to apply each section
+The `UmbUpDocModalValue` interface returns:
+- `extractedSections` -- a `Record<string, string>` containing all extracted values keyed by section key (from source.json)
+- `config` -- the full `DocumentTypeConfig` containing source, destination, and map configs so the action knows how to apply each section
 
 ## The token
 
@@ -81,10 +81,10 @@ A generic class that provides:
 
 ```typescript
 import { UmbModalToken } from '@umbraco-cms/backoffice/modal';
-import type { PropertyMapping } from './map-file.types.js';
+import type { DocumentTypeConfig } from './map-file.types.js';
 ```
 
-The `PropertyMapping` type is imported from `map-file.types.js` for use in `UmbUpDocModalValue`.
+The `DocumentTypeConfig` type is imported from `map-file.types.js` for use in `UmbUpDocModalValue`.
 
 ## Usage
 
@@ -101,5 +101,5 @@ const value = await umbOpenModal(this, UMB_UP_DOC_MODAL, {
     },  // TypeScript knows this must be UmbUpDocModalData
 });
 // value is typed as UmbUpDocModalValue
-// Includes: name, sourceType, mediaUnique, sourceUrl, extractedSections, propertyMappings
+// Includes: name, sourceType, mediaUnique, sourceUrl, extractedSections, config
 ```

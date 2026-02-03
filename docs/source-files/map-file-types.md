@@ -1,101 +1,225 @@
 # map-file.types.ts
 
-TypeScript interfaces that mirror the C# `MapFileModels.cs` for type-safe map file handling on the frontend.
+TypeScript interfaces for the three-file configuration architecture. These types mirror the C# models for type-safe handling on the frontend.
 
 ## What it does
 
-Defines the TypeScript shape of map file JSON, used by the map file service and the entity action to work with extraction configuration and property mappings in a type-safe way.
+Defines the TypeScript shape of the three configuration files (`source.json`, `destination.json`, `map.json`) and the combined `DocumentTypeConfig` returned by the API. Used by the map file service, modal, and entity action.
 
-## Interfaces
+## Three-File Architecture
+
+UpDoc uses a three-file configuration system:
+
+| File | Purpose | TypeScript Type |
+|------|---------|-----------------|
+| `source.json` | HOW to extract sections from source documents | `SourceConfig` |
+| `destination.json` | WHAT fields are available in the target document type | `DestinationConfig` |
+| `map.json` | WIRING between source sections and destination fields | `MapConfig` |
+
+## Source Config Types (source.json)
 
 ```typescript
-export interface MapFile {
-    name: string;
+export interface SourceConfig {
+    version: string;
+    sourceTypes: string[];           // e.g. ["pdf"]
+    globals?: SourceGlobals;
+    sections: SourceSection[];
+}
+
+export interface SourceGlobals {
+    columnDetection?: ColumnDetectionConfig;
+    pageRange?: PageRangeConfig;
+}
+
+export interface SourceSection {
+    key: string;                     // Unique identifier referenced in map.json
+    label: string;                   // Human-readable name for UI
+    description?: string;
+    strategy: ExtractionStrategy;    // Extraction algorithm
+    outputFormat: 'text' | 'markdown' | 'html';
+    required?: boolean;
+    pages?: number[] | 'all';
+    columnFilter?: boolean;
+    occurrence?: 'first' | 'last' | 'all';
+    strategyParams?: StrategyParams;
+}
+
+export type ExtractionStrategy =
+    | 'largestFont'      // Text at/above font size threshold
+    | 'regex'            // Pattern matching
+    | 'betweenPatterns'  // Content between start/stop markers
+    | 'region'           // Bounding box extraction
+    | 'afterLabel'       // Text following a label
+    | 'cssSelector'      // CSS selector (web)
+    | 'xpath';           // XPath expression (web/Word)
+```
+
+### Strategy Parameters
+
+```typescript
+export interface StrategyParams {
+    // largestFont
+    fontSizeThreshold?: number;
+
+    // regex
+    pattern?: string;
+    flags?: string;
+    captureGroup?: number;
+
+    // betweenPatterns
+    startPattern?: string;
+    stopPatterns?: string[];
+    includeStartLine?: boolean;
+    headingLevel?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
+
+    // region
+    region?: RegionConfig;
+
+    // afterLabel
+    label?: string;
+    labelPattern?: string;
+    extractMode?: 'sameLine' | 'nextLine' | 'untilBlank';
+
+    // cssSelector (web)
+    selector?: string;
+    attribute?: string;
+
+    // xpath (web/Word)
+    xpath?: string;
+}
+```
+
+## Destination Config Types (destination.json)
+
+```typescript
+export interface DestinationConfig {
+    version: string;
     documentTypeAlias: string;
+    documentTypeName?: string;
     blueprintId?: string;
-    sourceTypes: SourceTypes;
-    propertyMappings: PropertyMapping[];
+    blueprintName?: string;
+    fields: DestinationField[];
+    blockGrids?: DestinationBlockGrid[];
 }
 
-export interface SourceTypes {
-    pdf?: SourceTypeConfig;
-    web?: SourceTypeConfig;
-    word?: SourceTypeConfig;
+export interface DestinationField {
+    key: string;              // Key used in map.json target paths
+    alias: string;            // Umbraco property alias
+    label: string;
+    description?: string;
+    type: FieldType;
+    tab?: string;
+    mandatory?: boolean;
+    acceptsFormats?: ContentFormat[];
 }
 
-export interface SourceTypeConfig {
-    enabled: boolean;
-    extraction?: PdfExtractionRules;
+export interface DestinationBlockGrid {
+    key: string;              // Key used in map.json (e.g. "contentGrid")
+    alias: string;            // Umbraco property alias
+    label: string;
+    blocks: DestinationBlock[];
 }
 
-export interface PdfExtractionRules {
-    columnDetection?: {
-        enabled: boolean;
-        thresholdPercent: number;
-    };
-    titleDetection?: {
-        fontSizeThreshold: number;
-    };
-    descriptionPattern?: string;
-    content?: {
-        startPattern?: string;
-        stopPatterns?: string[];
-        headingLevel?: 'h1' | 'h2' | 'h3' | 'h4';
-    };
+export interface DestinationBlock {
+    key: string;              // Key used in map.json (e.g. "itineraryBlock")
+    contentTypeAlias: string;
+    label: string;
+    identifyBy?: BlockIdentifier;    // How to find this block instance
+    properties?: BlockProperty[];
+}
+
+export interface BlockIdentifier {
+    property: string;         // Property alias to search
+    value: string;            // Value to match (case-insensitive)
 }
 ```
 
-### Property mapping types
+## Map Config Types (map.json)
 
 ```typescript
-export interface PropertyMapping {
-    from: MappingSource;
-    to: MappingTarget;
+export interface MapConfig {
+    version: string;
+    name?: string;
+    description?: string;
+    mappings: SectionMapping[];
 }
 
-export interface MappingSource {
-    sectionType: string;   // e.g. "title", "description", "content"
+export interface SectionMapping {
+    source: string;                  // Key from source.json section
+    destinations: MappingDestination[];
+    enabled?: boolean;               // Set false to skip this mapping
+    comment?: string;
 }
 
-export interface MappingTarget {
-    property?: string;          // Simple property alias
-    alsoMapTo?: string[];       // Additional properties receiving same value
-    blockGrid?: string;         // Block grid property alias
-    blockSearch?: BlockSearchConfig;
-    targetProperty?: string;    // Property within the found block
-    convertMarkdown?: boolean;  // Convert Markdown to HTML before writing
+export interface MappingDestination {
+    target: string;                  // Target path (see below)
+    transforms?: MappingTransform[];
 }
 
-export interface BlockSearchConfig {
-    property: string;    // Property alias to search within blocks
-    value: string;       // Value to match (case-insensitive contains)
+export interface MappingTransform {
+    type: TransformType;
+    params?: TransformParams;
+}
+
+export type TransformType =
+    | 'convertMarkdownToHtml'
+    | 'convertHtmlToMarkdown'
+    | 'truncate'
+    | 'template'
+    | 'regex'
+    | 'trim'
+    | 'uppercase'
+    | 'lowercase'
+    | 'stripHtml';
+```
+
+### Target Path Syntax
+
+| Pattern | Example | Meaning |
+|---------|---------|---------|
+| Simple field | `"pageTitle"` | Direct property on document |
+| Block property | `"contentGrid.itineraryBlock.richTextContent"` | blockGridKey.blockKey.propertyKey |
+
+## Combined Document Type Config
+
+The API returns all three configs bundled together:
+
+```typescript
+export interface DocumentTypeConfig {
+    folderPath: string;              // Path to config folder
+    documentTypeAlias: string;
+    source: SourceConfig;
+    destination: DestinationConfig;
+    map: MapConfig;
 }
 ```
 
-### API response type
+## API Response Type
 
 ```typescript
 export interface ExtractSectionsResponse {
-    sections: Record<string, string>;       // Extracted sections keyed by type (title, description, content)
-    propertyMappings: PropertyMapping[];    // Mappings from the map file to apply client-side
+    sections: Record<string, string>;  // Extracted sections keyed by source key
+    config: DocumentTypeConfig;        // Full config for property mapping
 }
 ```
 
-The `ExtractSectionsResponse` is returned by the `/updoc/extract-sections` endpoint and consumed by the modal element. It bundles the extracted section values with the property mappings so the action knows how to apply each section to the document.
+The `ExtractSectionsResponse` is returned by the `/updoc/extract-sections` endpoint. It bundles extracted section values with the full config so the action can apply mappings client-side.
 
-## Key concepts
+## Key Concepts
 
-### Mirror of C# models
+### Separation of Concerns
 
-These interfaces match the C# `MapFileModels.cs` classes one-to-one. The camelCase property names here correspond to the `[JsonPropertyName]` attributes on the C# side.
+- **source.json**: Defines extraction logic (strategies, patterns)
+- **destination.json**: Documents available targets (fields, blocks)
+- **map.json**: Pure relational mapping (no extraction logic, no field metadata)
 
-### Used by
+### Used By
 
-- `map-file.service.ts` -- return types for `fetchMapFile()` and `extractSections()`
-- `up-doc-modal.token.ts` -- `PropertyMapping` is part of `UmbUpDocModalValue`
-- `up-doc-action.ts` -- `PropertyMapping` is imported for the mapping loop
-- `up-doc-modal.element.ts` -- `PropertyMapping` array stored as state
+- `map-file.service.ts` -- Return types for `fetchConfig()` and `extractSections()`
+- `up-doc-modal.token.ts` -- `DocumentTypeConfig` is part of `UmbUpDocModalValue`
+- `up-doc-action.ts` -- Uses `config.map.mappings` and `config.destination.blockGrids`
+- `up-doc-modal.element.ts` -- Stores `DocumentTypeConfig` as component state
 
 ## Imports
 
-This file has no imports -- it defines only interfaces.
+This file has no imports -- it defines only interfaces and types.

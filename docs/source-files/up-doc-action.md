@@ -7,11 +7,11 @@ The entity action class that handles the "Create Document from Source" menu clic
 When a user clicks "Create Document from Source" in the document tree context menu, this action:
 1. Gets the parent document's document type
 2. Discovers allowed child document types and their blueprints (grouped by document type)
-3. Opens the **blueprint picker dialog** -- user selects a document type, then a blueprint for that type (or sees "create one first" message if no blueprints exist)
-4. Opens the **source sidebar modal** -- passes the selected `blueprintId` so the modal can look up the map file and extract sections accordingly
-5. Destructures `extractedSections` and `propertyMappings` from the modal return value
+3. Opens the **blueprint picker dialog** -- user selects a document type, then a blueprint
+4. Opens the **source sidebar modal** -- passes the selected `blueprintId` so the modal can fetch the config and extract sections
+5. Receives `extractedSections` and `config` from the modal return value
 6. Scaffolds from the selected blueprint to get default values
-7. Loops over `propertyMappings` to dynamically apply each mapping (simple property or block grid)
+7. Loops over `config.map.mappings` to apply each mapping using path-based targeting
 8. Creates a new document via the Management API
 9. Saves the document to properly persist it and trigger cache updates
 10. Shows success/error notifications
@@ -57,130 +57,135 @@ try {
 }
 ```
 
-Note that `blueprintId` is passed in the modal data so the modal can use it to fetch the map file and extract sections.
-
-### Getting parent document type
-
-The action first fetches the parent document to get its document type unique, which is required for looking up allowed children:
-
-```typescript
-let parentDocTypeUnique: string | null = null;
-
-if (parentUnique) {
-    const { data: parentItems } = await this.#documentItemRepository.requestItems([parentUnique]);
-    if (parentItems?.length) {
-        parentDocTypeUnique = parentItems[0].documentType.unique;
-    }
-}
-```
-
-### Blueprint discovery and picker dialog
-
-The action discovers blueprints for allowed child document types, grouped by document type. Only document types that have at least one blueprint are included:
-
-```typescript
-const documentTypeOptions: DocumentTypeOption[] = [];
-
-for (const docType of allowedTypes.items) {
-    const { data: blueprints } = await this.#blueprintItemRepository.requestItemsByDocumentType(docType.unique);
-    if (blueprints?.length) {
-        documentTypeOptions.push({
-            documentTypeUnique: docType.unique,
-            documentTypeName: docType.name,
-            documentTypeIcon: docType.icon ?? null,
-            blueprints: blueprints.map((bp) => ({
-                blueprintUnique: bp.unique,
-                blueprintName: bp.name,
-            })),
-        });
-    }
-}
-
-const blueprintSelection = await umbOpenModal(this, UMB_BLUEPRINT_PICKER_MODAL, {
-    data: { documentTypes: documentTypeOptions },
-});
-```
-
 ### Destructuring modal return value
 
-The modal now returns `extractedSections` (a `Record<string, string>`) and `propertyMappings` (a `PropertyMapping[]`) instead of individual fields like `pageTitle`, `pageTitleShort`, etc.:
+The modal returns `extractedSections` (a `Record<string, string>`) and `config` (the full `DocumentTypeConfig`):
 
 ```typescript
-const { name, mediaUnique, extractedSections, propertyMappings } = modalValue;
+const { name, mediaUnique, extractedSections, config } = modalValue;
+
+if (!mediaUnique || !name || !config) {
+    return;
+}
 ```
 
-### Dynamic property mapping
+### Config-driven mapping loop
 
-Instead of hardcoded `setValue` calls, the action loops over `propertyMappings` from the map file and applies each one:
+The action loops over `config.map.mappings` and applies each mapping:
 
 ```typescript
-for (const mapping of propertyMappings) {
-    const sectionValue = extractedSections[mapping.from.sectionType];
+for (const mapping of config.map.mappings) {
+    if (mapping.enabled === false) continue;
+
+    const sectionValue = extractedSections[mapping.source];
     if (!sectionValue) continue;
 
-    if (mapping.to.blockGrid) {
-        // Block grid mapping
-        this.#applyBlockMapping(values, mapping, sectionValue);
-    } else if (mapping.to.property) {
-        // Simple property mapping
-        setValue(mapping.to.property, sectionValue);
-
-        // Also map to additional properties
-        if (mapping.to.alsoMapTo) {
-            for (const alias of mapping.to.alsoMapTo) {
-                setValue(alias, sectionValue);
-            }
-        }
+    for (const dest of mapping.destinations) {
+        this.#applyDestinationMapping(values, dest, sectionValue, config);
     }
 }
 ```
 
-This replaces the previous hardcoded `pageTitle`, `pageTitleShort`, `pageDescription` assignments and the `#updateContentGridWithItinerary` method.
+### Path-based destination mapping
 
-### Block grid mapping via #applyBlockMapping
-
-The generic `#applyBlockMapping` method replaces the former `#updateContentGridWithItinerary`. It finds a block within a block grid by searching for a property value match, then writes the extracted content to the target property:
+The `#applyDestinationMapping` method handles both simple fields and block grid targets:
 
 ```typescript
-#applyBlockMapping(
+#applyDestinationMapping(
     values: Array<{ alias: string; value: unknown }>,
-    mapping: PropertyMapping,
-    sectionValue: string
+    dest: MappingDestination,
+    sectionValue: string,
+    config: DocumentTypeConfig
 ) {
-    const gridAlias = mapping.to.blockGrid;
-    const blockSearch = mapping.to.blockSearch;
-    const targetProperty = mapping.to.targetProperty;
+    const pathParts = dest.target.split('.');
 
-    // Find the grid in scaffold values, parse if stringified
-    const contentGrid = wasString
-        ? JSON.parse(contentGridValue.value as string)
-        : contentGridValue.value;
+    if (pathParts.length === 1) {
+        // Simple field mapping: "pageTitle"
+        const alias = pathParts[0];
+        const existing = values.find((v) => v.alias === alias);
+        if (existing) {
+            existing.value = sectionValue;
+        } else {
+            values.push({ alias, value: sectionValue });
+        }
+    } else if (pathParts.length === 3) {
+        // Block grid mapping: "contentGrid.itineraryBlock.richTextContent"
+        const [gridKey, blockKey, propertyKey] = pathParts;
 
-    // Search contentData for matching block
-    for (const block of contentData) {
+        // Look up block info from destination config
+        const blockGrid = config.destination.blockGrids?.find((g) => g.key === gridKey);
+        const block = blockGrid?.blocks.find((b) => b.key === blockKey);
+
+        if (!blockGrid || !block) return;
+
+        const gridAlias = blockGrid.alias;
+        const targetProperty = block.properties?.find((p) => p.key === propertyKey)?.alias ?? propertyKey;
+        const blockSearch = block.identifyBy;
+
+        this.#applyBlockGridValue(values, gridAlias, blockSearch, targetProperty, sectionValue, shouldConvertMarkdown);
+    }
+}
+```
+
+### Target path syntax
+
+| Pattern | Example | Meaning |
+|---------|---------|---------|
+| Simple field | `"pageTitle"` | Direct property on document |
+| Block property | `"contentGrid.itineraryBlock.richTextContent"` | blockGridKey.blockKey.propertyKey |
+
+The `key` values in the path are looked up in `config.destination.blockGrids` and `config.destination.blocks` to resolve the actual Umbraco aliases.
+
+### Block grid value application
+
+The `#applyBlockGridValue` method finds a block within a block grid by searching for a property value match, then writes the extracted content:
+
+```typescript
+#applyBlockGridValue(
+    values: Array<{ alias: string; value: unknown }>,
+    gridAlias: string,
+    blockSearch: { property: string; value: string },
+    targetProperty: string,
+    value: string,
+    convertMarkdown: boolean | undefined
+) {
+    const contentGridValue = values.find((v) => v.alias === gridAlias);
+    const contentGrid = JSON.parse(contentGridValue.value as string);
+
+    for (const block of contentGrid.contentData) {
         const searchValue = block.values?.find((v) => v.alias === blockSearch.property);
         if (searchValue?.value?.toLowerCase().includes(blockSearch.value.toLowerCase())) {
             const targetValue = block.values?.find((v) => v.alias === targetProperty);
-            if (mapping.to.convertMarkdown) {
-                const htmlContent = markdownToHtml(sectionValue);
+            if (convertMarkdown) {
+                const htmlContent = markdownToHtml(value);
                 targetValue.value = buildRteValue(htmlContent);
             } else {
-                targetValue.value = sectionValue;
+                targetValue.value = value;
             }
             break;
         }
     }
 
-    // Stringify back if it was originally a string
-    contentGridValue.value = wasString ? JSON.stringify(contentGrid) : contentGrid;
+    contentGridValue.value = JSON.stringify(contentGrid);
 }
 ```
 
-When `convertMarkdown` is true, the method uses `markdownToHtml` and `buildRteValue` from `transforms.ts` to convert the Markdown content into the Umbraco RTE value structure.
+### Markdown to HTML conversion
+
+When the mapping has `convertMarkdownToHtml` transform, content is converted using `markdownToHtml` and `buildRteValue` from `transforms.ts`:
+
+```typescript
+const shouldConvertMarkdown = dest.transforms?.some((t) => t.type === 'convertMarkdownToHtml');
+
+if (shouldConvertMarkdown) {
+    const htmlContent = markdownToHtml(value);
+    targetValue.value = buildRteValue(htmlContent);
+}
+```
 
 ### Scaffolding from blueprint
 
-The scaffold endpoint returns the blueprint's default values:
+The scaffold endpoint returns the blueprint's default values including pre-populated block grids:
 
 ```typescript
 const scaffoldResponse = await fetch(
@@ -205,24 +210,13 @@ const response = await fetch(url, {
 });
 ```
 
-### Notifications
-
-Success and error notifications are shown using Umbraco's notification context:
-
-```typescript
-const notificationContext = await this.getContext(UMB_NOTIFICATION_CONTEXT);
-notificationContext.peek('positive', {
-    data: { message: `Document "${name}" created successfully!` },
-});
-```
-
 ## Imports
 
 ```typescript
 import { UMB_UP_DOC_MODAL } from './up-doc-modal.token.js';
 import { UMB_BLUEPRINT_PICKER_MODAL } from './blueprint-picker-modal.token.js';
 import type { DocumentTypeOption } from './blueprint-picker-modal.token.js';
-import type { PropertyMapping } from './map-file.types.js';
+import type { DocumentTypeConfig, MappingDestination } from './map-file.types.js';
 import { markdownToHtml, buildRteValue } from './transforms.js';
 import { UmbEntityActionBase } from '@umbraco-cms/backoffice/entity-action';
 import { umbOpenModal } from '@umbraco-cms/backoffice/modal';
@@ -233,17 +227,15 @@ import { UmbDocumentBlueprintItemRepository } from '@umbraco-cms/backoffice/docu
 import { UmbDocumentItemRepository } from '@umbraco-cms/backoffice/document';
 ```
 
-Note: The `marked` library is no longer imported directly. Markdown conversion is now handled via `transforms.ts`.
-
 ## Data flow
 
 1. `this.args.unique` -- Parent document ID (where user right-clicked)
 2. Action fetches parent document to get its document type unique
-3. Action discovers allowed child document types and their blueprints (grouped by doc type)
-4. Blueprint picker dialog returns `{ blueprintUnique, documentTypeUnique }` after two-step selection
-5. Source sidebar modal receives `{ unique, blueprintName, blueprintId }` and returns `{ name, mediaUnique, extractedSections, propertyMappings }`
+3. Action discovers allowed child document types and their blueprints
+4. Blueprint picker dialog returns `{ blueprintUnique, documentTypeUnique }`
+5. Source sidebar modal receives `{ unique, blueprintName, blueprintId }` and returns `{ name, mediaUnique, extractedSections, config }`
 6. Scaffolds from selected blueprint to get default values
-7. Loops over `propertyMappings`, applying each mapping to scaffold values
+7. Loops over `config.map.mappings`, applying each to scaffold values
 8. POSTs to create document API
 9. Fetches and saves the document to properly persist it
 10. Shows notification and navigates to the new document
