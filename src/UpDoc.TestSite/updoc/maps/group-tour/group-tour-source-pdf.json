@@ -96,20 +96,11 @@
       "strategy": "betweenPatterns",
       "outputFormat": "markdown",
       "required": false,
-      "pages": "all",
+      "pages": [1],
       "columnFilter": true,
       "strategyParams": {
         "startPattern": "^Accommodation$",
-        "stopPatterns": [
-          "terms",
-          "conditions",
-          "booking",
-          "contact us",
-          "telephone",
-          "email:",
-          "www.",
-          "http"
-        ],
+        "stopPatterns": ["EXTRAS", "For more information"],
         "includeStartLine": false,
         "headingLevel": "h2"
       }

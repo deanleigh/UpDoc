@@ -448,4 +448,4 @@ updoc/schemas/
 ## Related Documents
 
 - [REFACTOR_TO_CONFIGURABLE.md](./REFACTOR_TO_CONFIGURABLE.md) - Overall config architecture
-- [source-pdf.json](../src/UpDoc.TestSite/updoc/maps/group-tour/source-pdf.json) - Current extraction config
+- [group-tour-source-pdf.json](../src/UpDoc.TestSite/updoc/maps/group-tour/group-tour-source-pdf.json) - Current extraction config

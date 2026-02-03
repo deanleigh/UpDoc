@@ -208,26 +208,28 @@ public class MapFileService : IMapFileService
     private DocumentTypeConfig? LoadDocumentTypeConfig(string folderPath)
     {
         var folderName = Path.GetFileName(folderPath);
-        var sourceFile = Path.Combine(folderPath, "source-pdf.json");
-        var destinationFile = Path.Combine(folderPath, "destination-blueprint.json");
-        var mapFile = Path.Combine(folderPath, "map.json");
+
+        // File names are prefixed with folder name for clarity when multiple files are open
+        var sourceFile = Path.Combine(folderPath, $"{folderName}-source-pdf.json");
+        var destinationFile = Path.Combine(folderPath, $"{folderName}-destination-blueprint.json");
+        var mapFile = Path.Combine(folderPath, $"{folderName}-map.json");
 
         // All three files must exist
         if (!File.Exists(sourceFile))
         {
-            _logger.LogWarning("Config folder {Folder} missing source-pdf.json, skipping.", folderName);
+            _logger.LogWarning("Config folder {Folder} missing {FileName}, skipping.", folderName, $"{folderName}-source-pdf.json");
             return null;
         }
 
         if (!File.Exists(destinationFile))
         {
-            _logger.LogWarning("Config folder {Folder} missing destination-blueprint.json, skipping.", folderName);
+            _logger.LogWarning("Config folder {Folder} missing {FileName}, skipping.", folderName, $"{folderName}-destination-blueprint.json");
             return null;
         }
 
         if (!File.Exists(mapFile))
         {
-            _logger.LogWarning("Config folder {Folder} missing map.json, skipping.", folderName);
+            _logger.LogWarning("Config folder {Folder} missing {FileName}, skipping.", folderName, $"{folderName}-map.json");
             return null;
         }
 
