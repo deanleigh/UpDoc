@@ -11,19 +11,32 @@ Provides the UI for users to:
 4. Configure the source (pick a media item, paste a URL, etc.)
 5. For PDF sources: automatically extracts sections using the config's extraction rules when a media item is selected
 6. Pre-fills the document name with the extracted title (if not already entered)
-7. Shows a dynamic preview of all extracted sections
-8. Submit or cancel the operation
+7. Review extracted content in the **Content tab** before creating the document
+8. Edit or copy individual sections via hover-reveal action buttons
+9. Submit or cancel the operation
 
 Currently only the PDF source type is fully functional. Web Page and Word Document source types show their respective UI (URL input and media picker) but display "not yet available" messages and the Create button remains disabled.
+
+## Tabbed Interface
+
+The modal uses a tabbed interface with navigation tabs in the header:
+
+- **Source tab** (default): Configure the import source (blueprint, document name, source type, source picker)
+- **Content tab**: Review and manage extracted content before creating the document
+
+The tabs follow Umbraco's sidebar modal header pattern using `slot="navigation"` on the `uui-tab-group`. The Content tab is disabled until extraction completes, providing visual feedback that content is ready for review.
 
 ## Class structure
 
 ```typescript
+type TabType = 'source' | 'content';
+
 @customElement('up-doc-modal')
 export class UpDocModalElement extends UmbModalBaseElement<
     UmbUpDocModalData,
     UmbUpDocModalValue
 > {
+    @state() private _activeTab: TabType = 'source';
     @state() private _documentName = '';
     @state() private _sourceType: SourceType | '' = '';
     @state() private _sourceUrl = '';
@@ -38,6 +51,7 @@ export class UpDocModalElement extends UmbModalBaseElement<
 ```
 
 The modal stores:
+- `_activeTab` -- tracks which tab is currently active ('source' or 'content')
 - `_extractedSections` -- a `Record<string, string>` holding all extracted values keyed by section key (e.g., "title", "description", "itinerary")
 - `_config` -- the full `DocumentTypeConfig` containing source, destination, and map configs
 
@@ -92,30 +106,111 @@ async #extractFromSource(mediaUnique: string) {
 
 This method delegates all extraction logic to the backend, which uses the config's source.json sections to determine how to parse the PDF.
 
-### Dynamic extracted content preview
+### Human-readable section labels
 
-The preview section renders all extracted sections dynamically:
+The modal converts internal section keys to user-friendly labels:
 
 ```typescript
-#renderExtractedPreview() {
+const SECTION_LABELS: Record<string, string> = {
+    title: 'Page Title',
+    description: 'Description',
+    itinerary: 'Itinerary',
+    features: 'Features',
+    accommodation: 'Accommodation',
+};
+
+#getSectionLabel(key: string): string {
+    return SECTION_LABELS[key] || key.charAt(0).toUpperCase() + key.slice(1);
+}
+```
+
+### Content tab with hover action buttons
+
+The Content tab displays extracted sections as cards with hover-reveal action buttons:
+
+```typescript
+#renderContentTab() {
     const sections = this._extractedSections;
-    const hasContent = Object.values(sections).some((v) => v.length > 0);
-    if (!hasContent) return nothing;
 
     return html`
-        <uui-box headline="Extracted Content" class="preview-box">
+        <div class="content-editor">
+            <p class="content-editor-intro">
+                Review the extracted content before creating the document.
+            </p>
             ${Object.entries(sections).map(([key, value]) => {
                 if (!value) return nothing;
-                const truncated = value.length > 200 ? `${value.substring(0, 200)}...` : value;
                 return html`
-                    <div class="preview-item">
-                        <strong>${key}:</strong>
-                        <div class="preview-value">${truncated}</div>
+                    <div class="section-card">
+                        <div class="section-card-header">
+                            <span class="section-card-label">${this.#getSectionLabel(key)}</span>
+                        </div>
+                        <div class="section-card-body">
+                            <uui-action-bar class="section-card-actions">
+                                <uui-button compact title="Edit" ...>
+                                    <uui-icon name="icon-edit"></uui-icon>
+                                </uui-button>
+                                <uui-button compact title="Copy" ...>
+                                    <uui-icon name="icon-documents"></uui-icon>
+                                </uui-button>
+                            </uui-action-bar>
+                            <div class="section-card-content">${value}</div>
+                        </div>
                     </div>
                 `;
             })}
-        </uui-box>
+        </div>
     `;
+}
+```
+
+The action buttons use `uui-action-bar` and appear on hover, following the block editor UX pattern. CSS controls the hover-reveal behavior:
+
+```css
+.section-card-actions {
+    position: absolute;
+    top: var(--uui-size-space-2);
+    right: var(--uui-size-space-2);
+    opacity: 0;
+    transition: opacity 120ms ease;
+}
+
+.section-card:hover .section-card-actions {
+    opacity: 1;
+}
+```
+
+### Tab navigation
+
+The tabs are rendered in the modal header using `slot="navigation"`:
+
+```typescript
+#renderTabs() {
+    const hasContent = this.#hasExtractedContent();
+    return html`
+        <uui-tab-group slot="navigation">
+            <uui-tab
+                label="Source"
+                ?active=${this._activeTab === 'source'}
+                orientation="horizontal"
+                @click=${() => this.#handleTabClick('source')}>
+                <uui-icon slot="icon" name="icon-document"></uui-icon>
+                Source
+            </uui-tab>
+            <uui-tab
+                label="Content"
+                ?active=${this._activeTab === 'content'}
+                orientation="horizontal"
+                ?disabled=${!hasContent}
+                @click=${() => this.#handleTabClick('content')}>
+                <uui-icon slot="icon" name="icon-edit"></uui-icon>
+                Content
+            </uui-tab>
+        </uui-tab-group>
+    `;
+}
+
+#hasExtractedContent(): boolean {
+    return Object.values(this._extractedSections).some((v) => v.length > 0);
 }
 ```
 
@@ -161,15 +256,23 @@ The `#handleSave` method returns `extractedSections` and `config` so the action 
 
 ## Template structure
 
-The modal is organized into four main sections:
+The modal uses a tabbed interface with two tabs:
 
+### Source Tab
 1. **Blueprint box** -- Shows the selected blueprint name with an icon
 2. **Document Name box** -- Text input with explanatory text
 3. **Source box** -- Contains a source type dropdown and conditional source-specific UI
-4. **Extracted Content box** -- Dynamically renders all extracted sections after processing
+
+### Content Tab
+- **Section cards** -- Each extracted section displayed as a card with:
+  - Header showing the human-readable section label
+  - Body with full content (scrollable for long content)
+  - Hover-reveal action bar with Edit and Copy buttons
 
 Uses Umbraco's UI components:
 - `umb-body-layout` -- Standard modal layout with headline "Create from Source"
+- `uui-tab-group` -- Navigation tabs in the header (via `slot="navigation"`)
+- `uui-tab` -- Individual tabs for Source and Content
 - `uui-box` -- Content containers with headlines
 - `uui-select` -- Dropdown for choosing source type
 - `umb-property-layout` -- Form field wrapper with label
@@ -177,7 +280,8 @@ Uses Umbraco's UI components:
 - `uui-input` -- Text input for document name and URL
 - `uui-loader-bar` -- Loading indicator during extraction
 - `uui-icon` -- Status icons for success/error/info states
-- `uui-button` -- Action buttons
+- `uui-action-bar` -- Container for hover-reveal action buttons
+- `uui-button` -- Action buttons (Create, Close, Edit, Copy)
 
 ## Extraction status display
 

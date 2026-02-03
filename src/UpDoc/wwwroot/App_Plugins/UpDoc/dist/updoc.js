@@ -21,7 +21,7 @@ const t = [
     type: "modal",
     alias: "UpDoc.Modal",
     name: "UpDoc Modal",
-    element: () => import("./up-doc-modal.element-D83KEq_q.js")
+    element: () => import("./up-doc-modal.element-w_AgZg1R.js")
   },
   {
     type: "modal",

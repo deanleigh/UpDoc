@@ -8,11 +8,25 @@ import type { UUIInputEvent } from '@umbraco-cms/backoffice/external/uui';
 import type { UmbInputMediaElement } from '@umbraco-cms/backoffice/media';
 import { UMB_AUTH_CONTEXT } from '@umbraco-cms/backoffice/auth';
 
+// Human-readable labels for extracted section keys
+const SECTION_LABELS: Record<string, string> = {
+	title: 'Page Title',
+	description: 'Description',
+	itinerary: 'Itinerary',
+	features: 'Features',
+	accommodation: 'Accommodation',
+};
+
+type TabType = 'source' | 'content';
+
 @customElement('up-doc-modal')
 export class UpDocModalElement extends UmbModalBaseElement<
 	UmbUpDocModalData,
 	UmbUpDocModalValue
 > {
+	@state()
+	private _activeTab: TabType = 'source';
+
 	@state()
 	private _documentName = '';
 
@@ -219,6 +233,28 @@ export class UpDocModalElement extends UmbModalBaseElement<
 		`;
 	}
 
+	#getSectionLabel(key: string): string {
+		return SECTION_LABELS[key] || key.charAt(0).toUpperCase() + key.slice(1);
+	}
+
+	#hasExtractedContent(): boolean {
+		return Object.values(this._extractedSections).some((v) => v.length > 0);
+	}
+
+	#handleTabClick(tab: TabType) {
+		if (tab === 'content' && !this.#hasExtractedContent()) {
+			return; // Don't switch to content tab if no content
+		}
+		this._activeTab = tab;
+	}
+
+	#updateSection(key: string, value: string) {
+		this._extractedSections = {
+			...this._extractedSections,
+			[key]: value,
+		};
+	}
+
 	#renderExtractionStatus() {
 		if (this._isExtracting) {
 			return html`<div class="extraction-status extracting">
@@ -245,27 +281,126 @@ export class UpDocModalElement extends UmbModalBaseElement<
 		return nothing;
 	}
 
-	#renderExtractedPreview() {
+	#renderTabs() {
+		const hasContent = this.#hasExtractedContent();
+		return html`
+			<uui-tab-group slot="navigation">
+				<uui-tab
+					label="Source"
+					?active=${this._activeTab === 'source'}
+					orientation="horizontal"
+					@click=${() => this.#handleTabClick('source')}>
+					<uui-icon slot="icon" name="icon-document"></uui-icon>
+					Source
+				</uui-tab>
+				<uui-tab
+					label="Content"
+					?active=${this._activeTab === 'content'}
+					orientation="horizontal"
+					?disabled=${!hasContent}
+					@click=${() => this.#handleTabClick('content')}>
+					<uui-icon slot="icon" name="icon-edit"></uui-icon>
+					Content
+				</uui-tab>
+			</uui-tab-group>
+		`;
+	}
+
+	#renderSourceTab() {
+		return html`
+			<uui-box headline="Blueprint">
+				<div class="blueprint-display">
+					<umb-icon name="icon-blueprint"></umb-icon>
+					<span>${this.data?.blueprintName}</span>
+				</div>
+			</uui-box>
+
+			<uui-box headline="Document Name">
+				<p>Enter a document name or let it be populated from the source. You can edit this later.</p>
+				<uui-input
+					id="name"
+					label="name"
+					placeholder="Enter document name"
+					.value=${this._documentName}
+					@input=${(e: UUIInputEvent) => (this._documentName = e.target.value as string)}>
+				</uui-input>
+			</uui-box>
+
+			<uui-box headline="Source">
+				<umb-property-layout label="Source Type" orientation="vertical">
+					<div slot="editor">
+						<uui-select
+							label="Select source type"
+							.options=${[
+								{ name: 'Choose a source...', value: '', selected: this._sourceType === '' },
+								{ name: 'PDF Document', value: 'pdf', selected: this._sourceType === 'pdf' },
+								{ name: 'Web Page', value: 'web', selected: this._sourceType === 'web' },
+								{ name: 'Word Document', value: 'doc', selected: this._sourceType === 'doc' },
+							]}
+							@change=${this.#handleSourceTypeChange}>
+						</uui-select>
+					</div>
+				</umb-property-layout>
+
+				${this.#renderSourceUI()}
+			</uui-box>
+		`;
+	}
+
+	#renderContentTab() {
 		const sections = this._extractedSections;
-		const hasContent = Object.values(sections).some((v) => v.length > 0);
-		if (!hasContent) {
-			return nothing;
-		}
 
 		return html`
-			<uui-box headline="Extracted Content" class="preview-box">
+			<div class="content-editor">
+				<p class="content-editor-intro">
+					Review the extracted content before creating the document.
+				</p>
 				${Object.entries(sections).map(([key, value]) => {
 					if (!value) return nothing;
-					const truncated = value.length > 200 ? `${value.substring(0, 200)}...` : value;
 					return html`
-						<div class="preview-item">
-							<strong>${key}:</strong>
-							<div class="preview-value">${truncated}</div>
+						<div class="section-card">
+							<div class="section-card-header">
+								<span class="section-card-label">${this.#getSectionLabel(key)}</span>
+							</div>
+							<div class="section-card-body">
+								<uui-action-bar class="section-card-actions">
+									<uui-button
+										compact
+										title="Edit"
+										label="Edit ${this.#getSectionLabel(key)}"
+										@click=${() => this.#openSectionEditor(key)}>
+										<uui-icon name="icon-edit"></uui-icon>
+									</uui-button>
+									<uui-button
+										compact
+										title="Copy"
+										label="Copy ${this.#getSectionLabel(key)}"
+										@click=${() => this.#copySection(key, value)}>
+										<uui-icon name="icon-documents"></uui-icon>
+									</uui-button>
+								</uui-action-bar>
+								<div class="section-card-content">${value}</div>
+							</div>
 						</div>
 					`;
 				})}
-			</uui-box>
+			</div>
 		`;
+	}
+
+	#openSectionEditor(key: string) {
+		// TODO: Open editor modal for this section
+		console.log('Edit section:', key);
+	}
+
+	async #copySection(key: string, value: string) {
+		try {
+			await navigator.clipboard.writeText(value);
+			// TODO: Show toast notification "Copied to clipboard"
+			console.log('Copied to clipboard:', key);
+		} catch (err) {
+			console.error('Failed to copy:', err);
+		}
 	}
 
 	#getCanCreate(): boolean {
@@ -287,44 +422,11 @@ export class UpDocModalElement extends UmbModalBaseElement<
 
 		return html`
 			<umb-body-layout headline="Create from Source">
-				<uui-box headline="Blueprint">
-					<div class="blueprint-display">
-						<umb-icon name="icon-blueprint"></umb-icon>
-						<span>${this.data?.blueprintName}</span>
-					</div>
-				</uui-box>
+				${this.#renderTabs()}
 
-				<uui-box headline="Document Name">
-					<p>Enter a document name or let it be populated from the source. You can edit this later.</p>
-					<uui-input
-						id="name"
-						label="name"
-						placeholder="Enter document name"
-						.value=${this._documentName}
-						@input=${(e: UUIInputEvent) => (this._documentName = e.target.value as string)}>
-					</uui-input>
-				</uui-box>
-
-				<uui-box headline="Source">
-					<umb-property-layout label="Source Type" orientation="vertical">
-						<div slot="editor">
-							<uui-select
-								label="Select source type"
-								.options=${[
-									{ name: 'Choose a source...', value: '', selected: this._sourceType === '' },
-									{ name: 'PDF Document', value: 'pdf', selected: this._sourceType === 'pdf' },
-									{ name: 'Web Page', value: 'web', selected: this._sourceType === 'web' },
-									{ name: 'Word Document', value: 'doc', selected: this._sourceType === 'doc' },
-								]}
-								@change=${this.#handleSourceTypeChange}>
-							</uui-select>
-						</div>
-					</umb-property-layout>
-
-					${this.#renderSourceUI()}
-				</uui-box>
-
-				${this.#renderExtractedPreview()}
+				<div class="tab-content">
+					${this._activeTab === 'source' ? this.#renderSourceTab() : this.#renderContentTab()}
+				</div>
 
 				<uui-button
 					slot="actions"
@@ -346,6 +448,80 @@ export class UpDocModalElement extends UmbModalBaseElement<
 	static override styles = [
 		UmbTextStyles,
 		css`
+			/* Navigation tabs */
+			uui-tab[disabled] {
+				opacity: 0.5;
+				cursor: not-allowed;
+			}
+
+			/* Tab content */
+			.tab-content {
+				display: flex;
+				flex-direction: column;
+			}
+
+			/* Content editor tab */
+			.content-editor {
+				display: flex;
+				flex-direction: column;
+			}
+
+			.content-editor uui-box {
+				margin-bottom: var(--uui-size-space-4);
+			}
+
+			.content-editor-intro {
+				margin: 0 0 var(--uui-size-space-4) 0;
+				color: var(--uui-color-text-alt);
+				font-size: var(--uui-type-small-size);
+			}
+
+			.section-card {
+				position: relative;
+				background: var(--uui-color-surface);
+				border: 1px solid var(--uui-color-border);
+				border-radius: var(--uui-border-radius);
+				margin-bottom: var(--uui-size-space-4);
+			}
+
+			.section-card-header {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				padding: var(--uui-size-space-3) var(--uui-size-space-4);
+				border-bottom: 1px solid var(--uui-color-border);
+				background: var(--uui-color-surface-alt);
+			}
+
+			.section-card-label {
+				font-weight: 600;
+			}
+
+			.section-card-body {
+				position: relative;
+			}
+
+			.section-card-actions {
+				position: absolute;
+				top: var(--uui-size-space-2);
+				right: var(--uui-size-space-2);
+				opacity: 0;
+				transition: opacity 120ms ease;
+			}
+
+			.section-card:hover .section-card-actions {
+				opacity: 1;
+			}
+
+			.section-card-content {
+				padding: var(--uui-size-space-4);
+				white-space: pre-wrap;
+				font-size: var(--uui-type-small-size);
+				max-height: 300px;
+				overflow-y: auto;
+			}
+
+			/* Source tab */
 			.blueprint-display {
 				display: flex;
 				align-items: center;
@@ -386,29 +562,6 @@ export class UpDocModalElement extends UmbModalBaseElement<
 			.extraction-status.success {
 				background-color: var(--uui-color-positive-emphasis);
 				color: var(--uui-color-positive-contrast);
-			}
-
-			.preview-box {
-				margin-top: var(--uui-size-space-4);
-			}
-
-			.preview-item {
-				margin-bottom: var(--uui-size-space-2);
-			}
-
-			.preview-item:last-child {
-				margin-bottom: 0;
-			}
-
-			.preview-value {
-				margin-top: var(--uui-size-space-1);
-				padding: var(--uui-size-space-2);
-				background-color: var(--uui-color-surface-alt);
-				border-radius: var(--uui-border-radius);
-				font-size: var(--uui-type-small-size);
-				white-space: pre-wrap;
-				max-height: 100px;
-				overflow-y: auto;
 			}
 
 			uui-select {

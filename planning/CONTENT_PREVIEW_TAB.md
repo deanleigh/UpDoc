@@ -53,29 +53,36 @@ Use **sidebar modal header tabs** (like the "Create Empty" / "Clipboard" tabs in
 
 **Contents:**
 - Blueprint display (icon + name)
-- Document name input
+- Document name input (auto-populated from extracted title)
 - Source type selector (PDF, Web, Word)
 - Source picker (Media picker for PDF, URL input for Web)
 - Extraction status indicator (loading, success, error)
-- Truncated content preview (existing "Extracted Content" box)
+
+**Note:** The "Extracted Content" preview box was removed from this tab — users now review full content in the Content tab.
 
 **Modal size:** `small` (~400px)
 
-### Tab 2: Content (Edit)
+### Tab 2: Content (Review)
 
-**Purpose:** Review and edit full extracted content before creating
+**Purpose:** Review extracted content before creating, with actions to edit or copy
 
 **Icon:** Pencil (✏️) to indicate editable content
 
 **Contents:**
-- Full extracted content for each section
-- Editable textarea for each section (raw markdown)
-- No truncation — show complete content
-- Scrollable container for long content
+- Intro text explaining the tab's purpose
+- Section cards for each extracted section, displaying:
+  - Human-readable section label in header (e.g., "Page Title" instead of "title")
+  - Full content in card body (no truncation)
+  - Scrollable container for long content (max-height: 300px)
+  - Hover-reveal action bar with Edit and Copy buttons
 
-**Modal size:** `medium` or `large` (~600-800px) — wider to accommodate content editing
+**Modal size:** `small` (same as Source tab for initial implementation)
 
 **Initial state:** Disabled/greyed out until extraction completes
+
+**Action buttons (via `uui-action-bar`):**
+- **Edit** — Opens a modal to edit the section content (TODO)
+- **Copy** — Copies section content to clipboard
 
 ---
 
@@ -85,11 +92,13 @@ Use **sidebar modal header tabs** (like the "Create Empty" / "Clipboard" tabs in
 2. **Source tab** is active, **Content tab** is disabled (greyed out)
 3. User selects PDF and extraction runs
 4. Extraction completes → **Content tab becomes enabled** (visual state change)
-5. User can click Content tab to review/edit full content
-6. Modal expands to wider size when Content tab is active
-7. User edits content if needed (changes persist in component state)
-8. User switches back to Source tab (modal returns to narrow width)
-9. User clicks Create — edited content is used for document creation
+5. User can click Content tab to review full content
+6. Each section is displayed as a card with hover-reveal action buttons
+7. User can hover over a section to reveal Edit and Copy buttons
+8. User clicks Edit to open an editor modal for that section (TODO)
+9. User clicks Copy to copy section content to clipboard
+10. User switches between tabs freely (state persists)
+11. User clicks Create — all content (including any edits) is used for document creation
 
 ---
 
@@ -152,30 +161,49 @@ The modal size could be controlled dynamically based on active tab:
 
 This may require updating the modal token or using CSS to control width based on tab state.
 
-### Content Tab View
+### Content Tab View (Actual Implementation)
+
+The Content tab uses section cards with hover-reveal action buttons instead of inline textareas:
 
 ```typescript
 #renderContentTab() {
+    const sections = this._extractedSections;
     return html`
         <div class="content-editor">
-            ${Object.entries(this._extractedSections).map(([key, value]) => html`
-                <div class="section-editor">
-                    <label>${key}</label>
-                    <uui-textarea
-                        .value=${value}
-                        @input=${(e: Event) => this.#updateSection(key, (e.target as HTMLTextAreaElement).value)}
-                        rows="8">
-                    </uui-textarea>
-                </div>
-            `)}
+            <p class="content-editor-intro">
+                Review the extracted content before creating the document.
+            </p>
+            ${Object.entries(sections).map(([key, value]) => {
+                if (!value) return nothing;
+                return html`
+                    <div class="section-card">
+                        <div class="section-card-header">
+                            <span class="section-card-label">${this.#getSectionLabel(key)}</span>
+                        </div>
+                        <div class="section-card-body">
+                            <uui-action-bar class="section-card-actions">
+                                <uui-button compact title="Edit" @click=${() => this.#openSectionEditor(key)}>
+                                    <uui-icon name="icon-edit"></uui-icon>
+                                </uui-button>
+                                <uui-button compact title="Copy" @click=${() => this.#copySection(key, value)}>
+                                    <uui-icon name="icon-documents"></uui-icon>
+                                </uui-button>
+                            </uui-action-bar>
+                            <div class="section-card-content">${value}</div>
+                        </div>
+                    </div>
+                `;
+            })}
         </div>
     `;
 }
 ```
 
+This follows the block editor UX pattern where action buttons appear on hover.
+
 ---
 
-## CSS Considerations
+## CSS Considerations (Actual Implementation)
 
 ```css
 /* Content tab styling when disabled */
@@ -184,35 +212,65 @@ uui-tab[disabled] {
     cursor: not-allowed;
 }
 
-/* Section editor in Content tab */
-.content-editor {
+/* Section cards in Content tab */
+.section-card {
+    position: relative;
+    background: var(--uui-color-surface);
+    border: 1px solid var(--uui-color-border);
+    border-radius: var(--uui-border-radius);
+    margin-bottom: var(--uui-size-space-4);
+}
+
+.section-card-header {
     display: flex;
-    flex-direction: column;
-    gap: var(--uui-size-space-4);
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--uui-size-space-3) var(--uui-size-space-4);
+    border-bottom: 1px solid var(--uui-color-border);
+    background: var(--uui-color-surface-alt);
 }
 
-.section-editor label {
-    font-weight: bold;
-    margin-bottom: var(--uui-size-space-2);
+.section-card-label {
+    font-weight: 600;
 }
 
-.section-editor uui-textarea {
-    width: 100%;
-    font-family: monospace;
+.section-card-body {
+    position: relative;
+}
+
+/* Hover-reveal action bar */
+.section-card-actions {
+    position: absolute;
+    top: var(--uui-size-space-2);
+    right: var(--uui-size-space-2);
+    opacity: 0;
+    transition: opacity 120ms ease;
+}
+
+.section-card:hover .section-card-actions {
+    opacity: 1;
+}
+
+.section-card-content {
+    padding: var(--uui-size-space-4);
+    white-space: pre-wrap;
+    font-size: var(--uui-type-small-size);
+    max-height: 300px;
+    overflow-y: auto;
 }
 ```
 
 ---
 
-## Open Questions
+## Open Questions (Resolved)
 
-1. **Modal size switching** — Can the modal size change dynamically when switching tabs, or does it need to be set at modal open time? If static, should we default to `medium` to accommodate both tabs?
+1. **Modal size switching** — ✅ RESOLVED: Kept same modal size (`small`) for initial implementation. Dynamic sizing deferred to future enhancement.
 
-2. **Preserve edits on tab switch** — Edits made in the Content tab should persist when switching back to Source tab. This is handled by component state, but needs testing.
+2. **Preserve edits on tab switch** — ✅ RESOLVED: Component state (`_extractedSections`) persists edits when switching tabs.
 
-3. **Textarea vs code editor** — Should we use simple `<uui-textarea>` or a code editor component for markdown editing? Textarea is simpler; code editor provides syntax highlighting.
+3. **Textarea vs code editor** — ✅ RESOLVED: Using read-only text display with action buttons. Editing will open a separate modal (pattern matches Umbraco's block editor UX).
 
-4. **Section labels** — Should we show the section `key` or the `label` from the source config? Label is more user-friendly.
+4. **Section labels** — ✅ RESOLVED: Using human-readable labels via `SECTION_LABELS` mapping (e.g., "title" → "Page Title").
 
 ---
 
@@ -221,7 +279,9 @@ uui-tab[disabled] {
 1. **Markdown preview** — Add a preview pane showing rendered markdown alongside the editor
 2. **Diff view** — Show what changed if user edits the extracted content
 3. **Re-extract button** — Allow re-running extraction without closing the modal
-4. **Section-level actions** — Clear, reset to original, copy to clipboard
+4. **Section-level actions** — ✅ Copy implemented; Edit pending; Clear and Reset to be considered
+5. **Dynamic modal width** — Widen modal when Content tab is active for better content visibility
+6. **Toast notifications** — Show feedback when content is copied to clipboard
 
 ---
 
@@ -235,17 +295,27 @@ uui-tab[disabled] {
 
 ## Implementation Checklist
 
-- [ ] Add `_activeTab` state to modal element
-- [ ] Add `uui-tab-group` with Source and Content tabs to render method
-- [ ] Implement `#renderSourceTab()` method (refactor existing content)
-- [ ] Implement `#renderContentTab()` method with editable textareas
-- [ ] Add disabled state logic for Content tab
-- [ ] Add CSS for tab styling and content editor
-- [ ] Test tab switching preserves edited content
-- [ ] Determine modal size strategy (static medium vs dynamic)
-- [ ] Update documentation
+- [x] Add `_activeTab` state to modal element
+- [x] Add `uui-tab-group` with Source and Content tabs to render method
+- [x] Implement `#renderSourceTab()` method (refactor existing content)
+- [x] Implement `#renderContentTab()` method with section cards and action buttons
+- [x] Add disabled state logic for Content tab
+- [x] Add CSS for tab styling and content editor
+- [x] Use `slot="navigation"` for proper header tab placement
+- [x] Add human-readable section labels (SECTION_LABELS mapping)
+- [x] Add hover-reveal action bar with Edit and Copy buttons (using `uui-action-bar`)
+- [x] Remove redundant "Extracted Content" preview box from Source tab
+- [x] Test tab switching preserves edited content
+- [x] Determine modal size strategy — kept same size for initial implementation
+- [x] Update documentation
+
+### Remaining work
+
+- [ ] Implement `#openSectionEditor(key)` to open an editor modal for content editing
+- [ ] Add toast notification for copy to clipboard action
+- [ ] Consider dynamic modal width when Content tab is active (future enhancement)
 
 ---
 
 **Created:** 2026-02-03
-**Status:** Planning
+**Status:** In Progress — Core UI complete, section editor modal pending
