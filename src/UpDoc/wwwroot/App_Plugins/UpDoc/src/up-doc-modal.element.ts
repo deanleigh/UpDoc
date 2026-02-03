@@ -100,6 +100,20 @@ export class UpDocModalElement extends UmbModalBaseElement<
 			this._extractedSections = result.sections;
 			this._config = result.config;
 
+			// === DEBUG: Log extracted sections ===
+			console.log('=== EXTRACTION COMPLETE ===');
+			console.log('Extracted sections:');
+			for (const [key, value] of Object.entries(result.sections)) {
+				console.log(`  ${key}: ${value ? `${value.length} chars - "${value.substring(0, 80)}..."` : '(empty)'}`);
+			}
+			console.log('Config loaded:', result.config ? 'yes' : 'no');
+			if (result.config) {
+				console.log('  Document type:', result.config.destination.documentTypeAlias);
+				console.log('  Blueprint:', result.config.destination.blueprintName);
+				console.log('  Mappings:', result.config.map.mappings.map(m => `${m.source} -> ${m.destinations.map(d => d.target).join(', ')}`));
+			}
+			console.log('=== END EXTRACTION ===');
+
 			// Pre-fill document name with extracted title
 			if (result.sections['title'] && !this._documentName) {
 				this._documentName = result.sections['title'];
@@ -113,6 +127,16 @@ export class UpDocModalElement extends UmbModalBaseElement<
 	}
 
 	#handleSave() {
+		// === DEBUG: Log what we're passing to the action ===
+		console.log('=== CREATE BUTTON CLICKED ===');
+		console.log('Document name:', this._documentName);
+		console.log('Extracted sections being passed:');
+		for (const [key, value] of Object.entries(this._extractedSections)) {
+			console.log(`  ${key}: ${value ? `${value.length} chars` : '(empty)'}`);
+		}
+		console.log('Config being passed:', this._config ? 'yes' : 'no');
+		console.log('=== END CREATE DEBUG ===');
+
 		this.value = {
 			name: this._documentName,
 			sourceType: this._sourceType as SourceType,

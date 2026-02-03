@@ -135,29 +135,43 @@ export class UpDocEntityAction extends UmbEntityActionBase<never> {
 
 			const scaffold = await scaffoldResponse.json();
 			console.log('Scaffold response:', scaffold);
+			console.log('Scaffold values aliases:', scaffold.values?.map((v: { alias: string }) => v.alias));
 
 			// Step 7: Apply property mappings from the map file
-			const values = scaffold.values ? [...scaffold.values] : [];
+			// Deep clone to avoid modifying the original scaffold
+			const values: Array<{ alias: string; value: unknown }> = scaffold.values
+				? JSON.parse(JSON.stringify(scaffold.values))
+				: [];
 
-			const setValue = (alias: string, value: string) => {
-				const existing = values.find((v: { alias: string }) => v.alias === alias);
-				if (existing) {
-					existing.value = value;
-				} else {
-					values.push({ alias, value });
-				}
-			};
+			console.log('Extracted sections available:', Object.keys(extractedSections));
+			console.log('Mappings to apply:', config.map.mappings.map(m => `${m.source} -> ${m.destinations.map(d => d.target).join(', ')}`));
 
 			// Apply each mapping from the config
 			for (const mapping of config.map.mappings) {
-				if (mapping.enabled === false) continue;
+				if (mapping.enabled === false) {
+					console.log(`Skipping disabled mapping for source: ${mapping.source}`);
+					continue;
+				}
 
 				const sectionValue = extractedSections[mapping.source];
-				if (!sectionValue) continue;
+				if (!sectionValue) {
+					console.log(`No extracted value for source: "${mapping.source}"`);
+					continue;
+				}
+
+				console.log(`Applying mapping for "${mapping.source}" (${sectionValue.length} chars)`);
 
 				for (const dest of mapping.destinations) {
 					this.#applyDestinationMapping(values, dest, sectionValue, config);
 				}
+			}
+
+			console.log('Values after all mappings applied:');
+			for (const v of values) {
+				const preview = typeof v.value === 'string'
+					? v.value.substring(0, 60)
+					: typeof v.value === 'object' ? '[object]' : v.value;
+				console.log(`  ${v.alias}: ${preview}`);
 			}
 
 			// Build the create request

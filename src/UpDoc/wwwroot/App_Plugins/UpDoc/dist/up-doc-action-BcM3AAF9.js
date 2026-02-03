@@ -3,17 +3,17 @@ var xe = (n) => {
   throw TypeError(n);
 };
 var Ze = (n, e, t) => e in n ? Me(n, e, { enumerable: !0, configurable: !0, writable: !0, value: t }) : n[e] = t;
-var w = (n, e, t) => Ze(n, typeof e != "symbol" ? e + "" : e, t), be = (n, e, t) => e.has(n) || xe("Cannot " + t);
-var Q = (n, e, t) => (be(n, e, "read from private field"), t ? t.call(n) : e.get(n)), N = (n, e, t) => e.has(n) ? xe("Cannot add the same private member more than once") : e instanceof WeakSet ? e.add(n) : e.set(n, t);
-var re = (n, e, t) => (be(n, e, "access private method"), t);
-import { UmbModalToken as ze, umbOpenModal as me } from "@umbraco-cms/backoffice/modal";
+var w = (n, e, t) => Ze(n, typeof e != "symbol" ? e + "" : e, t), me = (n, e, t) => e.has(n) || xe("Cannot " + t);
+var Q = (n, e, t) => (me(n, e, "read from private field"), t ? t.call(n) : e.get(n)), N = (n, e, t) => e.has(n) ? xe("Cannot add the same private member more than once") : e instanceof WeakSet ? e.add(n) : e.set(n, t);
+var se = (n, e, t) => (me(n, e, "access private method"), t);
+import { UmbModalToken as Ae, umbOpenModal as we } from "@umbraco-cms/backoffice/modal";
 import { UmbEntityActionBase as je } from "@umbraco-cms/backoffice/entity-action";
 import { UMB_NOTIFICATION_CONTEXT as Qe } from "@umbraco-cms/backoffice/notification";
 import { UMB_AUTH_CONTEXT as Ge } from "@umbraco-cms/backoffice/auth";
 import { UmbDocumentTypeStructureRepository as He } from "@umbraco-cms/backoffice/document-type";
 import { UmbDocumentBlueprintItemRepository as Fe } from "@umbraco-cms/backoffice/document-blueprint";
 import { UmbDocumentItemRepository as Ve } from "@umbraco-cms/backoffice/document";
-const Xe = new ze(
+const Je = new Ae(
   "UpDoc.Modal",
   {
     modal: {
@@ -21,7 +21,7 @@ const Xe = new ze(
       size: "small"
     }
   }
-), Je = new ze(
+), Xe = new Ae(
   "UpDoc.BlueprintPickerModal",
   {
     modal: {
@@ -30,18 +30,18 @@ const Xe = new ze(
     }
   }
 );
-function ae() {
+function oe() {
   return { async: !1, breaks: !1, extensions: null, gfm: !0, hooks: null, pedantic: !1, renderer: null, silent: !1, tokenizer: null, walkTokens: null };
 }
-var B = ae();
-function Ae(n) {
+var B = oe();
+function ve(n) {
   B = n;
 }
 var Z = { exec: () => null };
 function x(n, e = "") {
   let t = typeof n == "string" ? n : n.source, s = { replace: (r, i) => {
     let a = typeof i == "string" ? i : i.source;
-    return a = a.replace($.caret, "$1"), t = t.replace(r, a), s;
+    return a = a.replace(R.caret, "$1"), t = t.replace(r, a), s;
   }, getRegex: () => new RegExp(t, e) };
   return s;
 }
@@ -51,35 +51,35 @@ var We = (() => {
   } catch {
     return !1;
   }
-})(), $ = { codeRemoveIndent: /^(?: {1,4}| {0,3}\t)/gm, outputLinkReplace: /\\([\[\]])/g, indentCodeCompensation: /^(\s+)(?:```)/, beginningSpace: /^\s+/, endingHash: /#$/, startingSpaceChar: /^ /, endingSpaceChar: / $/, nonSpaceChar: /[^ ]/, newLineCharGlobal: /\n/g, tabCharGlobal: /\t/g, multipleSpaceGlobal: /\s+/g, blankLine: /^[ \t]*$/, doubleBlankLine: /\n[ \t]*\n[ \t]*$/, blockquoteStart: /^ {0,3}>/, blockquoteSetextReplace: /\n {0,3}((?:=+|-+) *)(?=\n|$)/g, blockquoteSetextReplace2: /^ {0,3}>[ \t]?/gm, listReplaceTabs: /^\t+/, listReplaceNesting: /^ {1,4}(?=( {4})*[^ ])/g, listIsTask: /^\[[ xX]\] +\S/, listReplaceTask: /^\[[ xX]\] +/, listTaskCheckbox: /\[[ xX]\]/, anyLine: /\n.*\n/, hrefBrackets: /^<(.*)>$/, tableDelimiter: /[:|]/, tableAlignChars: /^\||\| *$/g, tableRowBlankLine: /\n[ \t]*$/, tableAlignRight: /^ *-+: *$/, tableAlignCenter: /^ *:-+: *$/, tableAlignLeft: /^ *:-+ *$/, startATag: /^<a /i, endATag: /^<\/a>/i, startPreScriptTag: /^<(pre|code|kbd|script)(\s|>)/i, endPreScriptTag: /^<\/(pre|code|kbd|script)(\s|>)/i, startAngleBracket: /^</, endAngleBracket: />$/, pedanticHrefTitle: /^([^'"]*[^\s])\s+(['"])(.*)\2/, unicodeAlphaNumeric: /[\p{L}\p{N}]/u, escapeTest: /[&<>"']/, escapeReplace: /[&<>"']/g, escapeTestNoEncode: /[<>"']|&(?!(#\d{1,7}|#[Xx][a-fA-F0-9]{1,6}|\w+);)/, escapeReplaceNoEncode: /[<>"']|&(?!(#\d{1,7}|#[Xx][a-fA-F0-9]{1,6}|\w+);)/g, unescapeTest: /&(#(?:\d+)|(?:#x[0-9A-Fa-f]+)|(?:\w+));?/ig, caret: /(^|[^\[])\^/g, percentDecode: /%25/g, findPipe: /\|/g, splitPipe: / \|/, slashPipe: /\\\|/g, carriageReturn: /\r\n|\r/g, spaceLine: /^ +$/gm, notSpaceStart: /^\S*/, endingNewline: /\n$/, listItemRegex: (n) => new RegExp(`^( {0,3}${n})((?:[	 ][^\\n]*)?(?:\\n|$))`), nextBulletRegex: (n) => new RegExp(`^ {0,${Math.min(3, n - 1)}}(?:[*+-]|\\d{1,9}[.)])((?:[ 	][^\\n]*)?(?:\\n|$))`), hrRegex: (n) => new RegExp(`^ {0,${Math.min(3, n - 1)}}((?:- *){3,}|(?:_ *){3,}|(?:\\* *){3,})(?:\\n+|$)`), fencesBeginRegex: (n) => new RegExp(`^ {0,${Math.min(3, n - 1)}}(?:\`\`\`|~~~)`), headingBeginRegex: (n) => new RegExp(`^ {0,${Math.min(3, n - 1)}}#`), htmlBeginRegex: (n) => new RegExp(`^ {0,${Math.min(3, n - 1)}}<(?:[a-z].*>|!--)`, "i") }, Ke = /^(?:[ \t]*(?:\n|$))+/, Ye = /^((?: {4}| {0,3}\t)[^\n]+(?:\n(?:[ \t]*(?:\n|$))*)?)+/, et = /^ {0,3}(`{3,}(?=[^`\n]*(?:\n|$))|~{3,})([^\n]*)(?:\n|$)(?:|([\s\S]*?)(?:\n|$))(?: {0,3}\1[~`]* *(?=\n|$)|$)/, j = /^ {0,3}((?:-[\t ]*){3,}|(?:_[ \t]*){3,}|(?:\*[ \t]*){3,})(?:\n+|$)/, tt = /^ {0,3}(#{1,6})(?=\s|$)(.*)(?:\n+|$)/, oe = /(?:[*+-]|\d{1,9}[.)])/, ve = /^(?!bull |blockCode|fences|blockquote|heading|html|table)((?:.|\n(?!\s*?\n|bull |blockCode|fences|blockquote|heading|html|table))+?)\n {0,3}(=+|-+) *(?:\n+|$)/, _e = x(ve).replace(/bull/g, oe).replace(/blockCode/g, /(?: {4}| {0,3}\t)/).replace(/fences/g, / {0,3}(?:`{3,}|~{3,})/).replace(/blockquote/g, / {0,3}>/).replace(/heading/g, / {0,3}#{1,6}/).replace(/html/g, / {0,3}<[^\n>]+>\n/).replace(/\|table/g, "").getRegex(), nt = x(ve).replace(/bull/g, oe).replace(/blockCode/g, /(?: {4}| {0,3}\t)/).replace(/fences/g, / {0,3}(?:`{3,}|~{3,})/).replace(/blockquote/g, / {0,3}>/).replace(/heading/g, / {0,3}#{1,6}/).replace(/html/g, / {0,3}<[^\n>]+>\n/).replace(/table/g, / {0,3}\|?(?:[:\- ]*\|)+[\:\- ]*\n/).getRegex(), ce = /^([^\n]+(?:\n(?!hr|heading|lheading|blockquote|fences|list|html|table| +\n)[^\n]+)*)/, rt = /^[^\n]+/, pe = /(?!\s*\])(?:\\[\s\S]|[^\[\]\\])+/, st = x(/^ {0,3}\[(label)\]: *(?:\n[ \t]*)?([^<\s][^\s]*|<.*?>)(?:(?: +(?:\n[ \t]*)?| *\n[ \t]*)(title))? *(?:\n+|$)/).replace("label", pe).replace("title", /(?:"(?:\\"?|[^"\\])*"|'[^'\n]*(?:\n[^'\n]+)*\n?'|\([^()]*\))/).getRegex(), lt = x(/^( {0,3}bull)([ \t][^\n]+?)?(?:\n|$)/).replace(/bull/g, oe).getRegex(), Y = "address|article|aside|base|basefont|blockquote|body|caption|center|col|colgroup|dd|details|dialog|dir|div|dl|dt|fieldset|figcaption|figure|footer|form|frame|frameset|h[1-6]|head|header|hr|html|iframe|legend|li|link|main|menu|menuitem|meta|nav|noframes|ol|optgroup|option|p|param|search|section|summary|table|tbody|td|tfoot|th|thead|title|tr|track|ul", he = /<!--(?:-?>|[\s\S]*?(?:-->|$))/, it = x("^ {0,3}(?:<(script|pre|style|textarea)[\\s>][\\s\\S]*?(?:</\\1>[^\\n]*\\n+|$)|comment[^\\n]*(\\n+|$)|<\\?[\\s\\S]*?(?:\\?>\\n*|$)|<![A-Z][\\s\\S]*?(?:>\\n*|$)|<!\\[CDATA\\[[\\s\\S]*?(?:\\]\\]>\\n*|$)|</?(tag)(?: +|\\n|/?>)[\\s\\S]*?(?:(?:\\n[ 	]*)+\\n|$)|<(?!script|pre|style|textarea)([a-z][\\w-]*)(?:attribute)*? */?>(?=[ \\t]*(?:\\n|$))[\\s\\S]*?(?:(?:\\n[ 	]*)+\\n|$)|</(?!script|pre|style|textarea)[a-z][\\w-]*\\s*>(?=[ \\t]*(?:\\n|$))[\\s\\S]*?(?:(?:\\n[ 	]*)+\\n|$))", "i").replace("comment", he).replace("tag", Y).replace("attribute", / +[a-zA-Z:_][\w.:-]*(?: *= *"[^"\n]*"| *= *'[^'\n]*'| *= *[^\s"'=<>`]+)?/).getRegex(), Ce = x(ce).replace("hr", j).replace("heading", " {0,3}#{1,6}(?:\\s|$)").replace("|lheading", "").replace("|table", "").replace("blockquote", " {0,3}>").replace("fences", " {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n").replace("list", " {0,3}(?:[*+-]|1[.)]) ").replace("html", "</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)").replace("tag", Y).getRegex(), at = x(/^( {0,3}> ?(paragraph|[^\n]*)(?:\n|$))+/).replace("paragraph", Ce).getRegex(), ue = { blockquote: at, code: Ye, def: st, fences: et, heading: tt, hr: j, html: it, lheading: _e, list: lt, newline: Ke, paragraph: Ce, table: Z, text: rt }, we = x("^ *([^\\n ].*)\\n {0,3}((?:\\| *)?:?-+:? *(?:\\| *:?-+:? *)*(?:\\| *)?)(?:\\n((?:(?! *\\n|hr|heading|blockquote|code|fences|list|html).*(?:\\n|$))*)\\n*|$)").replace("hr", j).replace("heading", " {0,3}#{1,6}(?:\\s|$)").replace("blockquote", " {0,3}>").replace("code", "(?: {4}| {0,3}	)[^\\n]").replace("fences", " {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n").replace("list", " {0,3}(?:[*+-]|1[.)]) ").replace("html", "</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)").replace("tag", Y).getRegex(), ot = { ...ue, lheading: nt, table: we, paragraph: x(ce).replace("hr", j).replace("heading", " {0,3}#{1,6}(?:\\s|$)").replace("|lheading", "").replace("table", we).replace("blockquote", " {0,3}>").replace("fences", " {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n").replace("list", " {0,3}(?:[*+-]|1[.)]) ").replace("html", "</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)").replace("tag", Y).getRegex() }, ct = { ...ue, html: x(`^ *(?:comment *(?:\\n|\\s*$)|<(tag)[\\s\\S]+?</\\1> *(?:\\n{2,}|\\s*$)|<tag(?:"[^"]*"|'[^']*'|\\s[^'"/>\\s]*)*?/?> *(?:\\n{2,}|\\s*$))`).replace("comment", he).replace(/tag/g, "(?!(?:a|em|strong|small|s|cite|q|dfn|abbr|data|time|code|var|samp|kbd|sub|sup|i|b|u|mark|ruby|rt|rp|bdi|bdo|span|br|wbr|ins|del|img)\\b)\\w+(?!:|[^\\w\\s@]*@)\\b").getRegex(), def: /^ *\[([^\]]+)\]: *<?([^\s>]+)>?(?: +(["(][^\n]+[")]))? *(?:\n+|$)/, heading: /^(#{1,6})(.*)(?:\n+|$)/, fences: Z, lheading: /^(.+?)\n {0,3}(=+|-+) *(?:\n+|$)/, paragraph: x(ce).replace("hr", j).replace("heading", ` *#{1,6} *[^
-]`).replace("lheading", _e).replace("|table", "").replace("blockquote", " {0,3}>").replace("|fences", "").replace("|list", "").replace("|html", "").replace("|tag", "").getRegex() }, pt = /^\\([!"#$%&'()*+,\-./:;<=>?@\[\]\\^_`{|}~])/, ht = /^(`+)([^`]|[^`][\s\S]*?[^`])\1(?!`)/, Ie = /^( {2,}|\\)\n(?!\s*$)/, ut = /^(`+|[^`])(?:(?= {2,}\n)|[\s\S]*?(?:(?=[\\<!\[`*_]|\b_|$)|[^ ](?= {2,}\n)))/, ee = /[\p{P}\p{S}]/u, ge = /[\s\p{P}\p{S}]/u, Pe = /[^\s\p{P}\p{S}]/u, gt = x(/^((?![*_])punctSpace)/, "u").replace(/punctSpace/g, ge).getRegex(), qe = /(?!~)[\p{P}\p{S}]/u, kt = /(?!~)[\s\p{P}\p{S}]/u, ft = /(?:[^\s\p{P}\p{S}]|~)/u, dt = x(/link|precode-code|html/, "g").replace("link", /\[(?:[^\[\]`]|(?<a>`+)[^`]+\k<a>(?!`))*?\]\((?:\\[\s\S]|[^\\\(\)]|\((?:\\[\s\S]|[^\\\(\)])*\))*\)/).replace("precode-", We ? "(?<!`)()" : "(^^|[^`])").replace("code", /(?<b>`+)[^`]+\k<b>(?!`)/).replace("html", /<(?! )[^<>]*?>/).getRegex(), Be = /^(?:\*+(?:((?!\*)punct)|[^\s*]))|^_+(?:((?!_)punct)|([^\s_]))/, xt = x(Be, "u").replace(/punct/g, ee).getRegex(), bt = x(Be, "u").replace(/punct/g, qe).getRegex(), Le = "^[^_*]*?__[^_*]*?\\*[^_*]*?(?=__)|[^*]+(?=[^*])|(?!\\*)punct(\\*+)(?=[\\s]|$)|notPunctSpace(\\*+)(?!\\*)(?=punctSpace|$)|(?!\\*)punctSpace(\\*+)(?=notPunctSpace)|[\\s](\\*+)(?!\\*)(?=punct)|(?!\\*)punct(\\*+)(?!\\*)(?=punct)|notPunctSpace(\\*+)(?=notPunctSpace)", mt = x(Le, "gu").replace(/notPunctSpace/g, Pe).replace(/punctSpace/g, ge).replace(/punct/g, ee).getRegex(), wt = x(Le, "gu").replace(/notPunctSpace/g, ft).replace(/punctSpace/g, kt).replace(/punct/g, qe).getRegex(), yt = x("^[^_*]*?\\*\\*[^_*]*?_[^_*]*?(?=\\*\\*)|[^_]+(?=[^_])|(?!_)punct(_+)(?=[\\s]|$)|notPunctSpace(_+)(?!_)(?=punctSpace|$)|(?!_)punctSpace(_+)(?=notPunctSpace)|[\\s](_+)(?!_)(?=punct)|(?!_)punct(_+)(?!_)(?=punct)", "gu").replace(/notPunctSpace/g, Pe).replace(/punctSpace/g, ge).replace(/punct/g, ee).getRegex(), $t = x(/\\(punct)/, "gu").replace(/punct/g, ee).getRegex(), Rt = x(/^<(scheme:[^\s\x00-\x1f<>]*|email)>/).replace("scheme", /[a-zA-Z][a-zA-Z0-9+.-]{1,31}/).replace("email", /[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+(@)[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+(?![-_])/).getRegex(), Tt = x(he).replace("(?:-->|$)", "-->").getRegex(), St = x("^comment|^</[a-zA-Z][\\w:-]*\\s*>|^<[a-zA-Z][\\w-]*(?:attribute)*?\\s*/?>|^<\\?[\\s\\S]*?\\?>|^<![a-zA-Z]+\\s[\\s\\S]*?>|^<!\\[CDATA\\[[\\s\\S]*?\\]\\]>").replace("comment", Tt).replace("attribute", /\s+[a-zA-Z:_][\w.:-]*(?:\s*=\s*"[^"]*"|\s*=\s*'[^']*'|\s*=\s*[^\s"'=<>`]+)?/).getRegex(), F = /(?:\[(?:\\[\s\S]|[^\[\]\\])*\]|\\[\s\S]|`+[^`]*?`+(?!`)|[^\[\]\\`])*?/, zt = x(/^!?\[(label)\]\(\s*(href)(?:(?:[ \t]*(?:\n[ \t]*)?)(title))?\s*\)/).replace("label", F).replace("href", /<(?:\\.|[^\n<>\\])+>|[^ \t\n\x00-\x1f]*/).replace("title", /"(?:\\"?|[^"\\])*"|'(?:\\'?|[^'\\])*'|\((?:\\\)?|[^)\\])*\)/).getRegex(), Ee = x(/^!?\[(label)\]\[(ref)\]/).replace("label", F).replace("ref", pe).getRegex(), De = x(/^!?\[(ref)\](?:\[\])?/).replace("ref", pe).getRegex(), At = x("reflink|nolink(?!\\()", "g").replace("reflink", Ee).replace("nolink", De).getRegex(), ye = /[hH][tT][tT][pP][sS]?|[fF][tT][pP]/, ke = { _backpedal: Z, anyPunctuation: $t, autolink: Rt, blockSkip: dt, br: Ie, code: ht, del: Z, emStrongLDelim: xt, emStrongRDelimAst: mt, emStrongRDelimUnd: yt, escape: pt, link: zt, nolink: De, punctuation: gt, reflink: Ee, reflinkSearch: At, tag: St, text: ut, url: Z }, vt = { ...ke, link: x(/^!?\[(label)\]\((.*?)\)/).replace("label", F).getRegex(), reflink: x(/^!?\[(label)\]\s*\[([^\]]*)\]/).replace("label", F).getRegex() }, se = { ...ke, emStrongRDelimAst: wt, emStrongLDelim: bt, url: x(/^((?:protocol):\/\/|www\.)(?:[a-zA-Z0-9\-]+\.?)+[^\s<]*|^email/).replace("protocol", ye).replace("email", /[A-Za-z0-9._+-]+(@)[a-zA-Z0-9-_]+(?:\.[a-zA-Z0-9-_]*[a-zA-Z0-9])+(?![-_])/).getRegex(), _backpedal: /(?:[^?!.,:;*_'"~()&]+|\([^)]*\)|&(?![a-zA-Z0-9]+;$)|[?!.,:;*_'"~)]+(?!$))+/, del: /^(~~?)(?=[^\s~])((?:\\[\s\S]|[^\\])*?(?:\\[\s\S]|[^\s~\\]))\1(?=[^~]|$)/, text: x(/^([`~]+|[^`~])(?:(?= {2,}\n)|(?=[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@)|[\s\S]*?(?:(?=[\\<!\[`*~_]|\b_|protocol:\/\/|www\.|$)|[^ ](?= {2,}\n)|[^a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-](?=[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@)))/).replace("protocol", ye).getRegex() }, _t = { ...se, br: x(Ie).replace("{2,}", "*").getRegex(), text: x(se.text).replace("\\b_", "\\b_| {2,}\\n").replace(/\{2,\}/g, "*").getRegex() }, G = { normal: ue, gfm: ot, pedantic: ct }, U = { normal: ke, gfm: se, breaks: _t, pedantic: vt }, Ct = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }, $e = (n) => Ct[n];
-function P(n, e) {
+})(), R = { codeRemoveIndent: /^(?: {1,4}| {0,3}\t)/gm, outputLinkReplace: /\\([\[\]])/g, indentCodeCompensation: /^(\s+)(?:```)/, beginningSpace: /^\s+/, endingHash: /#$/, startingSpaceChar: /^ /, endingSpaceChar: / $/, nonSpaceChar: /[^ ]/, newLineCharGlobal: /\n/g, tabCharGlobal: /\t/g, multipleSpaceGlobal: /\s+/g, blankLine: /^[ \t]*$/, doubleBlankLine: /\n[ \t]*\n[ \t]*$/, blockquoteStart: /^ {0,3}>/, blockquoteSetextReplace: /\n {0,3}((?:=+|-+) *)(?=\n|$)/g, blockquoteSetextReplace2: /^ {0,3}>[ \t]?/gm, listReplaceTabs: /^\t+/, listReplaceNesting: /^ {1,4}(?=( {4})*[^ ])/g, listIsTask: /^\[[ xX]\] +\S/, listReplaceTask: /^\[[ xX]\] +/, listTaskCheckbox: /\[[ xX]\]/, anyLine: /\n.*\n/, hrefBrackets: /^<(.*)>$/, tableDelimiter: /[:|]/, tableAlignChars: /^\||\| *$/g, tableRowBlankLine: /\n[ \t]*$/, tableAlignRight: /^ *-+: *$/, tableAlignCenter: /^ *:-+: *$/, tableAlignLeft: /^ *:-+ *$/, startATag: /^<a /i, endATag: /^<\/a>/i, startPreScriptTag: /^<(pre|code|kbd|script)(\s|>)/i, endPreScriptTag: /^<\/(pre|code|kbd|script)(\s|>)/i, startAngleBracket: /^</, endAngleBracket: />$/, pedanticHrefTitle: /^([^'"]*[^\s])\s+(['"])(.*)\2/, unicodeAlphaNumeric: /[\p{L}\p{N}]/u, escapeTest: /[&<>"']/, escapeReplace: /[&<>"']/g, escapeTestNoEncode: /[<>"']|&(?!(#\d{1,7}|#[Xx][a-fA-F0-9]{1,6}|\w+);)/, escapeReplaceNoEncode: /[<>"']|&(?!(#\d{1,7}|#[Xx][a-fA-F0-9]{1,6}|\w+);)/g, unescapeTest: /&(#(?:\d+)|(?:#x[0-9A-Fa-f]+)|(?:\w+));?/ig, caret: /(^|[^\[])\^/g, percentDecode: /%25/g, findPipe: /\|/g, splitPipe: / \|/, slashPipe: /\\\|/g, carriageReturn: /\r\n|\r/g, spaceLine: /^ +$/gm, notSpaceStart: /^\S*/, endingNewline: /\n$/, listItemRegex: (n) => new RegExp(`^( {0,3}${n})((?:[	 ][^\\n]*)?(?:\\n|$))`), nextBulletRegex: (n) => new RegExp(`^ {0,${Math.min(3, n - 1)}}(?:[*+-]|\\d{1,9}[.)])((?:[ 	][^\\n]*)?(?:\\n|$))`), hrRegex: (n) => new RegExp(`^ {0,${Math.min(3, n - 1)}}((?:- *){3,}|(?:_ *){3,}|(?:\\* *){3,})(?:\\n+|$)`), fencesBeginRegex: (n) => new RegExp(`^ {0,${Math.min(3, n - 1)}}(?:\`\`\`|~~~)`), headingBeginRegex: (n) => new RegExp(`^ {0,${Math.min(3, n - 1)}}#`), htmlBeginRegex: (n) => new RegExp(`^ {0,${Math.min(3, n - 1)}}<(?:[a-z].*>|!--)`, "i") }, Ke = /^(?:[ \t]*(?:\n|$))+/, Ye = /^((?: {4}| {0,3}\t)[^\n]+(?:\n(?:[ \t]*(?:\n|$))*)?)+/, et = /^ {0,3}(`{3,}(?=[^`\n]*(?:\n|$))|~{3,})([^\n]*)(?:\n|$)(?:|([\s\S]*?)(?:\n|$))(?: {0,3}\1[~`]* *(?=\n|$)|$)/, j = /^ {0,3}((?:-[\t ]*){3,}|(?:_[ \t]*){3,}|(?:\*[ \t]*){3,})(?:\n+|$)/, tt = /^ {0,3}(#{1,6})(?=\s|$)(.*)(?:\n+|$)/, ce = /(?:[*+-]|\d{1,9}[.)])/, _e = /^(?!bull |blockCode|fences|blockquote|heading|html|table)((?:.|\n(?!\s*?\n|bull |blockCode|fences|blockquote|heading|html|table))+?)\n {0,3}(=+|-+) *(?:\n+|$)/, Ce = x(_e).replace(/bull/g, ce).replace(/blockCode/g, /(?: {4}| {0,3}\t)/).replace(/fences/g, / {0,3}(?:`{3,}|~{3,})/).replace(/blockquote/g, / {0,3}>/).replace(/heading/g, / {0,3}#{1,6}/).replace(/html/g, / {0,3}<[^\n>]+>\n/).replace(/\|table/g, "").getRegex(), nt = x(_e).replace(/bull/g, ce).replace(/blockCode/g, /(?: {4}| {0,3}\t)/).replace(/fences/g, / {0,3}(?:`{3,}|~{3,})/).replace(/blockquote/g, / {0,3}>/).replace(/heading/g, / {0,3}#{1,6}/).replace(/html/g, / {0,3}<[^\n>]+>\n/).replace(/table/g, / {0,3}\|?(?:[:\- ]*\|)+[\:\- ]*\n/).getRegex(), pe = /^([^\n]+(?:\n(?!hr|heading|lheading|blockquote|fences|list|html|table| +\n)[^\n]+)*)/, rt = /^[^\n]+/, ue = /(?!\s*\])(?:\\[\s\S]|[^\[\]\\])+/, st = x(/^ {0,3}\[(label)\]: *(?:\n[ \t]*)?([^<\s][^\s]*|<.*?>)(?:(?: +(?:\n[ \t]*)?| *\n[ \t]*)(title))? *(?:\n+|$)/).replace("label", ue).replace("title", /(?:"(?:\\"?|[^"\\])*"|'[^'\n]*(?:\n[^'\n]+)*\n?'|\([^()]*\))/).getRegex(), lt = x(/^( {0,3}bull)([ \t][^\n]+?)?(?:\n|$)/).replace(/bull/g, ce).getRegex(), Y = "address|article|aside|base|basefont|blockquote|body|caption|center|col|colgroup|dd|details|dialog|dir|div|dl|dt|fieldset|figcaption|figure|footer|form|frame|frameset|h[1-6]|head|header|hr|html|iframe|legend|li|link|main|menu|menuitem|meta|nav|noframes|ol|optgroup|option|p|param|search|section|summary|table|tbody|td|tfoot|th|thead|title|tr|track|ul", he = /<!--(?:-?>|[\s\S]*?(?:-->|$))/, it = x("^ {0,3}(?:<(script|pre|style|textarea)[\\s>][\\s\\S]*?(?:</\\1>[^\\n]*\\n+|$)|comment[^\\n]*(\\n+|$)|<\\?[\\s\\S]*?(?:\\?>\\n*|$)|<![A-Z][\\s\\S]*?(?:>\\n*|$)|<!\\[CDATA\\[[\\s\\S]*?(?:\\]\\]>\\n*|$)|</?(tag)(?: +|\\n|/?>)[\\s\\S]*?(?:(?:\\n[ 	]*)+\\n|$)|<(?!script|pre|style|textarea)([a-z][\\w-]*)(?:attribute)*? */?>(?=[ \\t]*(?:\\n|$))[\\s\\S]*?(?:(?:\\n[ 	]*)+\\n|$)|</(?!script|pre|style|textarea)[a-z][\\w-]*\\s*>(?=[ \\t]*(?:\\n|$))[\\s\\S]*?(?:(?:\\n[ 	]*)+\\n|$))", "i").replace("comment", he).replace("tag", Y).replace("attribute", / +[a-zA-Z:_][\w.:-]*(?: *= *"[^"\n]*"| *= *'[^'\n]*'| *= *[^\s"'=<>`]+)?/).getRegex(), Ie = x(pe).replace("hr", j).replace("heading", " {0,3}#{1,6}(?:\\s|$)").replace("|lheading", "").replace("|table", "").replace("blockquote", " {0,3}>").replace("fences", " {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n").replace("list", " {0,3}(?:[*+-]|1[.)]) ").replace("html", "</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)").replace("tag", Y).getRegex(), at = x(/^( {0,3}> ?(paragraph|[^\n]*)(?:\n|$))+/).replace("paragraph", Ie).getRegex(), ge = { blockquote: at, code: Ye, def: st, fences: et, heading: tt, hr: j, html: it, lheading: Ce, list: lt, newline: Ke, paragraph: Ie, table: Z, text: rt }, ye = x("^ *([^\\n ].*)\\n {0,3}((?:\\| *)?:?-+:? *(?:\\| *:?-+:? *)*(?:\\| *)?)(?:\\n((?:(?! *\\n|hr|heading|blockquote|code|fences|list|html).*(?:\\n|$))*)\\n*|$)").replace("hr", j).replace("heading", " {0,3}#{1,6}(?:\\s|$)").replace("blockquote", " {0,3}>").replace("code", "(?: {4}| {0,3}	)[^\\n]").replace("fences", " {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n").replace("list", " {0,3}(?:[*+-]|1[.)]) ").replace("html", "</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)").replace("tag", Y).getRegex(), ot = { ...ge, lheading: nt, table: ye, paragraph: x(pe).replace("hr", j).replace("heading", " {0,3}#{1,6}(?:\\s|$)").replace("|lheading", "").replace("table", ye).replace("blockquote", " {0,3}>").replace("fences", " {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n").replace("list", " {0,3}(?:[*+-]|1[.)]) ").replace("html", "</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)").replace("tag", Y).getRegex() }, ct = { ...ge, html: x(`^ *(?:comment *(?:\\n|\\s*$)|<(tag)[\\s\\S]+?</\\1> *(?:\\n{2,}|\\s*$)|<tag(?:"[^"]*"|'[^']*'|\\s[^'"/>\\s]*)*?/?> *(?:\\n{2,}|\\s*$))`).replace("comment", he).replace(/tag/g, "(?!(?:a|em|strong|small|s|cite|q|dfn|abbr|data|time|code|var|samp|kbd|sub|sup|i|b|u|mark|ruby|rt|rp|bdi|bdo|span|br|wbr|ins|del|img)\\b)\\w+(?!:|[^\\w\\s@]*@)\\b").getRegex(), def: /^ *\[([^\]]+)\]: *<?([^\s>]+)>?(?: +(["(][^\n]+[")]))? *(?:\n+|$)/, heading: /^(#{1,6})(.*)(?:\n+|$)/, fences: Z, lheading: /^(.+?)\n {0,3}(=+|-+) *(?:\n+|$)/, paragraph: x(pe).replace("hr", j).replace("heading", ` *#{1,6} *[^
+]`).replace("lheading", Ce).replace("|table", "").replace("blockquote", " {0,3}>").replace("|fences", "").replace("|list", "").replace("|html", "").replace("|tag", "").getRegex() }, pt = /^\\([!"#$%&'()*+,\-./:;<=>?@\[\]\\^_`{|}~])/, ut = /^(`+)([^`]|[^`][\s\S]*?[^`])\1(?!`)/, Pe = /^( {2,}|\\)\n(?!\s*$)/, ht = /^(`+|[^`])(?:(?= {2,}\n)|[\s\S]*?(?:(?=[\\<!\[`*_]|\b_|$)|[^ ](?= {2,}\n)))/, ee = /[\p{P}\p{S}]/u, fe = /[\s\p{P}\p{S}]/u, qe = /[^\s\p{P}\p{S}]/u, gt = x(/^((?![*_])punctSpace)/, "u").replace(/punctSpace/g, fe).getRegex(), Be = /(?!~)[\p{P}\p{S}]/u, ft = /(?!~)[\s\p{P}\p{S}]/u, kt = /(?:[^\s\p{P}\p{S}]|~)/u, dt = x(/link|precode-code|html/, "g").replace("link", /\[(?:[^\[\]`]|(?<a>`+)[^`]+\k<a>(?!`))*?\]\((?:\\[\s\S]|[^\\\(\)]|\((?:\\[\s\S]|[^\\\(\)])*\))*\)/).replace("precode-", We ? "(?<!`)()" : "(^^|[^`])").replace("code", /(?<b>`+)[^`]+\k<b>(?!`)/).replace("html", /<(?! )[^<>]*?>/).getRegex(), Le = /^(?:\*+(?:((?!\*)punct)|[^\s*]))|^_+(?:((?!_)punct)|([^\s_]))/, bt = x(Le, "u").replace(/punct/g, ee).getRegex(), xt = x(Le, "u").replace(/punct/g, Be).getRegex(), Ee = "^[^_*]*?__[^_*]*?\\*[^_*]*?(?=__)|[^*]+(?=[^*])|(?!\\*)punct(\\*+)(?=[\\s]|$)|notPunctSpace(\\*+)(?!\\*)(?=punctSpace|$)|(?!\\*)punctSpace(\\*+)(?=notPunctSpace)|[\\s](\\*+)(?!\\*)(?=punct)|(?!\\*)punct(\\*+)(?!\\*)(?=punct)|notPunctSpace(\\*+)(?=notPunctSpace)", mt = x(Ee, "gu").replace(/notPunctSpace/g, qe).replace(/punctSpace/g, fe).replace(/punct/g, ee).getRegex(), wt = x(Ee, "gu").replace(/notPunctSpace/g, kt).replace(/punctSpace/g, ft).replace(/punct/g, Be).getRegex(), yt = x("^[^_*]*?\\*\\*[^_*]*?_[^_*]*?(?=\\*\\*)|[^_]+(?=[^_])|(?!_)punct(_+)(?=[\\s]|$)|notPunctSpace(_+)(?!_)(?=punctSpace|$)|(?!_)punctSpace(_+)(?=notPunctSpace)|[\\s](_+)(?!_)(?=punct)|(?!_)punct(_+)(?!_)(?=punct)", "gu").replace(/notPunctSpace/g, qe).replace(/punctSpace/g, fe).replace(/punct/g, ee).getRegex(), $t = x(/\\(punct)/, "gu").replace(/punct/g, ee).getRegex(), Rt = x(/^<(scheme:[^\s\x00-\x1f<>]*|email)>/).replace("scheme", /[a-zA-Z][a-zA-Z0-9+.-]{1,31}/).replace("email", /[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+(@)[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+(?![-_])/).getRegex(), Tt = x(he).replace("(?:-->|$)", "-->").getRegex(), St = x("^comment|^</[a-zA-Z][\\w:-]*\\s*>|^<[a-zA-Z][\\w-]*(?:attribute)*?\\s*/?>|^<\\?[\\s\\S]*?\\?>|^<![a-zA-Z]+\\s[\\s\\S]*?>|^<!\\[CDATA\\[[\\s\\S]*?\\]\\]>").replace("comment", Tt).replace("attribute", /\s+[a-zA-Z:_][\w.:-]*(?:\s*=\s*"[^"]*"|\s*=\s*'[^']*'|\s*=\s*[^\s"'=<>`]+)?/).getRegex(), F = /(?:\[(?:\\[\s\S]|[^\[\]\\])*\]|\\[\s\S]|`+[^`]*?`+(?!`)|[^\[\]\\`])*?/, zt = x(/^!?\[(label)\]\(\s*(href)(?:(?:[ \t]*(?:\n[ \t]*)?)(title))?\s*\)/).replace("label", F).replace("href", /<(?:\\.|[^\n<>\\])+>|[^ \t\n\x00-\x1f]*/).replace("title", /"(?:\\"?|[^"\\])*"|'(?:\\'?|[^'\\])*'|\((?:\\\)?|[^)\\])*\)/).getRegex(), De = x(/^!?\[(label)\]\[(ref)\]/).replace("label", F).replace("ref", ue).getRegex(), Ne = x(/^!?\[(ref)\](?:\[\])?/).replace("ref", ue).getRegex(), At = x("reflink|nolink(?!\\()", "g").replace("reflink", De).replace("nolink", Ne).getRegex(), $e = /[hH][tT][tT][pP][sS]?|[fF][tT][pP]/, ke = { _backpedal: Z, anyPunctuation: $t, autolink: Rt, blockSkip: dt, br: Pe, code: ut, del: Z, emStrongLDelim: bt, emStrongRDelimAst: mt, emStrongRDelimUnd: yt, escape: pt, link: zt, nolink: Ne, punctuation: gt, reflink: De, reflinkSearch: At, tag: St, text: ht, url: Z }, vt = { ...ke, link: x(/^!?\[(label)\]\((.*?)\)/).replace("label", F).getRegex(), reflink: x(/^!?\[(label)\]\s*\[([^\]]*)\]/).replace("label", F).getRegex() }, le = { ...ke, emStrongRDelimAst: wt, emStrongLDelim: xt, url: x(/^((?:protocol):\/\/|www\.)(?:[a-zA-Z0-9\-]+\.?)+[^\s<]*|^email/).replace("protocol", $e).replace("email", /[A-Za-z0-9._+-]+(@)[a-zA-Z0-9-_]+(?:\.[a-zA-Z0-9-_]*[a-zA-Z0-9])+(?![-_])/).getRegex(), _backpedal: /(?:[^?!.,:;*_'"~()&]+|\([^)]*\)|&(?![a-zA-Z0-9]+;$)|[?!.,:;*_'"~)]+(?!$))+/, del: /^(~~?)(?=[^\s~])((?:\\[\s\S]|[^\\])*?(?:\\[\s\S]|[^\s~\\]))\1(?=[^~]|$)/, text: x(/^([`~]+|[^`~])(?:(?= {2,}\n)|(?=[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@)|[\s\S]*?(?:(?=[\\<!\[`*~_]|\b_|protocol:\/\/|www\.|$)|[^ ](?= {2,}\n)|[^a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-](?=[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@)))/).replace("protocol", $e).getRegex() }, _t = { ...le, br: x(Pe).replace("{2,}", "*").getRegex(), text: x(le.text).replace("\\b_", "\\b_| {2,}\\n").replace(/\{2,\}/g, "*").getRegex() }, G = { normal: ge, gfm: ot, pedantic: ct }, O = { normal: ke, gfm: le, breaks: _t, pedantic: vt }, Ct = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }, Re = (n) => Ct[n];
+function C(n, e) {
   if (e) {
-    if ($.escapeTest.test(n)) return n.replace($.escapeReplace, $e);
-  } else if ($.escapeTestNoEncode.test(n)) return n.replace($.escapeReplaceNoEncode, $e);
+    if (R.escapeTest.test(n)) return n.replace(R.escapeReplace, Re);
+  } else if (R.escapeTestNoEncode.test(n)) return n.replace(R.escapeReplaceNoEncode, Re);
   return n;
 }
-function Re(n) {
+function Te(n) {
   try {
-    n = encodeURI(n).replace($.percentDecode, "%");
+    n = encodeURI(n).replace(R.percentDecode, "%");
   } catch {
     return null;
   }
   return n;
 }
-function Te(n, e) {
+function Se(n, e) {
   var i;
-  let t = n.replace($.findPipe, (a, l, p) => {
-    let o = !1, h = l;
-    for (; --h >= 0 && p[h] === "\\"; ) o = !o;
+  let t = n.replace(R.findPipe, (a, l, p) => {
+    let o = !1, u = l;
+    for (; --u >= 0 && p[u] === "\\"; ) o = !o;
     return o ? "|" : " |";
-  }), s = t.split($.splitPipe), r = 0;
+  }), s = t.split(R.splitPipe), r = 0;
   if (s[0].trim() || s.shift(), s.length > 0 && !((i = s.at(-1)) != null && i.trim()) && s.pop(), e) if (s.length > e) s.splice(e);
   else for (; s.length < e; ) s.push("");
-  for (; r < s.length; r++) s[r] = s[r].trim().replace($.slashPipe, "|");
+  for (; r < s.length; r++) s[r] = s[r].trim().replace(R.slashPipe, "|");
   return s;
 }
-function O(n, e, t) {
+function U(n, e, t) {
   let s = n.length;
   if (s === 0) return "";
   let r = 0;
@@ -95,7 +95,7 @@ function It(n, e) {
   else if (n[s] === e[1] && (t--, t < 0)) return s;
   return t > 0 ? -2 : -1;
 }
-function Se(n, e, t, s, r) {
+function ze(n, e, t, s, r) {
   let i = e.href, a = e.title || null, l = n[1].replace(r.other.outputLinkReplace, "$1");
   s.state.inLink = !0;
   let p = { type: n[0].charAt(0) === "!" ? "image" : "link", raw: t, href: i, title: a, text: l, tokens: s.inlineTokens(l) };
@@ -129,7 +129,7 @@ var V = class {
     let e = this.rules.block.code.exec(n);
     if (e) {
       let t = e[0].replace(this.rules.other.codeRemoveIndent, "");
-      return { type: "code", raw: e[0], codeBlockStyle: "indented", text: this.options.pedantic ? t : O(t, `
+      return { type: "code", raw: e[0], codeBlockStyle: "indented", text: this.options.pedantic ? t : U(t, `
 `) };
     }
   }
@@ -145,7 +145,7 @@ var V = class {
     if (e) {
       let t = e[2].trim();
       if (this.rules.other.endingHash.test(t)) {
-        let s = O(t, "#");
+        let s = U(t, "#");
         (this.options.pedantic || !s || this.rules.other.endingSpaceChar.test(s)) && (t = s.trim());
       }
       return { type: "heading", raw: e[0], depth: e[1].length, text: t, tokens: this.lexer.inline(t) };
@@ -153,13 +153,13 @@ var V = class {
   }
   hr(n) {
     let e = this.rules.block.hr.exec(n);
-    if (e) return { type: "hr", raw: O(e[0], `
+    if (e) return { type: "hr", raw: U(e[0], `
 `) };
   }
   blockquote(n) {
     let e = this.rules.block.blockquote.exec(n);
     if (e) {
-      let t = O(e[0], `
+      let t = U(e[0], `
 `).split(`
 `), s = "", r = "", i = [];
       for (; t.length > 0; ) {
@@ -169,26 +169,26 @@ var V = class {
         else break;
         t = t.slice(p);
         let o = l.join(`
-`), h = o.replace(this.rules.other.blockquoteSetextReplace, `
+`), u = o.replace(this.rules.other.blockquoteSetextReplace, `
     $1`).replace(this.rules.other.blockquoteSetextReplace2, "");
         s = s ? `${s}
 ${o}` : o, r = r ? `${r}
-${h}` : h;
+${u}` : u;
         let g = this.lexer.state.top;
-        if (this.lexer.state.top = !0, this.lexer.blockTokens(h, i, !0), this.lexer.state.top = g, t.length === 0) break;
-        let u = i.at(-1);
-        if ((u == null ? void 0 : u.type) === "code") break;
-        if ((u == null ? void 0 : u.type) === "blockquote") {
-          let c = u, f = c.raw + `
+        if (this.lexer.state.top = !0, this.lexer.blockTokens(u, i, !0), this.lexer.state.top = g, t.length === 0) break;
+        let h = i.at(-1);
+        if ((h == null ? void 0 : h.type) === "code") break;
+        if ((h == null ? void 0 : h.type) === "blockquote") {
+          let c = h, d = c.raw + `
 ` + t.join(`
-`), k = this.blockquote(f);
-          i[i.length - 1] = k, s = s.substring(0, s.length - c.raw.length) + k.raw, r = r.substring(0, r.length - c.text.length) + k.text;
+`), f = this.blockquote(d);
+          i[i.length - 1] = f, s = s.substring(0, s.length - c.raw.length) + f.raw, r = r.substring(0, r.length - c.text.length) + f.text;
           break;
-        } else if ((u == null ? void 0 : u.type) === "list") {
-          let c = u, f = c.raw + `
+        } else if ((h == null ? void 0 : h.type) === "list") {
+          let c = h, d = c.raw + `
 ` + t.join(`
-`), k = this.list(f);
-          i[i.length - 1] = k, s = s.substring(0, s.length - u.raw.length) + k.raw, r = r.substring(0, r.length - c.raw.length) + k.raw, t = f.substring(i.at(-1).raw.length).split(`
+`), f = this.list(d);
+          i[i.length - 1] = f, s = s.substring(0, s.length - h.raw.length) + f.raw, r = r.substring(0, r.length - c.raw.length) + f.raw, t = d.substring(i.at(-1).raw.length).split(`
 `);
           continue;
         }
@@ -204,59 +204,59 @@ ${h}` : h;
       r = i ? `\\d{1,9}\\${r.slice(-1)}` : `\\${r}`, this.options.pedantic && (r = i ? r : "[*+-]");
       let l = this.rules.other.listItemRegex(r), p = !1;
       for (; n; ) {
-        let h = !1, g = "", u = "";
+        let u = !1, g = "", h = "";
         if (!(e = l.exec(n)) || this.rules.block.hr.test(n)) break;
         g = e[0], n = n.substring(g.length);
         let c = e[2].split(`
-`, 1)[0].replace(this.rules.other.listReplaceTabs, (y) => " ".repeat(3 * y.length)), f = n.split(`
-`, 1)[0], k = !c.trim(), b = 0;
-        if (this.options.pedantic ? (b = 2, u = c.trimStart()) : k ? b = e[1].length + 1 : (b = e[2].search(this.rules.other.nonSpaceChar), b = b > 4 ? 1 : b, u = c.slice(b), b += e[1].length), k && this.rules.other.blankLine.test(f) && (g += f + `
-`, n = n.substring(f.length + 1), h = !0), !h) {
-          let y = this.rules.other.nextBulletRegex(b), R = this.rules.other.hrRegex(b), D = this.rules.other.fencesBeginRegex(b), v = this.rules.other.headingBeginRegex(b), S = this.rules.other.htmlBeginRegex(b);
+`, 1)[0].replace(this.rules.other.listReplaceTabs, (y) => " ".repeat(3 * y.length)), d = n.split(`
+`, 1)[0], f = !c.trim(), b = 0;
+        if (this.options.pedantic ? (b = 2, h = c.trimStart()) : f ? b = e[1].length + 1 : (b = e[2].search(this.rules.other.nonSpaceChar), b = b > 4 ? 1 : b, h = c.slice(b), b += e[1].length), f && this.rules.other.blankLine.test(d) && (g += d + `
+`, n = n.substring(d.length + 1), u = !0), !u) {
+          let y = this.rules.other.nextBulletRegex(b), T = this.rules.other.hrRegex(b), _ = this.rules.other.fencesBeginRegex(b), L = this.rules.other.headingBeginRegex(b), S = this.rules.other.htmlBeginRegex(b);
           for (; n; ) {
             let I = n.split(`
-`, 1)[0], _;
-            if (f = I, this.options.pedantic ? (f = f.replace(this.rules.other.listReplaceNesting, "  "), _ = f) : _ = f.replace(this.rules.other.tabCharGlobal, "    "), D.test(f) || v.test(f) || S.test(f) || y.test(f) || R.test(f)) break;
-            if (_.search(this.rules.other.nonSpaceChar) >= b || !f.trim()) u += `
-` + _.slice(b);
+`, 1)[0], z;
+            if (d = I, this.options.pedantic ? (d = d.replace(this.rules.other.listReplaceNesting, "  "), z = d) : z = d.replace(this.rules.other.tabCharGlobal, "    "), _.test(d) || L.test(d) || S.test(d) || y.test(d) || T.test(d)) break;
+            if (z.search(this.rules.other.nonSpaceChar) >= b || !d.trim()) h += `
+` + z.slice(b);
             else {
-              if (k || c.replace(this.rules.other.tabCharGlobal, "    ").search(this.rules.other.nonSpaceChar) >= 4 || D.test(c) || v.test(c) || R.test(c)) break;
-              u += `
-` + f;
+              if (f || c.replace(this.rules.other.tabCharGlobal, "    ").search(this.rules.other.nonSpaceChar) >= 4 || _.test(c) || L.test(c) || T.test(c)) break;
+              h += `
+` + d;
             }
-            !k && !f.trim() && (k = !0), g += I + `
-`, n = n.substring(I.length + 1), c = _.slice(b);
+            !f && !d.trim() && (f = !0), g += I + `
+`, n = n.substring(I.length + 1), c = z.slice(b);
           }
         }
-        a.loose || (p ? a.loose = !0 : this.rules.other.doubleBlankLine.test(g) && (p = !0)), a.items.push({ type: "list_item", raw: g, task: !!this.options.gfm && this.rules.other.listIsTask.test(u), loose: !1, text: u, tokens: [] }), a.raw += g;
+        a.loose || (p ? a.loose = !0 : this.rules.other.doubleBlankLine.test(g) && (p = !0)), a.items.push({ type: "list_item", raw: g, task: !!this.options.gfm && this.rules.other.listIsTask.test(h), loose: !1, text: h, tokens: [] }), a.raw += g;
       }
       let o = a.items.at(-1);
       if (o) o.raw = o.raw.trimEnd(), o.text = o.text.trimEnd();
       else return;
       a.raw = a.raw.trimEnd();
-      for (let h of a.items) {
-        if (this.lexer.state.top = !1, h.tokens = this.lexer.blockTokens(h.text, []), h.task) {
-          if (h.text = h.text.replace(this.rules.other.listReplaceTask, ""), ((t = h.tokens[0]) == null ? void 0 : t.type) === "text" || ((s = h.tokens[0]) == null ? void 0 : s.type) === "paragraph") {
-            h.tokens[0].raw = h.tokens[0].raw.replace(this.rules.other.listReplaceTask, ""), h.tokens[0].text = h.tokens[0].text.replace(this.rules.other.listReplaceTask, "");
-            for (let u = this.lexer.inlineQueue.length - 1; u >= 0; u--) if (this.rules.other.listIsTask.test(this.lexer.inlineQueue[u].src)) {
-              this.lexer.inlineQueue[u].src = this.lexer.inlineQueue[u].src.replace(this.rules.other.listReplaceTask, "");
+      for (let u of a.items) {
+        if (this.lexer.state.top = !1, u.tokens = this.lexer.blockTokens(u.text, []), u.task) {
+          if (u.text = u.text.replace(this.rules.other.listReplaceTask, ""), ((t = u.tokens[0]) == null ? void 0 : t.type) === "text" || ((s = u.tokens[0]) == null ? void 0 : s.type) === "paragraph") {
+            u.tokens[0].raw = u.tokens[0].raw.replace(this.rules.other.listReplaceTask, ""), u.tokens[0].text = u.tokens[0].text.replace(this.rules.other.listReplaceTask, "");
+            for (let h = this.lexer.inlineQueue.length - 1; h >= 0; h--) if (this.rules.other.listIsTask.test(this.lexer.inlineQueue[h].src)) {
+              this.lexer.inlineQueue[h].src = this.lexer.inlineQueue[h].src.replace(this.rules.other.listReplaceTask, "");
               break;
             }
           }
-          let g = this.rules.other.listTaskCheckbox.exec(h.raw);
+          let g = this.rules.other.listTaskCheckbox.exec(u.raw);
           if (g) {
-            let u = { type: "checkbox", raw: g[0] + " ", checked: g[0] !== "[ ]" };
-            h.checked = u.checked, a.loose ? h.tokens[0] && ["paragraph", "text"].includes(h.tokens[0].type) && "tokens" in h.tokens[0] && h.tokens[0].tokens ? (h.tokens[0].raw = u.raw + h.tokens[0].raw, h.tokens[0].text = u.raw + h.tokens[0].text, h.tokens[0].tokens.unshift(u)) : h.tokens.unshift({ type: "paragraph", raw: u.raw, text: u.raw, tokens: [u] }) : h.tokens.unshift(u);
+            let h = { type: "checkbox", raw: g[0] + " ", checked: g[0] !== "[ ]" };
+            u.checked = h.checked, a.loose ? u.tokens[0] && ["paragraph", "text"].includes(u.tokens[0].type) && "tokens" in u.tokens[0] && u.tokens[0].tokens ? (u.tokens[0].raw = h.raw + u.tokens[0].raw, u.tokens[0].text = h.raw + u.tokens[0].text, u.tokens[0].tokens.unshift(h)) : u.tokens.unshift({ type: "paragraph", raw: h.raw, text: h.raw, tokens: [h] }) : u.tokens.unshift(h);
           }
         }
         if (!a.loose) {
-          let g = h.tokens.filter((c) => c.type === "space"), u = g.length > 0 && g.some((c) => this.rules.other.anyLine.test(c.raw));
-          a.loose = u;
+          let g = u.tokens.filter((c) => c.type === "space"), h = g.length > 0 && g.some((c) => this.rules.other.anyLine.test(c.raw));
+          a.loose = h;
         }
       }
-      if (a.loose) for (let h of a.items) {
-        h.loose = !0;
-        for (let g of h.tokens) g.type === "text" && (g.type = "paragraph");
+      if (a.loose) for (let u of a.items) {
+        u.loose = !0;
+        for (let g of u.tokens) g.type === "text" && (g.type = "paragraph");
       }
       return a;
     }
@@ -276,12 +276,12 @@ ${h}` : h;
     var a;
     let e = this.rules.block.table.exec(n);
     if (!e || !this.rules.other.tableDelimiter.test(e[2])) return;
-    let t = Te(e[1]), s = e[2].replace(this.rules.other.tableAlignChars, "").split("|"), r = (a = e[3]) != null && a.trim() ? e[3].replace(this.rules.other.tableRowBlankLine, "").split(`
+    let t = Se(e[1]), s = e[2].replace(this.rules.other.tableAlignChars, "").split("|"), r = (a = e[3]) != null && a.trim() ? e[3].replace(this.rules.other.tableRowBlankLine, "").split(`
 `) : [], i = { type: "table", raw: e[0], header: [], align: [], rows: [] };
     if (t.length === s.length) {
       for (let l of s) this.rules.other.tableAlignRight.test(l) ? i.align.push("right") : this.rules.other.tableAlignCenter.test(l) ? i.align.push("center") : this.rules.other.tableAlignLeft.test(l) ? i.align.push("left") : i.align.push(null);
       for (let l = 0; l < t.length; l++) i.header.push({ text: t[l], tokens: this.lexer.inline(t[l]), header: !0, align: i.align[l] });
-      for (let l of r) i.rows.push(Te(l, i.header.length).map((p, o) => ({ text: p, tokens: this.lexer.inline(p), header: !1, align: i.align[o] })));
+      for (let l of r) i.rows.push(Se(l, i.header.length).map((p, o) => ({ text: p, tokens: this.lexer.inline(p), header: !1, align: i.align[o] })));
       return i;
     }
   }
@@ -315,7 +315,7 @@ ${h}` : h;
       let t = e[2].trim();
       if (!this.options.pedantic && this.rules.other.startAngleBracket.test(t)) {
         if (!this.rules.other.endAngleBracket.test(t)) return;
-        let i = O(t.slice(0, -1), "\\");
+        let i = U(t.slice(0, -1), "\\");
         if ((t.length - i.length) % 2 === 0) return;
       } else {
         let i = It(e[2], "()");
@@ -330,7 +330,7 @@ ${h}` : h;
         let i = this.rules.other.pedanticHrefTitle.exec(s);
         i && (s = i[1], r = i[3]);
       } else r = e[3] ? e[3].slice(1, -1) : "";
-      return s = s.trim(), this.rules.other.startAngleBracket.test(s) && (this.options.pedantic && !this.rules.other.endAngleBracket.test(t) ? s = s.slice(1) : s = s.slice(1, -1)), Se(e, { href: s && s.replace(this.rules.inline.anyPunctuation, "$1"), title: r && r.replace(this.rules.inline.anyPunctuation, "$1") }, e[0], this.lexer, this.rules);
+      return s = s.trim(), this.rules.other.startAngleBracket.test(s) && (this.options.pedantic && !this.rules.other.endAngleBracket.test(t) ? s = s.slice(1) : s = s.slice(1, -1)), ze(e, { href: s && s.replace(this.rules.inline.anyPunctuation, "$1"), title: r && r.replace(this.rules.inline.anyPunctuation, "$1") }, e[0], this.lexer, this.rules);
     }
   }
   reflink(n, e) {
@@ -341,7 +341,7 @@ ${h}` : h;
         let i = t[0].charAt(0);
         return { type: "text", raw: i, text: i };
       }
-      return Se(t, r, t[0], this.lexer, this.rules);
+      return ze(t, r, t[0], this.lexer, this.rules);
     }
   }
   emStrong(n, e, t = "") {
@@ -359,13 +359,13 @@ ${h}` : h;
         }
         if (l -= a, l > 0) continue;
         a = Math.min(a, a + l + p);
-        let h = [...s[0]][0].length, g = n.slice(0, r + s.index + h + a);
+        let u = [...s[0]][0].length, g = n.slice(0, r + s.index + u + a);
         if (Math.min(r, a) % 2) {
           let c = g.slice(1, -1);
           return { type: "em", raw: g, text: c, tokens: this.lexer.inlineTokens(c) };
         }
-        let u = g.slice(2, -2);
-        return { type: "strong", raw: g, text: u, tokens: this.lexer.inlineTokens(u) };
+        let h = g.slice(2, -2);
+        return { type: "strong", raw: g, text: h, tokens: this.lexer.inlineTokens(h) };
       }
     }
   }
@@ -414,7 +414,7 @@ ${h}` : h;
       return { type: "text", raw: e[0], text: e[0], escaped: t };
     }
   }
-}, z = class le {
+}, A = class ie {
   constructor(e) {
     w(this, "tokens");
     w(this, "options");
@@ -422,20 +422,20 @@ ${h}` : h;
     w(this, "inlineQueue");
     w(this, "tokenizer");
     this.tokens = [], this.tokens.links = /* @__PURE__ */ Object.create(null), this.options = e || B, this.options.tokenizer = this.options.tokenizer || new V(), this.tokenizer = this.options.tokenizer, this.tokenizer.options = this.options, this.tokenizer.lexer = this, this.inlineQueue = [], this.state = { inLink: !1, inRawBlock: !1, top: !0 };
-    let t = { other: $, block: G.normal, inline: U.normal };
-    this.options.pedantic ? (t.block = G.pedantic, t.inline = U.pedantic) : this.options.gfm && (t.block = G.gfm, this.options.breaks ? t.inline = U.breaks : t.inline = U.gfm), this.tokenizer.rules = t;
+    let t = { other: R, block: G.normal, inline: O.normal };
+    this.options.pedantic ? (t.block = G.pedantic, t.inline = O.pedantic) : this.options.gfm && (t.block = G.gfm, this.options.breaks ? t.inline = O.breaks : t.inline = O.gfm), this.tokenizer.rules = t;
   }
   static get rules() {
-    return { block: G, inline: U };
+    return { block: G, inline: O };
   }
   static lex(e, t) {
-    return new le(t).lex(e);
+    return new ie(t).lex(e);
   }
   static lexInline(e, t) {
-    return new le(t).inlineTokens(e);
+    return new ie(t).inlineTokens(e);
   }
   lex(e) {
-    e = e.replace($.carriageReturn, `
+    e = e.replace(R.carriageReturn, `
 `), this.blockTokens(e, this.tokens);
     for (let t = 0; t < this.inlineQueue.length; t++) {
       let s = this.inlineQueue[t];
@@ -445,7 +445,7 @@ ${h}` : h;
   }
   blockTokens(e, t = [], s = !1) {
     var r, i, a;
-    for (this.options.pedantic && (e = e.replace($.tabCharGlobal, "    ").replace($.spaceLine, "")); e; ) {
+    for (this.options.pedantic && (e = e.replace(R.tabCharGlobal, "    ").replace(R.spaceLine, "")); e; ) {
       let l;
       if ((i = (r = this.options.extensions) == null ? void 0 : r.block) != null && i.some((o) => (l = o.call({ lexer: this }, e, t)) ? (e = e.substring(l.raw.length), t.push(l), !0) : !1)) continue;
       if (l = this.tokenizer.space(e)) {
@@ -507,9 +507,9 @@ ${h}` : h;
       }
       let p = e;
       if ((a = this.options.extensions) != null && a.startBlock) {
-        let o = 1 / 0, h = e.slice(1), g;
-        this.options.extensions.startBlock.forEach((u) => {
-          g = u.call({ lexer: this }, h), typeof g == "number" && g >= 0 && (o = Math.min(o, g));
+        let o = 1 / 0, u = e.slice(1), g;
+        this.options.extensions.startBlock.forEach((h) => {
+          g = h.call({ lexer: this }, u), typeof g == "number" && g >= 0 && (o = Math.min(o, g));
         }), o < 1 / 0 && o >= 0 && (p = e.substring(0, o + 1));
       }
       if (this.state.top && (l = this.tokenizer.paragraph(p))) {
@@ -543,7 +543,7 @@ ${h}` : h;
     return this.inlineQueue.push({ src: e, tokens: t }), t;
   }
   inlineTokens(e, t = []) {
-    var p, o, h, g, u;
+    var p, o, u, g, h;
     let s = e, r = null;
     if (this.tokens.links) {
       let c = Object.keys(this.tokens.links);
@@ -557,7 +557,7 @@ ${h}` : h;
     for (; e; ) {
       a || (l = ""), a = !1;
       let c;
-      if ((g = (h = this.options.extensions) == null ? void 0 : h.inline) != null && g.some((k) => (c = k.call({ lexer: this }, e, t)) ? (e = e.substring(c.raw.length), t.push(c), !0) : !1)) continue;
+      if ((g = (u = this.options.extensions) == null ? void 0 : u.inline) != null && g.some((f) => (c = f.call({ lexer: this }, e, t)) ? (e = e.substring(c.raw.length), t.push(c), !0) : !1)) continue;
       if (c = this.tokenizer.escape(e)) {
         e = e.substring(c.raw.length), t.push(c);
         continue;
@@ -572,8 +572,8 @@ ${h}` : h;
       }
       if (c = this.tokenizer.reflink(e, this.tokens.links)) {
         e = e.substring(c.raw.length);
-        let k = t.at(-1);
-        c.type === "text" && (k == null ? void 0 : k.type) === "text" ? (k.raw += c.raw, k.text += c.text) : t.push(c);
+        let f = t.at(-1);
+        c.type === "text" && (f == null ? void 0 : f.type) === "text" ? (f.raw += c.raw, f.text += c.text) : t.push(c);
         continue;
       }
       if (c = this.tokenizer.emStrong(e, s, l)) {
@@ -600,30 +600,30 @@ ${h}` : h;
         e = e.substring(c.raw.length), t.push(c);
         continue;
       }
-      let f = e;
-      if ((u = this.options.extensions) != null && u.startInline) {
-        let k = 1 / 0, b = e.slice(1), y;
-        this.options.extensions.startInline.forEach((R) => {
-          y = R.call({ lexer: this }, b), typeof y == "number" && y >= 0 && (k = Math.min(k, y));
-        }), k < 1 / 0 && k >= 0 && (f = e.substring(0, k + 1));
+      let d = e;
+      if ((h = this.options.extensions) != null && h.startInline) {
+        let f = 1 / 0, b = e.slice(1), y;
+        this.options.extensions.startInline.forEach((T) => {
+          y = T.call({ lexer: this }, b), typeof y == "number" && y >= 0 && (f = Math.min(f, y));
+        }), f < 1 / 0 && f >= 0 && (d = e.substring(0, f + 1));
       }
-      if (c = this.tokenizer.inlineText(f)) {
+      if (c = this.tokenizer.inlineText(d)) {
         e = e.substring(c.raw.length), c.raw.slice(-1) !== "_" && (l = c.raw.slice(-1)), a = !0;
-        let k = t.at(-1);
-        (k == null ? void 0 : k.type) === "text" ? (k.raw += c.raw, k.text += c.text) : t.push(c);
+        let f = t.at(-1);
+        (f == null ? void 0 : f.type) === "text" ? (f.raw += c.raw, f.text += c.text) : t.push(c);
         continue;
       }
       if (e) {
-        let k = "Infinite loop on byte: " + e.charCodeAt(0);
+        let f = "Infinite loop on byte: " + e.charCodeAt(0);
         if (this.options.silent) {
-          console.error(k);
+          console.error(f);
           break;
-        } else throw new Error(k);
+        } else throw new Error(f);
       }
     }
     return t;
   }
-}, X = class {
+}, J = class {
   constructor(n) {
     w(this, "options");
     w(this, "parser");
@@ -634,10 +634,10 @@ ${h}` : h;
   }
   code({ text: n, lang: e, escaped: t }) {
     var i;
-    let s = (i = (e || "").match($.notSpaceStart)) == null ? void 0 : i[0], r = n.replace($.endingNewline, "") + `
+    let s = (i = (e || "").match(R.notSpaceStart)) == null ? void 0 : i[0], r = n.replace(R.endingNewline, "") + `
 `;
-    return s ? '<pre><code class="language-' + P(s) + '">' + (t ? r : P(r, !0)) + `</code></pre>
-` : "<pre><code>" + (t ? r : P(r, !0)) + `</code></pre>
+    return s ? '<pre><code class="language-' + C(s) + '">' + (t ? r : C(r, !0)) + `</code></pre>
+` : "<pre><code>" + (t ? r : C(r, !0)) + `</code></pre>
 `;
   }
   blockquote({ tokens: n }) {
@@ -715,7 +715,7 @@ ${n}</tr>
     return `<em>${this.parser.parseInline(n)}</em>`;
   }
   codespan({ text: n }) {
-    return `<code>${P(n, !0)}</code>`;
+    return `<code>${C(n, !0)}</code>`;
   }
   br(n) {
     return "<br>";
@@ -724,24 +724,24 @@ ${n}</tr>
     return `<del>${this.parser.parseInline(n)}</del>`;
   }
   link({ href: n, title: e, tokens: t }) {
-    let s = this.parser.parseInline(t), r = Re(n);
+    let s = this.parser.parseInline(t), r = Te(n);
     if (r === null) return s;
     n = r;
     let i = '<a href="' + n + '"';
-    return e && (i += ' title="' + P(e) + '"'), i += ">" + s + "</a>", i;
+    return e && (i += ' title="' + C(e) + '"'), i += ">" + s + "</a>", i;
   }
   image({ href: n, title: e, text: t, tokens: s }) {
     s && (t = this.parser.parseInline(s, this.parser.textRenderer));
-    let r = Re(n);
-    if (r === null) return P(t);
+    let r = Te(n);
+    if (r === null) return C(t);
     n = r;
     let i = `<img src="${n}" alt="${t}"`;
-    return e && (i += ` title="${P(e)}"`), i += ">", i;
+    return e && (i += ` title="${C(e)}"`), i += ">", i;
   }
   text(n) {
-    return "tokens" in n && n.tokens ? this.parser.parseInline(n.tokens) : "escaped" in n && n.escaped ? n.text : P(n.text);
+    return "tokens" in n && n.tokens ? this.parser.parseInline(n.tokens) : "escaped" in n && n.escaped ? n.text : C(n.text);
   }
-}, fe = class {
+}, de = class {
   strong({ text: n }) {
     return n;
   }
@@ -772,18 +772,18 @@ ${n}</tr>
   checkbox({ raw: n }) {
     return n;
   }
-}, A = class ie {
+}, v = class ae {
   constructor(e) {
     w(this, "options");
     w(this, "renderer");
     w(this, "textRenderer");
-    this.options = e || B, this.options.renderer = this.options.renderer || new X(), this.renderer = this.options.renderer, this.renderer.options = this.options, this.renderer.parser = this, this.textRenderer = new fe();
+    this.options = e || B, this.options.renderer = this.options.renderer || new J(), this.renderer = this.options.renderer, this.renderer.options = this.options, this.renderer.parser = this, this.textRenderer = new de();
   }
   static parse(e, t) {
-    return new ie(t).parse(e);
+    return new ae(t).parse(e);
   }
   static parseInline(e, t) {
-    return new ie(t).parseInline(e);
+    return new ae(t).parseInline(e);
   }
   parse(e) {
     var s, r;
@@ -942,21 +942,21 @@ ${n}</tr>
     return n;
   }
   provideLexer() {
-    return this.block ? z.lex : z.lexInline;
+    return this.block ? A.lex : A.lexInline;
   }
   provideParser() {
-    return this.block ? A.parse : A.parseInline;
+    return this.block ? v.parse : v.parseInline;
   }
 }, w(H, "passThroughHooks", /* @__PURE__ */ new Set(["preprocess", "postprocess", "processAllTokens", "emStrongMask"])), w(H, "passThroughHooksRespectAsync", /* @__PURE__ */ new Set(["preprocess", "postprocess", "processAllTokens"])), H), qt = class {
   constructor(...n) {
-    w(this, "defaults", ae());
+    w(this, "defaults", oe());
     w(this, "options", this.setOptions);
     w(this, "parse", this.parseMarkdown(!0));
     w(this, "parseInline", this.parseMarkdown(!1));
-    w(this, "Parser", A);
-    w(this, "Renderer", X);
-    w(this, "TextRenderer", fe);
-    w(this, "Lexer", z);
+    w(this, "Parser", v);
+    w(this, "Renderer", J);
+    w(this, "TextRenderer", de);
+    w(this, "Lexer", A);
     w(this, "Tokenizer", V);
     w(this, "Hooks", M);
     this.use(...n);
@@ -1006,14 +1006,14 @@ ${n}</tr>
         }
         "childTokens" in r && r.childTokens && (e.childTokens[r.name] = r.childTokens);
       }), s.extensions = e), t.renderer) {
-        let r = this.defaults.renderer || new X(this.defaults);
+        let r = this.defaults.renderer || new J(this.defaults);
         for (let i in t.renderer) {
           if (!(i in r)) throw new Error(`renderer '${i}' does not exist`);
           if (["options", "parser"].includes(i)) continue;
           let a = i, l = t.renderer[a], p = r[a];
           r[a] = (...o) => {
-            let h = l.apply(r, o);
-            return h === !1 && (h = p.apply(r, o)), h || "";
+            let u = l.apply(r, o);
+            return u === !1 && (u = p.apply(r, o)), u || "";
           };
         }
         s.renderer = r;
@@ -1025,8 +1025,8 @@ ${n}</tr>
           if (["options", "rules", "lexer"].includes(i)) continue;
           let a = i, l = t.tokenizer[a], p = r[a];
           r[a] = (...o) => {
-            let h = l.apply(r, o);
-            return h === !1 && (h = p.apply(r, o)), h;
+            let u = l.apply(r, o);
+            return u === !1 && (u = p.apply(r, o)), u;
           };
         }
         s.tokenizer = r;
@@ -1042,15 +1042,15 @@ ${n}</tr>
               let g = await l.call(r, o);
               return p.call(r, g);
             })();
-            let h = l.call(r, o);
-            return p.call(r, h);
+            let u = l.call(r, o);
+            return p.call(r, u);
           } : r[a] = (...o) => {
             if (this.defaults.async) return (async () => {
               let g = await l.apply(r, o);
               return g === !1 && (g = await p.apply(r, o)), g;
             })();
-            let h = l.apply(r, o);
-            return h === !1 && (h = p.apply(r, o)), h;
+            let u = l.apply(r, o);
+            return u === !1 && (u = p.apply(r, o)), u;
           };
         }
         s.hooks = r;
@@ -1069,10 +1069,10 @@ ${n}</tr>
     return this.defaults = { ...this.defaults, ...n }, this;
   }
   lexer(n, e) {
-    return z.lex(n, e ?? this.defaults);
+    return A.lex(n, e ?? this.defaults);
   }
   parser(n, e) {
-    return A.parse(n, e ?? this.defaults);
+    return v.parse(n, e ?? this.defaults);
   }
   parseMarkdown(n) {
     return (e, t) => {
@@ -1081,16 +1081,16 @@ ${n}</tr>
       if (typeof e > "u" || e === null) return i(new Error("marked(): input parameter is undefined or null"));
       if (typeof e != "string") return i(new Error("marked(): input parameter is of type " + Object.prototype.toString.call(e) + ", string expected"));
       if (r.hooks && (r.hooks.options = r, r.hooks.block = n), r.async) return (async () => {
-        let a = r.hooks ? await r.hooks.preprocess(e) : e, l = await (r.hooks ? await r.hooks.provideLexer() : n ? z.lex : z.lexInline)(a, r), p = r.hooks ? await r.hooks.processAllTokens(l) : l;
+        let a = r.hooks ? await r.hooks.preprocess(e) : e, l = await (r.hooks ? await r.hooks.provideLexer() : n ? A.lex : A.lexInline)(a, r), p = r.hooks ? await r.hooks.processAllTokens(l) : l;
         r.walkTokens && await Promise.all(this.walkTokens(p, r.walkTokens));
-        let o = await (r.hooks ? await r.hooks.provideParser() : n ? A.parse : A.parseInline)(p, r);
+        let o = await (r.hooks ? await r.hooks.provideParser() : n ? v.parse : v.parseInline)(p, r);
         return r.hooks ? await r.hooks.postprocess(o) : o;
       })().catch(i);
       try {
         r.hooks && (e = r.hooks.preprocess(e));
-        let a = (r.hooks ? r.hooks.provideLexer() : n ? z.lex : z.lexInline)(e, r);
+        let a = (r.hooks ? r.hooks.provideLexer() : n ? A.lex : A.lexInline)(e, r);
         r.hooks && (a = r.hooks.processAllTokens(a)), r.walkTokens && this.walkTokens(a, r.walkTokens);
-        let l = (r.hooks ? r.hooks.provideParser() : n ? A.parse : A.parseInline)(a, r);
+        let l = (r.hooks ? r.hooks.provideParser() : n ? v.parse : v.parseInline)(a, r);
         return r.hooks && (l = r.hooks.postprocess(l)), l;
       } catch (a) {
         return i(a);
@@ -1101,7 +1101,7 @@ ${n}</tr>
     return (t) => {
       if (t.message += `
 Please report this to https://github.com/markedjs/marked.`, n) {
-        let s = "<p>An error occurred:</p><pre>" + P(t.message + "", !0) + "</pre>";
+        let s = "<p>An error occurred:</p><pre>" + C(t.message + "", !0) + "</pre>";
         return e ? Promise.resolve(s) : s;
       }
       if (e) return Promise.reject(t);
@@ -1113,23 +1113,23 @@ function m(n, e) {
   return q.parse(n, e);
 }
 m.options = m.setOptions = function(n) {
-  return q.setOptions(n), m.defaults = q.defaults, Ae(m.defaults), m;
+  return q.setOptions(n), m.defaults = q.defaults, ve(m.defaults), m;
 };
-m.getDefaults = ae;
+m.getDefaults = oe;
 m.defaults = B;
 m.use = function(...n) {
-  return q.use(...n), m.defaults = q.defaults, Ae(m.defaults), m;
+  return q.use(...n), m.defaults = q.defaults, ve(m.defaults), m;
 };
 m.walkTokens = function(n, e) {
   return q.walkTokens(n, e);
 };
 m.parseInline = q.parseInline;
-m.Parser = A;
-m.parser = A.parse;
-m.Renderer = X;
-m.TextRenderer = fe;
-m.Lexer = z;
-m.lexer = z.lex;
+m.Parser = v;
+m.parser = v.parse;
+m.Renderer = J;
+m.TextRenderer = de;
+m.Lexer = A;
+m.lexer = A.lex;
 m.Tokenizer = V;
 m.Hooks = M;
 m.parse = m;
@@ -1138,8 +1138,8 @@ m.setOptions;
 m.use;
 m.walkTokens;
 m.parseInline;
-A.parse;
-z.lex;
+v.parse;
+A.lex;
 function Bt(n) {
   if (!n) return "";
   try {
@@ -1163,222 +1163,232 @@ function Lt(n) {
     markup: n
   };
 }
-var J, W, K, E, Ne, Ue;
-class Gt extends je {
+var X, W, K, D, Oe, Ue;
+class Qt extends je {
   constructor(t, s) {
     super(t, s);
-    N(this, E);
-    N(this, J, new He(this));
+    N(this, D);
+    N(this, X, new He(this));
     N(this, W, new Fe(this));
     N(this, K, new Ve(this));
   }
   async execute() {
-    var r;
+    var r, i;
     const t = await this.getContext(Qe), s = this.args.unique ?? null;
     try {
-      let i = null;
+      let a = null;
       if (s) {
-        const { data: d } = await Q(this, K).requestItems([s]);
-        d != null && d.length && (i = d[0].documentType.unique);
+        const { data: k } = await Q(this, K).requestItems([s]);
+        k != null && k.length && (a = k[0].documentType.unique);
       }
-      const l = (await Q(this, J).requestAllowedChildrenOf(
-        i,
+      const p = (await Q(this, X).requestAllowedChildrenOf(
+        a,
         s
       )).data;
-      if (!((r = l == null ? void 0 : l.items) != null && r.length)) {
+      if (!((r = p == null ? void 0 : p.items) != null && r.length)) {
         t.peek("danger", {
           data: { message: "No document types are allowed as children of this page." }
         });
         return;
       }
-      const p = [];
-      for (const d of l.items) {
-        const { data: T } = await Q(this, W).requestItemsByDocumentType(d.unique);
-        T != null && T.length && p.push({
-          documentTypeUnique: d.unique,
-          documentTypeName: d.name,
-          documentTypeIcon: d.icon ?? null,
-          blueprints: T.map((C) => ({
-            blueprintUnique: C.unique,
-            blueprintName: C.name
+      const o = [];
+      for (const k of p.items) {
+        const { data: $ } = await Q(this, W).requestItemsByDocumentType(k.unique);
+        $ != null && $.length && o.push({
+          documentTypeUnique: k.unique,
+          documentTypeName: k.name,
+          documentTypeIcon: k.icon ?? null,
+          blueprints: $.map((P) => ({
+            blueprintUnique: P.unique,
+            blueprintName: P.name
           }))
         });
       }
-      let o;
+      let u;
       try {
-        o = await me(this, Je, {
-          data: { documentTypes: p }
+        u = await we(this, Xe, {
+          data: { documentTypes: o }
         });
       } catch {
         return;
       }
-      const { blueprintUnique: h, documentTypeUnique: g } = o, u = p.find((d) => d.documentTypeUnique === g), c = u == null ? void 0 : u.blueprints.find((d) => d.blueprintUnique === h);
-      console.log("Selected blueprint:", h, "Document type:", g);
+      const { blueprintUnique: g, documentTypeUnique: h } = u, c = o.find((k) => k.documentTypeUnique === h), d = c == null ? void 0 : c.blueprints.find((k) => k.blueprintUnique === g);
+      console.log("Selected blueprint:", g, "Document type:", h);
       let f;
       try {
-        f = await me(this, Xe, {
+        f = await we(this, Je, {
           data: {
             unique: s,
-            blueprintName: (c == null ? void 0 : c.blueprintName) ?? "",
-            blueprintId: h
+            blueprintName: (d == null ? void 0 : d.blueprintName) ?? "",
+            blueprintId: g
           }
         });
       } catch {
         return;
       }
-      const { name: k, mediaUnique: b, extractedSections: y, config: R } = f;
-      if (!b || !k || !R)
+      const { name: b, mediaUnique: y, extractedSections: T, config: _ } = f;
+      if (!y || !b || !_)
         return;
-      console.log("Creating document with:", { name: k, sections: Object.keys(y) });
-      const v = await (await this.getContext(Ge)).getLatestToken(), S = await fetch(
-        `/umbraco/management/api/v1/document-blueprint/${h}/scaffold`,
+      console.log("Creating document with:", { name: b, sections: Object.keys(T) });
+      const S = await (await this.getContext(Ge)).getLatestToken(), I = await fetch(
+        `/umbraco/management/api/v1/document-blueprint/${g}/scaffold`,
         {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${v}`
+            Authorization: `Bearer ${S}`
           }
         }
       );
-      if (!S.ok) {
-        const d = await S.json();
-        console.error("Scaffold failed:", d), t.peek("danger", {
-          data: { message: `Failed to scaffold from blueprint: ${d.title || "Unknown error"}` }
+      if (!I.ok) {
+        const k = await I.json();
+        console.error("Scaffold failed:", k), t.peek("danger", {
+          data: { message: `Failed to scaffold from blueprint: ${k.title || "Unknown error"}` }
         });
         return;
       }
-      const I = await S.json();
-      console.log("Scaffold response:", I);
-      const _ = I.values ? [...I.values] : [], Et = (d, T) => {
-        const C = _.find((Oe) => Oe.alias === d);
-        C ? C.value = T : _.push({ alias: d, value: T });
-      };
-      for (const d of R.map.mappings) {
-        if (d.enabled === !1) continue;
-        const T = y[d.source];
-        if (T)
-          for (const C of d.destinations)
-            re(this, E, Ne).call(this, _, C, T, R);
+      const z = await I.json();
+      console.log("Scaffold response:", z), console.log("Scaffold values aliases:", (i = z.values) == null ? void 0 : i.map((k) => k.alias));
+      const te = z.values ? JSON.parse(JSON.stringify(z.values)) : [];
+      console.log("Extracted sections available:", Object.keys(T)), console.log("Mappings to apply:", _.map.mappings.map((k) => `${k.source} -> ${k.destinations.map(($) => $.target).join(", ")}`));
+      for (const k of _.map.mappings) {
+        if (k.enabled === !1) {
+          console.log(`Skipping disabled mapping for source: ${k.source}`);
+          continue;
+        }
+        const $ = T[k.source];
+        if (!$) {
+          console.log(`No extracted value for source: "${k.source}"`);
+          continue;
+        }
+        console.log(`Applying mapping for "${k.source}" (${$.length} chars)`);
+        for (const P of k.destinations)
+          se(this, D, Oe).call(this, te, P, $, _);
       }
-      const de = {
+      console.log("Values after all mappings applied:");
+      for (const k of te) {
+        const $ = typeof k.value == "string" ? k.value.substring(0, 60) : typeof k.value == "object" ? "[object]" : k.value;
+        console.log(`  ${k.alias}: ${$}`);
+      }
+      const be = {
         parent: s ? { id: s } : null,
-        documentType: { id: g },
-        template: I.template ? { id: I.template.id } : null,
-        values: _,
+        documentType: { id: h },
+        template: z.template ? { id: z.template.id } : null,
+        values: te,
         variants: [
           {
-            name: k,
+            name: b,
             culture: null,
             segment: null
           }
         ]
       };
-      console.log("Create request:", JSON.stringify(de, null, 2));
-      const te = await fetch("/umbraco/management/api/v1/document", {
+      console.log("Create request:", JSON.stringify(be, null, 2));
+      const ne = await fetch("/umbraco/management/api/v1/document", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${v}`
+          Authorization: `Bearer ${S}`
         },
-        body: JSON.stringify(de)
+        body: JSON.stringify(be)
       });
-      if (!te.ok) {
-        const d = await te.json();
-        console.error("Document creation failed:", d), t.peek("danger", {
-          data: { message: `Failed to create document: ${d.title || d.detail || "Unknown error"}` }
+      if (!ne.ok) {
+        const k = await ne.json();
+        console.error("Document creation failed:", k), t.peek("danger", {
+          data: { message: `Failed to create document: ${k.title || k.detail || "Unknown error"}` }
         });
         return;
       }
-      const ne = te.headers.get("Location"), L = ne == null ? void 0 : ne.split("/").pop();
-      if (console.log("Document created successfully! ID:", L), L) {
-        const d = await fetch(`/umbraco/management/api/v1/document/${L}`, {
+      const re = ne.headers.get("Location"), E = re == null ? void 0 : re.split("/").pop();
+      if (console.log("Document created successfully! ID:", E), E) {
+        const k = await fetch(`/umbraco/management/api/v1/document/${E}`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${v}`
+            Authorization: `Bearer ${S}`
           }
         });
-        if (d.ok) {
-          const T = await d.json();
-          console.log("Fetched document for save:", T);
-          const C = await fetch(`/umbraco/management/api/v1/document/${L}`, {
+        if (k.ok) {
+          const $ = await k.json();
+          console.log("Fetched document for save:", $);
+          const P = await fetch(`/umbraco/management/api/v1/document/${E}`, {
             method: "PUT",
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${v}`
+              Authorization: `Bearer ${S}`
             },
-            body: JSON.stringify(T)
+            body: JSON.stringify($)
           });
-          C.ok ? console.log("Document saved successfully") : console.warn("Document save failed, but document was created:", await C.text());
+          P.ok ? console.log("Document saved successfully") : console.warn("Document save failed, but document was created:", await P.text());
         } else
-          console.warn("Could not fetch document for save:", await d.text());
+          console.warn("Could not fetch document for save:", await k.text());
       }
       if (t.peek("positive", {
-        data: { message: `Document "${k}" created successfully!` }
-      }), L) {
-        const d = `/umbraco/section/content/workspace/document/edit/${L}`;
+        data: { message: `Document "${b}" created successfully!` }
+      }), E) {
+        const k = `/umbraco/section/content/workspace/document/edit/${E}`;
         setTimeout(() => {
-          window.location.href = d;
+          window.location.href = k;
         }, 150);
       }
-    } catch (i) {
-      console.error("Error creating document:", i), t.peek("danger", {
+    } catch (a) {
+      console.error("Error creating document:", a), t.peek("danger", {
         data: { message: "An unexpected error occurred while creating the document." }
       });
     }
   }
 }
-J = new WeakMap(), W = new WeakMap(), K = new WeakMap(), E = new WeakSet(), /**
+X = new WeakMap(), W = new WeakMap(), K = new WeakMap(), D = new WeakSet(), /**
  * Applies a single destination mapping from the config.
  * Handles both simple field mappings and block grid mappings.
  */
-Ne = function(t, s, r, i) {
-  var o, h, g, u;
+Oe = function(t, s, r, i) {
+  var o, u, g, h;
   let a = r;
   const l = (o = s.transforms) == null ? void 0 : o.some((c) => c.type === "convertMarkdownToHtml"), p = s.target.split(".");
   if (p.length === 1) {
-    const c = p[0], f = t.find((k) => k.alias === c);
-    f ? f.value = a : t.push({ alias: c, value: a }), console.log(`Set ${c} = "${a.substring(0, 50)}..."`);
+    const c = p[0], d = t.find((f) => f.alias === c);
+    d ? d.value = a : t.push({ alias: c, value: a }), console.log(`Set ${c} = "${a.substring(0, 50)}..."`);
   } else if (p.length === 3) {
-    const [c, f, k] = p, b = (h = i.destination.blockGrids) == null ? void 0 : h.find((S) => S.key === c), y = b == null ? void 0 : b.blocks.find((S) => S.key === f);
+    const [c, d, f] = p, b = (u = i.destination.blockGrids) == null ? void 0 : u.find((S) => S.key === c), y = b == null ? void 0 : b.blocks.find((S) => S.key === d);
     if (!b || !y) {
       console.log(`Block path ${s.target} not found in destination config`);
       return;
     }
-    const R = b.alias, D = ((u = (g = y.properties) == null ? void 0 : g.find((S) => S.key === k)) == null ? void 0 : u.alias) ?? k, v = y.identifyBy;
-    if (!v) {
-      console.log(`No identifyBy for block ${f}`);
+    const T = b.alias, _ = ((h = (g = y.properties) == null ? void 0 : g.find((S) => S.key === f)) == null ? void 0 : h.alias) ?? f, L = y.identifyBy;
+    if (!L) {
+      console.log(`No identifyBy for block ${d}`);
       return;
     }
-    re(this, E, Ue).call(this, t, R, v, D, a, l);
+    se(this, D, Ue).call(this, t, T, L, _, a, l);
   }
 }, /**
  * Applies a value to a property within a block grid.
  * Finds the block by searching for a property value match.
  */
 Ue = function(t, s, r, i, a, l) {
-  var o, h;
+  var o, u;
   const p = t.find((g) => g.alias === s);
   if (!p || !p.value) {
     console.log(`No ${s} found in scaffold values`);
     return;
   }
   try {
-    const g = typeof p.value == "string", u = g ? JSON.parse(p.value) : p.value, c = u.contentData;
+    const g = typeof p.value == "string", h = g ? JSON.parse(p.value) : p.value, c = h.contentData;
     if (!c) {
       console.log(`No contentData in ${s}`);
       return;
     }
-    let f = !1;
-    for (const k of c) {
-      const b = (o = k.values) == null ? void 0 : o.find((y) => y.alias === r.property);
+    let d = !1;
+    for (const f of c) {
+      const b = (o = f.values) == null ? void 0 : o.find((y) => y.alias === r.property);
       if (b && typeof b.value == "string" && b.value.toLowerCase().includes(r.value.toLowerCase())) {
-        console.log(`Found matching block for "${r.value}":`, k.key), f = !0;
-        const y = (h = k.values) == null ? void 0 : h.find((R) => R.alias === i);
+        console.log(`Found matching block for "${r.value}":`, f.key), d = !0;
+        const y = (u = f.values) == null ? void 0 : u.find((T) => T.alias === i);
         if (y) {
           if (l) {
-            const R = Bt(a);
-            y.value = Lt(R);
+            const T = Bt(a);
+            y.value = Lt(T);
           } else
             y.value = a;
           console.log(`Updated ${i} in block`);
@@ -1386,13 +1396,13 @@ Ue = function(t, s, r, i, a, l) {
         break;
       }
     }
-    f || console.log(`WARNING: Did not find a block matching ${r.property} = "${r.value}"`), p.value = g ? JSON.stringify(u) : u;
+    d || console.log(`WARNING: Did not find a block matching ${r.property} = "${r.value}"`), p.value = g ? JSON.stringify(h) : h;
   } catch (g) {
     console.error(`Failed to apply block mapping to ${s}:`, g);
   }
 };
 export {
-  Gt as UpDocEntityAction,
-  Gt as default
+  Qt as UpDocEntityAction,
+  Qt as default
 };
-//# sourceMappingURL=up-doc-action-AHOsPXac.js.map
+//# sourceMappingURL=up-doc-action-BcM3AAF9.js.map

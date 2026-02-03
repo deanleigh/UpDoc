@@ -310,21 +310,20 @@ public class PdfExtractionController : ControllerBase
             return NotFound(new { error = "Media item not found or file not on disk" });
         }
 
-        // Convert SourceConfig to legacy PdfExtractionRules for extraction
-        var extractionRules = ConvertToExtractionRules(config.Source);
-        var result = _pdfPagePropertiesService.ExtractSections(absolutePath, extractionRules);
+        // Use the new strategy-driven extraction that processes each section
+        var result = _pdfPagePropertiesService.ExtractSectionsFromConfig(absolutePath, config.Source);
 
         if (!string.IsNullOrEmpty(result.Error))
         {
             return BadRequest(new { error = result.Error });
         }
 
-        _logger.LogInformation("=== PDF Section Extraction (Config-driven) ===");
+        _logger.LogInformation("=== PDF Section Extraction (Strategy-driven) ===");
         foreach (var section in result.Sections)
         {
             _logger.LogInformation("{Key}: {Length} chars", section.Key, section.Value.Length);
         }
-        _logger.LogInformation("===============================================");
+        _logger.LogInformation("================================================");
 
         return Ok(new
         {

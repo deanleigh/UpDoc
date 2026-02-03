@@ -48,6 +48,8 @@
       "strategyParams": {
         "startPattern": "^Day\\s+\\d+",
         "stopPatterns": [
+          "features",
+          "accommodation",
           "terms",
           "conditions",
           "booking",
@@ -62,6 +64,53 @@
           "reserve the right"
         ],
         "includeStartLine": true,
+        "headingLevel": "h2"
+      }
+    },
+    {
+      "key": "features",
+      "label": "Features",
+      "description": "List of tour features and inclusions",
+      "strategy": "betweenPatterns",
+      "outputFormat": "markdown",
+      "required": false,
+      "pages": "all",
+      "columnFilter": true,
+      "strategyParams": {
+        "startPattern": "^Features$",
+        "stopPatterns": [
+          "accommodation",
+          "terms",
+          "conditions",
+          "booking",
+          "contact us"
+        ],
+        "includeStartLine": false,
+        "headingLevel": "h2"
+      }
+    },
+    {
+      "key": "accommodation",
+      "label": "Accommodation",
+      "description": "Hotel and accommodation details",
+      "strategy": "betweenPatterns",
+      "outputFormat": "markdown",
+      "required": false,
+      "pages": "all",
+      "columnFilter": true,
+      "strategyParams": {
+        "startPattern": "^Accommodation$",
+        "stopPatterns": [
+          "terms",
+          "conditions",
+          "booking",
+          "contact us",
+          "telephone",
+          "email:",
+          "www.",
+          "http"
+        ],
+        "includeStartLine": false,
         "headingLevel": "h2"
       }
     }

@@ -16,7 +16,14 @@ public interface IPdfPagePropertiesService
     /// Extracts structured sections from a PDF using rules defined in a map file.
     /// Returns typed sections (title, description, content) driven by the extraction config.
     /// </summary>
+    [Obsolete("Use ExtractSectionsFromConfig instead")]
     ExtractionResult ExtractSections(string filePath, PdfExtractionRules rules);
+
+    /// <summary>
+    /// Extracts structured sections from a PDF using the SourceConfig section definitions.
+    /// Each section is extracted according to its strategy and returned with its key.
+    /// </summary>
+    ExtractionResult ExtractSectionsFromConfig(string filePath, SourceConfig sourceConfig);
 }
 
 /// <summary>
@@ -170,6 +177,22 @@ public class PdfPagePropertiesService : IPdfPagePropertiesService
         {
             using var document = PdfDocument.Open(filePath);
             return ExtractSectionsFromDocument(document, rules);
+        }
+        catch (Exception ex)
+        {
+            return new ExtractionResult
+            {
+                Error = $"Failed to extract PDF sections: {ex.Message}"
+            };
+        }
+    }
+
+    public ExtractionResult ExtractSectionsFromConfig(string filePath, SourceConfig sourceConfig)
+    {
+        try
+        {
+            using var document = PdfDocument.Open(filePath);
+            return ExtractSectionsFromSourceConfig(document, sourceConfig);
         }
         catch (Exception ex)
         {
@@ -337,6 +360,220 @@ public class PdfPagePropertiesService : IPdfPagePropertiesService
             Sections = sections,
             RawText = rawText
         };
+    }
+
+    /// <summary>
+    /// Strategy-driven extraction using SourceConfig section definitions.
+    /// Each section is extracted according to its strategy and keyed by its key property.
+    /// </summary>
+    private static ExtractionResult ExtractSectionsFromSourceConfig(PdfDocument document, SourceConfig sourceConfig)
+    {
+        if (document.NumberOfPages == 0)
+        {
+            return new ExtractionResult { Error = "PDF has no pages" };
+        }
+
+        var sections = new Dictionary<string, string>();
+        var globalColumnFilter = sourceConfig.Globals?.ColumnDetection?.Enabled ?? true;
+
+        // Pre-extract text lines for different page/column filter combinations
+        var pageCache = new Dictionary<(int, bool), List<TextLine>>();
+
+        List<TextLine> GetLinesForPages(Pages pages, bool columnFilter)
+        {
+            var result = new List<TextLine>();
+            var pageNumbers = pages.IsAll
+                ? Enumerable.Range(1, document.NumberOfPages)
+                : (pages.PageNumbers ?? new List<int>());
+
+            foreach (var pageNum in pageNumbers)
+            {
+                if (pageNum < 1 || pageNum > document.NumberOfPages)
+                    continue;
+
+                var key = (pageNum, columnFilter);
+                if (!pageCache.TryGetValue(key, out var cachedLines))
+                {
+                    cachedLines = ExtractTextLines(document.GetPage(pageNum), filterToMainColumn: columnFilter);
+                    pageCache[key] = cachedLines;
+                }
+                result.AddRange(cachedLines);
+            }
+            return result;
+        }
+
+        // Process each section according to its strategy
+        foreach (var section in sourceConfig.Sections)
+        {
+            var useColumnFilter = section.ColumnFilter ?? globalColumnFilter;
+            var lines = GetLinesForPages(section.Pages, useColumnFilter);
+
+            string extractedValue = section.Strategy switch
+            {
+                "largestFont" => ExtractByLargestFont(lines, section),
+                "regex" => ExtractByRegex(lines, section),
+                "betweenPatterns" => ExtractBetweenPatterns(lines, section),
+                _ => string.Empty
+            };
+
+            sections[section.Key] = extractedValue;
+        }
+
+        // Build raw text for debugging
+        var allLines = GetLinesForPages(new Pages { IsAll = true }, false);
+        var rawText = string.Join("\n", allLines.Select(l => $"[{l.AverageFontSize:F1}] {l.Text}"));
+
+        return new ExtractionResult
+        {
+            Sections = sections,
+            RawText = rawText
+        };
+    }
+
+    /// <summary>
+    /// Extracts text using the largestFont strategy (title detection).
+    /// </summary>
+    private static string ExtractByLargestFont(List<TextLine> lines, SourceSection section)
+    {
+        if (lines.Count == 0) return string.Empty;
+
+        var fontSizes = lines
+            .Where(l => !string.IsNullOrWhiteSpace(l.Text))
+            .Select(l => l.AverageFontSize)
+            .OrderByDescending(s => s)
+            .ToList();
+
+        if (fontSizes.Count == 0) return string.Empty;
+
+        var maxFontSize = fontSizes.First();
+        var threshold = maxFontSize * (section.StrategyParams?.FontSizeThreshold ?? 0.85);
+
+        var titleParts = new List<string>();
+        bool foundTitleEnd = false;
+
+        foreach (var line in lines)
+        {
+            var text = line.Text.Trim();
+            if (string.IsNullOrWhiteSpace(text)) continue;
+
+            if (!foundTitleEnd && line.AverageFontSize >= threshold)
+            {
+                titleParts.Add(text);
+            }
+            else if (titleParts.Count > 0)
+            {
+                foundTitleEnd = true;
+                break;
+            }
+        }
+
+        return string.Join(" ", titleParts);
+    }
+
+    /// <summary>
+    /// Extracts text using the regex strategy (pattern matching).
+    /// </summary>
+    private static string ExtractByRegex(List<TextLine> lines, SourceSection section)
+    {
+        if (lines.Count == 0 || string.IsNullOrEmpty(section.StrategyParams?.Pattern))
+            return string.Empty;
+
+        var options = RegexOptions.None;
+        if (section.StrategyParams?.Flags?.Contains("i") == true)
+            options |= RegexOptions.IgnoreCase;
+
+        var regex = new Regex(section.StrategyParams.Pattern, options);
+
+        foreach (var line in lines)
+        {
+            var text = line.Text.Trim();
+            if (string.IsNullOrWhiteSpace(text)) continue;
+
+            var match = regex.Match(text);
+            if (match.Success)
+            {
+                var captureGroup = section.StrategyParams.CaptureGroup ?? 0;
+                return match.Groups.Count > captureGroup
+                    ? match.Groups[captureGroup].Value
+                    : match.Value;
+            }
+        }
+
+        return string.Empty;
+    }
+
+    /// <summary>
+    /// Extracts text using the betweenPatterns strategy (content between start and stop markers).
+    /// </summary>
+    private static string ExtractBetweenPatterns(List<TextLine> lines, SourceSection section)
+    {
+        if (lines.Count == 0 || string.IsNullOrEmpty(section.StrategyParams?.StartPattern))
+            return string.Empty;
+
+        var startPattern = new Regex(section.StrategyParams.StartPattern, RegexOptions.IgnoreCase);
+        var stopPatterns = section.StrategyParams.StopPatterns ?? new List<string>();
+        var includeStartLine = section.StrategyParams.IncludeStartLine ?? true;
+        var headingPrefix = (section.StrategyParams.HeadingLevel ?? "h2") switch
+        {
+            "h1" => "#",
+            "h2" => "##",
+            "h3" => "###",
+            "h4" => "####",
+            _ => "##"
+        };
+
+        var markdown = new System.Text.StringBuilder();
+        var currentParagraph = new System.Text.StringBuilder();
+        bool foundStart = false;
+
+        foreach (var line in lines)
+        {
+            var text = line.Text.Trim();
+            if (string.IsNullOrWhiteSpace(text)) continue;
+
+            var textLower = text.ToLowerInvariant();
+
+            // Check stop patterns after content has started
+            if (foundStart && stopPatterns.Any(p => textLower.Contains(p.ToLowerInvariant())))
+                break;
+
+            // Check for start pattern
+            if (startPattern.IsMatch(text))
+            {
+                if (!foundStart)
+                {
+                    foundStart = true;
+                }
+
+                // Flush current paragraph before new heading
+                if (currentParagraph.Length > 0)
+                {
+                    markdown.AppendLine(currentParagraph.ToString().Trim());
+                    markdown.AppendLine();
+                    currentParagraph.Clear();
+                }
+
+                if (includeStartLine)
+                {
+                    markdown.AppendLine($"{headingPrefix} {text}");
+                    markdown.AppendLine();
+                }
+            }
+            else if (foundStart)
+            {
+                if (currentParagraph.Length > 0)
+                    currentParagraph.Append(' ');
+                currentParagraph.Append(text);
+            }
+        }
+
+        // Flush final paragraph
+        if (currentParagraph.Length > 0)
+        {
+            markdown.AppendLine(currentParagraph.ToString().Trim());
+        }
+
+        return markdown.ToString().Trim();
     }
 
     private static PdfMarkdownResult ExtractMarkdownFromDocument(PdfDocument document)

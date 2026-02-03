@@ -30,6 +30,30 @@
         }
       ],
       "comment": "Day-by-day itinerary maps to the Suggested Itinerary block"
+    },
+    {
+      "source": "features",
+      "destinations": [
+        {
+          "target": "contentGrid.featuresBlock.richTextContent",
+          "transforms": [
+            { "type": "convertMarkdownToHtml" }
+          ]
+        }
+      ],
+      "comment": "Tour features list maps to the Features block"
+    },
+    {
+      "source": "accommodation",
+      "destinations": [
+        {
+          "target": "contentGrid.accommodationBlock.richTextContent",
+          "transforms": [
+            { "type": "convertMarkdownToHtml" }
+          ]
+        }
+      ],
+      "comment": "Accommodation details map to the Accommodation block"
     }
   ]
 }
