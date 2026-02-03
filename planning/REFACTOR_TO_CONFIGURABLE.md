@@ -1648,6 +1648,8 @@ Items that need to be addressed during or after implementation:
 
 - [ ] **Blueprint-optional support.** Currently `blueprintId` is required in map files. In a future iteration, map files should work with just `documentTypeAlias` (no blueprint). The map file schema already supports this — `blueprintId` just needs to become optional in the code.
 
+- [ ] **Source type schema files.** Move source-type-specific logic (PDF bullet characters, formatting rules, thresholds) from hardcoded C# into JSON schema files (`pdf-defaults.json`, `web-defaults.json`, etc.). These files would be readable by both C# and TypeScript, making formatting fixes a config change rather than a code change. See `planning/PDF_FORMATTING_RULES_EXPLORATION.md` for full details. Currently, PDF formatting rules (like bullet-to-list conversion) are hardcoded in `PdfPagePropertiesService.cs` - this works but requires code changes for new edge cases.
+
 ---
 
 ## Future Enhancements (Post-Refactor)

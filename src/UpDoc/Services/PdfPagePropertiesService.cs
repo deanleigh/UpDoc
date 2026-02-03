@@ -522,6 +522,9 @@ public class PdfPagePropertiesService : IPdfPagePropertiesService
             _ => "##"
         };
 
+        // Common bullet characters used in PDFs
+        var bulletChars = new[] { '•', '●', '○', '■', '□', '▪', '▫', '◆', '◇', '►', '▸' };
+
         var markdown = new System.Text.StringBuilder();
         var currentParagraph = new System.Text.StringBuilder();
         bool foundStart = false;
@@ -548,7 +551,7 @@ public class PdfPagePropertiesService : IPdfPagePropertiesService
                 // Flush current paragraph before new heading
                 if (currentParagraph.Length > 0)
                 {
-                    markdown.AppendLine(currentParagraph.ToString().Trim());
+                    markdown.AppendLine(FlushParagraphWithBullets(currentParagraph.ToString(), bulletChars));
                     markdown.AppendLine();
                     currentParagraph.Clear();
                 }
@@ -570,10 +573,41 @@ public class PdfPagePropertiesService : IPdfPagePropertiesService
         // Flush final paragraph
         if (currentParagraph.Length > 0)
         {
-            markdown.AppendLine(currentParagraph.ToString().Trim());
+            markdown.AppendLine(FlushParagraphWithBullets(currentParagraph.ToString(), bulletChars));
         }
 
         return markdown.ToString().Trim();
+    }
+
+    /// <summary>
+    /// Converts text containing bullet characters into markdown list items.
+    /// If no bullets found, returns the text as-is (trimmed).
+    /// </summary>
+    private static string FlushParagraphWithBullets(string text, char[] bulletChars)
+    {
+        text = text.Trim();
+        if (string.IsNullOrEmpty(text))
+            return string.Empty;
+
+        // Check if text contains any bullet characters
+        if (!bulletChars.Any(b => text.Contains(b)))
+            return text;
+
+        // Split on bullet characters and convert to markdown list
+        var parts = text.Split(bulletChars, StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length <= 1)
+            return text;
+
+        var sb = new System.Text.StringBuilder();
+        foreach (var part in parts)
+        {
+            var item = part.Trim();
+            if (!string.IsNullOrEmpty(item))
+            {
+                sb.AppendLine($"- {item}");
+            }
+        }
+        return sb.ToString().TrimEnd();
     }
 
     private static PdfMarkdownResult ExtractMarkdownFromDocument(PdfDocument document)
