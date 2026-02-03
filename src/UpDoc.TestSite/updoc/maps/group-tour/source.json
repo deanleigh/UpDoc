@@ -1,0 +1,69 @@
+{
+  "$schema": "https://updoc.dev/schemas/source.schema.json",
+  "version": "1.0",
+  "sourceTypes": ["pdf"],
+  "globals": {
+    "columnDetection": {
+      "enabled": true,
+      "thresholdPercent": 0.35
+    }
+  },
+  "sections": [
+    {
+      "key": "title",
+      "label": "Tour Title",
+      "description": "The main title of the tour, typically the largest text on page 1",
+      "strategy": "largestFont",
+      "outputFormat": "text",
+      "required": true,
+      "pages": [1],
+      "columnFilter": false,
+      "strategyParams": {
+        "fontSizeThreshold": 0.85
+      }
+    },
+    {
+      "key": "description",
+      "label": "Tour Description",
+      "description": "Brief summary including duration and price (e.g., '5 days from £889')",
+      "strategy": "regex",
+      "outputFormat": "text",
+      "required": true,
+      "pages": [1],
+      "columnFilter": false,
+      "strategyParams": {
+        "pattern": "\\d+\\s*days?\\s+from\\s+£\\d+",
+        "flags": "i"
+      }
+    },
+    {
+      "key": "itinerary",
+      "label": "Suggested Itinerary",
+      "description": "Day-by-day breakdown of the tour",
+      "strategy": "betweenPatterns",
+      "outputFormat": "markdown",
+      "required": true,
+      "pages": "all",
+      "columnFilter": true,
+      "strategyParams": {
+        "startPattern": "^Day\\s+\\d+",
+        "stopPatterns": [
+          "terms",
+          "conditions",
+          "booking",
+          "contact us",
+          "telephone",
+          "email:",
+          "www.",
+          "http",
+          "nb:",
+          "nb:-",
+          "please note",
+          "reserve the right"
+        ],
+        "includeStartLine": true,
+        "headingLevel": "h2"
+      }
+    }
+  ]
+}

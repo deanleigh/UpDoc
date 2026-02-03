@@ -1,13 +1,18 @@
-import type { MapFile, ExtractSectionsResponse } from './map-file.types.js';
+import type { DocumentTypeConfig, ExtractSectionsResponse } from './map-file.types.js';
+import { convertConfigToPropertyMappings } from './map-file.types.js';
 
-const mapFileCache = new Map<string, MapFile>();
+const configCache = new Map<string, DocumentTypeConfig>();
 
-export async function fetchMapFile(blueprintId: string, token: string): Promise<MapFile | null> {
-	const cached = mapFileCache.get(blueprintId);
+/**
+ * Fetches the document type config for a given blueprint ID.
+ * The config contains source.json, destination.json, and map.json data.
+ */
+export async function fetchConfig(blueprintId: string, token: string): Promise<DocumentTypeConfig | null> {
+	const cached = configCache.get(blueprintId);
 	if (cached) return cached;
 
 	const response = await fetch(
-		`/umbraco/management/api/v1/updoc/maps/${blueprintId}`,
+		`/umbraco/management/api/v1/updoc/config/${blueprintId}`,
 		{
 			method: 'GET',
 			headers: {
@@ -18,15 +23,19 @@ export async function fetchMapFile(blueprintId: string, token: string): Promise<
 	);
 
 	if (!response.ok) {
-		console.warn(`No map file found for blueprint ${blueprintId}`);
+		console.warn(`No config found for blueprint ${blueprintId}`);
 		return null;
 	}
 
-	const mapFile: MapFile = await response.json();
-	mapFileCache.set(blueprintId, mapFile);
-	return mapFile;
+	const config: DocumentTypeConfig = await response.json();
+	configCache.set(blueprintId, config);
+	return config;
 }
 
+/**
+ * Extracts sections from a source document using the config for the given blueprint.
+ * Returns extracted sections and the full config for property mapping.
+ */
 export async function extractSections(
 	mediaKey: string,
 	blueprintId: string,
@@ -49,5 +58,19 @@ export async function extractSections(
 		return null;
 	}
 
-	return response.json();
+	// API returns { sections, config } - we add propertyMappings derived from config
+	const apiResponse: { sections: Record<string, string>; config: DocumentTypeConfig } = await response.json();
+
+	return {
+		sections: apiResponse.sections,
+		config: apiResponse.config,
+		propertyMappings: convertConfigToPropertyMappings(apiResponse.config),
+	};
+}
+
+/**
+ * Clears the config cache. Useful when configs have been modified.
+ */
+export function clearConfigCache(): void {
+	configCache.clear();
 }

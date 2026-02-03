@@ -1,0 +1,35 @@
+{
+  "$schema": "https://updoc.dev/schemas/map.schema.json",
+  "version": "1.0",
+  "name": "Group Tour PDF Mapping",
+  "description": "Maps extracted PDF sections to Group Tour document fields",
+  "mappings": [
+    {
+      "source": "title",
+      "destinations": [
+        { "target": "pageTitle" },
+        { "target": "pageTitleShort" }
+      ],
+      "comment": "Tour title maps to both full and short title fields"
+    },
+    {
+      "source": "description",
+      "destinations": [
+        { "target": "pageDescription" }
+      ],
+      "comment": "Duration and price summary"
+    },
+    {
+      "source": "itinerary",
+      "destinations": [
+        {
+          "target": "contentGrid.itineraryBlock.richTextContent",
+          "transforms": [
+            { "type": "convertMarkdownToHtml" }
+          ]
+        }
+      ],
+      "comment": "Day-by-day itinerary maps to the Suggested Itinerary block"
+    }
+  ]
+}

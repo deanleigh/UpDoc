@@ -1,0 +1,242 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://updoc.dev/schemas/source.schema.json",
+  "title": "UpDoc Source Configuration",
+  "description": "Defines how to extract named sections from source documents (PDF, web, Word).",
+  "type": "object",
+  "required": ["$schema", "version", "sections"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "JSON Schema reference for IDE validation."
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+$",
+      "description": "Schema version (e.g., '1.0').",
+      "default": "1.0"
+    },
+    "sourceTypes": {
+      "type": "array",
+      "description": "Which source types this configuration supports.",
+      "items": {
+        "type": "string",
+        "enum": ["pdf", "web", "word"]
+      },
+      "default": ["pdf"],
+      "minItems": 1
+    },
+    "globals": {
+      "type": "object",
+      "description": "Global extraction settings that apply unless overridden per-section.",
+      "additionalProperties": false,
+      "properties": {
+        "columnDetection": {
+          "type": "object",
+          "description": "Column detection for multi-column PDFs.",
+          "additionalProperties": false,
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "description": "Whether to detect and filter to main column.",
+              "default": true
+            },
+            "thresholdPercent": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "description": "Page width percentage where main column starts (0.35 = 35%).",
+              "default": 0.35
+            }
+          }
+        },
+        "pageRange": {
+          "type": "object",
+          "description": "Default page range for extraction.",
+          "additionalProperties": false,
+          "properties": {
+            "start": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "First page to process.",
+              "default": 1
+            },
+            "end": {
+              "oneOf": [
+                { "type": "integer", "minimum": 1 },
+                { "type": "string", "const": "last" }
+              ],
+              "description": "Last page to process, or 'last' for all pages.",
+              "default": "last"
+            }
+          }
+        }
+      }
+    },
+    "sections": {
+      "type": "array",
+      "description": "Named sections to extract from the source document.",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/section" }
+    }
+  },
+  "$defs": {
+    "section": {
+      "type": "object",
+      "description": "A named section with its extraction strategy.",
+      "required": ["key", "label", "strategy"],
+      "additionalProperties": false,
+      "properties": {
+        "key": {
+          "type": "string",
+          "pattern": "^[a-z][a-zA-Z0-9]*$",
+          "description": "Unique identifier for this section (camelCase, referenced in map.json)."
+        },
+        "label": {
+          "type": "string",
+          "description": "Human-readable name shown in UI."
+        },
+        "description": {
+          "type": "string",
+          "description": "Explanation of what this section represents."
+        },
+        "strategy": {
+          "type": "string",
+          "enum": ["largestFont", "regex", "betweenPatterns", "region", "afterLabel", "cssSelector", "xpath"],
+          "description": "The extraction algorithm to use."
+        },
+        "outputFormat": {
+          "type": "string",
+          "enum": ["text", "markdown", "html"],
+          "description": "The format of the extracted content.",
+          "default": "text"
+        },
+        "required": {
+          "type": "boolean",
+          "description": "Whether extraction must succeed for the source to be valid.",
+          "default": false
+        },
+        "pages": {
+          "oneOf": [
+            { "type": "array", "items": { "type": "integer", "minimum": 1 } },
+            { "type": "string", "const": "all" }
+          ],
+          "description": "Which page(s) to search (PDF only).",
+          "default": "all"
+        },
+        "columnFilter": {
+          "type": "boolean",
+          "description": "Whether to apply column detection for this section (overrides global)."
+        },
+        "occurrence": {
+          "type": "string",
+          "enum": ["first", "last", "all"],
+          "description": "Which occurrence to use if multiple matches found.",
+          "default": "first"
+        },
+        "strategyParams": { "$ref": "#/$defs/strategyParams" }
+      }
+    },
+    "strategyParams": {
+      "type": "object",
+      "description": "Parameters specific to the chosen extraction strategy.",
+      "additionalProperties": false,
+      "properties": {
+        "fontSizeThreshold": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "[largestFont] Font size as ratio of max (0.85 = 85% of largest)."
+        },
+        "pattern": {
+          "type": "string",
+          "description": "[regex] Regular expression pattern to match."
+        },
+        "flags": {
+          "type": "string",
+          "description": "[regex] Regex flags (e.g., 'i' for case-insensitive).",
+          "default": "i"
+        },
+        "captureGroup": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "[regex] Which capture group to extract (0 = full match).",
+          "default": 0
+        },
+        "startPattern": {
+          "type": "string",
+          "description": "[betweenPatterns] Regex pattern marking start of section."
+        },
+        "stopPatterns": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "[betweenPatterns] Patterns that mark end of section (case-insensitive contains)."
+        },
+        "includeStartLine": {
+          "type": "boolean",
+          "description": "[betweenPatterns] Include the line matching startPattern.",
+          "default": true
+        },
+        "headingLevel": {
+          "type": "string",
+          "enum": ["h1", "h2", "h3", "h4", "h5", "h6"],
+          "description": "[betweenPatterns] Markdown heading level for matched start patterns.",
+          "default": "h2"
+        },
+        "region": {
+          "type": "object",
+          "description": "[region] Bounding box coordinates.",
+          "additionalProperties": false,
+          "properties": {
+            "x": {
+              "type": "object",
+              "properties": {
+                "min": { "type": "number" },
+                "max": { "type": "number" }
+              }
+            },
+            "y": {
+              "type": "object",
+              "properties": {
+                "min": { "type": "number" },
+                "max": { "type": "number" }
+              }
+            },
+            "unit": {
+              "type": "string",
+              "enum": ["percent", "points"],
+              "default": "percent"
+            }
+          }
+        },
+        "label": {
+          "type": "string",
+          "description": "[afterLabel] Text label to search for."
+        },
+        "labelPattern": {
+          "type": "string",
+          "description": "[afterLabel] Regex pattern for the label."
+        },
+        "extractMode": {
+          "type": "string",
+          "enum": ["sameLine", "nextLine", "untilBlank"],
+          "description": "[afterLabel] How to extract text after the label.",
+          "default": "sameLine"
+        },
+        "selector": {
+          "type": "string",
+          "description": "[cssSelector] CSS selector (web sources only)."
+        },
+        "attribute": {
+          "type": "string",
+          "description": "[cssSelector] Attribute to extract (null = text content)."
+        },
+        "xpath": {
+          "type": "string",
+          "description": "[xpath] XPath expression (web/Word sources)."
+        }
+      }
+    }
+  }
+}

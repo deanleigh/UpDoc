@@ -1,0 +1,209 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://updoc.dev/schemas/destination.schema.json",
+  "title": "UpDoc Destination Configuration",
+  "description": "Defines available target fields in the Umbraco document type.",
+  "type": "object",
+  "required": ["$schema", "version", "documentTypeAlias", "fields"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "JSON Schema reference for IDE validation."
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+$",
+      "description": "Schema version.",
+      "default": "1.0"
+    },
+    "documentTypeAlias": {
+      "type": "string",
+      "description": "The Umbraco document type alias (e.g., 'groupTour')."
+    },
+    "documentTypeName": {
+      "type": "string",
+      "description": "Human-readable name for UI display."
+    },
+    "blueprintId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Optional: specific blueprint GUID to use for scaffolding."
+    },
+    "blueprintName": {
+      "type": "string",
+      "description": "Human-readable blueprint name for UI display."
+    },
+    "fields": {
+      "type": "array",
+      "description": "Available properties on this document type.",
+      "items": { "$ref": "#/$defs/field" }
+    },
+    "blockGrids": {
+      "type": "array",
+      "description": "Block grid properties with their nested block structure.",
+      "items": { "$ref": "#/$defs/blockGrid" }
+    }
+  },
+  "$defs": {
+    "field": {
+      "type": "object",
+      "description": "A simple property on the document type.",
+      "required": ["key", "alias", "label", "type"],
+      "additionalProperties": false,
+      "properties": {
+        "key": {
+          "type": "string",
+          "pattern": "^[a-z][a-zA-Z0-9]*$",
+          "description": "Unique key for referencing in map.json (typically same as alias)."
+        },
+        "alias": {
+          "type": "string",
+          "description": "Umbraco property alias."
+        },
+        "label": {
+          "type": "string",
+          "description": "Human-readable name for UI."
+        },
+        "description": {
+          "type": "string",
+          "description": "What this field is used for."
+        },
+        "type": {
+          "type": "string",
+          "enum": ["text", "textArea", "richText", "number", "date", "boolean", "mediaPicker", "contentPicker", "blockGrid", "blockList"],
+          "description": "The property editor type."
+        },
+        "tab": {
+          "type": "string",
+          "description": "Which tab this property appears on."
+        },
+        "mandatory": {
+          "type": "boolean",
+          "description": "Whether this field is required in Umbraco.",
+          "default": false
+        },
+        "acceptsFormats": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["text", "markdown", "html"]
+          },
+          "description": "What content formats this field can accept.",
+          "default": ["text"]
+        }
+      }
+    },
+    "blockGrid": {
+      "type": "object",
+      "description": "A block grid property with its nested structure.",
+      "required": ["key", "alias", "label", "blocks"],
+      "additionalProperties": false,
+      "properties": {
+        "key": {
+          "type": "string",
+          "description": "Unique key for referencing."
+        },
+        "alias": {
+          "type": "string",
+          "description": "Umbraco property alias for the block grid."
+        },
+        "label": {
+          "type": "string",
+          "description": "Human-readable name."
+        },
+        "description": {
+          "type": "string",
+          "description": "What this block grid is used for."
+        },
+        "blocks": {
+          "type": "array",
+          "description": "Block types available in this grid.",
+          "items": { "$ref": "#/$defs/block" }
+        }
+      }
+    },
+    "block": {
+      "type": "object",
+      "description": "A block type within a block grid.",
+      "required": ["key", "contentTypeAlias", "label"],
+      "additionalProperties": false,
+      "properties": {
+        "key": {
+          "type": "string",
+          "description": "Unique key for referencing this block."
+        },
+        "contentTypeAlias": {
+          "type": "string",
+          "description": "The element type alias for this block."
+        },
+        "contentTypeKey": {
+          "type": "string",
+          "format": "uuid",
+          "description": "The element type GUID (for programmatic matching)."
+        },
+        "label": {
+          "type": "string",
+          "description": "Human-readable block name."
+        },
+        "description": {
+          "type": "string",
+          "description": "What this block is used for."
+        },
+        "identifyBy": {
+          "type": "object",
+          "description": "How to find a specific instance of this block in the blueprint.",
+          "additionalProperties": false,
+          "properties": {
+            "property": {
+              "type": "string",
+              "description": "Property alias to match."
+            },
+            "value": {
+              "type": "string",
+              "description": "Value to match (contains check)."
+            }
+          }
+        },
+        "properties": {
+          "type": "array",
+          "description": "Properties available on this block.",
+          "items": { "$ref": "#/$defs/blockProperty" }
+        }
+      }
+    },
+    "blockProperty": {
+      "type": "object",
+      "description": "A property within a block.",
+      "required": ["key", "alias", "type"],
+      "additionalProperties": false,
+      "properties": {
+        "key": {
+          "type": "string",
+          "description": "Unique key for referencing."
+        },
+        "alias": {
+          "type": "string",
+          "description": "Umbraco property alias within the block."
+        },
+        "label": {
+          "type": "string",
+          "description": "Human-readable name."
+        },
+        "type": {
+          "type": "string",
+          "enum": ["text", "textArea", "richText", "number", "date", "boolean", "mediaPicker"],
+          "description": "The property editor type."
+        },
+        "acceptsFormats": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["text", "markdown", "html"]
+          },
+          "description": "What content formats this property can accept."
+        }
+      }
+    }
+  }
+}

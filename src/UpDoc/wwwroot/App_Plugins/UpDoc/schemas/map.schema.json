@@ -1,179 +1,131 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://updoc.dev/schemas/map.schema.json",
-  "title": "UpDoc Map File",
-  "description": "Defines extraction rules and property mappings for creating Umbraco documents from source content.",
+  "title": "UpDoc Mapping Configuration",
+  "description": "Defines mappings from source sections to destination fields.",
   "type": "object",
-  "required": ["name", "documentTypeAlias", "sourceTypes", "propertyMappings"],
+  "required": ["$schema", "version", "mappings"],
+  "additionalProperties": false,
   "properties": {
     "$schema": {
-      "type": "string"
+      "type": "string",
+      "description": "JSON Schema reference for IDE validation."
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+$",
+      "description": "Schema version.",
+      "default": "1.0"
     },
     "name": {
       "type": "string",
-      "description": "Human-readable name for this map (e.g. 'Group Tour Page')."
+      "description": "Human-readable name for this mapping configuration."
     },
-    "documentTypeAlias": {
+    "description": {
       "type": "string",
-      "description": "The Umbraco document type alias this map targets."
+      "description": "What this mapping is for."
     },
-    "blueprintId": {
-      "type": "string",
-      "format": "uuid",
-      "description": "The GUID of the Umbraco document blueprint. Required for this iteration, optional in future."
-    },
-    "sourceTypes": {
-      "type": "object",
-      "description": "Extraction rules per source type.",
-      "properties": {
-        "pdf": { "$ref": "#/$defs/sourceTypeConfig" },
-        "web": { "$ref": "#/$defs/sourceTypeConfig" },
-        "word": { "$ref": "#/$defs/sourceTypeConfig" }
-      },
-      "additionalProperties": false
-    },
-    "propertyMappings": {
+    "mappings": {
       "type": "array",
-      "description": "Maps extracted sections to Umbraco document properties.",
-      "items": { "$ref": "#/$defs/propertyMapping" }
+      "description": "List of source-to-destination mappings.",
+      "items": { "$ref": "#/$defs/mapping" }
     }
   },
   "$defs": {
-    "sourceTypeConfig": {
+    "mapping": {
       "type": "object",
-      "required": ["enabled"],
+      "description": "A single mapping from a source section to one or more destinations.",
+      "required": ["source", "destinations"],
+      "additionalProperties": false,
       "properties": {
+        "source": {
+          "type": "string",
+          "description": "Key from source.json sections (e.g., 'title', 'itinerary')."
+        },
+        "destinations": {
+          "type": "array",
+          "description": "One or more destination targets.",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/destination" }
+        },
         "enabled": {
           "type": "boolean",
-          "description": "Whether this source type is available for this document type."
+          "description": "Whether this mapping is active.",
+          "default": true
         },
-        "extraction": {
-          "$ref": "#/$defs/pdfExtractionRules"
-        }
-      },
-      "additionalProperties": false
-    },
-    "pdfExtractionRules": {
-      "type": "object",
-      "description": "Rules for extracting content from a PDF.",
-      "properties": {
-        "columnDetection": {
-          "type": "object",
-          "properties": {
-            "enabled": {
-              "type": "boolean",
-              "default": true,
-              "description": "Whether to detect and filter multi-column layouts."
-            },
-            "thresholdPercent": {
-              "type": "number",
-              "default": 0.35,
-              "description": "Page width percentage below which content is considered sidebar."
-            }
-          },
-          "additionalProperties": false
-        },
-        "titleDetection": {
-          "type": "object",
-          "properties": {
-            "fontSizeThreshold": {
-              "type": "number",
-              "default": 0.85,
-              "description": "Multiplier of max font size. Lines at or above this are titles."
-            }
-          },
-          "additionalProperties": false
-        },
-        "descriptionPattern": {
+        "comment": {
           "type": "string",
-          "description": "Regex pattern to identify the description line (e.g. '\\d+ days from £\\d+')."
-        },
-        "content": {
-          "type": "object",
-          "description": "Rules for extracting the main content body.",
-          "properties": {
-            "startPattern": {
-              "type": "string",
-              "description": "Regex pattern that marks the start of content capture (e.g. '^Day\\s+\\d+')."
-            },
-            "stopPatterns": {
-              "type": "array",
-              "items": { "type": "string" },
-              "description": "Lowercase text patterns that stop content capture (footer/disclaimer indicators)."
-            },
-            "headingLevel": {
-              "type": "string",
-              "enum": ["h1", "h2", "h3", "h4"],
-              "default": "h2",
-              "description": "Markdown heading level for content section headings."
-            }
-          },
-          "additionalProperties": false
+          "description": "Documentation note about this mapping."
         }
-      },
-      "additionalProperties": false
+      }
     },
-    "propertyMapping": {
+    "destination": {
       "type": "object",
-      "required": ["from", "to"],
+      "description": "A target for the extracted content.",
+      "required": ["target"],
+      "additionalProperties": false,
       "properties": {
-        "from": {
-          "type": "object",
-          "required": ["sectionType"],
-          "properties": {
-            "sectionType": {
-              "type": "string",
-              "description": "The extracted section key (e.g. 'title', 'description', 'content')."
-            }
-          },
-          "additionalProperties": false
+        "target": {
+          "type": "string",
+          "description": "Key from destination.json (field key, or blockGrid.block.property path)."
         },
-        "to": {
-          "type": "object",
-          "properties": {
-            "property": {
-              "type": "string",
-              "description": "Target Umbraco property alias for simple value mapping."
-            },
-            "alsoMapTo": {
-              "type": "array",
-              "items": { "type": "string" },
-              "description": "Additional property aliases to receive the same value."
-            },
-            "blockGrid": {
-              "type": "string",
-              "description": "Block grid property alias when targeting a block within a grid."
-            },
-            "blockSearch": {
-              "type": "object",
-              "description": "How to find the target block within the block grid.",
-              "required": ["property", "value"],
-              "properties": {
-                "property": {
-                  "type": "string",
-                  "description": "Property alias to search within blocks."
-                },
-                "value": {
-                  "type": "string",
-                  "description": "Value to match (case-insensitive contains)."
-                }
-              },
-              "additionalProperties": false
-            },
-            "targetProperty": {
-              "type": "string",
-              "description": "Property alias within the found block to write to."
-            },
-            "convertMarkdown": {
-              "type": "boolean",
-              "default": false,
-              "description": "Whether to convert Markdown to HTML before writing."
-            }
-          },
-          "additionalProperties": false
+        "transforms": {
+          "type": "array",
+          "description": "Transformations to apply before writing.",
+          "items": { "$ref": "#/$defs/transform" }
         }
-      },
-      "additionalProperties": false
+      }
+    },
+    "transform": {
+      "type": "object",
+      "description": "A transformation to apply to the extracted content.",
+      "required": ["type"],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "convertMarkdownToHtml",
+            "convertHtmlToMarkdown",
+            "truncate",
+            "template",
+            "regex",
+            "trim",
+            "uppercase",
+            "lowercase",
+            "stripHtml"
+          ],
+          "description": "The transformation type."
+        },
+        "params": {
+          "type": "object",
+          "description": "Parameters for the transformation.",
+          "additionalProperties": true,
+          "properties": {
+            "maxLength": {
+              "type": "integer",
+              "description": "[truncate] Maximum character length."
+            },
+            "suffix": {
+              "type": "string",
+              "description": "[truncate] Suffix to add when truncated.",
+              "default": "..."
+            },
+            "template": {
+              "type": "string",
+              "description": "[template] Template string with {value} placeholder."
+            },
+            "pattern": {
+              "type": "string",
+              "description": "[regex] Regex pattern to match."
+            },
+            "replacement": {
+              "type": "string",
+              "description": "[regex] Replacement string."
+            }
+          }
+        }
+      }
     }
   }
 }

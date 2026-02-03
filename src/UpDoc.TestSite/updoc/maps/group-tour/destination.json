@@ -1,0 +1,69 @@
+{
+  "$schema": "https://updoc.dev/schemas/destination.schema.json",
+  "version": "1.0",
+  "documentTypeAlias": "groupTour",
+  "documentTypeName": "Group Tour",
+  "blueprintId": "a6e0e5b8-a022-4534-ac7f-1929dbe9fb6c",
+  "blueprintName": "Group Tour",
+  "fields": [
+    {
+      "key": "pageTitle",
+      "alias": "pageTitle",
+      "label": "Page Title",
+      "description": "The main title displayed on the page and in browser tab",
+      "type": "text",
+      "tab": "Page Properties",
+      "mandatory": true,
+      "acceptsFormats": ["text"]
+    },
+    {
+      "key": "pageTitleShort",
+      "alias": "pageTitleShort",
+      "label": "Page Title (Short)",
+      "description": "Shorter title used in navigation menus",
+      "type": "text",
+      "tab": "Page Properties",
+      "mandatory": true,
+      "acceptsFormats": ["text"]
+    },
+    {
+      "key": "pageDescription",
+      "alias": "pageDescription",
+      "label": "Page Description",
+      "description": "Brief summary of the tour including duration and price",
+      "type": "textArea",
+      "tab": "Page Properties",
+      "mandatory": true,
+      "acceptsFormats": ["text"]
+    }
+  ],
+  "blockGrids": [
+    {
+      "key": "contentGrid",
+      "alias": "contentGrid",
+      "label": "Content Grid",
+      "description": "Main content area with layout blocks and feature blocks",
+      "blocks": [
+        {
+          "key": "itineraryBlock",
+          "contentTypeAlias": "featureRichTextEditor",
+          "label": "Itinerary Rich Text",
+          "description": "Block containing the suggested itinerary content",
+          "identifyBy": {
+            "property": "featurePropertyFeatureTitle",
+            "value": "Suggested Itinerary"
+          },
+          "properties": [
+            {
+              "key": "richTextContent",
+              "alias": "richTextContent",
+              "label": "Rich Text Content",
+              "type": "richText",
+              "acceptsFormats": ["html", "markdown"]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

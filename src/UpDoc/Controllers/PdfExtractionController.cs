@@ -278,31 +278,30 @@ public class PdfExtractionController : ControllerBase
         });
     }
 
-    [HttpGet("maps/{blueprintId}")]
-    public IActionResult GetMapForBlueprint(Guid blueprintId)
+    [HttpGet("config/{blueprintId}")]
+    public IActionResult GetConfigForBlueprint(Guid blueprintId)
     {
-        var mapFile = _mapFileService.GetMapForBlueprint(blueprintId);
-        if (mapFile == null)
+        var config = _mapFileService.GetConfigForBlueprint(blueprintId);
+        if (config == null)
         {
-            return NotFound(new { error = $"No map file found for blueprint {blueprintId}" });
+            return NotFound(new { error = $"No config found for blueprint {blueprintId}" });
         }
 
-        return Ok(mapFile);
+        return Ok(config);
     }
 
     [HttpGet("extract-sections")]
     public IActionResult ExtractSections(Guid mediaKey, Guid blueprintId)
     {
-        var mapFile = _mapFileService.GetMapForBlueprint(blueprintId);
-        if (mapFile == null)
+        var config = _mapFileService.GetConfigForBlueprint(blueprintId);
+        if (config == null)
         {
-            return NotFound(new { error = $"No map file found for blueprint {blueprintId}" });
+            return NotFound(new { error = $"No config found for blueprint {blueprintId}" });
         }
 
-        var pdfConfig = mapFile.SourceTypes.Pdf;
-        if (pdfConfig?.Extraction == null)
+        if (!config.Source.SourceTypes.Contains("pdf"))
         {
-            return BadRequest(new { error = "Map file has no PDF extraction rules configured" });
+            return BadRequest(new { error = "Config does not support PDF source type" });
         }
 
         var absolutePath = ResolveMediaFilePath(mediaKey);
@@ -311,25 +310,77 @@ public class PdfExtractionController : ControllerBase
             return NotFound(new { error = "Media item not found or file not on disk" });
         }
 
-        var result = _pdfPagePropertiesService.ExtractSections(absolutePath, pdfConfig.Extraction);
+        // Convert SourceConfig to legacy PdfExtractionRules for extraction
+        var extractionRules = ConvertToExtractionRules(config.Source);
+        var result = _pdfPagePropertiesService.ExtractSections(absolutePath, extractionRules);
 
         if (!string.IsNullOrEmpty(result.Error))
         {
             return BadRequest(new { error = result.Error });
         }
 
-        _logger.LogInformation("=== PDF Section Extraction (Map-driven) ===");
+        _logger.LogInformation("=== PDF Section Extraction (Config-driven) ===");
         foreach (var section in result.Sections)
         {
             _logger.LogInformation("{Key}: {Length} chars", section.Key, section.Value.Length);
         }
-        _logger.LogInformation("=============================================");
+        _logger.LogInformation("===============================================");
 
         return Ok(new
         {
             sections = result.Sections,
-            propertyMappings = mapFile.PropertyMappings,
+            config = config,
         });
+    }
+
+    /// <summary>
+    /// Converts the new SourceConfig format to legacy PdfExtractionRules for backward compatibility.
+    /// This will be removed once the extraction service is refactored to be strategy-driven.
+    /// </summary>
+    private static PdfExtractionRules ConvertToExtractionRules(SourceConfig source)
+    {
+        var rules = new PdfExtractionRules();
+
+        // Global column detection
+        if (source.Globals?.ColumnDetection != null)
+        {
+            rules.ColumnDetection = new ColumnDetectionConfig
+            {
+                Enabled = source.Globals.ColumnDetection.Enabled,
+                ThresholdPercent = source.Globals.ColumnDetection.ThresholdPercent
+            };
+        }
+
+        // Find title section (largestFont strategy)
+        var titleSection = source.Sections.FirstOrDefault(s => s.Strategy == "largestFont");
+        if (titleSection?.StrategyParams?.FontSizeThreshold != null)
+        {
+            rules.TitleDetection = new TitleDetectionConfig
+            {
+                FontSizeThreshold = titleSection.StrategyParams.FontSizeThreshold.Value
+            };
+        }
+
+        // Find description section (regex strategy)
+        var descSection = source.Sections.FirstOrDefault(s => s.Strategy == "regex");
+        if (descSection?.StrategyParams?.Pattern != null)
+        {
+            rules.DescriptionPattern = descSection.StrategyParams.Pattern;
+        }
+
+        // Find content section (betweenPatterns strategy)
+        var contentSection = source.Sections.FirstOrDefault(s => s.Strategy == "betweenPatterns");
+        if (contentSection?.StrategyParams != null)
+        {
+            rules.Content = new ContentExtractionConfig
+            {
+                StartPattern = contentSection.StrategyParams.StartPattern,
+                StopPatterns = contentSection.StrategyParams.StopPatterns ?? new List<string>(),
+                HeadingLevel = contentSection.StrategyParams.HeadingLevel ?? "h2"
+            };
+        }
+
+        return rules;
     }
 
     private string? ResolveMediaFilePath(Guid mediaKey)

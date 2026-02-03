@@ -130,9 +130,30 @@ Named by document type (not blueprint GUID) because:
 - Map files should cause **no failures** if the referenced document type or blueprint is deleted from Umbraco — orphaned map files are simply ignored
 - Missing map files do not break the UpDoc entity action — the user sees a helpful message instead of an error
 
-### Phase 1 Status: COMPLETED
+### Phase 1 Status: COMPLETED (Superseded by Phase 2)
 
-Phase 1 (single map file per document type) is implemented on the `feature/map-file-config` branch. It parameterizes values (thresholds, patterns, property aliases) but the extraction **algorithm** remains hardcoded in `PdfPagePropertiesService.cs`. This prevents UpDoc from being a generic shell application — every PDF must follow the same structural assumptions (title = biggest font, description = regex, content = start/stop patterns).
+Phase 1 (single map file per document type) was implemented on the `feature/map-file-config` branch. It has been superseded by Phase 2.
+
+### Phase 2 Status: COMPLETED
+
+Phase 2 (three-file architecture) is implemented on the `feature/three-file-config-architecture` branch. The folder structure is:
+
+```
+updoc/maps/group-tour/
+  source.json        # Extraction rules with named sections and strategies
+  destination.json   # Available target fields in the document type
+  map.json           # Wiring: source sections → destination fields
+```
+
+**Key changes from the original Phase 2 design:**
+- Combined `extract-pdf.json`, `extract-web.json`, etc. into a single `source.json` with a `sourceTypes` array
+- Added `destination.json` as a separate file (not in original design) to explicitly document available import targets
+- The extraction **algorithm** is still hardcoded, but now uses a compatibility layer that converts `source.json` sections to legacy `PdfExtractionRules`
+
+**Remaining work:**
+- Refactor `PdfPagePropertiesService` to be truly strategy-driven (execute extraction based on section strategy, not fixed algorithm)
+- Implement additional extraction strategies (`region`, `afterLabel`, etc.)
+- Add web and Word document extractors
 
 ---
 
@@ -151,6 +172,7 @@ Different PDFs have completely different layouts. Some have the title positioned
 
 ### Folder-per-Document-Type Structure
 
+**Original design (not implemented):**
 ```
 updoc/maps/group-tour/
   extract-pdf.json       # How to extract named sections from a PDF
@@ -158,6 +180,16 @@ updoc/maps/group-tour/
   extract-word.json      # How to extract named sections from a Word doc (future)
   map.json               # Routes named sections → Umbraco properties/blocks
 ```
+
+**Actual implementation:**
+```
+updoc/maps/group-tour/
+  source.json            # Combined extraction rules for all source types
+  destination.json       # Available target fields (NEW - not in original design)
+  map.json               # Wiring: source sections → destination fields
+```
+
+The `source.json` file includes a `sourceTypes` array (e.g., `["pdf"]`) and sections with extraction strategies. This avoids duplicating section definitions across multiple extract files when they would be identical.
 
 Each folder represents one document type. The folder name is the document type alias in kebab-case.
 
