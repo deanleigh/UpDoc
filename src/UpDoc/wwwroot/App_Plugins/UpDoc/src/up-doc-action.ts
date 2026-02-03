@@ -1,7 +1,7 @@
 import { UMB_UP_DOC_MODAL } from './up-doc-modal.token.js';
 import { UMB_BLUEPRINT_PICKER_MODAL } from './blueprint-picker-modal.token.js';
 import type { DocumentTypeOption } from './blueprint-picker-modal.token.js';
-import type { PropertyMapping } from './map-file.types.js';
+import type { DocumentTypeConfig, MappingDestination } from './map-file.types.js';
 import { markdownToHtml, buildRteValue } from './transforms.js';
 import { UmbEntityActionBase } from '@umbraco-cms/backoffice/entity-action';
 import { umbOpenModal } from '@umbraco-cms/backoffice/modal';
@@ -101,9 +101,9 @@ export class UpDocEntityAction extends UmbEntityActionBase<never> {
 				return;
 			}
 
-			const { name, mediaUnique, extractedSections, propertyMappings } = modalValue;
+			const { name, mediaUnique, extractedSections, config } = modalValue;
 
-			if (!mediaUnique || !name) {
+			if (!mediaUnique || !name || !config) {
 				return;
 			}
 
@@ -148,24 +148,15 @@ export class UpDocEntityAction extends UmbEntityActionBase<never> {
 				}
 			};
 
-			// Apply each mapping from the map file
-			for (const mapping of propertyMappings) {
-				const sectionValue = extractedSections[mapping.from.sectionType];
+			// Apply each mapping from the config
+			for (const mapping of config.map.mappings) {
+				if (mapping.enabled === false) continue;
+
+				const sectionValue = extractedSections[mapping.source];
 				if (!sectionValue) continue;
 
-				if (mapping.to.blockGrid) {
-					// Block grid mapping
-					this.#applyBlockMapping(values, mapping, sectionValue);
-				} else if (mapping.to.property) {
-					// Simple property mapping
-					setValue(mapping.to.property, sectionValue);
-
-					// Also map to additional properties
-					if (mapping.to.alsoMapTo) {
-						for (const alias of mapping.to.alsoMapTo) {
-							setValue(alias, sectionValue);
-						}
-					}
+				for (const dest of mapping.destinations) {
+					this.#applyDestinationMapping(values, dest, sectionValue, config);
 				}
 			}
 
@@ -265,21 +256,70 @@ export class UpDocEntityAction extends UmbEntityActionBase<never> {
 	}
 
 	/**
-	 * Applies a block grid mapping from a map file property mapping definition.
-	 * Finds a block within the grid by searching for a property value match,
-	 * then writes the extracted content to the target property within that block.
+	 * Applies a single destination mapping from the config.
+	 * Handles both simple field mappings and block grid mappings.
 	 */
-	#applyBlockMapping(
+	#applyDestinationMapping(
 		values: Array<{ alias: string; value: unknown }>,
-		mapping: PropertyMapping,
-		sectionValue: string
+		dest: MappingDestination,
+		sectionValue: string,
+		config: DocumentTypeConfig
 	) {
-		const gridAlias = mapping.to.blockGrid;
-		const blockSearch = mapping.to.blockSearch;
-		const targetProperty = mapping.to.targetProperty;
+		// Apply transforms to the value
+		let transformedValue = sectionValue;
+		const shouldConvertMarkdown = dest.transforms?.some((t) => t.type === 'convertMarkdownToHtml');
 
-		if (!gridAlias || !blockSearch || !targetProperty) return;
+		// Parse the target path
+		const pathParts = dest.target.split('.');
 
+		if (pathParts.length === 1) {
+			// Simple field mapping: "pageTitle"
+			const alias = pathParts[0];
+			const existing = values.find((v) => v.alias === alias);
+			if (existing) {
+				existing.value = transformedValue;
+			} else {
+				values.push({ alias, value: transformedValue });
+			}
+			console.log(`Set ${alias} = "${transformedValue.substring(0, 50)}..."`);
+		} else if (pathParts.length === 3) {
+			// Block grid mapping: "contentGrid.itineraryBlock.richTextContent"
+			const [gridKey, blockKey, propertyKey] = pathParts;
+
+			// Look up block info from destination config
+			const blockGrid = config.destination.blockGrids?.find((g) => g.key === gridKey);
+			const block = blockGrid?.blocks.find((b) => b.key === blockKey);
+
+			if (!blockGrid || !block) {
+				console.log(`Block path ${dest.target} not found in destination config`);
+				return;
+			}
+
+			const gridAlias = blockGrid.alias;
+			const targetProperty = block.properties?.find((p) => p.key === propertyKey)?.alias ?? propertyKey;
+			const blockSearch = block.identifyBy;
+
+			if (!blockSearch) {
+				console.log(`No identifyBy for block ${blockKey}`);
+				return;
+			}
+
+			this.#applyBlockGridValue(values, gridAlias, blockSearch, targetProperty, transformedValue, shouldConvertMarkdown);
+		}
+	}
+
+	/**
+	 * Applies a value to a property within a block grid.
+	 * Finds the block by searching for a property value match.
+	 */
+	#applyBlockGridValue(
+		values: Array<{ alias: string; value: unknown }>,
+		gridAlias: string,
+		blockSearch: { property: string; value: string },
+		targetProperty: string,
+		value: string,
+		convertMarkdown: boolean | undefined
+	) {
 		const contentGridValue = values.find((v) => v.alias === gridAlias);
 		if (!contentGridValue || !contentGridValue.value) {
 			console.log(`No ${gridAlias} found in scaffold values`);
@@ -316,11 +356,11 @@ export class UpDocEntityAction extends UmbEntityActionBase<never> {
 
 					const targetValue = block.values?.find((v) => v.alias === targetProperty);
 					if (targetValue) {
-						if (mapping.to.convertMarkdown) {
-							const htmlContent = markdownToHtml(sectionValue);
+						if (convertMarkdown) {
+							const htmlContent = markdownToHtml(value);
 							targetValue.value = buildRteValue(htmlContent);
 						} else {
-							targetValue.value = sectionValue;
+							targetValue.value = value;
 						}
 						console.log(`Updated ${targetProperty} in block`);
 					}

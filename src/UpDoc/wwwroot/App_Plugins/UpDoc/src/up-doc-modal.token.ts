@@ -1,5 +1,5 @@
 import { UmbModalToken } from '@umbraco-cms/backoffice/modal';
-import type { PropertyMapping } from './map-file.types.js';
+import type { DocumentTypeConfig } from './map-file.types.js';
 
 export type SourceType = 'pdf' | 'web' | 'doc';
 
@@ -15,7 +15,7 @@ export interface UmbUpDocModalValue {
 	mediaUnique: string | null;
 	sourceUrl: string | null;
 	extractedSections: Record<string, string>;
-	propertyMappings: PropertyMapping[];
+	config: DocumentTypeConfig | null;
 }
 
 export const UMB_UP_DOC_MODAL = new UmbModalToken<UmbUpDocModalData, UmbUpDocModalValue>(

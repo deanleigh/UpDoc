@@ -1,5 +1,5 @@
 import type { UmbUpDocModalData, UmbUpDocModalValue, SourceType } from './up-doc-modal.token.js';
-import type { PropertyMapping } from './map-file.types.js';
+import type { DocumentTypeConfig } from './map-file.types.js';
 import { extractSections } from './map-file.service.js';
 import { html, customElement, css, state, nothing } from '@umbraco-cms/backoffice/external/lit';
 import { UmbTextStyles } from '@umbraco-cms/backoffice/style';
@@ -29,7 +29,7 @@ export class UpDocModalElement extends UmbModalBaseElement<
 	private _extractedSections: Record<string, string> = {};
 
 	@state()
-	private _propertyMappings: PropertyMapping[] = [];
+	private _config: DocumentTypeConfig | null = null;
 
 	@state()
 	private _isExtracting = false;
@@ -43,7 +43,7 @@ export class UpDocModalElement extends UmbModalBaseElement<
 		this._sourceUrl = '';
 		this._selectedMediaUnique = null;
 		this._extractedSections = {};
-		this._propertyMappings = [];
+		this._config = null;
 	}
 
 	#handleSourceTypeChange(e: Event) {
@@ -54,7 +54,7 @@ export class UpDocModalElement extends UmbModalBaseElement<
 			this._selectedMediaUnique = null;
 			this._sourceUrl = '';
 			this._extractedSections = {};
-			this._propertyMappings = [];
+			this._config = null;
 			this._extractionError = null;
 		}
 
@@ -70,7 +70,7 @@ export class UpDocModalElement extends UmbModalBaseElement<
 			await this.#extractFromSource(this._selectedMediaUnique);
 		} else {
 			this._extractedSections = {};
-			this._propertyMappings = [];
+			this._config = null;
 			this._documentName = '';
 			this._extractionError = null;
 		}
@@ -98,7 +98,7 @@ export class UpDocModalElement extends UmbModalBaseElement<
 			}
 
 			this._extractedSections = result.sections;
-			this._propertyMappings = result.propertyMappings;
+			this._config = result.config;
 
 			// Pre-fill document name with extracted title
 			if (result.sections['title'] && !this._documentName) {
@@ -119,7 +119,7 @@ export class UpDocModalElement extends UmbModalBaseElement<
 			mediaUnique: this._selectedMediaUnique,
 			sourceUrl: this._sourceUrl || null,
 			extractedSections: this._extractedSections,
-			propertyMappings: this._propertyMappings,
+			config: this._config,
 		};
 		this._submitModal();
 	}

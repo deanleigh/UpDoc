@@ -1,5 +1,4 @@
 import type { DocumentTypeConfig, ExtractSectionsResponse } from './map-file.types.js';
-import { convertConfigToPropertyMappings } from './map-file.types.js';
 
 const configCache = new Map<string, DocumentTypeConfig>();
 
@@ -58,14 +57,8 @@ export async function extractSections(
 		return null;
 	}
 
-	// API returns { sections, config } - we add propertyMappings derived from config
-	const apiResponse: { sections: Record<string, string>; config: DocumentTypeConfig } = await response.json();
-
-	return {
-		sections: apiResponse.sections,
-		config: apiResponse.config,
-		propertyMappings: convertConfigToPropertyMappings(apiResponse.config),
-	};
+	// API returns { sections, config } - pass through directly
+	return response.json();
 }
 
 /**
