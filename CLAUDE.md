@@ -81,7 +81,7 @@ When modifying any file in `src/UpDoc/wwwroot/App_Plugins/UpDoc/src/`, update th
 
 If adding a new source file:
 1. Create corresponding `.md` file in `docs/source-files/`
-2. Add entry to `docs/SUMMARY.md`
+2. Add entry to the `nav:` section in `mkdocs.yml`
 
 ## Naming Conventions
 
@@ -101,9 +101,19 @@ If adding a new source file:
 - UUI Storybook (base UI components): https://uui.umbraco.com/
 - Umbraco API Docs (property editor UIs, Umbraco-specific components): https://apidocs.umbraco.com/
 
-## GitBook
+## Documentation (MkDocs)
 
-Documentation is synced to GitBook from the `docs/` folder. Changes to docs require push to trigger sync.
+Documentation is built with MkDocs and deployed to GitHub Pages via GitHub Actions. The site is at `https://deanleigh.github.io/UpDoc/`.
+
+- Source files: `docs/` folder
+- Config: `mkdocs.yml` at repo root
+- Deployment: Automatic on push to `main` when `docs/` or `mkdocs.yml` changes
+
+To preview locally:
+```bash
+pip install mkdocs-material
+mkdocs serve
+```
 
 ## Build
 
