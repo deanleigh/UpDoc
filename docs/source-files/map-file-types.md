@@ -205,6 +205,33 @@ export interface ExtractSectionsResponse {
 
 The `ExtractSectionsResponse` is returned by the `/updoc/extract-sections` endpoint. It bundles extracted section values with the full config so the action can apply mappings client-side.
 
+## JSON Schema Validation
+
+Each configuration file type has a corresponding JSON Schema for editor validation and IntelliSense support:
+
+| Config File | Schema Location |
+|-------------|-----------------|
+| `*-source-*.json` | `App_Plugins/UpDoc/schemas/source.schema.json` |
+| `*-destination-*.json` | `App_Plugins/UpDoc/schemas/destination.schema.json` |
+| `*-map.json` | `App_Plugins/UpDoc/schemas/map.schema.json` |
+
+### Using Schemas
+
+Add a `$schema` property to your config files for validation:
+
+```json
+{
+  "$schema": "relative/path/to/schemas/source.schema.json",
+  "version": "1.0",
+  ...
+}
+```
+
+The path should be relative from your config file to the schemas folder in `App_Plugins/UpDoc/schemas/`.
+
+!!! note
+    The schema files contain `$id` properties with `https://updoc.dev/schemas/...` URLs. These are canonical identifiers for the schemas, but the actual schema files are local. Always use relative paths in your `$schema` references.
+
 ## Key Concepts
 
 ### Separation of Concerns

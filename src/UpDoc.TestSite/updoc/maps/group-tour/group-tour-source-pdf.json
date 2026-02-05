@@ -1,5 +1,5 @@
 {
-  "$schema": "https://updoc.dev/schemas/source.schema.json",
+  "$schema": "../../../../UpDoc/wwwroot/App_Plugins/UpDoc/schemas/source.schema.json",
   "version": "1.0",
   "sourceTypes": ["pdf"],
   "globals": {

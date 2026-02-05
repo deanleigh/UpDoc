@@ -1,5 +1,5 @@
 {
-  "$schema": "https://updoc.dev/schemas/destination.schema.json",
+  "$schema": "../../../../UpDoc/wwwroot/App_Plugins/UpDoc/schemas/destination.schema.json",
   "version": "1.0",
   "documentTypeAlias": "groupTour",
   "documentTypeName": "Group Tour",
