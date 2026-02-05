@@ -5,6 +5,7 @@ Frontend service for fetching config and extracting sections from the UpDoc back
 ## What it does
 
 Provides exported async functions that communicate with the backend API:
+
 1. `fetchConfig` -- retrieves the combined config (source, destination, map) for a blueprint
 2. `extractSections` -- extracts structured sections from a media item using the config's extraction rules
 3. `clearConfigCache` -- clears the in-memory cache

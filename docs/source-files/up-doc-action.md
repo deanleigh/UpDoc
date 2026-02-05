@@ -5,6 +5,7 @@ The entity action class that handles the "Create Document from Source" menu clic
 ## What it does
 
 When a user clicks "Create Document from Source" in the document tree context menu, this action:
+
 1. Gets the parent document's document type
 2. Discovers allowed child document types and their blueprints (grouped by document type)
 3. Opens the **blueprint picker dialog** -- user selects a document type, then a blueprint

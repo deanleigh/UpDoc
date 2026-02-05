@@ -5,6 +5,7 @@ API controller that exposes PDF extraction functionality to the Umbraco backoffi
 ## What it does
 
 Provides Management API endpoints for extracting content from PDFs:
+
 1. Accepts a media item's unique ID (GUID)
 2. Retrieves the media item from Umbraco
 3. Gets the file path from the media properties

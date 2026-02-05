@@ -5,6 +5,7 @@ The Lit component that renders the "Create from Source" sidebar modal.
 ## What it does
 
 Provides the UI for users to:
+
 1. See which blueprint was selected (displayed at the top)
 2. Enter a document name (or leave blank to auto-populate from source)
 3. Choose a source type (PDF Document, Web Page, or Word Document)
@@ -259,6 +260,7 @@ The `#handleSave` method returns `extractedSections` and `config` so the action 
 The modal uses a tabbed interface with two tabs:
 
 ### Source Tab
+
 1. **Blueprint box** -- Shows the selected blueprint name with an icon
 2. **Document Name box** -- Text input with explanatory text
 3. **Source box** -- Contains a source type dropdown and conditional source-specific UI

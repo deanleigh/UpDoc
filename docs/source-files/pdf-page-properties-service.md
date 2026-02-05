@@ -5,6 +5,7 @@ Service that extracts page properties (title and description) from PDF files usi
 ## What it does
 
 Analyzes the first page of a PDF to extract structured page properties:
+
 1. Opens PDF files from file path or stream
 2. Extracts text with position and font size data
 3. Groups words into lines by Y-coordinate
@@ -91,6 +92,7 @@ Uses word bounding box height as a proxy for font size since PDF Pig's `GetWords
 ### Section extraction by heading
 
 The `ExtractSectionByHeading` method extracts content from a specific section:
+
 1. Searches all pages for a line containing the heading text (case-insensitive)
 2. Captures all text lines below the heading
 3. Stops when it encounters another heading (similar or larger font size)
@@ -134,6 +136,7 @@ var result = _pagePropertiesService.ExtractSections(path, mapFile.SourceTypes.Pd
 ```
 
 The extraction process:
+
 1. Extracts text lines from all pages (with optional column detection filtering)
 2. Identifies the title using the `TitleDetection.FontSizeThreshold` ratio against the largest font
 3. Matches the description using the `DescriptionPattern` regex

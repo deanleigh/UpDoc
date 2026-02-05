@@ -5,6 +5,7 @@ Defines all extension manifests that get registered with Umbraco's extension reg
 ## What it does
 
 Exports an array of `UmbExtensionManifest` objects that tell Umbraco about our custom extensions:
+
 1. An **entity action** that adds "Create Document from Source" to document context menus
 2. A **modal** component for the source selection sidebar
 3. A **modal** component for the blueprint picker dialog (interstitial before the sidebar)

@@ -297,6 +297,7 @@ All properties use `[JsonPropertyName("camelCase")]` so PascalCase C# properties
 ### Cross-File Validation
 
 The `MapFileService` validates:
+
 1. Every `source` in map.json exists as a `key` in source.json
 2. Every `target` in map.json resolves to a valid path in destination.json
 

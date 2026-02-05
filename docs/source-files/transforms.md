@@ -5,6 +5,7 @@ Utility functions for converting extracted content into formats suitable for Umb
 ## What it does
 
 Provides two exported functions extracted from the entity action's former `#convertToHtml` method:
+
 1. `markdownToHtml` -- converts Markdown text to HTML using the `marked` library
 2. `buildRteValue` -- wraps HTML content in the Umbraco Rich Text Editor (RTE) value structure
 

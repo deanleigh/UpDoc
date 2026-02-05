@@ -5,6 +5,7 @@ Service that extracts text content from PDF files using UglyToad.PdfPig.
 ## What it does
 
 Provides PDF text extraction functionality:
+
 1. Opens PDF files from file path or stream
 2. Iterates through all pages
 3. Extracts text content from each page

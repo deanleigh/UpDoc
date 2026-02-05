@@ -5,6 +5,7 @@ Defines the modal token and TypeScript interfaces for type-safe modal communicat
 ## What it does
 
 Creates a unique identifier (token) for the modal that:
+
 1. Links the modal manifest to the modal element
 2. Defines the data types for input and output
 3. Configures modal appearance (sidebar vs dialog, size)
