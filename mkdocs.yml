@@ -26,6 +26,7 @@ theme:
 
 nav:
   - Home: index.md
+  - Common Errors: common-errors.md
   - Frontend (TypeScript):
     - index.ts: source-files/index.md
     - manifest.ts: source-files/manifest.md
