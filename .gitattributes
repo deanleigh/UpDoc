@@ -7,5 +7,8 @@ src/UpDoc.TestSite/uSync/** linguist-vendored
 # Auto-generated Umbraco content type models
 *.generated.cs linguist-generated
 
+# Compiled CSS output (generated from SCSS, includes Bootstrap)
+src/UpDoc.TestSite/wwwroot/css/index.css linguist-generated
+
 # Vite-bundled JavaScript output (compiled from TypeScript)
 src/UpDoc/wwwroot/App_Plugins/UpDoc/dist/** linguist-generated
