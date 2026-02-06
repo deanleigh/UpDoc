@@ -1,0 +1,11 @@
+# GitHub Linguist overrides
+# See: https://github.com/github-linguist/linguist/blob/main/docs/overrides.md
+
+# uSync exported config files (XML) - test site data, not source code
+src/UpDoc.TestSite/uSync/** linguist-vendored
+
+# Auto-generated Umbraco content type models
+*.generated.cs linguist-generated
+
+# Vite-bundled JavaScript output (compiled from TypeScript)
+src/UpDoc/wwwroot/App_Plugins/UpDoc/dist/** linguist-generated
