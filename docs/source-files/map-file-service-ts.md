@@ -35,11 +35,12 @@ Fetches the combined config for a blueprint from `GET /umbraco/management/api/v1
 export async function extractSections(
     mediaKey: string,
     blueprintId: string,
-    token: string
+    token: string,
+    sourceType: string = 'pdf'
 ): Promise<ExtractSectionsResponse | null>
 ```
 
-Calls `GET /umbraco/management/api/v1/updoc/extract-sections?mediaKey={mediaKey}&blueprintId={blueprintId}` to extract content from a media item using the config's extraction rules.
+Calls `GET /umbraco/management/api/v1/updoc/extract-sections?mediaKey={mediaKey}&blueprintId={blueprintId}&sourceType={sourceType}` to extract content from a media item using the config's extraction rules. The `sourceType` parameter (default `'pdf'`) tells the backend which extraction service to use.
 
 - Returns an `ExtractSectionsResponse` containing:
   - `sections` -- a `Record<string, string>` of extracted values keyed by section key
@@ -105,5 +106,5 @@ import type { DocumentTypeConfig, ExtractSectionsResponse } from './map-file.typ
 
 ## Used by
 
-- `up-doc-modal.element.ts` -- calls `extractSections` when a PDF is selected
+- `up-doc-modal.element.ts` -- calls `extractSections` when a source document (PDF or Markdown) is selected
 - `up-doc-action.ts` -- uses the config from the modal value to apply mappings

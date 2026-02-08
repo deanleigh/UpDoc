@@ -40,6 +40,7 @@ nav:
   - Backend (C#):
     - PdfExtractionService.cs: source-files/pdf-extraction-service.md
     - PdfPagePropertiesService.cs: source-files/pdf-page-properties-service.md
+    - MarkdownExtractionService.cs: source-files/markdown-extraction-service.md
     - PdfExtractionController.cs: source-files/pdf-extraction-controller.md
     - UpDocComposer.cs: source-files/up-doc-composer.md
     - MapFileModels.cs: source-files/map-file-models.md

@@ -117,20 +117,21 @@ Returns the full `MapFile` JSON object (name, documentTypeAlias, blueprintId, so
 
 - `404 Not Found` -- No map file found for the given blueprint
 
-## Section extraction endpoint (map-driven)
+## Section extraction endpoint (config-driven)
 
 ```
-GET /umbraco/management/api/v1/updoc/extract-sections?mediaKey={guid}&blueprintId={guid}
+GET /umbraco/management/api/v1/updoc/extract-sections?mediaKey={guid}&blueprintId={guid}&sourceType=pdf
 ```
 
-Extracts structured sections from a PDF using the extraction rules defined in the map file for the given blueprint.
+Extracts structured sections from a source document using the extraction rules defined in the config for the given blueprint. Routes to the correct extraction service based on `sourceType`.
 
 ### Parameters
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | mediaKey | Guid | The unique identifier of the media item |
-| blueprintId | Guid | The blueprint unique identifier (used to look up the map file) |
+| blueprintId | Guid | The blueprint unique identifier (used to look up the config) |
+| sourceType | string | The source type (`pdf` or `markdown`). Defaults to `pdf`. |
 
 ### Response
 
@@ -184,7 +185,8 @@ The controller handles both formats.
 - `IMediaService` -- Umbraco media service
 - `IPdfExtractionService` -- PDF extraction service
 - `IPdfPagePropertiesService` -- PDF page properties service
-- `IMapFileService` -- Map file service for blueprint-to-map lookups
+- `IMarkdownExtractionService` -- Markdown extraction service
+- `IMapFileService` -- Map file service for blueprint-to-config lookups
 - `IWebHostEnvironment` -- For resolving file paths
 - `ILogger<PdfExtractionController>` -- Logging
 

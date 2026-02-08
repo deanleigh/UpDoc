@@ -1,10 +1,12 @@
 # MapFileService.cs
 
-Service that loads and caches map file JSON from the `updoc/maps/` directory at the site root.
+Service that loads and caches workflow config JSON from the `updoc/maps/` directory at the site root.
 
 ## What it does
 
-Scans the `updoc/maps/` directory for `*-map.json` files, deserializes them into `MapFile` objects, and provides lookup methods by blueprint ID or document type alias. Map files are loaded once on first access and cached for the application lifetime (registered as singleton).
+Scans the `updoc/maps/` directory for workflow folders containing config files (source, destination, map), deserializes them into `DocumentTypeConfig` objects, and provides lookup methods by blueprint ID or document type alias. Configs are loaded once on first access and cached for the application lifetime (registered as singleton).
+
+Supports multiple source types per workflow folder — discovers all `{folderName}-source-*.json` files and loads them into a `Sources` dictionary keyed by type (e.g. `"pdf"`, `"markdown"`).
 
 ## Interface
 

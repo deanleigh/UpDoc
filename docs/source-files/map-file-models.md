@@ -85,6 +85,8 @@ public class SourceSection
 | `betweenPatterns` | Content between start/stop markers | `startPattern`, `stopPatterns`, `headingLevel` |
 | `region` | Bounding box extraction | `region: { x, y, unit }` |
 | `afterLabel` | Text following a label | `label`, `labelPattern`, `extractMode` |
+| `firstHeading` | First heading at level (markdown) | `level` |
+| `firstParagraph` | First paragraph after heading (markdown) | -- |
 | `cssSelector` | CSS selector (web) | `selector`, `attribute` |
 | `xpath` | XPath expression (web/Word) | `xpath` |
 
@@ -265,13 +267,13 @@ public class DocumentTypeConfig
 {
     public string FolderPath { get; set; } = string.Empty;
     public string DocumentTypeAlias { get; set; } = string.Empty;
-    public SourceConfig Source { get; set; } = new();
+    public Dictionary<string, SourceConfig> Sources { get; set; } = new();
     public DestinationConfig Destination { get; set; } = new();
     public MapConfig Map { get; set; } = new();
 }
 ```
 
-This is serialized to JSON and returned by the `/updoc/config/{blueprintId}` and `/updoc/extract-sections` API endpoints.
+The `Sources` dictionary is keyed by source type (e.g. `"pdf"`, `"markdown"`), loaded from `{folderName}-source-{type}.json` files. This is serialized to JSON and returned by the `/updoc/config/{blueprintId}` and `/updoc/extract-sections` API endpoints.
 
 ---
 
@@ -298,7 +300,7 @@ All properties use `[JsonPropertyName("camelCase")]` so PascalCase C# properties
 
 The `MapFileService` validates:
 
-1. Every `source` in map.json exists as a `key` in source.json
+1. Every `source` in map.json exists as a `key` in at least one source config (missing keys in a specific source type are warnings, not errors, since map.json is a superset across all source types)
 2. Every `target` in map.json resolves to a valid path in destination.json
 
 ### Namespace

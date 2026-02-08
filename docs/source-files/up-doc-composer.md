@@ -4,7 +4,7 @@ Umbraco composer that registers services for the UpDoc extension.
 
 ## What it does
 
-Registers the PDF extraction services with Umbraco's dependency injection container during application startup.
+Registers extraction services with Umbraco's dependency injection container during application startup.
 
 ## Code
 
@@ -15,6 +15,7 @@ public class UpDocComposer : IComposer
     {
         builder.Services.AddScoped<IPdfExtractionService, PdfExtractionService>();
         builder.Services.AddScoped<IPdfPagePropertiesService, PdfPagePropertiesService>();
+        builder.Services.AddScoped<IMarkdownExtractionService, MarkdownExtractionService>();
         builder.Services.AddSingleton<IMapFileService, MapFileService>();
     }
 }
@@ -35,7 +36,7 @@ Umbraco's composition pattern for registering services:
 - One instance per HTTP request
 - Disposed at the end of the request
 - Appropriate for services that may hold request-specific state
-- Used for `IPdfExtractionService` and `IPdfPagePropertiesService`
+- Used for `IPdfExtractionService`, `IPdfPagePropertiesService`, and `IMarkdownExtractionService`
 
 `AddSingleton` means:
 - One instance for entire application lifetime

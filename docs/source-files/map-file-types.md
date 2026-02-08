@@ -50,6 +50,8 @@ export type ExtractionStrategy =
     | 'betweenPatterns'  // Content between start/stop markers
     | 'region'           // Bounding box extraction
     | 'afterLabel'       // Text following a label
+    | 'firstHeading'     // First heading at specified level (markdown)
+    | 'firstParagraph'   // First paragraph after a heading (markdown)
     | 'cssSelector'      // CSS selector (web)
     | 'xpath';           // XPath expression (web/Word)
 ```
@@ -74,6 +76,9 @@ export interface StrategyParams {
 
     // region
     region?: RegionConfig;
+
+    // firstHeading (markdown)
+    level?: number;
 
     // afterLabel
     label?: string;
@@ -188,7 +193,7 @@ The API returns all three configs bundled together:
 export interface DocumentTypeConfig {
     folderPath: string;              // Path to config folder
     documentTypeAlias: string;
-    source: SourceConfig;
+    sources: Record<string, SourceConfig>;  // Keyed by source type (e.g. "pdf", "markdown")
     destination: DestinationConfig;
     map: MapConfig;
 }

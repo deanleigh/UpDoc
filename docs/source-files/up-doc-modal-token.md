@@ -13,10 +13,10 @@ Creates a unique identifier (token) for the modal that:
 ## Types
 
 ```typescript
-export type SourceType = 'pdf' | 'web' | 'doc';
+export type SourceType = 'pdf' | 'markdown' | 'web' | 'doc';
 ```
 
-Defines the available source types for content extraction. Currently only `pdf` is functional; `web` and `doc` are UI placeholders.
+Defines the available source types for content extraction. `pdf` and `markdown` are fully functional; `web` and `doc` are UI placeholders.
 
 ## The interfaces
 

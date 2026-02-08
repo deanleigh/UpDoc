@@ -16,7 +16,7 @@ Provides the UI for users to:
 8. Edit or copy individual sections via hover-reveal action buttons
 9. Submit or cancel the operation
 
-Currently only the PDF source type is fully functional. Web Page and Word Document source types show their respective UI (URL input and media picker) but display "not yet available" messages and the Create button remains disabled.
+PDF and Markdown source types are fully functional. Web Page and Word Document source types show their respective UI (URL input and media picker) but display "not yet available" messages and the Create button remains disabled.
 
 ## Tabbed Interface
 
@@ -105,7 +105,7 @@ async #extractFromSource(mediaUnique: string) {
 }
 ```
 
-This method delegates all extraction logic to the backend, which uses the config's source.json sections to determine how to parse the PDF.
+This method delegates all extraction logic to the backend, passing `this._sourceType` so the backend routes to the correct extraction service (PDF or Markdown). The config's source.json sections determine how to parse the source document.
 
 ### Human-readable section labels
 
@@ -223,6 +223,7 @@ The `uui-select` dropdown uses the `placeholder` attribute to show "Choose a sou
 
 Each source type renders its own UI via `#renderSourceUI()`:
 - **PDF** (`#renderPdfSource()`) -- Media picker + extraction status (fully functional)
+- **Markdown** (`#renderMarkdownSource()`) -- Media picker + extraction status (fully functional, same pattern as PDF)
 - **Web** (`#renderWebSource()`) -- URL input + "not yet available" message
 - **Doc** (`#renderDocSource()`) -- Media picker + "not yet available" message
 
@@ -230,7 +231,7 @@ Each source type renders its own UI via `#renderSourceUI()`:
 
 The `#getCanCreate()` method controls when the Create button is enabled:
 - Requires a document name and no active extraction
-- For PDF: also requires a selected media item
+- For PDF and Markdown: also requires a selected media item
 - For Web and Doc: always returns false (not yet functional)
 
 ### Modal context methods
