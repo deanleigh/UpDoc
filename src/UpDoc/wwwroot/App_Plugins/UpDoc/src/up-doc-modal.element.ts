@@ -104,7 +104,7 @@ export class UpDocModalElement extends UmbModalBaseElement<
 			const authContext = await this.getContext(UMB_AUTH_CONTEXT);
 			const token = await authContext.getLatestToken();
 
-			const result = await extractSections(mediaUnique, blueprintId, token);
+			const result = await extractSections(mediaUnique, blueprintId, token, this._sourceType || 'pdf');
 
 			if (!result) {
 				this._extractionError = 'Failed to extract content from source';
@@ -170,6 +170,8 @@ export class UpDocModalElement extends UmbModalBaseElement<
 		switch (this._sourceType) {
 			case 'pdf':
 				return this.#renderPdfSource();
+			case 'markdown':
+				return this.#renderMarkdownSource();
 			case 'web':
 				return this.#renderWebSource();
 			case 'doc':
@@ -182,6 +184,20 @@ export class UpDocModalElement extends UmbModalBaseElement<
 	#renderPdfSource() {
 		return html`
 			<umb-property-layout label="PDF File" orientation="vertical">
+				<div slot="editor">
+					<umb-input-media
+						max="1"
+						@change=${this.#handleMediaChange}>
+					</umb-input-media>
+					${this.#renderExtractionStatus()}
+				</div>
+			</umb-property-layout>
+		`;
+	}
+
+	#renderMarkdownSource() {
+		return html`
+			<umb-property-layout label="Markdown File" orientation="vertical">
 				<div slot="editor">
 					<umb-input-media
 						max="1"
@@ -334,6 +350,7 @@ export class UpDocModalElement extends UmbModalBaseElement<
 							.options=${[
 								{ name: 'Choose a source...', value: '', selected: this._sourceType === '' },
 								{ name: 'PDF Document', value: 'pdf', selected: this._sourceType === 'pdf' },
+								{ name: 'Markdown', value: 'markdown', selected: this._sourceType === 'markdown' },
 								{ name: 'Web Page', value: 'web', selected: this._sourceType === 'web' },
 								{ name: 'Word Document', value: 'doc', selected: this._sourceType === 'doc' },
 							]}
@@ -408,6 +425,7 @@ export class UpDocModalElement extends UmbModalBaseElement<
 
 		switch (this._sourceType) {
 			case 'pdf':
+			case 'markdown':
 				return !!this._selectedMediaUnique;
 			case 'web':
 			case 'doc':

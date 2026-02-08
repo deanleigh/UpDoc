@@ -162,6 +162,10 @@ public class StrategyParams
     [JsonPropertyName("extractMode")]
     public string? ExtractMode { get; set; }
 
+    // firstHeading strategy (markdown)
+    [JsonPropertyName("level")]
+    public int? Level { get; set; }
+
     // cssSelector strategy (web)
     [JsonPropertyName("selector")]
     public string? Selector { get; set; }

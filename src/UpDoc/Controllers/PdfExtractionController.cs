@@ -23,6 +23,7 @@ public class PdfExtractionController : ControllerBase
     private readonly IMediaService _mediaService;
     private readonly IPdfExtractionService _pdfExtractionService;
     private readonly IPdfPagePropertiesService _pdfPagePropertiesService;
+    private readonly IMarkdownExtractionService _markdownExtractionService;
     private readonly IMapFileService _mapFileService;
     private readonly IWebHostEnvironment _webHostEnvironment;
     private readonly ILogger<PdfExtractionController> _logger;
@@ -31,6 +32,7 @@ public class PdfExtractionController : ControllerBase
         IMediaService mediaService,
         IPdfExtractionService pdfExtractionService,
         IPdfPagePropertiesService pdfPagePropertiesService,
+        IMarkdownExtractionService markdownExtractionService,
         IMapFileService mapFileService,
         IWebHostEnvironment webHostEnvironment,
         ILogger<PdfExtractionController> logger)
@@ -38,6 +40,7 @@ public class PdfExtractionController : ControllerBase
         _mediaService = mediaService;
         _pdfExtractionService = pdfExtractionService;
         _pdfPagePropertiesService = pdfPagePropertiesService;
+        _markdownExtractionService = markdownExtractionService;
         _mapFileService = mapFileService;
         _webHostEnvironment = webHostEnvironment;
         _logger = logger;
@@ -291,7 +294,7 @@ public class PdfExtractionController : ControllerBase
     }
 
     [HttpGet("extract-sections")]
-    public IActionResult ExtractSections(Guid mediaKey, Guid blueprintId)
+    public IActionResult ExtractSections(Guid mediaKey, Guid blueprintId, string sourceType = "pdf")
     {
         var config = _mapFileService.GetConfigForBlueprint(blueprintId);
         if (config == null)
@@ -299,9 +302,9 @@ public class PdfExtractionController : ControllerBase
             return NotFound(new { error = $"No config found for blueprint {blueprintId}" });
         }
 
-        if (!config.Source.SourceTypes.Contains("pdf"))
+        if (!config.Sources.TryGetValue(sourceType, out var sourceConfig))
         {
-            return BadRequest(new { error = "Config does not support PDF source type" });
+            return BadRequest(new { error = $"Config does not support '{sourceType}' source type. Available: {string.Join(", ", config.Sources.Keys)}" });
         }
 
         var absolutePath = ResolveMediaFilePath(mediaKey);
@@ -310,15 +313,20 @@ public class PdfExtractionController : ControllerBase
             return NotFound(new { error = "Media item not found or file not on disk" });
         }
 
-        // Use the new strategy-driven extraction that processes each section
-        var result = _pdfPagePropertiesService.ExtractSectionsFromConfig(absolutePath, config.Source);
+        // Route to correct extraction service based on source type
+        var result = sourceType switch
+        {
+            "pdf" => _pdfPagePropertiesService.ExtractSectionsFromConfig(absolutePath, sourceConfig),
+            "markdown" => _markdownExtractionService.ExtractSectionsFromConfig(absolutePath, sourceConfig),
+            _ => new ExtractionResult { Error = $"Unsupported source type: {sourceType}" }
+        };
 
         if (!string.IsNullOrEmpty(result.Error))
         {
             return BadRequest(new { error = result.Error });
         }
 
-        _logger.LogInformation("=== PDF Section Extraction (Strategy-driven) ===");
+        _logger.LogInformation("=== {SourceType} Section Extraction (Strategy-driven) ===", sourceType);
         foreach (var section in result.Sections)
         {
             _logger.LogInformation("{Key}: {Length} chars", section.Key, section.Value.Length);

@@ -54,16 +54,27 @@ Named by document type (not blueprint GUID) because:
 
 ### File Location
 
-**Decision:** `updoc/maps/` at the site root (follows the uSync pattern).
+**Decision:** `updoc/workflows/` at the site root (follows the uSync pattern). Previously called `updoc/maps/` — renamed to "workflows" because each folder represents a complete pipeline (source extraction → mapping → destination creation), not just a mapping.
 
 **Rationale:**
-- Map files are **site-specific** — they must not live inside the RCL package or they'd be overwritten on package updates
+- Workflow files are **site-specific** — they must not live inside the RCL package or they'd be overwritten on package updates
 - They must be committed to git and travel with the site across deployments
 - The `updoc/` root folder follows the established Umbraco ecosystem pattern (uSync uses `uSync/` at the site root for its serialized content files)
 - Clear separation from the package code (`src/UpDoc/`) and from Umbraco runtime data (`umbraco/Data/`)
 - The path is configurable via `appsettings.json` for sites that need a different location
 
-**For the test site:** `src/UpDoc.TestSite/updoc/maps/`
+**For the test site:** `src/UpDoc.TestSite/updoc/workflows/`
+
+### One Workflow Per Blueprint (Not Per Document Type)
+
+**Decision:** Workflow folders are scoped to **blueprints**, not document types. A document type may have multiple blueprints, and each blueprint that supports "Create from Source" gets its own workflow folder.
+
+**Rationale:**
+- Different blueprints for the same document type may need different extraction rules, source types, or property mappings
+- Not all blueprints should necessarily support "Create from Source" — only those with workflow folders
+- **The folder's existence IS the feature toggle.** No separate enable/disable setting needed. Creating a workflow folder enables "Create from Source" for that blueprint; deleting it disables it. Convention over configuration.
+
+**Entity action visibility:** The "Create from Source" context menu action only appears on content nodes where at least one allowed child document type has a workflow folder referencing one of its blueprints.
 
 ### Map File Structure
 

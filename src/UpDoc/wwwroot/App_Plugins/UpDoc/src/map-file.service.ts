@@ -38,10 +38,11 @@ export async function fetchConfig(blueprintId: string, token: string): Promise<D
 export async function extractSections(
 	mediaKey: string,
 	blueprintId: string,
-	token: string
+	token: string,
+	sourceType: string = 'pdf'
 ): Promise<ExtractSectionsResponse | null> {
 	const response = await fetch(
-		`/umbraco/management/api/v1/updoc/extract-sections?mediaKey=${mediaKey}&blueprintId=${blueprintId}`,
+		`/umbraco/management/api/v1/updoc/extract-sections?mediaKey=${mediaKey}&blueprintId=${blueprintId}&sourceType=${sourceType}`,
 		{
 			method: 'GET',
 			headers: {

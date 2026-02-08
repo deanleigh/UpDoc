@@ -96,7 +96,7 @@ public class DocumentTypeConfig
 {
     public string FolderPath { get; set; } = string.Empty;
     public string DocumentTypeAlias { get; set; } = string.Empty;
-    public SourceConfig Source { get; set; } = new();
+    public Dictionary<string, SourceConfig> Sources { get; set; } = new();
     public DestinationConfig Destination { get; set; } = new();
     public MapConfig Map { get; set; } = new();
 }

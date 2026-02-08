@@ -43,6 +43,8 @@ export type ExtractionStrategy =
 	| 'betweenPatterns'
 	| 'region'
 	| 'afterLabel'
+	| 'firstHeading'
+	| 'firstParagraph'
 	| 'cssSelector'
 	| 'xpath';
 
@@ -63,6 +65,9 @@ export interface StrategyParams {
 
 	// region
 	region?: RegionConfig;
+
+	// firstHeading (markdown)
+	level?: number;
 
 	// afterLabel
 	label?: string;
@@ -207,7 +212,7 @@ export interface TransformParams {
 export interface DocumentTypeConfig {
 	folderPath: string;
 	documentTypeAlias: string;
-	source: SourceConfig;
+	sources: Record<string, SourceConfig>;
 	destination: DestinationConfig;
 	map: MapConfig;
 }

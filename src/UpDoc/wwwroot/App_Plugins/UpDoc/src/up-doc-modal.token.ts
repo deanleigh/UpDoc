@@ -1,7 +1,7 @@
 import { UmbModalToken } from '@umbraco-cms/backoffice/modal';
 import type { DocumentTypeConfig } from './map-file.types.js';
 
-export type SourceType = 'pdf' | 'web' | 'doc';
+export type SourceType = 'pdf' | 'markdown' | 'web' | 'doc';
 
 export interface UmbUpDocModalData {
 	unique: string | null;

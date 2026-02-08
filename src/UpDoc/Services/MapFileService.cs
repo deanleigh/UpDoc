@@ -74,11 +74,6 @@ public class MapFileService : IMapFileService
     {
         var errors = new List<string>();
 
-        // Get valid source keys
-        var validSourceKeys = config.Source.Sections
-            .Select(s => s.Key)
-            .ToHashSet(StringComparer.OrdinalIgnoreCase);
-
         // Get valid destination keys (fields + block paths)
         var validDestinationKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
@@ -107,38 +102,47 @@ public class MapFileService : IMapFileService
             }
         }
 
-        // Validate mappings
-        foreach (var mapping in config.Map.Mappings)
+        // Validate mappings against each source config
+        foreach (var (sourceType, sourceConfig) in config.Sources)
         {
-            if (!mapping.Enabled) continue;
+            var validSourceKeys = sourceConfig.Sections
+                .Select(s => s.Key)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-            // Check source exists
-            if (!validSourceKeys.Contains(mapping.Source))
+            foreach (var mapping in config.Map.Mappings)
             {
-                errors.Add($"map.json: source '{mapping.Source}' not found in source-pdf.json");
-            }
+                if (!mapping.Enabled) continue;
 
-            // Check each destination exists
-            foreach (var dest in mapping.Destinations)
-            {
-                if (!validDestinationKeys.Contains(dest.Target))
+                // Check source exists in this source config
+                // This is a warning, not an error — map.json is a superset across all source types
+                // A source type may not extract all sections (e.g., markdown may not have accommodation)
+                if (!validSourceKeys.Contains(mapping.Source))
                 {
-                    errors.Add($"map.json: target '{dest.Target}' not found in destination-blueprint.json");
+                    errors.Add($"WARN: map.json source '{mapping.Source}' not found in source-{sourceType}.json (will be skipped for this source type)");
+                }
+
+                // Check each destination exists
+                foreach (var dest in mapping.Destinations)
+                {
+                    if (!validDestinationKeys.Contains(dest.Target))
+                    {
+                        errors.Add($"map.json: target '{dest.Target}' not found in destination-blueprint.json");
+                    }
                 }
             }
-        }
 
-        // Warn about unmapped required sections
-        var mappedSources = config.Map.Mappings
-            .Where(m => m.Enabled)
-            .Select(m => m.Source)
-            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+            // Warn about unmapped required sections
+            var mappedSources = config.Map.Mappings
+                .Where(m => m.Enabled)
+                .Select(m => m.Source)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-        foreach (var section in config.Source.Sections.Where(s => s.Required))
-        {
-            if (!mappedSources.Contains(section.Key))
+            foreach (var section in sourceConfig.Sections.Where(s => s.Required))
             {
-                errors.Add($"WARN: source-pdf.json section '{section.Key}' (required: true) has no mapping");
+                if (!mappedSources.Contains(section.Key))
+                {
+                    errors.Add($"WARN: source-{sourceType}.json section '{section.Key}' (required: true) has no mapping");
+                }
             }
         }
 
@@ -210,14 +214,16 @@ public class MapFileService : IMapFileService
         var folderName = Path.GetFileName(folderPath);
 
         // File names are prefixed with folder name for clarity when multiple files are open
-        var sourceFile = Path.Combine(folderPath, $"{folderName}-source-pdf.json");
         var destinationFile = Path.Combine(folderPath, $"{folderName}-destination-blueprint.json");
         var mapFile = Path.Combine(folderPath, $"{folderName}-map.json");
 
-        // All three files must exist
-        if (!File.Exists(sourceFile))
+        // Discover all source-*.json files
+        var sourcePattern = $"{folderName}-source-*.json";
+        var sourceFiles = Directory.GetFiles(folderPath, sourcePattern);
+
+        if (sourceFiles.Length == 0)
         {
-            _logger.LogWarning("Config folder {Folder} missing {FileName}, skipping.", folderName, $"{folderName}-source-pdf.json");
+            _logger.LogWarning("Config folder {Folder} has no source files matching {Pattern}, skipping.", folderName, sourcePattern);
             return null;
         }
 
@@ -233,19 +239,41 @@ public class MapFileService : IMapFileService
             return null;
         }
 
-        // Load each file
-        var sourceJson = File.ReadAllText(sourceFile);
-        var source = JsonSerializer.Deserialize<SourceConfig>(sourceJson, JsonOptions);
+        // Load source configs — extract source type from filename
+        var sources = new Dictionary<string, SourceConfig>(StringComparer.OrdinalIgnoreCase);
+        foreach (var sourceFile in sourceFiles)
+        {
+            var fileName = Path.GetFileNameWithoutExtension(sourceFile);
+            // "{folderName}-source-{type}" → extract type
+            var prefix = $"{folderName}-source-";
+            if (!fileName.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)) continue;
+            var sourceType = fileName[prefix.Length..];
 
+            var sourceJson = File.ReadAllText(sourceFile);
+            var source = JsonSerializer.Deserialize<SourceConfig>(sourceJson, JsonOptions);
+            if (source != null)
+            {
+                sources[sourceType] = source;
+                _logger.LogInformation("  Loaded source config: {SourceType} from {FileName}", sourceType, Path.GetFileName(sourceFile));
+            }
+        }
+
+        if (sources.Count == 0)
+        {
+            _logger.LogWarning("Config folder {Folder} had source files but none deserialized, skipping.", folderName);
+            return null;
+        }
+
+        // Load destination and map
         var destinationJson = File.ReadAllText(destinationFile);
         var destination = JsonSerializer.Deserialize<DestinationConfig>(destinationJson, JsonOptions);
 
         var mapJson = File.ReadAllText(mapFile);
         var map = JsonSerializer.Deserialize<MapConfig>(mapJson, JsonOptions);
 
-        if (source == null || destination == null || map == null)
+        if (destination == null || map == null)
         {
-            _logger.LogWarning("Failed to deserialize one or more config files in {Folder}.", folderName);
+            _logger.LogWarning("Failed to deserialize destination or map config in {Folder}.", folderName);
             return null;
         }
 
@@ -259,7 +287,7 @@ public class MapFileService : IMapFileService
         {
             FolderPath = folderPath,
             DocumentTypeAlias = destination.DocumentTypeAlias,
-            Source = source,
+            Sources = sources,
             Destination = destination,
             Map = map
         };

@@ -238,6 +238,32 @@ Also add new entries to `docs/SUMMARY.md`.
 
 ---
 
+## Entity Action Visibility Condition
+
+Currently the "Create from Source" action appears on **every** content node in the tree. It should only appear when relevant.
+
+**Decision:** The existence of a workflow folder is the feature toggle. No dashboard or settings UI needed for enable/disable — convention over configuration.
+
+**Condition logic:** The entity action checks whether any allowed child document types of the current node have workflow folders (via the MapFileService/API). If none exist, the action is hidden. This applies to both:
+
+1. **Context menu** — right-click "Create from Source" on content nodes
+2. **Collection view** — "Create from Source" option in the create button (future)
+
+**Blueprint-level granularity:** A document type may have multiple blueprints, but only those with workflow folders appear in the blueprint picker. This means a "Group Tour" document type could have 3 blueprints, but only 1 supports "Create from Source".
+
+### Future: Collection View Entry Point
+
+The "Create Group Tour" button at the top of collection views is a natural place to offer "Create from Source". This is a secondary entry point alongside the context menu.
+
+**Implementation:**
+- Register an **entity create option action** that adds "Create from Source" alongside the standard create options
+- Reuses the same visibility condition described above
+- Opens the same UpDoc modal — same flow, different entry point
+
+This is tracked as a post-condition task (condition must be implemented first).
+
+---
+
 ## Feature Branch
 
 ```bash
