@@ -41,6 +41,10 @@ nav:
     - workflow.types.ts: source-files/workflow-types.md
     - workflow.service.ts: source-files/workflow-service-ts.md
     - up-doc-workflows-view.element.ts: source-files/up-doc-workflows-view-element.md
+    - create-workflow-modal.element.ts: source-files/create-workflow-modal-element.md
+    - create-workflow-modal.token.ts: source-files/create-workflow-modal-token.md
+    - up-doc-workflow-detail-modal.element.ts: source-files/up-doc-workflow-detail-modal-element.md
+    - up-doc-workflow-detail-modal.token.ts: source-files/up-doc-workflow-detail-modal-token.md
     - transforms.ts: source-files/transforms.md
     - up-doc-collection-action.element.ts: source-files/up-doc-collection-action-element.md
   - Backend (C#):
@@ -52,6 +56,7 @@ nav:
     - UpDocComposer.cs: source-files/up-doc-composer.md
     - WorkflowModels.cs: source-files/workflow-models.md
     - WorkflowService.cs: source-files/workflow-service.md
+    - WorkflowController.cs: source-files/workflow-controller.md
   - Common Errors:
     - errors/index.md
     - Distributed cache error: common-errors.md

@@ -71,13 +71,13 @@ const e = [
     type: "modal",
     alias: "UpDoc.CreateWorkflowModal",
     name: "Create Workflow Modal",
-    element: () => import("./create-workflow-modal.element-uvH4Hc7Q.js")
+    element: () => import("./create-workflow-modal.element-BK2SVi3a.js")
   },
   {
     type: "modal",
     alias: "UpDoc.WorkflowDetailModal",
     name: "Workflow Detail Modal",
-    element: () => import("./up-doc-workflow-detail-modal.element-DJ20euRM.js")
+    element: () => import("./up-doc-workflow-detail-modal.element-DXb2a5-q.js")
   },
   // =====================================================================
   // Settings sidebar — UpDoc appears in Settings section

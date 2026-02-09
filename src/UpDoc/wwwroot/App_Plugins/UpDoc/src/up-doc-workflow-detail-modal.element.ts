@@ -601,8 +601,8 @@ export class UpDocWorkflowDetailModalElement extends UmbModalBaseElement<
 
 			.section-strategy {
 				font-size: var(--uui-type-small-size);
-				color: var(--uui-color-current);
-				background: var(--uui-color-current-emphasis);
+				color: var(--uui-color-text-alt);
+				background: var(--uui-color-surface-alt);
 				padding: 2px 8px;
 				border-radius: var(--uui-border-radius);
 			}
