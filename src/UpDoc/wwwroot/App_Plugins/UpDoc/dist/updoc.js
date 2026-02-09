@@ -8,7 +8,7 @@ const e = [
     alias: "UpDoc.EntityAction",
     name: "UpDoc Entity Action",
     weight: 1100,
-    api: () => import("./up-doc-action-NIxcYyzi.js"),
+    api: () => import("./up-doc-action-CrjG90uW.js"),
     forEntityTypes: ["document"],
     meta: {
       icon: "icon-document",
@@ -30,7 +30,7 @@ const e = [
     type: "condition",
     alias: "UpDoc.Condition.HasAvailableWorkflows",
     name: "Has Available Workflows",
-    api: () => import("./up-doc-has-workflows.condition-BHMpQTg8.js")
+    api: () => import("./up-doc-has-workflows.condition-DXeNAITS.js")
   },
   // =====================================================================
   // Collection Action — "Create from Source" button in collection toolbar
@@ -40,7 +40,7 @@ const e = [
     kind: "button",
     alias: "UpDoc.CollectionAction",
     name: "UpDoc Collection Action",
-    element: () => import("./up-doc-collection-action.element-CgKxq42C.js"),
+    element: () => import("./up-doc-collection-action.element-BvTKd--f.js"),
     weight: 50,
     meta: {
       label: "Create from Source"
@@ -59,7 +59,7 @@ const e = [
     type: "modal",
     alias: "UpDoc.Modal",
     name: "UpDoc Modal",
-    element: () => import("./up-doc-modal.element-JgfXxNRN.js")
+    element: () => import("./up-doc-modal.element-HxxMlCos.js")
   },
   {
     type: "modal",
@@ -72,6 +72,12 @@ const e = [
     alias: "UpDoc.CreateWorkflowModal",
     name: "Create Workflow Modal",
     element: () => import("./create-workflow-modal.element-uvH4Hc7Q.js")
+  },
+  {
+    type: "modal",
+    alias: "UpDoc.WorkflowDetailModal",
+    name: "Workflow Detail Modal",
+    element: () => import("./up-doc-workflow-detail-modal.element-DJ20euRM.js")
   },
   // =====================================================================
   // Settings sidebar — UpDoc appears in Settings section
@@ -154,7 +160,7 @@ const e = [
     type: "workspaceView",
     alias: "UpDoc.WorkspaceView.Workflows",
     name: "Workflows",
-    element: () => import("./up-doc-workflows-view.element-B5whs4rN.js"),
+    element: () => import("./up-doc-workflows-view.element-BAN40lC2.js"),
     weight: 300,
     meta: {
       label: "Workflows",

@@ -105,6 +105,30 @@ export async function extractSections(
 }
 
 /**
+ * Fetches the full config for a workflow by its folder name.
+ * Returns source, destination, and map configs.
+ */
+export async function fetchWorkflowByName(name: string, token: string): Promise<DocumentTypeConfig | null> {
+	const response = await fetch(
+		`/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(name)}`,
+		{
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${token}`,
+			},
+		}
+	);
+
+	if (!response.ok) {
+		console.warn(`No workflow found with name "${name}"`);
+		return null;
+	}
+
+	return response.json();
+}
+
+/**
  * Clears all caches. Useful when configs have been modified.
  */
 export function clearConfigCache(): void {

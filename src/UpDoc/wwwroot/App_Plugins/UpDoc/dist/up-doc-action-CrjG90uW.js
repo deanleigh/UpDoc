@@ -5,7 +5,7 @@ var P = (i, u, t) => u.has(i) || L("Cannot " + t);
 var I = (i, u, t) => (P(i, u, "read from private field"), t ? t.call(i) : u.get(i)), C = (i, u, t) => u.has(i) ? L("Cannot add the same private member more than once") : u instanceof WeakSet ? u.add(i) : u.set(i, t);
 var V = (i, u, t) => (P(i, u, "access private method"), t);
 import { U as K, a as W, m as H, b as X } from "./transforms-DQCctQX1.js";
-import { f as Q } from "./workflow.service-BHEUOVK1.js";
+import { f as Q } from "./workflow.service-C-MBMeeJ.js";
 import { UmbEntityActionBase as Y } from "@umbraco-cms/backoffice/entity-action";
 import { umbOpenModal as F } from "@umbraco-cms/backoffice/modal";
 import { UMB_NOTIFICATION_CONTEXT as Z } from "@umbraco-cms/backoffice/notification";
@@ -264,4 +264,4 @@ export {
   fe as UpDocEntityAction,
   fe as default
 };
-//# sourceMappingURL=up-doc-action-NIxcYyzi.js.map
+//# sourceMappingURL=up-doc-action-CrjG90uW.js.map

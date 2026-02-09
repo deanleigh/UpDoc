@@ -76,6 +76,12 @@ export const manifests: Array<UmbExtensionManifest> = [
 		name: 'Create Workflow Modal',
 		element: () => import('./create-workflow-modal.element.js'),
 	},
+	{
+		type: 'modal',
+		alias: 'UpDoc.WorkflowDetailModal',
+		name: 'Workflow Detail Modal',
+		element: () => import('./up-doc-workflow-detail-modal.element.js'),
+	},
 
 	// =====================================================================
 	// Settings sidebar — UpDoc appears in Settings section

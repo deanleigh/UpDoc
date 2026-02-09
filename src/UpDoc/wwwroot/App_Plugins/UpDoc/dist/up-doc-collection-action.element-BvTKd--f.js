@@ -1,5 +1,5 @@
 import { U as X, a as H, m as Q, b as Y } from "./transforms-DQCctQX1.js";
-import { f as V } from "./workflow.service-BHEUOVK1.js";
+import { f as V } from "./workflow.service-C-MBMeeJ.js";
 import { html as R, css as Z, state as W, customElement as tt } from "@umbraco-cms/backoffice/external/lit";
 import { UmbLitElement as et } from "@umbraco-cms/backoffice/lit-element";
 import { UMB_DOCUMENT_WORKSPACE_CONTEXT as nt } from "@umbraco-cms/backoffice/document";
@@ -258,4 +258,4 @@ export {
   v as UpDocCollectionActionElement,
   _t as default
 };
-//# sourceMappingURL=up-doc-collection-action.element-CgKxq42C.js.map
+//# sourceMappingURL=up-doc-collection-action.element-BvTKd--f.js.map

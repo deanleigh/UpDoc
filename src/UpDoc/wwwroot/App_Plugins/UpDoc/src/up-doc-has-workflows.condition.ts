@@ -46,6 +46,7 @@ export class UpDocHasWorkflowsCondition
 		});
 
 		this.consumeContext(UMB_ENTITY_CONTEXT, (entityContext) => {
+			if (!entityContext) return;
 			this.observe(entityContext.unique, (unique) => {
 				this.#entityUnique = unique ?? null;
 				this.#tryEvaluate();

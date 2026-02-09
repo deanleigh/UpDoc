@@ -4,6 +4,7 @@ import { UmbTextStyles } from '@umbraco-cms/backoffice/style';
 import { UMB_AUTH_CONTEXT } from '@umbraco-cms/backoffice/auth';
 import { UMB_MODAL_MANAGER_CONTEXT, UMB_CONFIRM_MODAL } from '@umbraco-cms/backoffice/modal';
 import { UMB_CREATE_WORKFLOW_MODAL } from './create-workflow-modal.token.js';
+import { UMB_WORKFLOW_DETAIL_MODAL } from './up-doc-workflow-detail-modal.token.js';
 import { clearConfigCache } from './workflow.service.js';
 
 interface WorkflowSummary {
@@ -90,6 +91,13 @@ export class UpDocWorkflowsViewElement extends UmbLitElement {
 				console.error('Failed to create workflow:', err);
 			}
 		}
+	}
+
+	async #handleViewWorkflow(workflow: WorkflowSummary) {
+		const modalManager = await this.getContext(UMB_MODAL_MANAGER_CONTEXT);
+		modalManager.open(this, UMB_WORKFLOW_DETAIL_MODAL, {
+			data: { workflowName: workflow.name },
+		});
 	}
 
 	async #handleDeleteWorkflow(workflow: WorkflowSummary) {
@@ -200,7 +208,7 @@ export class UpDocWorkflowsViewElement extends UmbLitElement {
 					</uui-table-head>
 					${this._workflows.map(
 						(w) => html`
-							<uui-table-row>
+							<uui-table-row class="clickable-row" @click=${() => this.#handleViewWorkflow(w)}>
 								<uui-table-cell>${w.name}</uui-table-cell>
 								<uui-table-cell>${w.documentTypeAlias}</uui-table-cell>
 								<uui-table-cell>${w.blueprintName ?? w.blueprintId ?? '—'}</uui-table-cell>
@@ -219,7 +227,7 @@ export class UpDocWorkflowsViewElement extends UmbLitElement {
 										color="danger"
 										label="Delete"
 										compact
-										@click=${() => this.#handleDeleteWorkflow(w)}>
+										@click=${(e: Event) => { e.stopPropagation(); this.#handleDeleteWorkflow(w); }}>
 										<uui-icon name="icon-trash"></uui-icon>
 									</uui-button>
 								</uui-table-cell>
@@ -243,6 +251,14 @@ export class UpDocWorkflowsViewElement extends UmbLitElement {
 				display: flex;
 				justify-content: flex-end;
 				margin-bottom: var(--uui-size-space-4);
+			}
+
+			.clickable-row {
+				cursor: pointer;
+			}
+
+			.clickable-row:hover {
+				background: var(--uui-color-surface-alt);
 			}
 		`,
 	];
