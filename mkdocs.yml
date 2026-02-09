@@ -22,12 +22,14 @@ theme:
   features:
     - navigation.sections
     - navigation.expand
+    - navigation.indexes
     - content.code.copy
 
 nav:
   - Home: index.md
   - User Journeys: user-journeys.md
   - Frontend (TypeScript):
+    - frontend/index.md
     - index.ts: source-files/index.md
     - manifest.ts: source-files/manifest.md
     - up-doc-action.ts: source-files/up-doc-action.md
@@ -42,6 +44,7 @@ nav:
     - transforms.ts: source-files/transforms.md
     - up-doc-collection-action.element.ts: source-files/up-doc-collection-action-element.md
   - Backend (C#):
+    - backend/index.md
     - PdfExtractionService.cs: source-files/pdf-extraction-service.md
     - PdfPagePropertiesService.cs: source-files/pdf-page-properties-service.md
     - MarkdownExtractionService.cs: source-files/markdown-extraction-service.md
@@ -50,6 +53,7 @@ nav:
     - WorkflowModels.cs: source-files/workflow-models.md
     - WorkflowService.cs: source-files/workflow-service.md
   - Common Errors:
+    - errors/index.md
     - Distributed cache error: common-errors.md
 
 markdown_extensions:
