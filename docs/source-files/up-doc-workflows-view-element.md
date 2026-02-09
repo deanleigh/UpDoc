@@ -12,7 +12,8 @@ Provides a table-based UI for viewing all configured workflows, creating new one
 2. Renders workflows in a `uui-table` with columns for name, document type, blueprint, sources, mappings, and status
 3. Shows an empty state with explanation text when no workflows exist
 4. "Create Workflow" button opens `UMB_CREATE_WORKFLOW_MODAL` and POSTs the result to the API
-5. "Delete" button shows a `UMB_CONFIRM_MODAL` confirmation dialog, then DELETEs the workflow and clears the client-side config cache
+5. Clicking a workflow row navigates to the workflow workspace page via `history.pushState`
+6. "Delete" button shows a `UMB_CONFIRM_MODAL` confirmation dialog, then DELETEs the workflow and clears the client-side config cache
 
 ## UI states
 
@@ -39,6 +40,20 @@ interface WorkflowSummary {
     validationWarnings: string[];
 }
 ```
+
+### Workflow navigation
+
+Clicking a workflow row navigates to the workflow workspace page using client-side routing:
+
+```typescript
+#handleViewWorkflow(workflow: WorkflowSummary) {
+    const encodedName = encodeURIComponent(workflow.name);
+    window.history.pushState({}, '', `section/settings/workspace/updoc-workflow/edit/${encodedName}`);
+    window.dispatchEvent(new PopStateEvent('popstate'));
+}
+```
+
+The URL follows Umbraco's routable workspace pattern: `section/{section}/workspace/{entityType}/edit/{unique}`. The `popstate` event triggers Umbraco's router to handle the navigation.
 
 ### Cache invalidation on delete
 

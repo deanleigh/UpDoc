@@ -1,0 +1,366 @@
+import type { DocumentTypeConfig, DestinationField, DestinationBlockGrid } from './workflow.types.js';
+import { fetchWorkflowByName } from './workflow.service.js';
+import { html, customElement, css, state, nothing } from '@umbraco-cms/backoffice/external/lit';
+import { UmbLitElement } from '@umbraco-cms/backoffice/lit-element';
+import { UmbTextStyles } from '@umbraco-cms/backoffice/style';
+import { UMB_AUTH_CONTEXT } from '@umbraco-cms/backoffice/auth';
+import { UMB_WORKSPACE_CONTEXT } from '@umbraco-cms/backoffice/workspace';
+
+@customElement('up-doc-workflow-destination-view')
+export class UpDocWorkflowDestinationViewElement extends UmbLitElement {
+	@state() private _config: DocumentTypeConfig | null = null;
+	@state() private _loading = true;
+	@state() private _error: string | null = null;
+	@state() private _activeTab = '';
+
+	override connectedCallback() {
+		super.connectedCallback();
+		this.consumeContext(UMB_WORKSPACE_CONTEXT, (context) => {
+			if (!context) return;
+			this.observe((context as any).unique, (unique: string | null) => {
+				if (unique) {
+					this.#loadConfig(decodeURIComponent(unique));
+				}
+			});
+		});
+	}
+
+	async #loadConfig(workflowName: string) {
+		this._loading = true;
+		this._error = null;
+
+		try {
+			const authContext = await this.getContext(UMB_AUTH_CONTEXT);
+			const token = await authContext.getLatestToken();
+			this._config = await fetchWorkflowByName(workflowName, token);
+
+			if (!this._config) {
+				this._error = `Workflow "${workflowName}" not found`;
+				return;
+			}
+
+			const tabs = this.#getTabs();
+			if (tabs.length > 0) {
+				this._activeTab = tabs[0].id;
+			}
+		} catch (err) {
+			this._error = err instanceof Error ? err.message : 'Failed to load workflow';
+			console.error('Failed to load workflow config:', err);
+		} finally {
+			this._loading = false;
+		}
+	}
+
+	#getTabs(): Array<{ id: string; label: string }> {
+		if (!this._config) return [];
+
+		const tabs: Array<{ id: string; label: string }> = [];
+		const tabNames = new Set(this._config.destination.fields.map((f) => f.tab).filter(Boolean));
+
+		for (const tabName of tabNames) {
+			tabs.push({
+				id: tabName!.toLowerCase().replace(/\s+/g, '-'),
+				label: tabName!,
+			});
+		}
+
+		if (this._config.destination.blockGrids?.length) {
+			if (!tabNames.has('Page Content')) {
+				tabs.push({ id: 'page-content', label: 'Page Content' });
+			}
+		}
+
+		return tabs;
+	}
+
+	#renderFieldsForTab(tabName: string) {
+		if (!this._config) return nothing;
+
+		const fields = this._config.destination.fields.filter((f) => f.tab === tabName);
+		if (fields.length === 0) return html`<p class="empty-message">No fields in this tab.</p>`;
+
+		return html`
+			<div class="field-list">
+				${fields.map((field) => this.#renderField(field))}
+			</div>
+		`;
+	}
+
+	#renderField(field: DestinationField) {
+		return html`
+			<div class="field-item">
+				<div class="field-header">
+					<span class="field-label">${field.label}</span>
+					<span class="field-type">${field.type}</span>
+					${field.mandatory ? html`<uui-tag look="primary" color="danger" class="field-badge">Required</uui-tag>` : nothing}
+				</div>
+				<div class="field-meta">
+					<span class="field-alias">${field.alias}</span>
+					${field.description ? html`<span class="field-description">${field.description}</span>` : nothing}
+				</div>
+			</div>
+		`;
+	}
+
+	#renderBlockGrids() {
+		if (!this._config?.destination.blockGrids?.length) {
+			return html`<p class="empty-message">No block grids configured.</p>`;
+		}
+
+		return html`
+			${this._config.destination.blockGrids.map((grid) => this.#renderBlockGrid(grid))}
+		`;
+	}
+
+	#renderBlockGrid(grid: DestinationBlockGrid) {
+		return html`
+			<div class="block-grid">
+				<div class="block-grid-header">
+					<span class="block-grid-label">${grid.label}</span>
+					<span class="field-alias">${grid.alias}</span>
+				</div>
+				${grid.description ? html`<p class="block-grid-description">${grid.description}</p>` : nothing}
+				<div class="block-list">
+					${grid.blocks.map(
+						(block) => html`
+							<div class="block-item">
+								<div class="block-header">
+									<umb-icon name="icon-box"></umb-icon>
+									<span class="block-label">${block.label}</span>
+									${block.identifyBy
+										? html`<span class="block-identify">identified by: "${block.identifyBy.value}"</span>`
+										: nothing}
+								</div>
+								${block.properties?.length
+									? html`
+										<div class="block-properties">
+											${block.properties.map(
+												(prop) => html`
+													<div class="block-property">
+														<span class="block-property-label">${prop.label || prop.alias}</span>
+														<span class="field-type">${prop.type}</span>
+														${prop.acceptsFormats?.length
+															? html`<span class="accepts-formats">${prop.acceptsFormats.join(', ')}</span>`
+															: nothing}
+													</div>
+												`
+											)}
+										</div>
+									`
+									: nothing}
+							</div>
+						`
+					)}
+				</div>
+			</div>
+		`;
+	}
+
+	#renderTabContent() {
+		if (!this._config) return nothing;
+
+		if (this._activeTab === 'page-content') {
+			return this.#renderBlockGrids();
+		}
+
+		const tabName = this._config.destination.fields.find(
+			(f) => f.tab && f.tab.toLowerCase().replace(/\s+/g, '-') === this._activeTab
+		)?.tab;
+
+		if (tabName) {
+			return this.#renderFieldsForTab(tabName);
+		}
+
+		return nothing;
+	}
+
+	override render() {
+		if (this._loading) {
+			return html`<div class="loading"><uui-loader-bar></uui-loader-bar></div>`;
+		}
+
+		if (this._error) {
+			return html`<p style="color: var(--uui-color-danger);">${this._error}</p>`;
+		}
+
+		const tabs = this.#getTabs();
+
+		return html`
+			<umb-body-layout header-fit-height>
+				<uui-tab-group slot="header" dropdown-content-direction="vertical">
+					${tabs.map(
+						(tab) => html`
+							<uui-tab
+								label=${tab.label}
+								?active=${this._activeTab === tab.id}
+								@click=${() => { this._activeTab = tab.id; }}>
+								${tab.label}
+							</uui-tab>
+						`
+					)}
+				</uui-tab-group>
+				<uui-box>
+					${this.#renderTabContent()}
+				</uui-box>
+			</umb-body-layout>
+		`;
+	}
+
+	static override styles = [
+		UmbTextStyles,
+		css`
+			:host {
+				display: block;
+				height: 100%;
+				--uui-tab-background: var(--uui-color-surface);
+			}
+
+			.loading {
+				padding: var(--uui-size-layout-1);
+			}
+
+			.empty-message {
+				color: var(--uui-color-text-alt);
+				font-style: italic;
+			}
+
+			.field-list {
+				display: flex;
+				flex-direction: column;
+				gap: var(--uui-size-space-1);
+			}
+
+			.field-item {
+				padding: var(--uui-size-space-3) var(--uui-size-space-4);
+				border-bottom: 1px solid var(--uui-color-border);
+			}
+
+			.field-item:last-child {
+				border-bottom: none;
+			}
+
+			.field-header {
+				display: flex;
+				align-items: center;
+				gap: var(--uui-size-space-3);
+			}
+
+			.field-label {
+				font-weight: 600;
+			}
+
+			.field-type {
+				font-size: var(--uui-type-small-size);
+				color: var(--uui-color-text-alt);
+				background: var(--uui-color-surface-alt);
+				padding: 2px 8px;
+				border-radius: var(--uui-border-radius);
+			}
+
+			.field-badge {
+				font-size: 11px;
+			}
+
+			.field-meta {
+				display: flex;
+				gap: var(--uui-size-space-3);
+				margin-top: var(--uui-size-space-1);
+			}
+
+			.field-alias {
+				font-size: var(--uui-type-small-size);
+				color: var(--uui-color-text-alt);
+				font-family: monospace;
+			}
+
+			.field-description {
+				font-size: var(--uui-type-small-size);
+				color: var(--uui-color-text-alt);
+			}
+
+			.block-grid {
+				margin-bottom: var(--uui-size-space-5);
+			}
+
+			.block-grid-header {
+				display: flex;
+				align-items: center;
+				gap: var(--uui-size-space-3);
+				padding: var(--uui-size-space-3) var(--uui-size-space-4);
+				background: var(--uui-color-surface-alt);
+				border-bottom: 1px solid var(--uui-color-border);
+			}
+
+			.block-grid-label {
+				font-weight: 600;
+			}
+
+			.block-grid-description {
+				padding: var(--uui-size-space-2) var(--uui-size-space-4);
+				font-size: var(--uui-type-small-size);
+				color: var(--uui-color-text-alt);
+				margin: 0;
+			}
+
+			.block-list {
+				display: flex;
+				flex-direction: column;
+			}
+
+			.block-item {
+				padding: var(--uui-size-space-3) var(--uui-size-space-4);
+				padding-left: var(--uui-size-space-6);
+				border-bottom: 1px solid var(--uui-color-border);
+			}
+
+			.block-item:last-child {
+				border-bottom: none;
+			}
+
+			.block-header {
+				display: flex;
+				align-items: center;
+				gap: var(--uui-size-space-2);
+			}
+
+			.block-label {
+				font-weight: 600;
+			}
+
+			.block-identify {
+				font-size: var(--uui-type-small-size);
+				color: var(--uui-color-text-alt);
+				font-style: italic;
+			}
+
+			.block-properties {
+				margin-top: var(--uui-size-space-2);
+				padding-left: var(--uui-size-space-5);
+			}
+
+			.block-property {
+				display: flex;
+				align-items: center;
+				gap: var(--uui-size-space-2);
+				padding: var(--uui-size-space-1) 0;
+			}
+
+			.block-property-label {
+				font-size: var(--uui-type-small-size);
+			}
+
+			.accepts-formats {
+				font-size: 11px;
+				color: var(--uui-color-text-alt);
+			}
+		`,
+	];
+}
+
+export default UpDocWorkflowDestinationViewElement;
+
+declare global {
+	interface HTMLElementTagNameMap {
+		'up-doc-workflow-destination-view': UpDocWorkflowDestinationViewElement;
+	}
+}

@@ -1,4 +1,4 @@
-const e = [
+const o = [
   // =====================================================================
   // Entity Action — "Create from Source" on content nodes
   // =====================================================================
@@ -78,6 +78,75 @@ const e = [
     alias: "UpDoc.WorkflowDetailModal",
     name: "Workflow Detail Modal",
     element: () => import("./up-doc-workflow-detail-modal.element-DXb2a5-q.js")
+  },
+  // =====================================================================
+  // Workflow Workspace — full page for editing individual workflows
+  // =====================================================================
+  {
+    type: "workspace",
+    kind: "routable",
+    alias: "UpDoc.WorkflowWorkspace",
+    name: "UpDoc Workflow Workspace",
+    api: () => import("./up-doc-workflow-workspace.context-5n0d2Yaa.js"),
+    meta: {
+      entityType: "updoc-workflow"
+    }
+  },
+  {
+    type: "workspaceView",
+    alias: "UpDoc.WorkflowWorkspaceView.Destination",
+    name: "Destination",
+    element: () => import("./up-doc-workflow-destination-view.element-PnXq6XBd.js"),
+    weight: 300,
+    meta: {
+      label: "Destination",
+      pathname: "destination",
+      icon: "icon-blueprint"
+    },
+    conditions: [
+      {
+        alias: "Umb.Condition.WorkspaceAlias",
+        match: "UpDoc.WorkflowWorkspace"
+      }
+    ]
+  },
+  {
+    type: "workspaceView",
+    alias: "UpDoc.WorkflowWorkspaceView.Markdown",
+    name: "Markdown",
+    js: () => import("./up-doc-workflow-source-views.element-Dk5jDSSF.js"),
+    elementName: "up-doc-workflow-markdown-view",
+    weight: 200,
+    meta: {
+      label: "Markdown",
+      pathname: "markdown",
+      icon: "icon-code"
+    },
+    conditions: [
+      {
+        alias: "Umb.Condition.WorkspaceAlias",
+        match: "UpDoc.WorkflowWorkspace"
+      }
+    ]
+  },
+  {
+    type: "workspaceView",
+    alias: "UpDoc.WorkflowWorkspaceView.Pdf",
+    name: "Pdf",
+    js: () => import("./up-doc-workflow-source-views.element-Dk5jDSSF.js"),
+    elementName: "up-doc-workflow-pdf-view",
+    weight: 100,
+    meta: {
+      label: "Pdf",
+      pathname: "pdf",
+      icon: "icon-document"
+    },
+    conditions: [
+      {
+        alias: "Umb.Condition.WorkspaceAlias",
+        match: "UpDoc.WorkflowWorkspace"
+      }
+    ]
   },
   // =====================================================================
   // Settings sidebar — UpDoc appears in Settings section
@@ -160,7 +229,7 @@ const e = [
     type: "workspaceView",
     alias: "UpDoc.WorkspaceView.Workflows",
     name: "Workflows",
-    element: () => import("./up-doc-workflows-view.element-BAN40lC2.js"),
+    element: () => import("./up-doc-workflows-view.element-xTmdKE6z.js"),
     weight: 300,
     meta: {
       label: "Workflows",
@@ -212,6 +281,6 @@ const e = [
   }
 ];
 export {
-  e as manifests
+  o as manifests
 };
 //# sourceMappingURL=updoc.js.map

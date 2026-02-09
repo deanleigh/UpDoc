@@ -45,6 +45,9 @@ nav:
     - create-workflow-modal.token.ts: source-files/create-workflow-modal-token.md
     - up-doc-workflow-detail-modal.element.ts: source-files/up-doc-workflow-detail-modal-element.md
     - up-doc-workflow-detail-modal.token.ts: source-files/up-doc-workflow-detail-modal-token.md
+    - up-doc-workflow-workspace.context.ts: source-files/up-doc-workflow-workspace-context.md
+    - up-doc-workflow-destination-view.element.ts: source-files/up-doc-workflow-destination-view-element.md
+    - up-doc-workflow-source-views.element.ts: source-files/up-doc-workflow-source-views-element.md
     - transforms.ts: source-files/transforms.md
     - up-doc-collection-action.element.ts: source-files/up-doc-collection-action-element.md
   - Backend (C#):

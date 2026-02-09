@@ -84,6 +84,76 @@ export const manifests: Array<UmbExtensionManifest> = [
 	},
 
 	// =====================================================================
+	// Workflow Workspace — full page for editing individual workflows
+	// =====================================================================
+	{
+		type: 'workspace',
+		kind: 'routable',
+		alias: 'UpDoc.WorkflowWorkspace',
+		name: 'UpDoc Workflow Workspace',
+		api: () => import('./up-doc-workflow-workspace.context.js'),
+		meta: {
+			entityType: 'updoc-workflow',
+		},
+	},
+	{
+		type: 'workspaceView',
+		alias: 'UpDoc.WorkflowWorkspaceView.Destination',
+		name: 'Destination',
+		element: () => import('./up-doc-workflow-destination-view.element.js'),
+		weight: 300,
+		meta: {
+			label: 'Destination',
+			pathname: 'destination',
+			icon: 'icon-blueprint',
+		},
+		conditions: [
+			{
+				alias: 'Umb.Condition.WorkspaceAlias',
+				match: 'UpDoc.WorkflowWorkspace',
+			},
+		],
+	},
+	{
+		type: 'workspaceView',
+		alias: 'UpDoc.WorkflowWorkspaceView.Markdown',
+		name: 'Markdown',
+		js: () => import('./up-doc-workflow-source-views.element.js'),
+		elementName: 'up-doc-workflow-markdown-view',
+		weight: 200,
+		meta: {
+			label: 'Markdown',
+			pathname: 'markdown',
+			icon: 'icon-code',
+		},
+		conditions: [
+			{
+				alias: 'Umb.Condition.WorkspaceAlias',
+				match: 'UpDoc.WorkflowWorkspace',
+			},
+		],
+	},
+	{
+		type: 'workspaceView',
+		alias: 'UpDoc.WorkflowWorkspaceView.Pdf',
+		name: 'Pdf',
+		js: () => import('./up-doc-workflow-source-views.element.js'),
+		elementName: 'up-doc-workflow-pdf-view',
+		weight: 100,
+		meta: {
+			label: 'Pdf',
+			pathname: 'pdf',
+			icon: 'icon-document',
+		},
+		conditions: [
+			{
+				alias: 'Umb.Condition.WorkspaceAlias',
+				match: 'UpDoc.WorkflowWorkspace',
+			},
+		],
+	},
+
+	// =====================================================================
 	// Settings sidebar — UpDoc appears in Settings section
 	// =====================================================================
 	{
