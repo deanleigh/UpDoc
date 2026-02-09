@@ -37,6 +37,7 @@ nav:
     - blueprint-picker-modal.token.ts: source-files/blueprint-picker-modal-token.md
     - workflow.types.ts: source-files/workflow-types.md
     - workflow.service.ts: source-files/workflow-service-ts.md
+    - up-doc-workflows-view.element.ts: source-files/up-doc-workflows-view-element.md
     - transforms.ts: source-files/transforms.md
   - Backend (C#):
     - PdfExtractionService.cs: source-files/pdf-extraction-service.md
