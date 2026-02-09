@@ -18,6 +18,8 @@ Provides the UI for users to:
 
 PDF and Markdown source types are fully functional. Web Page and Word Document source types show their respective UI (URL input and media picker) but display "not yet available" messages and the Create button remains disabled.
 
+The source type dropdown is **dynamically populated** from the workflow config. When the modal opens, it fetches the config for the selected blueprint and only shows source types that have config files (e.g., if only `source-pdf.json` exists, only "PDF Document" appears). If only one source type is available, it is auto-selected.
+
 ## Tabbed Interface
 
 The modal uses a tabbed interface with navigation tabs in the header:
@@ -46,6 +48,8 @@ export class UpDocModalElement extends UmbModalBaseElement<
     @state() private _config: DocumentTypeConfig | null = null;
     @state() private _isExtracting = false;
     @state() private _extractionError: string | null = null;
+    @state() private _availableSourceTypes: string[] = [];
+    @state() private _loadingSourceTypes = true;
 
     // ... methods and render
 }
@@ -215,9 +219,33 @@ The tabs are rendered in the modal header using `slot="navigation"`:
 }
 ```
 
+### Dynamic source type loading
+
+When the modal opens, it immediately fetches the workflow config via `fetchConfig()` to discover which source types have config files:
+
+```typescript
+async #loadAvailableSourceTypes() {
+    this._loadingSourceTypes = true;
+    try {
+        const config = await fetchConfig(blueprintId, token);
+        if (config?.sources) {
+            this._availableSourceTypes = Object.keys(config.sources);
+            // Auto-select if only one source type
+            if (this._availableSourceTypes.length === 1) {
+                this._sourceType = this._availableSourceTypes[0] as SourceType;
+            }
+        }
+    } finally {
+        this._loadingSourceTypes = false;
+    }
+}
+```
+
+The dropdown only shows source types that exist in the config's `sources` dictionary. This means if a workflow only has `source-pdf.json`, the user won't see Markdown, Web Page, or Word Document as options. Human-readable labels are mapped via `SOURCE_TYPE_LABELS`.
+
 ### Source type selection
 
-The `uui-select` dropdown uses the `placeholder` attribute to show "Choose a source..." when no source type is selected. When the user changes the source type, all source-specific state is reset (selected media, URL, extracted sections, config). This ensures a clean slate when switching between source types.
+The `uui-select` dropdown shows "Choose a source..." when no source type is selected (only when multiple source types are available). When the user changes the source type, all source-specific state is reset (selected media, URL, extracted sections, config). This ensures a clean slate when switching between source types.
 
 ### Conditional source UI rendering
 
@@ -298,7 +326,7 @@ The modal shows visual feedback during and after extraction:
 ```typescript
 import type { UmbUpDocModalData, UmbUpDocModalValue, SourceType } from './up-doc-modal.token.js';
 import type { DocumentTypeConfig } from './workflow.types.js';
-import { extractSections } from './workflow.service.js';
+import { extractSections, fetchConfig } from './workflow.service.js';
 import { html, customElement, css, state, nothing } from '@umbraco-cms/backoffice/external/lit';
 import { UmbTextStyles } from '@umbraco-cms/backoffice/style';
 import { UmbModalBaseElement } from '@umbraco-cms/backoffice/modal';

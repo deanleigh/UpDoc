@@ -2,6 +2,48 @@ import type { DocumentTypeConfig, ExtractSectionsResponse } from './workflow.typ
 
 const configCache = new Map<string, DocumentTypeConfig>();
 
+export interface ActiveWorkflows {
+	documentTypeAliases: string[];
+	blueprintIds: string[];
+}
+
+let activeWorkflowsCache: ActiveWorkflows | null = null;
+let activeWorkflowsPromise: Promise<ActiveWorkflows> | null = null;
+
+/**
+ * Fetches the list of document type aliases and blueprint IDs
+ * that have complete workflows configured. Cached globally.
+ */
+export async function fetchActiveWorkflows(token: string): Promise<ActiveWorkflows> {
+	if (activeWorkflowsCache) return activeWorkflowsCache;
+
+	if (!activeWorkflowsPromise) {
+		activeWorkflowsPromise = (async () => {
+			try {
+				const response = await fetch('/umbraco/management/api/v1/updoc/workflows/active', {
+					method: 'GET',
+					headers: {
+						'Content-Type': 'application/json',
+						Authorization: `Bearer ${token}`,
+					},
+				});
+
+				if (response.ok) {
+					activeWorkflowsCache = await response.json();
+				} else {
+					activeWorkflowsCache = { documentTypeAliases: [], blueprintIds: [] };
+				}
+			} catch {
+				activeWorkflowsCache = { documentTypeAliases: [], blueprintIds: [] };
+			}
+			activeWorkflowsPromise = null;
+			return activeWorkflowsCache!;
+		})();
+	}
+
+	return activeWorkflowsPromise;
+}
+
 /**
  * Fetches the document type config for a given blueprint ID.
  * The config contains source.json, destination.json, and map.json data.
@@ -63,8 +105,10 @@ export async function extractSections(
 }
 
 /**
- * Clears the config cache. Useful when configs have been modified.
+ * Clears all caches. Useful when configs have been modified.
  */
 export function clearConfigCache(): void {
 	configCache.clear();
+	activeWorkflowsCache = null;
+	activeWorkflowsPromise = null;
 }

@@ -8,7 +8,7 @@ const e = [
     alias: "UpDoc.EntityAction",
     name: "UpDoc Entity Action",
     weight: 1100,
-    api: () => import("./up-doc-action-BcM3AAF9.js"),
+    api: () => import("./up-doc-action-a_lvn2E-.js"),
     forEntityTypes: ["document"],
     meta: {
       icon: "icon-document",
@@ -17,8 +17,20 @@ const e = [
     conditions: [
       {
         alias: "Umb.Condition.EntityIsNotTrashed"
+      },
+      {
+        alias: "UpDoc.Condition.HasAvailableWorkflows"
       }
     ]
+  },
+  // =====================================================================
+  // Condition — only show entity action when workflows exist
+  // =====================================================================
+  {
+    type: "condition",
+    alias: "UpDoc.Condition.HasAvailableWorkflows",
+    name: "Has Available Workflows",
+    api: () => import("./up-doc-has-workflows.condition-BHMpQTg8.js")
   },
   // =====================================================================
   // Modals — Blueprint picker + sidebar workflow
@@ -27,7 +39,7 @@ const e = [
     type: "modal",
     alias: "UpDoc.Modal",
     name: "UpDoc Modal",
-    element: () => import("./up-doc-modal.element-DVAgg6Bi.js")
+    element: () => import("./up-doc-modal.element-JgfXxNRN.js")
   },
   {
     type: "modal",
@@ -122,7 +134,7 @@ const e = [
     type: "workspaceView",
     alias: "UpDoc.WorkspaceView.Workflows",
     name: "Workflows",
-    element: () => import("./up-doc-workflows-view.element-BRJqXdMT.js"),
+    element: () => import("./up-doc-workflows-view.element-B5whs4rN.js"),
     weight: 300,
     meta: {
       label: "Workflows",

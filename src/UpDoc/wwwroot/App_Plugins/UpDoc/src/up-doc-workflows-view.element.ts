@@ -2,8 +2,9 @@ import { html, css, customElement, state } from '@umbraco-cms/backoffice/externa
 import { UmbLitElement } from '@umbraco-cms/backoffice/lit-element';
 import { UmbTextStyles } from '@umbraco-cms/backoffice/style';
 import { UMB_AUTH_CONTEXT } from '@umbraco-cms/backoffice/auth';
-import { UMB_MODAL_MANAGER_CONTEXT } from '@umbraco-cms/backoffice/modal';
+import { UMB_MODAL_MANAGER_CONTEXT, UMB_CONFIRM_MODAL } from '@umbraco-cms/backoffice/modal';
 import { UMB_CREATE_WORKFLOW_MODAL } from './create-workflow-modal.token.js';
+import { clearConfigCache } from './workflow.service.js';
 
 interface WorkflowSummary {
 	name: string;
@@ -91,6 +92,51 @@ export class UpDocWorkflowsViewElement extends UmbLitElement {
 		}
 	}
 
+	async #handleDeleteWorkflow(workflow: WorkflowSummary) {
+		const modalManager = await this.getContext(UMB_MODAL_MANAGER_CONTEXT);
+
+		try {
+			await modalManager.open(this, UMB_CONFIRM_MODAL, {
+				data: {
+					headline: `Delete "${workflow.name}"?`,
+					content: html`<p>This will permanently delete the workflow folder and all its configuration files (destination, map, and source configs).</p>
+						<p>This action cannot be undone.</p>`,
+					confirmLabel: 'Delete',
+					color: 'danger',
+				},
+			}).onSubmit();
+		} catch {
+			// Cancelled
+			return;
+		}
+
+		try {
+			const authContext = await this.getContext(UMB_AUTH_CONTEXT);
+			const token = await authContext.getLatestToken();
+
+			const response = await fetch(`/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(workflow.name)}`, {
+				method: 'DELETE',
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			});
+
+			if (!response.ok) {
+				const error = await response.json();
+				throw new Error(error.error || `Failed to delete workflow: ${response.statusText}`);
+			}
+
+			// Clear the client-side cache so the condition re-evaluates
+			clearConfigCache();
+
+			// Refresh the list
+			await this.#loadWorkflows();
+		} catch (err) {
+			this._error = err instanceof Error ? err.message : 'Unknown error';
+			console.error('Failed to delete workflow:', err);
+		}
+	}
+
 	override render() {
 		if (this._loading) {
 			return html`<uui-loader-bar></uui-loader-bar>`;
@@ -150,6 +196,7 @@ export class UpDocWorkflowsViewElement extends UmbLitElement {
 						<uui-table-head-cell>Sources</uui-table-head-cell>
 						<uui-table-head-cell>Mappings</uui-table-head-cell>
 						<uui-table-head-cell>Status</uui-table-head-cell>
+						<uui-table-head-cell style="width: 1px;"></uui-table-head-cell>
 					</uui-table-head>
 					${this._workflows.map(
 						(w) => html`
@@ -165,6 +212,16 @@ export class UpDocWorkflowsViewElement extends UmbLitElement {
 										color=${w.isComplete ? 'positive' : 'warning'}>
 										${w.isComplete ? 'Ready' : 'Incomplete'}
 									</uui-tag>
+								</uui-table-cell>
+								<uui-table-cell>
+									<uui-button
+										look="default"
+										color="danger"
+										label="Delete"
+										compact
+										@click=${() => this.#handleDeleteWorkflow(w)}>
+										<uui-icon name="icon-trash"></uui-icon>
+									</uui-button>
 								</uui-table-cell>
 							</uui-table-row>
 						`

@@ -30,6 +30,27 @@ public class WorkflowController : ControllerBase
         return Ok(summaries);
     }
 
+    [HttpGet("active")]
+    public IActionResult GetActive()
+    {
+        var summaries = _workflowService.GetAllWorkflowSummaries();
+        var complete = summaries.Where(s => s.IsComplete).ToList();
+
+        return Ok(new
+        {
+            documentTypeAliases = complete
+                .Select(s => s.DocumentTypeAlias)
+                .Where(a => !string.IsNullOrEmpty(a))
+                .Distinct()
+                .ToArray(),
+            blueprintIds = complete
+                .Select(s => s.BlueprintId)
+                .Where(id => !string.IsNullOrEmpty(id))
+                .Distinct()
+                .ToArray(),
+        });
+    }
+
     [HttpGet("{name}")]
     public IActionResult GetByName(string name)
     {
@@ -73,6 +94,29 @@ public class WorkflowController : ControllerBase
         catch (InvalidOperationException ex)
         {
             return Conflict(new { error = ex.Message });
+        }
+    }
+
+    [HttpDelete("{name}")]
+    public IActionResult Delete(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            return BadRequest(new { error = "Workflow name is required." });
+        }
+
+        try
+        {
+            _workflowService.DeleteWorkflow(name);
+            return NoContent();
+        }
+        catch (DirectoryNotFoundException)
+        {
+            return NotFound(new { error = $"Workflow '{name}' not found." });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { error = ex.Message });
         }
     }
 }

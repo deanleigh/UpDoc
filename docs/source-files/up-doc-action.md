@@ -8,15 +8,16 @@ When a user clicks "Create Document from Source" in the document tree context me
 
 1. Gets the parent document's document type
 2. Discovers allowed child document types and their blueprints (grouped by document type)
-3. Opens the **blueprint picker dialog** -- user selects a document type, then a blueprint
-4. Opens the **source sidebar modal** -- passes the selected `blueprintId` so the modal can fetch the config and extract sections
-5. Receives `extractedSections` and `config` from the modal return value
-6. Scaffolds from the selected blueprint to get default values
-7. Loops over `config.map.mappings` to apply each mapping using path-based targeting
-8. Creates a new document via the Management API
-9. Saves the document to properly persist it and trigger cache updates
-10. Shows success/error notifications
-11. Navigates to the newly created document
+3. Fetches active workflows and **filters blueprints** to only those with complete workflows
+4. Opens the **blueprint picker dialog** -- user selects a document type, then a blueprint
+5. Opens the **source sidebar modal** -- passes the selected `blueprintId` so the modal can fetch the config and extract sections
+6. Receives `extractedSections` and `config` from the modal return value
+7. Scaffolds from the selected blueprint to get default values
+8. Loops over `config.map.mappings` to apply each mapping using path-based targeting
+9. Creates a new document via the Management API
+10. Saves the document to properly persist it and trigger cache updates
+11. Shows success/error notifications
+12. Navigates to the newly created document
 
 ## Class structure
 
@@ -69,6 +70,23 @@ if (!mediaUnique || !name || !config) {
     return;
 }
 ```
+
+### Blueprint filtering via active workflows
+
+Before opening the blueprint picker, the action fetches the list of active workflows and filters out blueprints that don't have complete workflows:
+
+```typescript
+const authContext = await this.getContext(UMB_AUTH_CONTEXT);
+const token = await authContext.getLatestToken();
+
+const activeWorkflows = await fetchActiveWorkflows(token);
+const activeBlueprintIds = new Set(activeWorkflows.blueprintIds);
+
+// Only include blueprints that have complete workflows
+const workflowBlueprints = blueprints.filter((bp) => activeBlueprintIds.has(bp.unique));
+```
+
+This means editors only see blueprints where an admin has fully configured the workflow (destination + map + at least one source). If no workflows match any allowed child type, a warning notification is shown and the action exits early.
 
 ### Config-driven mapping loop
 
@@ -218,6 +236,7 @@ import { UMB_UP_DOC_MODAL } from './up-doc-modal.token.js';
 import { UMB_BLUEPRINT_PICKER_MODAL } from './blueprint-picker-modal.token.js';
 import type { DocumentTypeOption } from './blueprint-picker-modal.token.js';
 import type { DocumentTypeConfig, MappingDestination } from './workflow.types.js';
+import { fetchActiveWorkflows } from './workflow.service.js';
 import { markdownToHtml, buildRteValue } from './transforms.js';
 import { UmbEntityActionBase } from '@umbraco-cms/backoffice/entity-action';
 import { umbOpenModal } from '@umbraco-cms/backoffice/modal';
@@ -233,13 +252,14 @@ import { UmbDocumentItemRepository } from '@umbraco-cms/backoffice/document';
 1. `this.args.unique` -- Parent document ID (where user right-clicked)
 2. Action fetches parent document to get its document type unique
 3. Action discovers allowed child document types and their blueprints
-4. Blueprint picker dialog returns `{ blueprintUnique, documentTypeUnique }`
-5. Source sidebar modal receives `{ unique, blueprintName, blueprintId }` and returns `{ name, mediaUnique, extractedSections, config }`
-6. Scaffolds from selected blueprint to get default values
-7. Loops over `config.map.mappings`, applying each to scaffold values
-8. POSTs to create document API
-9. Fetches and saves the document to properly persist it
-10. Shows notification and navigates to the new document
+4. Fetches active workflows, filters blueprints to only those with complete workflows
+5. Blueprint picker dialog returns `{ blueprintUnique, documentTypeUnique }`
+6. Source sidebar modal receives `{ unique, blueprintName, blueprintId }` and returns `{ name, mediaUnique, extractedSections, config }`
+7. Scaffolds from selected blueprint to get default values
+8. Loops over `config.map.mappings`, applying each to scaffold values
+9. POSTs to create document API
+10. Fetches and saves the document to properly persist it
+11. Shows notification and navigates to the new document
 
 ### Navigation after creation
 

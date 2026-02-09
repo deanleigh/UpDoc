@@ -30,6 +30,7 @@ nav:
     - index.ts: source-files/index.md
     - manifest.ts: source-files/manifest.md
     - up-doc-action.ts: source-files/up-doc-action.md
+    - up-doc-has-workflows.condition.ts: source-files/up-doc-has-workflows-condition.md
     - up-doc-modal.element.ts: source-files/up-doc-modal-element.md
     - up-doc-modal.token.ts: source-files/up-doc-modal-token.md
     - blueprint-picker-modal.element.ts: source-files/blueprint-picker-modal-element.md

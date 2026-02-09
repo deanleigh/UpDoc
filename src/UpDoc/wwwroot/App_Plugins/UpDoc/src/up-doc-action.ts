@@ -2,6 +2,7 @@ import { UMB_UP_DOC_MODAL } from './up-doc-modal.token.js';
 import { UMB_BLUEPRINT_PICKER_MODAL } from './blueprint-picker-modal.token.js';
 import type { DocumentTypeOption } from './blueprint-picker-modal.token.js';
 import type { DocumentTypeConfig, MappingDestination } from './workflow.types.js';
+import { fetchActiveWorkflows } from './workflow.service.js';
 import { markdownToHtml, buildRteValue } from './transforms.js';
 import { UmbEntityActionBase } from '@umbraco-cms/backoffice/entity-action';
 import { umbOpenModal } from '@umbraco-cms/backoffice/modal';
@@ -52,21 +53,39 @@ export class UpDocEntityAction extends UmbEntityActionBase<never> {
 			}
 
 			// Step 3: Discover blueprints for allowed child types, grouped by document type
+			const authContext = await this.getContext(UMB_AUTH_CONTEXT);
+			const token = await authContext.getLatestToken();
+
+			// Fetch active workflows to filter blueprints
+			const activeWorkflows = await fetchActiveWorkflows(token);
+			const activeBlueprintIds = new Set(activeWorkflows.blueprintIds);
+
 			const documentTypeOptions: DocumentTypeOption[] = [];
 
 			for (const docType of allowedTypes.items) {
 				const { data: blueprints } = await this.#blueprintItemRepository.requestItemsByDocumentType(docType.unique);
 				if (blueprints?.length) {
-					documentTypeOptions.push({
-						documentTypeUnique: docType.unique,
-						documentTypeName: docType.name,
-						documentTypeIcon: (docType as { icon?: string }).icon ?? null,
-						blueprints: blueprints.map((bp) => ({
-							blueprintUnique: bp.unique,
-							blueprintName: bp.name,
-						})),
-					});
+					// Only include blueprints that have complete workflows
+					const workflowBlueprints = blueprints.filter((bp) => activeBlueprintIds.has(bp.unique));
+					if (workflowBlueprints.length) {
+						documentTypeOptions.push({
+							documentTypeUnique: docType.unique,
+							documentTypeName: docType.name,
+							documentTypeIcon: (docType as { icon?: string }).icon ?? null,
+							blueprints: workflowBlueprints.map((bp) => ({
+								blueprintUnique: bp.unique,
+								blueprintName: bp.name,
+							})),
+						});
+					}
 				}
+			}
+
+			if (!documentTypeOptions.length) {
+				notificationContext.peek('warning', {
+					data: { message: 'No workflows are configured for the document types allowed here.' },
+				});
+				return;
 			}
 
 			// Step 4: Open blueprint picker dialog (doc type → blueprint selection)
@@ -110,9 +129,6 @@ export class UpDocEntityAction extends UmbEntityActionBase<never> {
 			console.log('Creating document with:', { name, sections: Object.keys(extractedSections) });
 
 			// Step 6: Scaffold from the selected blueprint
-			const authContext = await this.getContext(UMB_AUTH_CONTEXT);
-			const token = await authContext.getLatestToken();
-
 			const scaffoldResponse = await fetch(
 				`/umbraco/management/api/v1/document-blueprint/${blueprintUnique}/scaffold`,
 				{

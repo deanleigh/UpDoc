@@ -1,18 +1,36 @@
 # workflow.service.ts
 
-Frontend service for fetching config and extracting sections from the UpDoc backend API.
+Frontend service for fetching config, active workflows, and extracting sections from the UpDoc backend API.
 
 ## What it does
 
 Provides exported async functions that communicate with the backend API:
 
-1. `fetchConfig` -- retrieves the combined config (source, destination, map) for a blueprint
-2. `extractSections` -- extracts structured sections from a media item using the config's extraction rules
-3. `clearConfigCache` -- clears the in-memory cache
+1. `fetchActiveWorkflows` -- retrieves which workflows are complete (have destination + map + source)
+2. `fetchConfig` -- retrieves the combined config (source, destination, map) for a blueprint
+3. `extractSections` -- extracts structured sections from a media item using the config's extraction rules
+4. `clearConfigCache` -- clears all in-memory caches
 
-Both `fetchConfig` and `extractSections` require a bearer token for Umbraco Management API authentication.
+All functions require a bearer token for Umbraco Management API authentication.
 
 ## Functions
+
+### fetchActiveWorkflows
+
+```typescript
+export async function fetchActiveWorkflows(
+    token: string
+): Promise<ActiveWorkflows>
+```
+
+Fetches the list of document type aliases and blueprint IDs that have complete workflows from `GET /umbraco/management/api/v1/updoc/workflows/active`.
+
+- Returns an `ActiveWorkflows` object containing:
+  - `documentTypeAliases` -- string array of document type aliases with complete workflows
+  - `blueprintIds` -- string array of blueprint IDs with complete workflows
+- Uses a **global singleton cache** with deduplication (concurrent calls share one request)
+- Returns `{ documentTypeAliases: [], blueprintIds: [] }` on error (fails silently)
+- Cache persists for the browser session; cleared by `clearConfigCache()`
 
 ### fetchConfig
 
@@ -58,15 +76,20 @@ Clears the in-memory config cache. Useful when configs have been modified and ne
 
 ## Key concepts
 
-### In-memory cache
+### In-memory caches
 
-The config cache is a module-level `Map` that persists for the browser session:
+Two module-level caches persist for the browser session:
 
 ```typescript
 const configCache = new Map<string, DocumentTypeConfig>();
+
+let activeWorkflowsCache: ActiveWorkflows | null = null;
+let activeWorkflowsPromise: Promise<ActiveWorkflows> | null = null;
 ```
 
-This avoids re-fetching the same config when the modal or action needs it multiple times.
+The config cache avoids re-fetching per-blueprint configs. The active workflows cache avoids re-fetching the global workflow list — this is shared between the condition (visibility check) and the action (blueprint filtering).
+
+The `activeWorkflowsPromise` ensures concurrent callers (e.g., condition evaluating on multiple nodes) share a single in-flight request rather than making duplicate calls.
 
 ### Authentication
 
@@ -83,7 +106,8 @@ The token is obtained from `UMB_AUTH_CONTEXT` by the calling code.
 
 ### Error handling
 
-Both functions handle non-OK responses gracefully:
+All functions handle non-OK responses gracefully:
+- `fetchActiveWorkflows` returns empty arrays (fails silently so the condition defaults to hidden)
 - `fetchConfig` returns `null` with a `console.warn`
 - `extractSections` parses the error body and logs it with `console.error`, then returns `null`
 
@@ -106,5 +130,6 @@ import type { DocumentTypeConfig, ExtractSectionsResponse } from './workflow.typ
 
 ## Used by
 
+- `up-doc-has-workflows.condition.ts` -- calls `fetchActiveWorkflows` to decide whether to show the entity action
+- `up-doc-action.ts` -- calls `fetchActiveWorkflows` to filter the blueprint picker; uses the config from the modal value to apply mappings
 - `up-doc-modal.element.ts` -- calls `extractSections` when a source document (PDF or Markdown) is selected
-- `up-doc-action.ts` -- uses the config from the modal value to apply mappings

@@ -1,6 +1,6 @@
 import type { UmbUpDocModalData, UmbUpDocModalValue, SourceType } from './up-doc-modal.token.js';
 import type { DocumentTypeConfig } from './workflow.types.js';
-import { extractSections } from './workflow.service.js';
+import { extractSections, fetchConfig } from './workflow.service.js';
 import { html, customElement, css, state, nothing } from '@umbraco-cms/backoffice/external/lit';
 import { UmbTextStyles } from '@umbraco-cms/backoffice/style';
 import { UmbModalBaseElement } from '@umbraco-cms/backoffice/modal';
@@ -15,6 +15,14 @@ const SECTION_LABELS: Record<string, string> = {
 	itinerary: 'Itinerary',
 	features: 'Features',
 	accommodation: 'Accommodation',
+};
+
+// Human-readable labels for source type keys
+const SOURCE_TYPE_LABELS: Record<string, string> = {
+	pdf: 'PDF Document',
+	markdown: 'Markdown',
+	web: 'Web Page',
+	doc: 'Word Document',
 };
 
 type TabType = 'source' | 'content';
@@ -51,6 +59,12 @@ export class UpDocModalElement extends UmbModalBaseElement<
 	@state()
 	private _extractionError: string | null = null;
 
+	@state()
+	private _availableSourceTypes: string[] = [];
+
+	@state()
+	private _loadingSourceTypes = true;
+
 	override firstUpdated() {
 		this._documentName = '';
 		this._sourceType = '';
@@ -58,6 +72,32 @@ export class UpDocModalElement extends UmbModalBaseElement<
 		this._selectedMediaUnique = null;
 		this._extractedSections = {};
 		this._config = null;
+		this.#loadAvailableSourceTypes();
+	}
+
+	async #loadAvailableSourceTypes() {
+		this._loadingSourceTypes = true;
+		try {
+			const blueprintId = this.data?.blueprintId;
+			if (!blueprintId) return;
+
+			const authContext = await this.getContext(UMB_AUTH_CONTEXT);
+			const token = await authContext.getLatestToken();
+			const config = await fetchConfig(blueprintId, token);
+
+			if (config?.sources) {
+				this._availableSourceTypes = Object.keys(config.sources);
+
+				// Auto-select if only one source type is available
+				if (this._availableSourceTypes.length === 1) {
+					this._sourceType = this._availableSourceTypes[0] as SourceType;
+				}
+			}
+		} catch (err) {
+			console.error('Failed to load available source types:', err);
+		} finally {
+			this._loadingSourceTypes = false;
+		}
 	}
 
 	#handleSourceTypeChange(e: Event) {
@@ -343,23 +383,32 @@ export class UpDocModalElement extends UmbModalBaseElement<
 			</uui-box>
 
 			<uui-box headline="Source">
-				<umb-property-layout label="Source Type" orientation="vertical">
-					<div slot="editor">
-						<uui-select
-							label="Select source type"
-							.options=${[
-								{ name: 'Choose a source...', value: '', selected: this._sourceType === '' },
-								{ name: 'PDF Document', value: 'pdf', selected: this._sourceType === 'pdf' },
-								{ name: 'Markdown', value: 'markdown', selected: this._sourceType === 'markdown' },
-								{ name: 'Web Page', value: 'web', selected: this._sourceType === 'web' },
-								{ name: 'Word Document', value: 'doc', selected: this._sourceType === 'doc' },
-							]}
-							@change=${this.#handleSourceTypeChange}>
-						</uui-select>
-					</div>
-				</umb-property-layout>
+				${this._loadingSourceTypes
+					? html`<uui-loader-bar></uui-loader-bar>`
+					: this._availableSourceTypes.length === 0
+						? html`<p style="color: var(--uui-color-danger);">No source types configured for this workflow.</p>`
+						: html`
+							<umb-property-layout label="Source Type" orientation="vertical">
+								<div slot="editor">
+									<uui-select
+										label="Select source type"
+										.options=${[
+											...(this._availableSourceTypes.length > 1
+												? [{ name: 'Choose a source...', value: '', selected: this._sourceType === '' }]
+												: []),
+											...this._availableSourceTypes.map((st) => ({
+												name: SOURCE_TYPE_LABELS[st] || st,
+												value: st,
+												selected: this._sourceType === st,
+											})),
+										]}
+										@change=${this.#handleSourceTypeChange}>
+									</uui-select>
+								</div>
+							</umb-property-layout>
 
-				${this.#renderSourceUI()}
+							${this.#renderSourceUI()}
+						`}
 			</uui-box>
 		`;
 	}

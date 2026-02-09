@@ -43,6 +43,11 @@ public interface IWorkflowService
     /// Creates a new workflow folder with stub destination and map files.
     /// </summary>
     void CreateWorkflow(string name, string documentTypeAlias, string? blueprintId, string? blueprintName);
+
+    /// <summary>
+    /// Deletes a workflow folder and all its files.
+    /// </summary>
+    void DeleteWorkflow(string name);
 }
 
 /// <summary>
@@ -323,6 +328,31 @@ public class WorkflowService : IWorkflowService
 
         _logger.LogInformation("Created workflow folder: {Name} (docType: {DocType}, blueprint: {Blueprint})",
             name, documentTypeAlias, blueprintId ?? "none");
+
+        ClearCache();
+    }
+
+    public void DeleteWorkflow(string name)
+    {
+        var workflowsDirectory = Path.Combine(_webHostEnvironment.ContentRootPath, "updoc", "workflows");
+        var folderPath = Path.Combine(workflowsDirectory, name);
+
+        if (!Directory.Exists(folderPath))
+        {
+            throw new DirectoryNotFoundException($"Workflow folder '{name}' does not exist.");
+        }
+
+        // Safety: ensure the folder is actually inside the workflows directory
+        var fullFolderPath = Path.GetFullPath(folderPath);
+        var fullWorkflowsPath = Path.GetFullPath(workflowsDirectory);
+        if (!fullFolderPath.StartsWith(fullWorkflowsPath, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new InvalidOperationException("Invalid workflow path.");
+        }
+
+        Directory.Delete(folderPath, recursive: true);
+
+        _logger.LogInformation("Deleted workflow folder: {Name}", name);
 
         ClearCache();
     }

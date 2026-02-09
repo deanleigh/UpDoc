@@ -18,7 +18,20 @@ export const manifests: Array<UmbExtensionManifest> = [
 			{
 				alias: 'Umb.Condition.EntityIsNotTrashed',
 			},
+			{
+				alias: 'UpDoc.Condition.HasAvailableWorkflows',
+			},
 		],
+	},
+
+	// =====================================================================
+	// Condition — only show entity action when workflows exist
+	// =====================================================================
+	{
+		type: 'condition',
+		alias: 'UpDoc.Condition.HasAvailableWorkflows',
+		name: 'Has Available Workflows',
+		api: () => import('./up-doc-has-workflows.condition.js'),
 	},
 
 	// =====================================================================
