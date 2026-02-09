@@ -1,7 +1,7 @@
 import { UMB_UP_DOC_MODAL } from './up-doc-modal.token.js';
 import { UMB_BLUEPRINT_PICKER_MODAL } from './blueprint-picker-modal.token.js';
 import type { DocumentTypeOption } from './blueprint-picker-modal.token.js';
-import type { DocumentTypeConfig, MappingDestination } from './map-file.types.js';
+import type { DocumentTypeConfig, MappingDestination } from './workflow.types.js';
 import { markdownToHtml, buildRteValue } from './transforms.js';
 import { UmbEntityActionBase } from '@umbraco-cms/backoffice/entity-action';
 import { umbOpenModal } from '@umbraco-cms/backoffice/modal';

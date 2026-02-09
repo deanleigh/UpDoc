@@ -1,10 +1,10 @@
-# map-file.types.ts
+# workflow.types.ts
 
 TypeScript interfaces for the three-file configuration architecture. These types mirror the C# models for type-safe handling on the frontend.
 
 ## What it does
 
-Defines the TypeScript shape of the three configuration files (`source.json`, `destination.json`, `map.json`) and the combined `DocumentTypeConfig` returned by the API. Used by the map file service, modal, and entity action.
+Defines the TypeScript shape of the three configuration files (`source.json`, `destination.json`, `map.json`) and the combined `DocumentTypeConfig` returned by the API. Used by the workflow service, modal, and entity action.
 
 ## Three-File Architecture
 
@@ -247,7 +247,7 @@ The path should be relative from your config file to the schemas folder in `App_
 
 ### Used By
 
-- `map-file.service.ts` -- Return types for `fetchConfig()` and `extractSections()`
+- `workflow.service.ts` -- Return types for `fetchConfig()` and `extractSections()`
 - `up-doc-modal.token.ts` -- `DocumentTypeConfig` is part of `UmbUpDocModalValue`
 - `up-doc-action.ts` -- Uses `config.map.mappings` and `config.destination.blockGrids`
 - `up-doc-modal.element.ts` -- Stores `DocumentTypeConfig` as component state

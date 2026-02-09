@@ -1,4 +1,7 @@
 export const manifests: Array<UmbExtensionManifest> = [
+	// =====================================================================
+	// Entity Action — "Create from Source" on content nodes
+	// =====================================================================
 	{
 		type: 'entityAction',
 		kind: 'default',
@@ -17,6 +20,10 @@ export const manifests: Array<UmbExtensionManifest> = [
 			},
 		],
 	},
+
+	// =====================================================================
+	// Modals — Blueprint picker + sidebar workflow
+	// =====================================================================
 	{
 		type: 'modal',
 		alias: 'UpDoc.Modal',
@@ -28,5 +35,146 @@ export const manifests: Array<UmbExtensionManifest> = [
 		alias: 'UpDoc.BlueprintPickerModal',
 		name: 'Blueprint Picker Modal',
 		element: () => import('./blueprint-picker-modal.element.js'),
+	},
+	{
+		type: 'modal',
+		alias: 'UpDoc.CreateWorkflowModal',
+		name: 'Create Workflow Modal',
+		element: () => import('./create-workflow-modal.element.js'),
+	},
+
+	// =====================================================================
+	// Settings sidebar — UpDoc appears in Settings section
+	// =====================================================================
+	{
+		type: 'sectionSidebarApp',
+		kind: 'menu',
+		alias: 'UpDoc.SidebarApp',
+		name: 'UpDoc Sidebar',
+		weight: 15,
+		meta: {
+			label: 'UpDoc',
+			menu: 'UpDoc.Menu',
+		},
+		conditions: [
+			{
+				alias: 'Umb.Condition.SectionAlias',
+				match: 'Umb.Section.Settings',
+			},
+		],
+	},
+	{
+		type: 'menu',
+		alias: 'UpDoc.Menu',
+		name: 'UpDoc Menu',
+	},
+	{
+		type: 'menuItem',
+		kind: 'tree',
+		alias: 'UpDoc.MenuItem.Tree',
+		name: 'UpDoc Menu Item',
+		meta: {
+			treeAlias: 'UpDoc.Tree',
+			menus: ['UpDoc.Menu'],
+			hideTreeRoot: true,
+		},
+	},
+
+	// =====================================================================
+	// Tree — data source for sidebar items
+	// =====================================================================
+	{
+		type: 'repository',
+		alias: 'UpDoc.Tree.Repository',
+		name: 'UpDoc Tree Repository',
+		api: () => import('./up-doc-tree.repository.js'),
+	},
+	{
+		type: 'tree',
+		kind: 'default',
+		alias: 'UpDoc.Tree',
+		name: 'UpDoc Tree',
+		meta: {
+			repositoryAlias: 'UpDoc.Tree.Repository',
+		},
+	},
+	{
+		type: 'treeItem',
+		kind: 'default',
+		alias: 'UpDoc.TreeItem',
+		name: 'UpDoc Tree Item',
+		forEntityTypes: ['updoc'],
+	},
+
+	// =====================================================================
+	// Workspace — right panel with tabs
+	// =====================================================================
+	{
+		type: 'workspace',
+		kind: 'routable',
+		alias: 'UpDoc.Workspace',
+		name: 'UpDoc Workspace',
+		api: () => import('./up-doc-workspace.context.js'),
+		meta: {
+			entityType: 'updoc',
+		},
+	},
+
+	// =====================================================================
+	// Workspace Views — tabs across the top
+	// =====================================================================
+	{
+		type: 'workspaceView',
+		alias: 'UpDoc.WorkspaceView.Workflows',
+		name: 'Workflows',
+		element: () => import('./up-doc-workflows-view.element.js'),
+		weight: 300,
+		meta: {
+			label: 'Workflows',
+			pathname: 'workflows',
+			icon: 'icon-nodes',
+		},
+		conditions: [
+			{
+				alias: 'Umb.Condition.WorkspaceAlias',
+				match: 'UpDoc.Workspace',
+			},
+		],
+	},
+	{
+		type: 'workspaceView',
+		alias: 'UpDoc.WorkspaceView.Configuration',
+		name: 'Configuration',
+		element: () => import('./up-doc-configuration-view.element.js'),
+		weight: 200,
+		meta: {
+			label: 'Configuration',
+			pathname: 'configuration',
+			icon: 'icon-settings',
+		},
+		conditions: [
+			{
+				alias: 'Umb.Condition.WorkspaceAlias',
+				match: 'UpDoc.Workspace',
+			},
+		],
+	},
+	{
+		type: 'workspaceView',
+		alias: 'UpDoc.WorkspaceView.About',
+		name: 'About',
+		element: () => import('./up-doc-about-view.element.js'),
+		weight: 100,
+		meta: {
+			label: 'About',
+			pathname: 'about',
+			icon: 'icon-info',
+		},
+		conditions: [
+			{
+				alias: 'Umb.Condition.WorkspaceAlias',
+				match: 'UpDoc.Workspace',
+			},
+		],
 	},
 ];

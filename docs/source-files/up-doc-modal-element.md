@@ -66,7 +66,7 @@ All Umbraco modals extend `UmbModalBaseElement<TData, TValue>`:
 
 ### Unified extraction via #extractFromSource
 
-The `#extractFromSource` method calls the `extractSections` function from `map-file.service.ts`:
+The `#extractFromSource` method calls the `extractSections` function from `workflow.service.ts`:
 
 ```typescript
 async #extractFromSource(mediaUnique: string) {
@@ -297,8 +297,8 @@ The modal shows visual feedback during and after extraction:
 
 ```typescript
 import type { UmbUpDocModalData, UmbUpDocModalValue, SourceType } from './up-doc-modal.token.js';
-import type { DocumentTypeConfig } from './map-file.types.js';
-import { extractSections } from './map-file.service.js';
+import type { DocumentTypeConfig } from './workflow.types.js';
+import { extractSections } from './workflow.service.js';
 import { html, customElement, css, state, nothing } from '@umbraco-cms/backoffice/external/lit';
 import { UmbTextStyles } from '@umbraco-cms/backoffice/style';
 import { UmbModalBaseElement } from '@umbraco-cms/backoffice/modal';

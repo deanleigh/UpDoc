@@ -82,10 +82,10 @@ A generic class that provides:
 
 ```typescript
 import { UmbModalToken } from '@umbraco-cms/backoffice/modal';
-import type { DocumentTypeConfig } from './map-file.types.js';
+import type { DocumentTypeConfig } from './workflow.types.js';
 ```
 
-The `DocumentTypeConfig` type is imported from `map-file.types.js` for use in `UmbUpDocModalValue`.
+The `DocumentTypeConfig` type is imported from `workflow.types.js` for use in `UmbUpDocModalValue`.
 
 ## Usage
 

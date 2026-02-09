@@ -5,7 +5,7 @@ using UpDoc.Models;
 
 namespace UpDoc.Services;
 
-public interface IMapFileService
+public interface IWorkflowService
 {
     /// <summary>
     /// Gets the document type config for a given blueprint ID.
@@ -27,12 +27,44 @@ public interface IMapFileService
     /// Returns a list of validation errors (empty if valid).
     /// </summary>
     List<string> ValidateConfig(DocumentTypeConfig config);
+
+    /// <summary>
+    /// Lists all workflow folders for the dashboard, including incomplete ones
+    /// that don't have source files yet.
+    /// </summary>
+    IReadOnlyList<WorkflowSummary> GetAllWorkflowSummaries();
+
+    /// <summary>
+    /// Clears the cached configs so new workflows are discovered on next load.
+    /// </summary>
+    void ClearCache();
+
+    /// <summary>
+    /// Creates a new workflow folder with stub destination and map files.
+    /// </summary>
+    void CreateWorkflow(string name, string documentTypeAlias, string? blueprintId, string? blueprintName);
 }
 
-public class MapFileService : IMapFileService
+/// <summary>
+/// Summary info for a workflow folder, used by the dashboard listing.
+/// Includes incomplete workflows that don't have source files yet.
+/// </summary>
+public class WorkflowSummary
+{
+    public string Name { get; set; } = string.Empty;
+    public string DocumentTypeAlias { get; set; } = string.Empty;
+    public string? BlueprintId { get; set; }
+    public string? BlueprintName { get; set; }
+    public string[] SourceTypes { get; set; } = [];
+    public int MappingCount { get; set; }
+    public bool IsComplete { get; set; }
+    public string[] ValidationWarnings { get; set; } = [];
+}
+
+public class WorkflowService : IWorkflowService
 {
     private readonly IWebHostEnvironment _webHostEnvironment;
-    private readonly ILogger<MapFileService> _logger;
+    private readonly ILogger<WorkflowService> _logger;
     private List<DocumentTypeConfig>? _cache;
     private readonly object _lock = new();
 
@@ -43,7 +75,7 @@ public class MapFileService : IMapFileService
         AllowTrailingCommas = true,
     };
 
-    public MapFileService(IWebHostEnvironment webHostEnvironment, ILogger<MapFileService> logger)
+    public WorkflowService(IWebHostEnvironment webHostEnvironment, ILogger<WorkflowService> logger)
     {
         _webHostEnvironment = webHostEnvironment;
         _logger = logger;
@@ -149,6 +181,152 @@ public class MapFileService : IMapFileService
         return errors;
     }
 
+    public IReadOnlyList<WorkflowSummary> GetAllWorkflowSummaries()
+    {
+        var summaries = new List<WorkflowSummary>();
+        var workflowsDirectory = Path.Combine(_webHostEnvironment.ContentRootPath, "updoc", "workflows");
+
+        if (!Directory.Exists(workflowsDirectory))
+        {
+            return summaries.AsReadOnly();
+        }
+
+        foreach (var folderPath in Directory.GetDirectories(workflowsDirectory))
+        {
+            var folderName = Path.GetFileName(folderPath);
+            var summary = new WorkflowSummary { Name = folderName };
+
+            // Try to read destination-blueprint.json for metadata
+            var destinationFile = Path.Combine(folderPath, $"{folderName}-destination-blueprint.json");
+            if (File.Exists(destinationFile))
+            {
+                try
+                {
+                    var json = File.ReadAllText(destinationFile);
+                    var dest = JsonSerializer.Deserialize<DestinationConfig>(json, JsonOptions);
+                    if (dest != null)
+                    {
+                        summary.DocumentTypeAlias = dest.DocumentTypeAlias;
+                        summary.BlueprintId = dest.BlueprintId;
+                        summary.BlueprintName = dest.BlueprintName;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Failed to read destination config for {Folder}", folderName);
+                }
+            }
+
+            // Discover source files
+            var sourcePattern = $"{folderName}-source-*.json";
+            var sourceFiles = Directory.GetFiles(folderPath, sourcePattern);
+            var sourceTypes = new List<string>();
+            foreach (var sourceFile in sourceFiles)
+            {
+                var fileName = Path.GetFileNameWithoutExtension(sourceFile);
+                var prefix = $"{folderName}-source-";
+                if (fileName.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+                {
+                    sourceTypes.Add(fileName[prefix.Length..]);
+                }
+            }
+            summary.SourceTypes = sourceTypes.ToArray();
+
+            // Try to read map.json for mapping count
+            var mapFile = Path.Combine(folderPath, $"{folderName}-map.json");
+            if (File.Exists(mapFile))
+            {
+                try
+                {
+                    var json = File.ReadAllText(mapFile);
+                    var map = JsonSerializer.Deserialize<MapConfig>(json, JsonOptions);
+                    if (map != null)
+                    {
+                        summary.MappingCount = map.Mappings.Count(m => m.Enabled);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Failed to read map config for {Folder}", folderName);
+                }
+            }
+
+            // A workflow is complete when it has destination + map + at least one source
+            summary.IsComplete = File.Exists(destinationFile)
+                && File.Exists(mapFile)
+                && sourceTypes.Count > 0;
+
+            // Get validation warnings for complete workflows
+            if (summary.IsComplete)
+            {
+                var config = LoadConfigs().FirstOrDefault(c =>
+                    Path.GetFileName(c.FolderPath).Equals(folderName, StringComparison.OrdinalIgnoreCase));
+                if (config != null)
+                {
+                    summary.ValidationWarnings = ValidateConfig(config)
+                        .Where(e => e.StartsWith("WARN:"))
+                        .ToArray();
+                }
+            }
+
+            summaries.Add(summary);
+        }
+
+        return summaries.AsReadOnly();
+    }
+
+    public void ClearCache()
+    {
+        lock (_lock)
+        {
+            _cache = null;
+        }
+    }
+
+    public void CreateWorkflow(string name, string documentTypeAlias, string? blueprintId, string? blueprintName)
+    {
+        var workflowsDirectory = Path.Combine(_webHostEnvironment.ContentRootPath, "updoc", "workflows");
+        var folderPath = Path.Combine(workflowsDirectory, name);
+
+        if (Directory.Exists(folderPath))
+        {
+            throw new InvalidOperationException($"Workflow folder '{name}' already exists.");
+        }
+
+        Directory.CreateDirectory(folderPath);
+
+        var writeOptions = new JsonSerializerOptions { WriteIndented = true };
+
+        // Create stub destination-blueprint.json
+        var destination = new
+        {
+            version = "1.0",
+            documentTypeAlias,
+            blueprintId,
+            blueprintName,
+            fields = Array.Empty<object>(),
+            blockGrids = Array.Empty<object>()
+        };
+        var destinationJson = JsonSerializer.Serialize(destination, writeOptions);
+        File.WriteAllText(Path.Combine(folderPath, $"{name}-destination-blueprint.json"), destinationJson);
+
+        // Create stub map.json
+        var map = new
+        {
+            version = "1.0",
+            name = $"{name} Mapping",
+            description = $"Mapping configuration for {name}",
+            mappings = Array.Empty<object>()
+        };
+        var mapJson = JsonSerializer.Serialize(map, writeOptions);
+        File.WriteAllText(Path.Combine(folderPath, $"{name}-map.json"), mapJson);
+
+        _logger.LogInformation("Created workflow folder: {Name} (docType: {DocType}, blueprint: {Blueprint})",
+            name, documentTypeAlias, blueprintId ?? "none");
+
+        ClearCache();
+    }
+
     private List<DocumentTypeConfig> LoadConfigs()
     {
         if (_cache != null) return _cache;
@@ -158,18 +336,18 @@ public class MapFileService : IMapFileService
             if (_cache != null) return _cache;
 
             var configs = new List<DocumentTypeConfig>();
-            var mapsDirectory = Path.Combine(_webHostEnvironment.ContentRootPath, "updoc", "maps");
+            var workflowsDirectory = Path.Combine(_webHostEnvironment.ContentRootPath, "updoc", "workflows");
 
-            if (!Directory.Exists(mapsDirectory))
+            if (!Directory.Exists(workflowsDirectory))
             {
-                _logger.LogInformation("UpDoc maps directory not found at {Path}. No configs loaded.", mapsDirectory);
+                _logger.LogInformation("UpDoc workflows directory not found at {Path}. No configs loaded.", workflowsDirectory);
                 _cache = configs;
                 return _cache;
             }
 
             // Look for subdirectories (each is a document type)
-            var docTypeFolders = Directory.GetDirectories(mapsDirectory);
-            _logger.LogInformation("Found {Count} document type folder(s) in {Path}", docTypeFolders.Length, mapsDirectory);
+            var docTypeFolders = Directory.GetDirectories(workflowsDirectory);
+            _logger.LogInformation("Found {Count} document type folder(s) in {Path}", docTypeFolders.Length, workflowsDirectory);
 
             foreach (var folderPath in docTypeFolders)
             {

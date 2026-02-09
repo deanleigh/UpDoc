@@ -4,7 +4,7 @@ Strongly-typed C# classes for deserializing the three-file configuration archite
 
 ## Three-File Architecture
 
-UpDoc uses a three-file configuration system stored in `updoc/maps/{docType}/`:
+UpDoc uses a three-file configuration system stored in `updoc/workflows/{docType}/`:
 
 | File | C# Model | Purpose |
 |------|----------|---------|
@@ -12,7 +12,7 @@ UpDoc uses a three-file configuration system stored in `updoc/maps/{docType}/`:
 | `destination.json` | `DestinationConfig` | WHAT fields are available in the target document type |
 | `map.json` | `MapConfig` | WIRING between source sections and destination fields |
 
-All three are loaded and bundled into `DocumentTypeConfig` by the `MapFileService`.
+All three are loaded and bundled into `DocumentTypeConfig` by the `WorkflowService`.
 
 ---
 
@@ -260,7 +260,7 @@ Available transform types: `convertMarkdownToHtml`, `convertHtmlToMarkdown`, `tr
 
 ## DocumentTypeConfig (Combined)
 
-Container returned by `MapFileService.GetConfigByBlueprintIdAsync()`:
+Container returned by `WorkflowService.GetConfigByBlueprintIdAsync()`:
 
 ```csharp
 public class DocumentTypeConfig
@@ -277,7 +277,7 @@ The `Sources` dictionary is keyed by source type (e.g. `"pdf"`, `"markdown"`), l
 
 ---
 
-## MapFileModels.cs (Legacy)
+## WorkflowModels.cs (Legacy)
 
 Contains extraction rule classes used for backward compatibility:
 
@@ -298,7 +298,7 @@ All properties use `[JsonPropertyName("camelCase")]` so PascalCase C# properties
 
 ### Cross-File Validation
 
-The `MapFileService` validates:
+The `WorkflowService` validates:
 
 1. Every `source` in map.json exists as a `key` in at least one source config (missing keys in a specific source type are warnings, not errors, since map.json is a superset across all source types)
 2. Every `target` in map.json resolves to a valid path in destination.json

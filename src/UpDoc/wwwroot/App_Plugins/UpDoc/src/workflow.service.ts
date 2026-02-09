@@ -1,4 +1,4 @@
-import type { DocumentTypeConfig, ExtractSectionsResponse } from './map-file.types.js';
+import type { DocumentTypeConfig, ExtractSectionsResponse } from './workflow.types.js';
 
 const configCache = new Map<string, DocumentTypeConfig>();
 

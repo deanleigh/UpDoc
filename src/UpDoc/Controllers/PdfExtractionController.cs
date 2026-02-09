@@ -24,7 +24,7 @@ public class PdfExtractionController : ControllerBase
     private readonly IPdfExtractionService _pdfExtractionService;
     private readonly IPdfPagePropertiesService _pdfPagePropertiesService;
     private readonly IMarkdownExtractionService _markdownExtractionService;
-    private readonly IMapFileService _mapFileService;
+    private readonly IWorkflowService _workflowService;
     private readonly IWebHostEnvironment _webHostEnvironment;
     private readonly ILogger<PdfExtractionController> _logger;
 
@@ -33,7 +33,7 @@ public class PdfExtractionController : ControllerBase
         IPdfExtractionService pdfExtractionService,
         IPdfPagePropertiesService pdfPagePropertiesService,
         IMarkdownExtractionService markdownExtractionService,
-        IMapFileService mapFileService,
+        IWorkflowService workflowService,
         IWebHostEnvironment webHostEnvironment,
         ILogger<PdfExtractionController> logger)
     {
@@ -41,7 +41,7 @@ public class PdfExtractionController : ControllerBase
         _pdfExtractionService = pdfExtractionService;
         _pdfPagePropertiesService = pdfPagePropertiesService;
         _markdownExtractionService = markdownExtractionService;
-        _mapFileService = mapFileService;
+        _workflowService = workflowService;
         _webHostEnvironment = webHostEnvironment;
         _logger = logger;
     }
@@ -284,7 +284,7 @@ public class PdfExtractionController : ControllerBase
     [HttpGet("config/{blueprintId}")]
     public IActionResult GetConfigForBlueprint(Guid blueprintId)
     {
-        var config = _mapFileService.GetConfigForBlueprint(blueprintId);
+        var config = _workflowService.GetConfigForBlueprint(blueprintId);
         if (config == null)
         {
             return NotFound(new { error = $"No config found for blueprint {blueprintId}" });
@@ -296,7 +296,7 @@ public class PdfExtractionController : ControllerBase
     [HttpGet("extract-sections")]
     public IActionResult ExtractSections(Guid mediaKey, Guid blueprintId, string sourceType = "pdf")
     {
-        var config = _mapFileService.GetConfigForBlueprint(blueprintId);
+        var config = _workflowService.GetConfigForBlueprint(blueprintId);
         if (config == null)
         {
             return NotFound(new { error = $"No config found for blueprint {blueprintId}" });

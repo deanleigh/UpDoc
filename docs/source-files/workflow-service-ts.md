@@ -1,4 +1,4 @@
-# map-file.service.ts
+# workflow.service.ts
 
 Frontend service for fetching config and extracting sections from the UpDoc backend API.
 
@@ -101,7 +101,7 @@ This keeps the service simple -- all extraction and config loading happens on th
 ## Imports
 
 ```typescript
-import type { DocumentTypeConfig, ExtractSectionsResponse } from './map-file.types.js';
+import type { DocumentTypeConfig, ExtractSectionsResponse } from './workflow.types.js';
 ```
 
 ## Used by

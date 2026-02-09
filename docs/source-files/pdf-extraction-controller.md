@@ -186,7 +186,7 @@ The controller handles both formats.
 - `IPdfExtractionService` -- PDF extraction service
 - `IPdfPagePropertiesService` -- PDF page properties service
 - `IMarkdownExtractionService` -- Markdown extraction service
-- `IMapFileService` -- Map file service for blueprint-to-config lookups
+- `IWorkflowService` -- Map file service for blueprint-to-config lookups
 - `IWebHostEnvironment` -- For resolving file paths
 - `ILogger<PdfExtractionController>` -- Logging
 

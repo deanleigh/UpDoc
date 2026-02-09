@@ -1,5 +1,5 @@
 import { UmbModalToken } from '@umbraco-cms/backoffice/modal';
-import type { DocumentTypeConfig } from './map-file.types.js';
+import type { DocumentTypeConfig } from './workflow.types.js';
 
 export type SourceType = 'pdf' | 'markdown' | 'web' | 'doc';
 

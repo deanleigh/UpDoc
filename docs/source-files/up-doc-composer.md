@@ -16,7 +16,7 @@ public class UpDocComposer : IComposer
         builder.Services.AddScoped<IPdfExtractionService, PdfExtractionService>();
         builder.Services.AddScoped<IPdfPagePropertiesService, PdfPagePropertiesService>();
         builder.Services.AddScoped<IMarkdownExtractionService, MarkdownExtractionService>();
-        builder.Services.AddSingleton<IMapFileService, MapFileService>();
+        builder.Services.AddSingleton<IWorkflowService, WorkflowService>();
     }
 }
 ```
@@ -40,7 +40,7 @@ Umbraco's composition pattern for registering services:
 
 `AddSingleton` means:
 - One instance for entire application lifetime
-- Used for `IMapFileService` because it caches map files in memory after first load and the data is read-only
+- Used for `IWorkflowService` because it caches map files in memory after first load and the data is read-only
 
 ### Alternatives
 
