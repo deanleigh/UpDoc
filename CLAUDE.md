@@ -96,6 +96,27 @@ If adding a new source file:
 | Custom HTML elements | kebab-case | `<up-doc-modal>` |
 | API route | lowercase | `/umbraco/management/api/v1/updoc` |
 
+## Umbraco CMS Source Code (CRITICAL)
+
+A full clone of the Umbraco CMS source code is available at:
+
+```
+d:\Users\deanl\source\repos\Umbraco Extensions\Umbraco-CMS
+```
+
+**You MUST use this as your primary reference** when implementing Umbraco backoffice extensions. The Claude skills, UUI Storybook, and online docs are supplementary — the actual source code is the definitive reference for how Umbraco's backoffice works internally.
+
+**When to use it:**
+- Before implementing any extension type, search the Umbraco CMS source for how Umbraco itself implements similar features (e.g., search for `entityCreateOptionAction`, `collectionAction`, etc.)
+- When a skill or doc describes an extension type, verify the actual implementation in the source
+- When something doesn't work as expected, read the Umbraco source to understand why
+- Look at `src/Umbraco.Web.UI.Client/src/packages/` for all backoffice TypeScript/Lit components
+
+**Key paths:**
+- Frontend source: `Umbraco-CMS/src/Umbraco.Web.UI.Client/src/`
+- Document-related: `Umbraco-CMS/src/Umbraco.Web.UI.Client/src/packages/documents/`
+- Core extension types: `Umbraco-CMS/src/Umbraco.Web.UI.Client/src/packages/core/`
+
 ## Umbraco References
 
 - UUI Storybook (base UI components): https://uui.umbraco.com/

@@ -8,7 +8,7 @@ const e = [
     alias: "UpDoc.EntityAction",
     name: "UpDoc Entity Action",
     weight: 1100,
-    api: () => import("./up-doc-action-a_lvn2E-.js"),
+    api: () => import("./up-doc-action-NIxcYyzi.js"),
     forEntityTypes: ["document"],
     meta: {
       icon: "icon-document",
@@ -31,6 +31,26 @@ const e = [
     alias: "UpDoc.Condition.HasAvailableWorkflows",
     name: "Has Available Workflows",
     api: () => import("./up-doc-has-workflows.condition-BHMpQTg8.js")
+  },
+  // =====================================================================
+  // Collection Action — "Create from Source" button in collection toolbar
+  // =====================================================================
+  {
+    type: "collectionAction",
+    kind: "button",
+    alias: "UpDoc.CollectionAction",
+    name: "UpDoc Collection Action",
+    element: () => import("./up-doc-collection-action.element-CgKxq42C.js"),
+    weight: 50,
+    meta: {
+      label: "Create from Source"
+    },
+    conditions: [
+      {
+        alias: "Umb.Condition.CollectionAlias",
+        match: "Umb.Collection.Document"
+      }
+    ]
   },
   // =====================================================================
   // Modals — Blueprint picker + sidebar workflow

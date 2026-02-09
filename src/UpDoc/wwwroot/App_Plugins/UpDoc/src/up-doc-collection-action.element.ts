@@ -1,0 +1,375 @@
+import { UMB_BLUEPRINT_PICKER_MODAL } from './blueprint-picker-modal.token.js';
+import { UMB_UP_DOC_MODAL } from './up-doc-modal.token.js';
+import type { DocumentTypeOption } from './blueprint-picker-modal.token.js';
+import type { DocumentTypeConfig, MappingDestination } from './workflow.types.js';
+import { fetchActiveWorkflows } from './workflow.service.js';
+import { markdownToHtml, buildRteValue } from './transforms.js';
+import { css, customElement, html, state } from '@umbraco-cms/backoffice/external/lit';
+import { UmbLitElement } from '@umbraco-cms/backoffice/lit-element';
+import { UMB_DOCUMENT_WORKSPACE_CONTEXT } from '@umbraco-cms/backoffice/document';
+import { UMB_AUTH_CONTEXT } from '@umbraco-cms/backoffice/auth';
+import { UMB_NOTIFICATION_CONTEXT } from '@umbraco-cms/backoffice/notification';
+import { umbOpenModal } from '@umbraco-cms/backoffice/modal';
+import { UmbDocumentTypeStructureRepository } from '@umbraco-cms/backoffice/document-type';
+import { UmbDocumentBlueprintItemRepository } from '@umbraco-cms/backoffice/document-blueprint';
+import type { UmbEntityUnique } from '@umbraco-cms/backoffice/entity';
+
+@customElement('up-doc-collection-action')
+export class UpDocCollectionActionElement extends UmbLitElement {
+	#documentTypeStructureRepository = new UmbDocumentTypeStructureRepository(this);
+	#blueprintItemRepository = new UmbDocumentBlueprintItemRepository(this);
+
+	@state()
+	private _documentUnique?: UmbEntityUnique;
+
+	@state()
+	private _documentTypeUnique?: string;
+
+	@state()
+	private _hasWorkflows = false;
+
+	constructor() {
+		super();
+
+		this.consumeContext(UMB_DOCUMENT_WORKSPACE_CONTEXT, (workspaceContext) => {
+			this.observe(workspaceContext?.unique, (unique) => {
+				this._documentUnique = unique;
+				this.#checkWorkflows();
+			});
+			this.observe(workspaceContext?.contentTypeUnique, (documentTypeUnique) => {
+				this._documentTypeUnique = documentTypeUnique;
+				this.#checkWorkflows();
+			});
+		});
+	}
+
+	async #checkWorkflows() {
+		if (!this._documentTypeUnique) return;
+
+		try {
+			const authContext = await this.getContext(UMB_AUTH_CONTEXT);
+			const token = await authContext.getLatestToken();
+			const activeWorkflows = await fetchActiveWorkflows(token);
+			const activeBlueprintIds = new Set(activeWorkflows.blueprintIds);
+
+			// Check if any allowed child types have blueprints with workflows
+			const { data } = await this.#documentTypeStructureRepository.requestAllowedChildrenOf(
+				this._documentTypeUnique,
+				this._documentUnique || null,
+			);
+
+			if (!data?.items?.length) return;
+
+			for (const docType of data.items) {
+				const { data: blueprints } = await this.#blueprintItemRepository.requestItemsByDocumentType(docType.unique);
+				if (blueprints?.some((bp) => activeBlueprintIds.has(bp.unique))) {
+					this._hasWorkflows = true;
+					return;
+				}
+			}
+		} catch {
+			// Silently fail — button stays hidden
+		}
+	}
+
+	async #onClick() {
+		if (!this._documentTypeUnique) return;
+
+		const notificationContext = await this.getContext(UMB_NOTIFICATION_CONTEXT);
+		const authContext = await this.getContext(UMB_AUTH_CONTEXT);
+		const token = await authContext.getLatestToken();
+		const parentUnique = this._documentUnique ?? null;
+
+		try {
+			// Discover allowed child types with workflow blueprints
+			const activeWorkflows = await fetchActiveWorkflows(token);
+			const activeBlueprintIds = new Set(activeWorkflows.blueprintIds);
+
+			const { data: allowedTypes } = await this.#documentTypeStructureRepository.requestAllowedChildrenOf(
+				this._documentTypeUnique,
+				parentUnique,
+			);
+
+			if (!allowedTypes?.items?.length) {
+				notificationContext.peek('danger', {
+					data: { message: 'No document types are allowed as children of this page.' },
+				});
+				return;
+			}
+
+			const documentTypeOptions: DocumentTypeOption[] = [];
+
+			for (const docType of allowedTypes.items) {
+				const { data: blueprints } = await this.#blueprintItemRepository.requestItemsByDocumentType(docType.unique);
+				if (blueprints?.length) {
+					const workflowBlueprints = blueprints.filter((bp) => activeBlueprintIds.has(bp.unique));
+					if (workflowBlueprints.length) {
+						documentTypeOptions.push({
+							documentTypeUnique: docType.unique,
+							documentTypeName: docType.name,
+							documentTypeIcon: (docType as { icon?: string }).icon ?? null,
+							blueprints: workflowBlueprints.map((bp) => ({
+								blueprintUnique: bp.unique,
+								blueprintName: bp.name,
+							})),
+						});
+					}
+				}
+			}
+
+			if (!documentTypeOptions.length) {
+				notificationContext.peek('warning', {
+					data: { message: 'No workflows are configured for the document types allowed here.' },
+				});
+				return;
+			}
+
+			// Open blueprint picker
+			let blueprintSelection;
+			try {
+				blueprintSelection = await umbOpenModal(this, UMB_BLUEPRINT_PICKER_MODAL, {
+					data: { documentTypes: documentTypeOptions },
+				});
+			} catch {
+				return;
+			}
+
+			const { blueprintUnique, documentTypeUnique } = blueprintSelection;
+			const selectedDocType = documentTypeOptions.find((dt) => dt.documentTypeUnique === documentTypeUnique);
+			const selectedBlueprint = selectedDocType?.blueprints.find((bp) => bp.blueprintUnique === blueprintUnique);
+
+			// Open source sidebar modal
+			let modalValue;
+			try {
+				modalValue = await umbOpenModal(this, UMB_UP_DOC_MODAL, {
+					data: {
+						unique: parentUnique,
+						blueprintName: selectedBlueprint?.blueprintName ?? '',
+						blueprintId: blueprintUnique,
+					},
+				});
+			} catch {
+				return;
+			}
+
+			const { name, mediaUnique, extractedSections, config } = modalValue;
+
+			if (!mediaUnique || !name || !config) return;
+
+			// Scaffold from blueprint
+			const scaffoldResponse = await fetch(
+				`/umbraco/management/api/v1/document-blueprint/${blueprintUnique}/scaffold`,
+				{
+					method: 'GET',
+					headers: {
+						'Content-Type': 'application/json',
+						Authorization: `Bearer ${token}`,
+					},
+				},
+			);
+
+			if (!scaffoldResponse.ok) {
+				const error = await scaffoldResponse.json();
+				notificationContext.peek('danger', {
+					data: { message: `Failed to scaffold from blueprint: ${error.title || 'Unknown error'}` },
+				});
+				return;
+			}
+
+			const scaffold = await scaffoldResponse.json();
+
+			// Apply property mappings
+			const values: Array<{ alias: string; value: unknown }> = scaffold.values
+				? JSON.parse(JSON.stringify(scaffold.values))
+				: [];
+
+			for (const mapping of config.map.mappings) {
+				if (mapping.enabled === false) continue;
+				const sectionValue = extractedSections[mapping.source];
+				if (!sectionValue) continue;
+
+				for (const dest of mapping.destinations) {
+					this.#applyDestinationMapping(values, dest, sectionValue, config);
+				}
+			}
+
+			// Create the document
+			const createRequest = {
+				parent: parentUnique ? { id: parentUnique } : null,
+				documentType: { id: documentTypeUnique },
+				template: scaffold.template ? { id: scaffold.template.id } : null,
+				values,
+				variants: [{ name, culture: null, segment: null }],
+			};
+
+			const createResponse = await fetch('/umbraco/management/api/v1/document', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${token}`,
+				},
+				body: JSON.stringify(createRequest),
+			});
+
+			if (!createResponse.ok) {
+				const error = await createResponse.json();
+				notificationContext.peek('danger', {
+					data: { message: `Failed to create document: ${error.title || error.detail || 'Unknown error'}` },
+				});
+				return;
+			}
+
+			const locationHeader = createResponse.headers.get('Location');
+			const newDocumentId = locationHeader?.split('/').pop();
+
+			// Save to persist
+			if (newDocumentId) {
+				const getResponse = await fetch(`/umbraco/management/api/v1/document/${newDocumentId}`, {
+					method: 'GET',
+					headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+				});
+
+				if (getResponse.ok) {
+					const documentData = await getResponse.json();
+					await fetch(`/umbraco/management/api/v1/document/${newDocumentId}`, {
+						method: 'PUT',
+						headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+						body: JSON.stringify(documentData),
+					});
+				}
+			}
+
+			notificationContext.peek('positive', {
+				data: { message: `Document "${name}" created successfully!` },
+			});
+
+			if (newDocumentId) {
+				const newPath = `/umbraco/section/content/workspace/document/edit/${newDocumentId}`;
+				setTimeout(() => {
+					window.location.href = newPath;
+				}, 150);
+			}
+		} catch (error) {
+			console.error('Error creating document:', error);
+			notificationContext.peek('danger', {
+				data: { message: 'An unexpected error occurred while creating the document.' },
+			});
+		}
+	}
+
+	#applyDestinationMapping(
+		values: Array<{ alias: string; value: unknown }>,
+		dest: MappingDestination,
+		sectionValue: string,
+		config: DocumentTypeConfig,
+	) {
+		let transformedValue = sectionValue;
+		const shouldConvertMarkdown = dest.transforms?.some((t) => t.type === 'convertMarkdownToHtml');
+		const pathParts = dest.target.split('.');
+
+		if (pathParts.length === 1) {
+			const alias = pathParts[0];
+			const existing = values.find((v) => v.alias === alias);
+			if (existing) {
+				existing.value = transformedValue;
+			} else {
+				values.push({ alias, value: transformedValue });
+			}
+		} else if (pathParts.length === 3) {
+			const [gridKey, blockKey, propertyKey] = pathParts;
+			const blockGrid = config.destination.blockGrids?.find((g) => g.key === gridKey);
+			const block = blockGrid?.blocks.find((b) => b.key === blockKey);
+
+			if (!blockGrid || !block) return;
+
+			const gridAlias = blockGrid.alias;
+			const targetProperty = block.properties?.find((p) => p.key === propertyKey)?.alias ?? propertyKey;
+			const blockSearch = block.identifyBy;
+
+			if (!blockSearch) return;
+
+			this.#applyBlockGridValue(values, gridAlias, blockSearch, targetProperty, transformedValue, shouldConvertMarkdown);
+		}
+	}
+
+	#applyBlockGridValue(
+		values: Array<{ alias: string; value: unknown }>,
+		gridAlias: string,
+		blockSearch: { property: string; value: string },
+		targetProperty: string,
+		value: string,
+		convertMarkdown: boolean | undefined,
+	) {
+		const contentGridValue = values.find((v) => v.alias === gridAlias);
+		if (!contentGridValue || !contentGridValue.value) return;
+
+		try {
+			const wasString = typeof contentGridValue.value === 'string';
+			const contentGrid = wasString
+				? JSON.parse(contentGridValue.value as string)
+				: contentGridValue.value;
+
+			const contentData = contentGrid.contentData as Array<{
+				contentTypeKey: string;
+				key: string;
+				values: Array<{ alias: string; value: unknown }>;
+			}>;
+
+			if (!contentData) return;
+
+			for (const block of contentData) {
+				const searchValue = block.values?.find((v) => v.alias === blockSearch.property);
+				if (
+					searchValue &&
+					typeof searchValue.value === 'string' &&
+					searchValue.value.toLowerCase().includes(blockSearch.value.toLowerCase())
+				) {
+					const targetValue = block.values?.find((v) => v.alias === targetProperty);
+					if (targetValue) {
+						if (convertMarkdown) {
+							const htmlContent = markdownToHtml(value);
+							targetValue.value = buildRteValue(htmlContent);
+						} else {
+							targetValue.value = value;
+						}
+					}
+					break;
+				}
+			}
+
+			contentGridValue.value = wasString ? JSON.stringify(contentGrid) : contentGrid;
+		} catch (error) {
+			console.error(`Failed to apply block mapping to ${gridAlias}:`, error);
+		}
+	}
+
+	override render() {
+		if (!this._hasWorkflows) return html``;
+
+		return html`
+			<uui-button
+				color="default"
+				look="outline"
+				label="Create from Source"
+				@click=${this.#onClick}>
+				Create from Source
+			</uui-button>
+		`;
+	}
+
+	static override styles = [
+		css`
+			:host {
+				display: contents;
+			}
+		`,
+	];
+}
+
+export default UpDocCollectionActionElement;
+
+declare global {
+	interface HTMLElementTagNameMap {
+		'up-doc-collection-action': UpDocCollectionActionElement;
+	}
+}

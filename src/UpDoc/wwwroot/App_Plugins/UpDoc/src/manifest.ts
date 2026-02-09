@@ -35,6 +35,27 @@ export const manifests: Array<UmbExtensionManifest> = [
 	},
 
 	// =====================================================================
+	// Collection Action — "Create from Source" button in collection toolbar
+	// =====================================================================
+	{
+		type: 'collectionAction',
+		kind: 'button',
+		alias: 'UpDoc.CollectionAction',
+		name: 'UpDoc Collection Action',
+		element: () => import('./up-doc-collection-action.element.js'),
+		weight: 50,
+		meta: {
+			label: 'Create from Source',
+		},
+		conditions: [
+			{
+				alias: 'Umb.Condition.CollectionAlias',
+				match: 'Umb.Collection.Document',
+			},
+		],
+	},
+
+	// =====================================================================
 	// Modals — Blueprint picker + sidebar workflow
 	// =====================================================================
 	{

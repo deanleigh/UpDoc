@@ -95,6 +95,37 @@ See [up-doc-has-workflows.condition.ts](up-doc-has-workflows-condition.md) for i
 - `alias` - Must match the token alias in the corresponding `.token.ts` file
 - `element` - Lazy loads the Lit component
 
+## Collection Action: Create from Source
+
+```typescript
+{
+    type: 'collectionAction',
+    kind: 'button',
+    alias: 'UpDoc.CollectionAction',
+    name: 'UpDoc Collection Action',
+    element: () => import('./up-doc-collection-action.element.js'),
+    weight: 50,
+    meta: {
+        label: 'Create from Source',
+    },
+    conditions: [
+        {
+            alias: 'Umb.Condition.CollectionAlias',
+            match: 'Umb.Collection.Document',
+        },
+    ],
+}
+```
+
+**Key properties:**
+- `type: 'collectionAction'` — adds a button to the collection toolbar
+- `kind: 'button'` — renders as a toolbar button
+- `element` — uses a custom Lit element (not `api`) for conditional rendering and workspace context access
+- `weight: 50` — appears after Umbraco's own create button (weight 100)
+- `Umb.Condition.CollectionAlias` — only appears on document collections
+
+The element handles its own visibility internally by checking for active workflows. See [up-doc-collection-action.element.ts](up-doc-collection-action-element.md) for details.
+
 ## Settings Sidebar, Tree, and Workspace
 
 The remaining manifests register the UpDoc dashboard in the Settings section:
