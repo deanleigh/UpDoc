@@ -114,7 +114,7 @@ const o = [
     type: "workspaceView",
     alias: "UpDoc.WorkflowWorkspaceView.Markdown",
     name: "Markdown",
-    js: () => import("./up-doc-workflow-source-views.element-Dk5jDSSF.js"),
+    js: () => import("./up-doc-workflow-source-views.element-CYLYsIXv.js"),
     elementName: "up-doc-workflow-markdown-view",
     weight: 200,
     meta: {
@@ -133,7 +133,7 @@ const o = [
     type: "workspaceView",
     alias: "UpDoc.WorkflowWorkspaceView.Pdf",
     name: "Pdf",
-    js: () => import("./up-doc-workflow-source-views.element-Dk5jDSSF.js"),
+    js: () => import("./up-doc-workflow-source-views.element-CYLYsIXv.js"),
     elementName: "up-doc-workflow-pdf-view",
     weight: 100,
     meta: {

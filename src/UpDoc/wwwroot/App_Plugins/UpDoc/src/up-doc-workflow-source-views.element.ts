@@ -100,24 +100,30 @@ class UpDocWorkflowSourceViewBase extends UmbLitElement {
 		}
 
 		if (!this._sourceConfig) {
-			return html`<p class="empty-message">No ${this.sourceType} source configured for this workflow.</p>`;
+			return html`<umb-body-layout header-fit-height>
+				<p class="empty-message">No ${this.sourceType} source configured for this workflow.</p>
+			</umb-body-layout>`;
 		}
 
 		return html`
-			${this._sourceConfig.globals?.columnDetection
-				? html`
-					<div class="source-globals">
-						<span class="globals-label">Column Detection:</span>
-						<span>${this._sourceConfig.globals.columnDetection.enabled ? 'Enabled' : 'Disabled'}
-							${this._sourceConfig.globals.columnDetection.enabled
-								? `(threshold: ${(this._sourceConfig.globals.columnDetection.thresholdPercent * 100).toFixed(0)}%)`
-								: ''}</span>
+			<umb-body-layout header-fit-height>
+				<uui-box>
+					${this._sourceConfig.globals?.columnDetection
+						? html`
+							<div class="source-globals">
+								<span class="globals-label">Column Detection:</span>
+								<span>${this._sourceConfig.globals.columnDetection.enabled ? 'Enabled' : 'Disabled'}
+									${this._sourceConfig.globals.columnDetection.enabled
+										? `(threshold: ${(this._sourceConfig.globals.columnDetection.thresholdPercent * 100).toFixed(0)}%)`
+										: ''}</span>
+							</div>
+						`
+						: nothing}
+					<div class="section-list">
+						${this._sourceConfig.sections.map((section) => this.#renderSourceSection(section))}
 					</div>
-				`
-				: nothing}
-			<div class="section-list">
-				${this._sourceConfig.sections.map((section) => this.#renderSourceSection(section))}
-			</div>
+				</uui-box>
+			</umb-body-layout>
 		`;
 	}
 
@@ -126,7 +132,8 @@ class UpDocWorkflowSourceViewBase extends UmbLitElement {
 		css`
 			:host {
 				display: block;
-				padding: var(--uui-size-layout-1);
+				height: 100%;
+				--uui-tab-background: var(--uui-color-surface);
 			}
 
 			.loading {

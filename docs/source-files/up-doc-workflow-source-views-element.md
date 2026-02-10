@@ -42,9 +42,13 @@ Each source section displays:
 - **Description** (if present)
 - **Strategy parameters** in a monospace code-style block (key: value pairs)
 
+### Layout pattern
+
+The view wraps all content in `<umb-body-layout header-fit-height>` + `<uui-box>`, matching the destination view and Umbraco's native Settings section pattern (white content box on grey background).
+
 ### Global settings
 
-If the source config has `globals.columnDetection`, it's rendered as a header bar showing the detection status and threshold percentage.
+If the source config has `globals.columnDetection`, it's rendered inside the `<uui-box>` as a header bar showing the detection status and threshold percentage.
 
 ## Key concepts
 

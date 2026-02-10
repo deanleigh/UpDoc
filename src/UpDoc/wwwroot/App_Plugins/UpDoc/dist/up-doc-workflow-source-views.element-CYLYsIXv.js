@@ -2,59 +2,65 @@ var m = (o) => {
   throw TypeError(o);
 };
 var w = (o, r, e) => r.has(o) || m("Cannot " + e);
-var v = (o, r, e) => r.has(o) ? m("Cannot add the same private member more than once") : r instanceof WeakSet ? r.add(o) : r.set(o, e);
+var b = (o, r, e) => r.has(o) ? m("Cannot add the same private member more than once") : r instanceof WeakSet ? r.add(o) : r.set(o, e);
 var p = (o, r, e) => (w(o, r, "access private method"), e);
 import { b as C } from "./workflow.service-C-MBMeeJ.js";
-import { nothing as u, html as t, css as $, state as g, customElement as b } from "@umbraco-cms/backoffice/external/lit";
+import { nothing as n, html as t, css as $, state as g, customElement as h } from "@umbraco-cms/backoffice/external/lit";
 import { UmbLitElement as k } from "@umbraco-cms/backoffice/lit-element";
 import { UmbTextStyles as T } from "@umbraco-cms/backoffice/style";
 import { UMB_AUTH_CONTEXT as P } from "@umbraco-cms/backoffice/auth";
 import { UMB_WORKSPACE_CONTEXT as E } from "@umbraco-cms/backoffice/workspace";
-var D = Object.defineProperty, O = Object.getOwnPropertyDescriptor, c = (o, r, e, s) => {
-  for (var a = s > 1 ? void 0 : s ? O(r, e) : r, i = o.length - 1, d; i >= 0; i--)
-    (d = o[i]) && (a = (s ? d(r, e, a) : d(a)) || a);
-  return s && a && D(r, e, a), a;
+var D = Object.defineProperty, O = Object.getOwnPropertyDescriptor, c = (o, r, e, a) => {
+  for (var s = a > 1 ? void 0 : a ? O(r, e) : r, i = o.length - 1, d; i >= 0; i--)
+    (d = o[i]) && (s = (a ? d(r, e, s) : d(s)) || s);
+  return a && s && D(r, e, s), s;
 }, l, x, _, z;
 const f = class f extends k {
   constructor() {
     super(...arguments);
-    v(this, l);
+    b(this, l);
     this.sourceType = "", this._sourceConfig = null, this._loading = !0, this._error = null;
   }
   connectedCallback() {
     super.connectedCallback(), this.consumeContext(E, (e) => {
-      e && this.observe(e.unique, (s) => {
-        s && p(this, l, x).call(this, decodeURIComponent(s));
+      e && this.observe(e.unique, (a) => {
+        a && p(this, l, x).call(this, decodeURIComponent(a));
       });
     });
   }
   render() {
     var e;
     return this._loading ? t`<div class="loading"><uui-loader-bar></uui-loader-bar></div>` : this._error ? t`<p style="color: var(--uui-color-danger);">${this._error}</p>` : this._sourceConfig ? t`
-			${(e = this._sourceConfig.globals) != null && e.columnDetection ? t`
-					<div class="source-globals">
-						<span class="globals-label">Column Detection:</span>
-						<span>${this._sourceConfig.globals.columnDetection.enabled ? "Enabled" : "Disabled"}
-							${this._sourceConfig.globals.columnDetection.enabled ? `(threshold: ${(this._sourceConfig.globals.columnDetection.thresholdPercent * 100).toFixed(0)}%)` : ""}</span>
+			<umb-body-layout header-fit-height>
+				<uui-box>
+					${(e = this._sourceConfig.globals) != null && e.columnDetection ? t`
+							<div class="source-globals">
+								<span class="globals-label">Column Detection:</span>
+								<span>${this._sourceConfig.globals.columnDetection.enabled ? "Enabled" : "Disabled"}
+									${this._sourceConfig.globals.columnDetection.enabled ? `(threshold: ${(this._sourceConfig.globals.columnDetection.thresholdPercent * 100).toFixed(0)}%)` : ""}</span>
+							</div>
+						` : n}
+					<div class="section-list">
+						${this._sourceConfig.sections.map((a) => p(this, l, _).call(this, a))}
 					</div>
-				` : u}
-			<div class="section-list">
-				${this._sourceConfig.sections.map((s) => p(this, l, _).call(this, s))}
-			</div>
-		` : t`<p class="empty-message">No ${this.sourceType} source configured for this workflow.</p>`;
+				</uui-box>
+			</umb-body-layout>
+		` : t`<umb-body-layout header-fit-height>
+				<p class="empty-message">No ${this.sourceType} source configured for this workflow.</p>
+			</umb-body-layout>`;
   }
 };
 l = new WeakSet(), x = async function(e) {
   this._loading = !0, this._error = null;
   try {
-    const a = await (await this.getContext(P)).getLatestToken(), i = await C(e, a);
+    const s = await (await this.getContext(P)).getLatestToken(), i = await C(e, s);
     if (!i) {
       this._error = `Workflow "${e}" not found`;
       return;
     }
     this._sourceConfig = i.sources[this.sourceType] ?? null;
-  } catch (s) {
-    this._error = s instanceof Error ? s.message : "Failed to load workflow", console.error("Failed to load workflow config:", s);
+  } catch (a) {
+    this._error = a instanceof Error ? a.message : "Failed to load workflow", console.error("Failed to load workflow config:", a);
   } finally {
     this._loading = !1;
   }
@@ -64,25 +70,25 @@ l = new WeakSet(), x = async function(e) {
 				<div class="section-header">
 					<span class="section-label">${e.label}</span>
 					<span class="section-strategy">${e.strategy}</span>
-					${e.required ? t`<uui-tag look="primary" color="danger" class="field-badge">Required</uui-tag>` : u}
+					${e.required ? t`<uui-tag look="primary" color="danger" class="field-badge">Required</uui-tag>` : n}
 				</div>
 				<div class="section-meta">
 					<span class="field-alias">${e.key}</span>
 					<span class="section-output">${e.outputFormat}</span>
-					${e.pages ? t`<span class="section-pages">pages: ${Array.isArray(e.pages) ? e.pages.join(", ") : e.pages}</span>` : u}
+					${e.pages ? t`<span class="section-pages">pages: ${Array.isArray(e.pages) ? e.pages.join(", ") : e.pages}</span>` : n}
 				</div>
-				${e.description ? t`<p class="section-description">${e.description}</p>` : u}
-				${e.strategyParams ? p(this, l, z).call(this, e.strategyParams) : u}
+				${e.description ? t`<p class="section-description">${e.description}</p>` : n}
+				${e.strategyParams ? p(this, l, z).call(this, e.strategyParams) : n}
 			</div>
 		`;
 }, z = function(e) {
-  const s = Object.entries(e).filter(([, a]) => a != null);
-  return s.length === 0 ? u : t`
+  const a = Object.entries(e).filter(([, s]) => s != null);
+  return a.length === 0 ? n : t`
 			<div class="strategy-params">
-				${s.map(
-    ([a, i]) => t`
+				${a.map(
+    ([s, i]) => t`
 						<span class="param">
-							<span class="param-key">${a}:</span>
+							<span class="param-key">${s}:</span>
 							<span class="param-value">${Array.isArray(i) ? i.join(", ") : String(i)}</span>
 						</span>
 					`
@@ -94,7 +100,8 @@ l = new WeakSet(), x = async function(e) {
   $`
 			:host {
 				display: block;
-				padding: var(--uui-size-layout-1);
+				height: 100%;
+				--uui-tab-background: var(--uui-color-surface);
 			}
 
 			.loading {
@@ -210,34 +217,34 @@ l = new WeakSet(), x = async function(e) {
 			}
 		`
 ];
-let n = f;
+let u = f;
 c([
   g()
-], n.prototype, "_sourceConfig", 2);
+], u.prototype, "_sourceConfig", 2);
 c([
   g()
-], n.prototype, "_loading", 2);
+], u.prototype, "_loading", 2);
 c([
   g()
-], n.prototype, "_error", 2);
-let y = class extends n {
+], u.prototype, "_error", 2);
+let v = class extends u {
   constructor() {
     super(...arguments), this.sourceType = "pdf";
   }
 };
-y = c([
-  b("up-doc-workflow-pdf-view")
-], y);
-let h = class extends n {
+v = c([
+  h("up-doc-workflow-pdf-view")
+], v);
+let y = class extends u {
   constructor() {
     super(...arguments), this.sourceType = "markdown";
   }
 };
-h = c([
-  b("up-doc-workflow-markdown-view")
-], h);
+y = c([
+  h("up-doc-workflow-markdown-view")
+], y);
 export {
-  h as UpDocWorkflowMarkdownViewElement,
-  y as UpDocWorkflowPdfViewElement
+  y as UpDocWorkflowMarkdownViewElement,
+  v as UpDocWorkflowPdfViewElement
 };
-//# sourceMappingURL=up-doc-workflow-source-views.element-Dk5jDSSF.js.map
+//# sourceMappingURL=up-doc-workflow-source-views.element-CYLYsIXv.js.map
