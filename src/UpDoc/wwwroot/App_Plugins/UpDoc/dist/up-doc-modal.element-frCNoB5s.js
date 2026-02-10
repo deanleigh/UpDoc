@@ -226,7 +226,7 @@ M = function() {
 					?active=${this._activeTab === "source"}
 					orientation="horizontal"
 					@click=${() => a(this, i, b).call(this, "source")}>
-					<uui-icon slot="icon" name="icon-document"></uui-icon>
+					<uui-icon slot="icon" name="icon-page-add"></uui-icon>
 					Source
 				</uui-tab>
 				<uui-tab
@@ -243,7 +243,7 @@ M = function() {
 					?active=${this._activeTab === "destination"}
 					orientation="horizontal"
 					@click=${() => a(this, i, b).call(this, "destination")}>
-					<uui-icon slot="icon" name="icon-blueprint"></uui-icon>
+					<uui-icon slot="icon" name="icon-document"></uui-icon>
 					Destination
 				</uui-tab>
 			</uui-tab-group>
@@ -550,4 +550,4 @@ export {
   r as UpDocModalElement,
   ot as default
 };
-//# sourceMappingURL=up-doc-modal.element-BGv1q1Rg.js.map
+//# sourceMappingURL=up-doc-modal.element-frCNoB5s.js.map

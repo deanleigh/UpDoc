@@ -346,7 +346,7 @@ export class UpDocModalElement extends UmbModalBaseElement<
 					?active=${this._activeTab === 'source'}
 					orientation="horizontal"
 					@click=${() => this.#handleTabClick('source')}>
-					<uui-icon slot="icon" name="icon-document"></uui-icon>
+					<uui-icon slot="icon" name="icon-page-add"></uui-icon>
 					Source
 				</uui-tab>
 				<uui-tab
@@ -363,7 +363,7 @@ export class UpDocModalElement extends UmbModalBaseElement<
 					?active=${this._activeTab === 'destination'}
 					orientation="horizontal"
 					@click=${() => this.#handleTabClick('destination')}>
-					<uui-icon slot="icon" name="icon-blueprint"></uui-icon>
+					<uui-icon slot="icon" name="icon-document"></uui-icon>
 					Destination
 				</uui-tab>
 			</uui-tab-group>
