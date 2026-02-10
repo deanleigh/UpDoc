@@ -11,9 +11,22 @@ Provides a table-based UI for viewing all configured workflows, creating new one
 1. On `connectedCallback`, fetches all workflows from the `/umbraco/management/api/v1/updoc/workflows` API
 2. Renders workflows in a `uui-table` with columns for name, document type, blueprint, sources, mappings, and status
 3. Shows an empty state with explanation text when no workflows exist
-4. "Create Workflow" button opens `UMB_CREATE_WORKFLOW_MODAL` and POSTs the result to the API
+4. "Create Workflow" button triggers a stepped creation flow (see below)
 5. Clicking a workflow row navigates to the workflow workspace page via `history.pushState`
 6. "Delete" button shows a `UMB_CONFIRM_MODAL` confirmation dialog, then DELETEs the workflow and clears the client-side config cache
+
+## Create Workflow flow (stepped)
+
+The "Create Workflow" button triggers a multi-step flow using `umbOpenModal`:
+
+1. **Fetch document types** — calls `GET /updoc/document-types` and `GET /updoc/document-types/{alias}/blueprints` for each
+2. **Build DocumentTypeOption[]** — only includes document types that have at least one blueprint
+3. **Open blueprint picker dialog** — `UMB_BLUEPRINT_PICKER_MODAL` shows doc type → blueprint selection
+4. **Open Create Workflow sidebar** — `UMB_CREATE_WORKFLOW_SIDEBAR` collects workflow name, source type, and optional sample document
+5. **POST to API** — creates the workflow folder on disk via `/updoc/workflows`
+6. **Refresh** — reloads the workflow list
+
+If no document types have blueprints, shows an error message instead of opening the picker.
 
 ## UI states
 
@@ -70,14 +83,15 @@ import { html, css, customElement, state } from '@umbraco-cms/backoffice/externa
 import { UmbLitElement } from '@umbraco-cms/backoffice/lit-element';
 import { UmbTextStyles } from '@umbraco-cms/backoffice/style';
 import { UMB_AUTH_CONTEXT } from '@umbraco-cms/backoffice/auth';
-import { UMB_MODAL_MANAGER_CONTEXT, UMB_CONFIRM_MODAL } from '@umbraco-cms/backoffice/modal';
-import { UMB_CREATE_WORKFLOW_MODAL } from './create-workflow-modal.token.js';
+import { UMB_MODAL_MANAGER_CONTEXT, UMB_CONFIRM_MODAL, umbOpenModal } from '@umbraco-cms/backoffice/modal';
+import { UMB_BLUEPRINT_PICKER_MODAL } from './blueprint-picker-modal.token.js';
+import { UMB_CREATE_WORKFLOW_SIDEBAR } from './create-workflow-sidebar.token.js';
 import { clearConfigCache } from './workflow.service.js';
 ```
 
 ## Registered in
 
-- `manifest.ts` -- registered as a `sectionView` with alias `UpDoc.SectionView.Workflows`
+- `manifest.ts` -- registered as a `workspaceView` with alias `UpDoc.WorkspaceView.Workflows`
 
 ## Used by
 

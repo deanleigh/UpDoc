@@ -1,4 +1,5 @@
-import { U as X, a as H, m as Q, b as Y } from "./transforms-DQCctQX1.js";
+import { U as X } from "./blueprint-picker-modal.token-mXZoRNwG.js";
+import { U as H, m as Q, b as Y } from "./transforms-DnejYoqT.js";
 import { f as V } from "./workflow.service-C-MBMeeJ.js";
 import { html as R, css as Z, state as W, customElement as tt } from "@umbraco-cms/backoffice/external/lit";
 import { UmbLitElement as et } from "@umbraco-cms/backoffice/lit-element";
@@ -8,12 +9,12 @@ import { UMB_NOTIFICATION_CONTEXT as ot } from "@umbraco-cms/backoffice/notifica
 import { umbOpenModal as L } from "@umbraco-cms/backoffice/modal";
 import { UmbDocumentTypeStructureRepository as at } from "@umbraco-cms/backoffice/document-type";
 import { UmbDocumentBlueprintItemRepository as it } from "@umbraco-cms/backoffice/document-blueprint";
-var st = Object.defineProperty, rt = Object.getOwnPropertyDescriptor, G = (t) => {
+var rt = Object.defineProperty, st = Object.getOwnPropertyDescriptor, G = (t) => {
   throw TypeError(t);
-}, N = (t, e, n, r) => {
-  for (var a = r > 1 ? void 0 : r ? rt(e, n) : e, s = t.length - 1, i; s >= 0; s--)
-    (i = t[s]) && (a = (r ? i(e, n, a) : i(a)) || a);
-  return r && a && st(e, n, a), a;
+}, N = (t, e, n, s) => {
+  for (var a = s > 1 ? void 0 : s ? st(e, n) : e, r = t.length - 1, i; r >= 0; r--)
+    (i = t[r]) && (a = (s ? i(e, n, a) : i(a)) || a);
+  return s && a && rt(e, n, a), a;
 }, J = (t, e, n) => e.has(t) || G("Cannot " + n), O = (t, e, n) => (J(t, e, "read from private field"), n ? n.call(t) : e.get(t)), M = (t, e, n) => e.has(t) ? G("Cannot add the same private member more than once") : e instanceof WeakSet ? e.add(t) : e.set(t, n), k = (t, e, n) => (J(t, e, "access private method"), n), S, D, g, P, x, K, z;
 let v = class extends et {
   constructor() {
@@ -44,12 +45,12 @@ P = async function() {
   var t;
   if (this._documentTypeUnique)
     try {
-      const n = await (await this.getContext(j)).getLatestToken(), r = await V(n), a = new Set(r.blueprintIds), { data: s } = await O(this, S).requestAllowedChildrenOf(
+      const n = await (await this.getContext(j)).getLatestToken(), s = await V(n), a = new Set(s.blueprintIds), { data: r } = await O(this, S).requestAllowedChildrenOf(
         this._documentTypeUnique,
         this._documentUnique || null
       );
-      if (!((t = s == null ? void 0 : s.items) != null && t.length)) return;
-      for (const i of s.items) {
+      if (!((t = r == null ? void 0 : r.items) != null && t.length)) return;
+      for (const i of r.items) {
         const { data: c } = await O(this, D).requestItemsByDocumentType(i.unique);
         if (c != null && c.some((l) => a.has(l.unique))) {
           this._hasWorkflows = !0;
@@ -62,11 +63,11 @@ P = async function() {
 x = async function() {
   var a;
   if (!this._documentTypeUnique) return;
-  const t = await this.getContext(ot), n = await (await this.getContext(j)).getLatestToken(), r = this._documentUnique ?? null;
+  const t = await this.getContext(ot), n = await (await this.getContext(j)).getLatestToken(), s = this._documentUnique ?? null;
   try {
-    const s = await V(n), i = new Set(s.blueprintIds), { data: c } = await O(this, S).requestAllowedChildrenOf(
+    const r = await V(n), i = new Set(r.blueprintIds), { data: c } = await O(this, S).requestAllowedChildrenOf(
       this._documentTypeUnique,
-      r
+      s
     );
     if (!((a = c == null ? void 0 : c.items) != null && a.length)) {
       t.peek("danger", {
@@ -109,7 +110,7 @@ x = async function() {
     try {
       u = await L(this, H, {
         data: {
-          unique: r,
+          unique: s,
           blueprintName: (d == null ? void 0 : d.blueprintName) ?? "",
           blueprintId: y
         }
@@ -145,7 +146,7 @@ x = async function() {
           k(this, g, K).call(this, $, q, _, T);
     }
     const F = {
-      parent: r ? { id: r } : null,
+      parent: s ? { id: s } : null,
       documentType: { id: m },
       template: b.template ? { id: b.template.id } : null,
       values: $,
@@ -188,28 +189,28 @@ x = async function() {
         window.location.href = o;
       }, 150);
     }
-  } catch (s) {
-    console.error("Error creating document:", s), t.peek("danger", {
+  } catch (r) {
+    console.error("Error creating document:", r), t.peek("danger", {
       data: { message: "An unexpected error occurred while creating the document." }
     });
   }
 };
-K = function(t, e, n, r) {
+K = function(t, e, n, s) {
   var c, l, p, y;
   let a = n;
-  const s = (c = e.transforms) == null ? void 0 : c.some((m) => m.type === "convertMarkdownToHtml"), i = e.target.split(".");
+  const r = (c = e.transforms) == null ? void 0 : c.some((m) => m.type === "convertMarkdownToHtml"), i = e.target.split(".");
   if (i.length === 1) {
     const m = i[0], f = t.find((d) => d.alias === m);
     f ? f.value = a : t.push({ alias: m, value: a });
   } else if (i.length === 3) {
-    const [m, f, d] = i, u = (l = r.destination.blockGrids) == null ? void 0 : l.find((w) => w.key === m), h = u == null ? void 0 : u.blocks.find((w) => w.key === f);
+    const [m, f, d] = i, u = (l = s.destination.blockGrids) == null ? void 0 : l.find((w) => w.key === m), h = u == null ? void 0 : u.blocks.find((w) => w.key === f);
     if (!u || !h) return;
     const A = u.alias, B = ((y = (p = h.properties) == null ? void 0 : p.find((w) => w.key === d)) == null ? void 0 : y.alias) ?? d, T = h.identifyBy;
     if (!T) return;
-    k(this, g, z).call(this, t, A, T, B, a, s);
+    k(this, g, z).call(this, t, A, T, B, a, r);
   }
 };
-z = function(t, e, n, r, a, s) {
+z = function(t, e, n, s, a, r) {
   var c, l;
   const i = t.find((p) => p.alias === e);
   if (!(!i || !i.value))
@@ -219,9 +220,9 @@ z = function(t, e, n, r, a, s) {
       for (const f of m) {
         const d = (c = f.values) == null ? void 0 : c.find((u) => u.alias === n.property);
         if (d && typeof d.value == "string" && d.value.toLowerCase().includes(n.value.toLowerCase())) {
-          const u = (l = f.values) == null ? void 0 : l.find((h) => h.alias === r);
+          const u = (l = f.values) == null ? void 0 : l.find((h) => h.alias === s);
           if (u)
-            if (s) {
+            if (r) {
               const h = Q(a);
               u.value = Y(h);
             } else
@@ -253,9 +254,9 @@ N([
 v = N([
   tt("up-doc-collection-action")
 ], v);
-const _t = v;
+const gt = v;
 export {
   v as UpDocCollectionActionElement,
-  _t as default
+  gt as default
 };
-//# sourceMappingURL=up-doc-collection-action.element-BvTKd--f.js.map
+//# sourceMappingURL=up-doc-collection-action.element-DdGlJy3P.js.map

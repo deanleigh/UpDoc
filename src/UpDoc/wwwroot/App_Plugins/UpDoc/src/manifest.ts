@@ -72,9 +72,9 @@ export const manifests: Array<UmbExtensionManifest> = [
 	},
 	{
 		type: 'modal',
-		alias: 'UpDoc.CreateWorkflowModal',
-		name: 'Create Workflow Modal',
-		element: () => import('./create-workflow-modal.element.js'),
+		alias: 'UpDoc.CreateWorkflowSidebar',
+		name: 'Create Workflow Sidebar',
+		element: () => import('./create-workflow-sidebar.element.js'),
 	},
 	{
 		type: 'modal',

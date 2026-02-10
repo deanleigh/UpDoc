@@ -8,7 +8,7 @@ const o = [
     alias: "UpDoc.EntityAction",
     name: "UpDoc Entity Action",
     weight: 1100,
-    api: () => import("./up-doc-action-CgYhyv-g.js"),
+    api: () => import("./up-doc-action-BZ3yRovI.js"),
     forEntityTypes: ["document"],
     meta: {
       icon: "icon-document",
@@ -40,7 +40,7 @@ const o = [
     kind: "button",
     alias: "UpDoc.CollectionAction",
     name: "UpDoc Collection Action",
-    element: () => import("./up-doc-collection-action.element-BvTKd--f.js"),
+    element: () => import("./up-doc-collection-action.element-DdGlJy3P.js"),
     weight: 50,
     meta: {
       label: "Create from Source"
@@ -69,9 +69,9 @@ const o = [
   },
   {
     type: "modal",
-    alias: "UpDoc.CreateWorkflowModal",
-    name: "Create Workflow Modal",
-    element: () => import("./create-workflow-modal.element-BK2SVi3a.js")
+    alias: "UpDoc.CreateWorkflowSidebar",
+    name: "Create Workflow Sidebar",
+    element: () => import("./create-workflow-sidebar.element-D2LwLsG-.js")
   },
   {
     type: "modal",
@@ -229,7 +229,7 @@ const o = [
     type: "workspaceView",
     alias: "UpDoc.WorkspaceView.Workflows",
     name: "Workflows",
-    element: () => import("./up-doc-workflows-view.element-xTmdKE6z.js"),
+    element: () => import("./up-doc-workflows-view.element-BqN6F2bv.js"),
     weight: 300,
     meta: {
       label: "Workflows",

@@ -8,7 +8,7 @@ Exports an array of `UmbExtensionManifest` objects that tell Umbraco about our c
 
 1. An **entity action** that adds "Create Document from Source" to document context menus
 2. A **condition** that controls when the entity action is visible
-3. **Modals** for the source selection sidebar, blueprint picker, and workflow creation
+3. **Modals** for the source selection sidebar, blueprint picker, workflow creation sidebar, and workflow detail
 4. A **settings sidebar** with tree and workspace for the UpDoc dashboard
 
 ## Entity Action
@@ -84,9 +84,9 @@ See [up-doc-has-workflows.condition.ts](up-doc-has-workflows-condition.md) for i
 ```typescript
 {
     type: 'modal',
-    alias: 'UpDoc.CreateWorkflowModal',
-    name: 'Create Workflow Modal',
-    element: () => import('./create-workflow-modal.element.js'),
+    alias: 'UpDoc.CreateWorkflowSidebar',
+    name: 'Create Workflow Sidebar',
+    element: () => import('./create-workflow-sidebar.element.js'),
 }
 ```
 

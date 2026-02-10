@@ -2,8 +2,10 @@ import { html, css, customElement, state } from '@umbraco-cms/backoffice/externa
 import { UmbLitElement } from '@umbraco-cms/backoffice/lit-element';
 import { UmbTextStyles } from '@umbraco-cms/backoffice/style';
 import { UMB_AUTH_CONTEXT } from '@umbraco-cms/backoffice/auth';
-import { UMB_MODAL_MANAGER_CONTEXT, UMB_CONFIRM_MODAL } from '@umbraco-cms/backoffice/modal';
-import { UMB_CREATE_WORKFLOW_MODAL } from './create-workflow-modal.token.js';
+import { UMB_MODAL_MANAGER_CONTEXT, UMB_CONFIRM_MODAL, umbOpenModal } from '@umbraco-cms/backoffice/modal';
+import { UMB_BLUEPRINT_PICKER_MODAL } from './blueprint-picker-modal.token.js';
+import type { DocumentTypeOption } from './blueprint-picker-modal.token.js';
+import { UMB_CREATE_WORKFLOW_SIDEBAR } from './create-workflow-sidebar.token.js';
 import { clearConfigCache } from './workflow.service.js';
 
 interface WorkflowSummary {
@@ -58,22 +60,98 @@ export class UpDocWorkflowsViewElement extends UmbLitElement {
 	}
 
 	async #handleCreateWorkflow() {
-		const modalManager = await this.getContext(UMB_MODAL_MANAGER_CONTEXT);
-		const modal = modalManager.open(this, UMB_CREATE_WORKFLOW_MODAL, { data: {} });
-
 		try {
-			const result = await modal.onSubmit();
-
 			const authContext = await this.getContext(UMB_AUTH_CONTEXT);
 			const token = await authContext.getLatestToken();
 
+			// Step 1: Fetch document types and their blueprints
+			const docTypesResponse = await fetch('/umbraco/management/api/v1/updoc/document-types', {
+				headers: { Authorization: `Bearer ${token}` },
+			});
+
+			if (!docTypesResponse.ok) {
+				throw new Error('Failed to load document types');
+			}
+
+			const docTypes: Array<{ alias: string; name: string; icon: string; id: string }> =
+				await docTypesResponse.json();
+
+			// Step 2: Build DocumentTypeOption[] for the blueprint picker
+			const documentTypeOptions: DocumentTypeOption[] = [];
+
+			for (const dt of docTypes) {
+				const bpResponse = await fetch(
+					`/umbraco/management/api/v1/updoc/document-types/${encodeURIComponent(dt.alias)}/blueprints`,
+					{ headers: { Authorization: `Bearer ${token}` } },
+				);
+
+				if (!bpResponse.ok) continue;
+
+				const blueprints: Array<{ id: string; name: string }> = await bpResponse.json();
+				if (blueprints.length > 0) {
+					documentTypeOptions.push({
+						documentTypeUnique: dt.id,
+						documentTypeName: dt.name,
+						documentTypeIcon: dt.icon ?? null,
+						blueprints: blueprints.map((bp) => ({
+							blueprintUnique: bp.id,
+							blueprintName: bp.name,
+						})),
+					});
+				}
+			}
+
+			if (!documentTypeOptions.length) {
+				this._error = 'No document types with blueprints found. Create a Document Blueprint first.';
+				return;
+			}
+
+			// Step 3: Open blueprint picker dialog
+			let blueprintSelection;
+			try {
+				blueprintSelection = await umbOpenModal(this, UMB_BLUEPRINT_PICKER_MODAL, {
+					data: { documentTypes: documentTypeOptions },
+				});
+			} catch {
+				return; // Cancelled
+			}
+
+			const { blueprintUnique, documentTypeUnique } = blueprintSelection;
+			const selectedDocType = documentTypeOptions.find((dt) => dt.documentTypeUnique === documentTypeUnique);
+			const selectedBlueprint = selectedDocType?.blueprints.find((bp) => bp.blueprintUnique === blueprintUnique);
+
+			// Find the alias for the selected document type
+			const selectedDocTypeApi = docTypes.find((dt) => dt.id === documentTypeUnique);
+
+			// Step 4: Open Create Workflow sidebar
+			let sidebarResult;
+			try {
+				sidebarResult = await umbOpenModal(this, UMB_CREATE_WORKFLOW_SIDEBAR, {
+					data: {
+						documentTypeUnique,
+						documentTypeName: selectedDocType?.documentTypeName ?? '',
+						documentTypeAlias: selectedDocTypeApi?.alias ?? '',
+						blueprintUnique,
+						blueprintName: selectedBlueprint?.blueprintName ?? '',
+					},
+				});
+			} catch {
+				return; // Cancelled
+			}
+
+			// Step 5: POST to create the workflow
 			const response = await fetch('/umbraco/management/api/v1/updoc/workflows', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
 					Authorization: `Bearer ${token}`,
 				},
-				body: JSON.stringify(result),
+				body: JSON.stringify({
+					name: sidebarResult.name,
+					documentTypeAlias: sidebarResult.documentTypeAlias,
+					blueprintId: sidebarResult.blueprintId,
+					blueprintName: sidebarResult.blueprintName,
+				}),
 			});
 
 			if (!response.ok) {
@@ -84,8 +162,7 @@ export class UpDocWorkflowsViewElement extends UmbLitElement {
 			// Refresh the list
 			await this.#loadWorkflows();
 		} catch (err) {
-			// Modal was rejected (cancelled) — do nothing
-			if (err instanceof Error && err.message !== 'Modal was rejected') {
+			if (err instanceof Error) {
 				this._error = err.message;
 				console.error('Failed to create workflow:', err);
 			}
