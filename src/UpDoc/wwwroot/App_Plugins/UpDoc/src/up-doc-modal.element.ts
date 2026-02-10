@@ -25,7 +25,7 @@ const SOURCE_TYPE_LABELS: Record<string, string> = {
 	doc: 'Word Document',
 };
 
-type TabType = 'source' | 'content';
+type TabType = 'source' | 'content' | 'destination';
 
 @customElement('up-doc-modal')
 export class UpDocModalElement extends UmbModalBaseElement<
@@ -358,19 +358,20 @@ export class UpDocModalElement extends UmbModalBaseElement<
 					<uui-icon slot="icon" name="icon-edit"></uui-icon>
 					Content
 				</uui-tab>
+				<uui-tab
+					label="Destination"
+					?active=${this._activeTab === 'destination'}
+					orientation="horizontal"
+					@click=${() => this.#handleTabClick('destination')}>
+					<uui-icon slot="icon" name="icon-blueprint"></uui-icon>
+					Destination
+				</uui-tab>
 			</uui-tab-group>
 		`;
 	}
 
 	#renderSourceTab() {
 		return html`
-			<uui-box headline="Blueprint">
-				<div class="blueprint-display">
-					<umb-icon name="icon-blueprint"></umb-icon>
-					<span>${this.data?.blueprintName}</span>
-				</div>
-			</uui-box>
-
 			<uui-box headline="Document Name">
 				<p>Enter a document name or let it be populated from the source. You can edit this later.</p>
 				<uui-input
@@ -454,6 +455,24 @@ export class UpDocModalElement extends UmbModalBaseElement<
 		`;
 	}
 
+	#renderDestinationTab() {
+		return html`
+			<uui-box headline="Document Type">
+				<div class="destination-value">
+					<umb-icon name="icon-document-dashed-line"></umb-icon>
+					<span>${this.data?.documentTypeName}</span>
+				</div>
+			</uui-box>
+
+			<uui-box headline="Blueprint">
+				<div class="destination-value">
+					<umb-icon name="icon-blueprint"></umb-icon>
+					<span>${this.data?.blueprintName}</span>
+				</div>
+			</uui-box>
+		`;
+	}
+
 	#openSectionEditor(key: string) {
 		// TODO: Open editor modal for this section
 		console.log('Edit section:', key);
@@ -484,6 +503,17 @@ export class UpDocModalElement extends UmbModalBaseElement<
 		}
 	}
 
+	#renderTabContent() {
+		switch (this._activeTab) {
+			case 'source':
+				return this.#renderSourceTab();
+			case 'content':
+				return this.#renderContentTab();
+			case 'destination':
+				return this.#renderDestinationTab();
+		}
+	}
+
 	override render() {
 		const canCreate = this.#getCanCreate();
 
@@ -492,7 +522,7 @@ export class UpDocModalElement extends UmbModalBaseElement<
 				${this.#renderTabs()}
 
 				<div class="tab-content">
-					${this._activeTab === 'source' ? this.#renderSourceTab() : this.#renderContentTab()}
+					${this.#renderTabContent()}
 				</div>
 
 				<uui-button
@@ -588,8 +618,8 @@ export class UpDocModalElement extends UmbModalBaseElement<
 				overflow-y: auto;
 			}
 
-			/* Source tab */
-			.blueprint-display {
+			/* Destination tab */
+			.destination-value {
 				display: flex;
 				align-items: center;
 				gap: var(--uui-size-space-3);

@@ -1,9 +1,9 @@
-var L = (i) => {
-  throw TypeError(i);
+var L = (r) => {
+  throw TypeError(r);
 };
-var P = (i, u, t) => u.has(i) || L("Cannot " + t);
-var I = (i, u, t) => (P(i, u, "read from private field"), t ? t.call(i) : u.get(i)), C = (i, u, t) => u.has(i) ? L("Cannot add the same private member more than once") : u instanceof WeakSet ? u.add(i) : u.set(i, t);
-var V = (i, u, t) => (P(i, u, "access private method"), t);
+var P = (r, u, t) => u.has(r) || L("Cannot " + t);
+var I = (r, u, t) => (P(r, u, "read from private field"), t ? t.call(r) : u.get(r)), C = (r, u, t) => u.has(r) ? L("Cannot add the same private member more than once") : u instanceof WeakSet ? u.add(r) : u.set(r, t);
+var V = (r, u, t) => (P(r, u, "access private method"), t);
 import { U as K, a as W, m as H, b as X } from "./transforms-DQCctQX1.js";
 import { f as Q } from "./workflow.service-C-MBMeeJ.js";
 import { UmbEntityActionBase as Y } from "@umbraco-cms/backoffice/entity-action";
@@ -13,11 +13,11 @@ import { UMB_AUTH_CONTEXT as ee } from "@umbraco-cms/backoffice/auth";
 import { UmbDocumentTypeStructureRepository as te } from "@umbraco-cms/backoffice/document-type";
 import { UmbDocumentBlueprintItemRepository as oe } from "@umbraco-cms/backoffice/document-blueprint";
 import { UmbDocumentItemRepository as ne } from "@umbraco-cms/backoffice/document";
-var S, x, R, N, G, z;
+var S, x, R, U, G, z;
 class fe extends Y {
   constructor(t, o) {
     super(t, o);
-    C(this, N);
+    C(this, U);
     C(this, S, new te(this));
     C(this, x, new oe(this));
     C(this, R, new ne(this));
@@ -41,12 +41,12 @@ class fe extends Y {
         });
         return;
       }
-      const d = await (await this.getContext(ee)).getLatestToken(), m = await Q(d), h = new Set(m.blueprintIds), a = [];
+      const d = await (await this.getContext(ee)).getLatestToken(), m = await Q(d), h = new Set(m.blueprintIds), s = [];
       for (const e of n.items) {
-        const { data: s } = await I(this, x).requestItemsByDocumentType(e.unique);
-        if (s != null && s.length) {
-          const k = s.filter((B) => h.has(B.unique));
-          k.length && a.push({
+        const { data: i } = await I(this, x).requestItemsByDocumentType(e.unique);
+        if (i != null && i.length) {
+          const k = i.filter((B) => h.has(B.unique));
+          k.length && s.push({
             documentTypeUnique: e.unique,
             documentTypeName: e.name,
             documentTypeIcon: e.icon ?? null,
@@ -57,7 +57,7 @@ class fe extends Y {
           });
         }
       }
-      if (!a.length) {
+      if (!s.length) {
         t.peek("warning", {
           data: { message: "No workflows are configured for the document types allowed here." }
         });
@@ -66,31 +66,32 @@ class fe extends Y {
       let f;
       try {
         f = await F(this, K, {
-          data: { documentTypes: a }
+          data: { documentTypes: s }
         });
       } catch {
         return;
       }
-      const { blueprintUnique: r, documentTypeUnique: c } = f, l = a.find((e) => e.documentTypeUnique === c), y = l == null ? void 0 : l.blueprints.find((e) => e.blueprintUnique === r);
-      console.log("Selected blueprint:", r, "Document type:", c);
-      let q;
+      const { blueprintUnique: c, documentTypeUnique: l } = f, a = s.find((e) => e.documentTypeUnique === l), y = a == null ? void 0 : a.blueprints.find((e) => e.blueprintUnique === c);
+      console.log("Selected blueprint:", c, "Document type:", l);
+      let D;
       try {
-        q = await F(this, W, {
+        D = await F(this, W, {
           data: {
             unique: o,
+            documentTypeName: (a == null ? void 0 : a.documentTypeName) ?? "",
             blueprintName: (y == null ? void 0 : y.blueprintName) ?? "",
-            blueprintId: r
+            blueprintId: c
           }
         });
       } catch {
         return;
       }
-      const { name: b, mediaUnique: v, extractedSections: j, config: O } = q;
+      const { name: b, mediaUnique: v, extractedSections: j, config: O } = D;
       if (!v || !b || !O)
         return;
       console.log("Creating document with:", { name: b, sections: Object.keys(j) });
       const A = await fetch(
-        `/umbraco/management/api/v1/document-blueprint/${r}/scaffold`,
+        `/umbraco/management/api/v1/document-blueprint/${c}/scaffold`,
         {
           method: "GET",
           headers: {
@@ -109,29 +110,29 @@ class fe extends Y {
       const $ = await A.json();
       console.log("Scaffold response:", $), console.log("Scaffold values aliases:", (w = $.values) == null ? void 0 : w.map((e) => e.alias));
       const M = $.values ? JSON.parse(JSON.stringify($.values)) : [];
-      console.log("Extracted sections available:", Object.keys(j)), console.log("Mappings to apply:", O.map.mappings.map((e) => `${e.source} -> ${e.destinations.map((s) => s.target).join(", ")}`));
+      console.log("Extracted sections available:", Object.keys(j)), console.log("Mappings to apply:", O.map.mappings.map((e) => `${e.source} -> ${e.destinations.map((i) => i.target).join(", ")}`));
       for (const e of O.map.mappings) {
         if (e.enabled === !1) {
           console.log(`Skipping disabled mapping for source: ${e.source}`);
           continue;
         }
-        const s = j[e.source];
-        if (!s) {
+        const i = j[e.source];
+        if (!i) {
           console.log(`No extracted value for source: "${e.source}"`);
           continue;
         }
-        console.log(`Applying mapping for "${e.source}" (${s.length} chars)`);
+        console.log(`Applying mapping for "${e.source}" (${i.length} chars)`);
         for (const k of e.destinations)
-          V(this, N, G).call(this, M, k, s, O);
+          V(this, U, G).call(this, M, k, i, O);
       }
       console.log("Values after all mappings applied:");
       for (const e of M) {
-        const s = typeof e.value == "string" ? e.value.substring(0, 60) : typeof e.value == "object" ? "[object]" : e.value;
-        console.log(`  ${e.alias}: ${s}`);
+        const i = typeof e.value == "string" ? e.value.substring(0, 60) : typeof e.value == "object" ? "[object]" : e.value;
+        console.log(`  ${e.alias}: ${i}`);
       }
       const J = {
         parent: o ? { id: o } : null,
-        documentType: { id: c },
+        documentType: { id: l },
         template: $.template ? { id: $.template.id } : null,
         values: M,
         variants: [
@@ -158,9 +159,9 @@ class fe extends Y {
         });
         return;
       }
-      const _ = E.headers.get("Location"), U = _ == null ? void 0 : _.split("/").pop();
-      if (console.log("Document created successfully! ID:", U), U) {
-        const e = await fetch(`/umbraco/management/api/v1/document/${U}`, {
+      const _ = E.headers.get("Location"), N = _ == null ? void 0 : _.split("/").pop();
+      if (console.log("Document created successfully! ID:", N), N) {
+        const e = await fetch(`/umbraco/management/api/v1/document/${N}`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -168,15 +169,15 @@ class fe extends Y {
           }
         });
         if (e.ok) {
-          const s = await e.json();
-          console.log("Fetched document for save:", s);
-          const k = await fetch(`/umbraco/management/api/v1/document/${U}`, {
+          const i = await e.json();
+          console.log("Fetched document for save:", i);
+          const k = await fetch(`/umbraco/management/api/v1/document/${N}`, {
             method: "PUT",
             headers: {
               "Content-Type": "application/json",
               Authorization: `Bearer ${d}`
             },
-            body: JSON.stringify(s)
+            body: JSON.stringify(i)
           });
           k.ok ? console.log("Document saved successfully") : console.warn("Document save failed, but document was created:", await k.text());
         } else
@@ -184,8 +185,8 @@ class fe extends Y {
       }
       if (t.peek("positive", {
         data: { message: `Document "${b}" created successfully!` }
-      }), U) {
-        const e = `/umbraco/section/content/workspace/document/edit/${U}`;
+      }), N) {
+        const e = `/umbraco/section/content/workspace/document/edit/${N}`;
         setTimeout(() => {
           window.location.href = e;
         }, 150);
@@ -197,35 +198,35 @@ class fe extends Y {
     }
   }
 }
-S = new WeakMap(), x = new WeakMap(), R = new WeakMap(), N = new WeakSet(), /**
+S = new WeakMap(), x = new WeakMap(), R = new WeakMap(), U = new WeakSet(), /**
  * Applies a single destination mapping from the config.
  * Handles both simple field mappings and block grid mappings.
  */
 G = function(t, o, g, w) {
   var T, d, m, h;
   let p = g;
-  const D = (T = o.transforms) == null ? void 0 : T.some((a) => a.type === "convertMarkdownToHtml"), n = o.target.split(".");
+  const q = (T = o.transforms) == null ? void 0 : T.some((s) => s.type === "convertMarkdownToHtml"), n = o.target.split(".");
   if (n.length === 1) {
-    const a = n[0], f = t.find((r) => r.alias === a);
-    f ? f.value = p : t.push({ alias: a, value: p }), console.log(`Set ${a} = "${p.substring(0, 50)}..."`);
+    const s = n[0], f = t.find((c) => c.alias === s);
+    f ? f.value = p : t.push({ alias: s, value: p }), console.log(`Set ${s} = "${p.substring(0, 50)}..."`);
   } else if (n.length === 3) {
-    const [a, f, r] = n, c = (d = w.destination.blockGrids) == null ? void 0 : d.find((v) => v.key === a), l = c == null ? void 0 : c.blocks.find((v) => v.key === f);
-    if (!c || !l) {
+    const [s, f, c] = n, l = (d = w.destination.blockGrids) == null ? void 0 : d.find((v) => v.key === s), a = l == null ? void 0 : l.blocks.find((v) => v.key === f);
+    if (!l || !a) {
       console.log(`Block path ${o.target} not found in destination config`);
       return;
     }
-    const y = c.alias, q = ((h = (m = l.properties) == null ? void 0 : m.find((v) => v.key === r)) == null ? void 0 : h.alias) ?? r, b = l.identifyBy;
+    const y = l.alias, D = ((h = (m = a.properties) == null ? void 0 : m.find((v) => v.key === c)) == null ? void 0 : h.alias) ?? c, b = a.identifyBy;
     if (!b) {
       console.log(`No identifyBy for block ${f}`);
       return;
     }
-    V(this, N, z).call(this, t, y, b, q, p, D);
+    V(this, U, z).call(this, t, y, b, D, p, q);
   }
 }, /**
  * Applies a value to a property within a block grid.
  * Finds the block by searching for a property value match.
  */
-z = function(t, o, g, w, p, D) {
+z = function(t, o, g, w, p, q) {
   var T, d;
   const n = t.find((m) => m.alias === o);
   if (!n || !n.value) {
@@ -233,23 +234,23 @@ z = function(t, o, g, w, p, D) {
     return;
   }
   try {
-    const m = typeof n.value == "string", h = m ? JSON.parse(n.value) : n.value, a = h.contentData;
-    if (!a) {
+    const m = typeof n.value == "string", h = m ? JSON.parse(n.value) : n.value, s = h.contentData;
+    if (!s) {
       console.log(`No contentData in ${o}`);
       return;
     }
     let f = !1;
-    for (const r of a) {
-      const c = (T = r.values) == null ? void 0 : T.find((l) => l.alias === g.property);
-      if (c && typeof c.value == "string" && c.value.toLowerCase().includes(g.value.toLowerCase())) {
-        console.log(`Found matching block for "${g.value}":`, r.key), f = !0;
-        const l = (d = r.values) == null ? void 0 : d.find((y) => y.alias === w);
-        if (l) {
-          if (D) {
+    for (const c of s) {
+      const l = (T = c.values) == null ? void 0 : T.find((a) => a.alias === g.property);
+      if (l && typeof l.value == "string" && l.value.toLowerCase().includes(g.value.toLowerCase())) {
+        console.log(`Found matching block for "${g.value}":`, c.key), f = !0;
+        const a = (d = c.values) == null ? void 0 : d.find((y) => y.alias === w);
+        if (a) {
+          if (q) {
             const y = H(p);
-            l.value = X(y);
+            a.value = X(y);
           } else
-            l.value = p;
+            a.value = p;
           console.log(`Updated ${w} in block`);
         }
         break;
@@ -264,4 +265,4 @@ export {
   fe as UpDocEntityAction,
   fe as default
 };
-//# sourceMappingURL=up-doc-action-CrjG90uW.js.map
+//# sourceMappingURL=up-doc-action-CgYhyv-g.js.map

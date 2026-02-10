@@ -111,6 +111,7 @@ export class UpDocEntityAction extends UmbEntityActionBase<never> {
 				modalValue = await umbOpenModal(this, UMB_UP_DOC_MODAL, {
 					data: {
 						unique: parentUnique,
+						documentTypeName: selectedDocType?.documentTypeName ?? '',
 						blueprintName: selectedBlueprint?.blueprintName ?? '',
 						blueprintId: blueprintUnique,
 					},

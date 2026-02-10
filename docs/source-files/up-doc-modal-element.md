@@ -6,14 +6,14 @@ The Lit component that renders the "Create from Source" sidebar modal.
 
 Provides the UI for users to:
 
-1. See which blueprint was selected (displayed at the top)
-2. Enter a document name (or leave blank to auto-populate from source)
-3. Choose a source type (PDF Document, Web Page, or Word Document)
-4. Configure the source (pick a media item, paste a URL, etc.)
-5. For PDF sources: automatically extracts sections using the config's extraction rules when a media item is selected
-6. Pre-fills the document name with the extracted title (if not already entered)
-7. Review extracted content in the **Content tab** before creating the document
-8. Edit or copy individual sections via hover-reveal action buttons
+1. Choose a source type (PDF Document, Markdown, Web Page, or Word Document)
+2. Configure the source (pick a media item, paste a URL, etc.)
+3. Enter a document name (or leave blank to auto-populate from source)
+4. For PDF and Markdown sources: automatically extracts sections using the config's extraction rules when a media item is selected
+5. Pre-fills the document name with the extracted title (if not already entered)
+6. Review extracted content in the **Content tab** before creating the document
+7. Edit or copy individual sections via hover-reveal action buttons
+8. Check the destination document type and blueprint in the **Destination tab**
 9. Submit or cancel the operation
 
 PDF and Markdown source types are fully functional. Web Page and Word Document source types show their respective UI (URL input and media picker) but display "not yet available" messages and the Create button remains disabled.
@@ -24,15 +24,18 @@ The source type dropdown is **dynamically populated** from the workflow config. 
 
 The modal uses a tabbed interface with navigation tabs in the header:
 
-- **Source tab** (default): Configure the import source (blueprint, document name, source type, source picker)
-- **Content tab**: Review and manage extracted content before creating the document
+- **Source tab** (default, active on open): Choose a source type, provide the source file/URL, enter document name
+- **Content tab**: Review and manage extracted content before creating the document (disabled until extraction completes)
+- **Destination tab**: Read-only reference showing the selected document type and blueprint
 
-The tabs follow Umbraco's sidebar modal header pattern using `slot="navigation"` on the `uui-tab-group`. The Content tab is disabled until extraction completes, providing visual feedback that content is ready for review.
+The tab order follows the user's workflow: Source (what to import) -> Content (review extraction) -> Destination (where it's going, already decided). The Source tab is active on arrival because that's the user's immediate next action. The Destination tab is last because the user already chose the document type and blueprint in the preceding dialog steps — it's a reference, not a next step.
+
+The tabs follow Umbraco's sidebar modal header pattern using `slot="navigation"` on the `uui-tab-group`.
 
 ## Class structure
 
 ```typescript
-type TabType = 'source' | 'content';
+type TabType = 'source' | 'content' | 'destination';
 
 @customElement('up-doc-modal')
 export class UpDocModalElement extends UmbModalBaseElement<
@@ -56,7 +59,7 @@ export class UpDocModalElement extends UmbModalBaseElement<
 ```
 
 The modal stores:
-- `_activeTab` -- tracks which tab is currently active ('source' or 'content')
+- `_activeTab` -- tracks which tab is currently active ('source', 'content', or 'destination')
 - `_extractedSections` -- a `Record<string, string>` holding all extracted values keyed by section key (e.g., "title", "description", "itinerary")
 - `_config` -- the full `DocumentTypeConfig` containing source, destination, and map configs
 
@@ -184,6 +187,31 @@ The action buttons use `uui-action-bar` and appear on hover, following the block
 }
 ```
 
+### Destination tab
+
+The Destination tab shows read-only reference information about where the extracted content will be created:
+
+```typescript
+#renderDestinationTab() {
+    return html`
+        <uui-box headline="Document Type">
+            <div class="destination-value">
+                <umb-icon name="icon-document-dashed-line"></umb-icon>
+                <span>${this.data?.documentTypeName}</span>
+            </div>
+        </uui-box>
+        <uui-box headline="Blueprint">
+            <div class="destination-value">
+                <umb-icon name="icon-blueprint"></umb-icon>
+                <span>${this.data?.blueprintName}</span>
+            </div>
+        </uui-box>
+    `;
+}
+```
+
+Both `documentTypeName` and `blueprintName` are passed via the modal data from the preceding picker dialogs.
+
 ### Tab navigation
 
 The tabs are rendered in the modal header using `slot="navigation"`:
@@ -210,12 +238,35 @@ The tabs are rendered in the modal header using `slot="navigation"`:
                 <uui-icon slot="icon" name="icon-edit"></uui-icon>
                 Content
             </uui-tab>
+            <uui-tab
+                label="Destination"
+                ?active=${this._activeTab === 'destination'}
+                orientation="horizontal"
+                @click=${() => this.#handleTabClick('destination')}>
+                <uui-icon slot="icon" name="icon-blueprint"></uui-icon>
+                Destination
+            </uui-tab>
         </uui-tab-group>
     `;
 }
 
 #hasExtractedContent(): boolean {
     return Object.values(this._extractedSections).some((v) => v.length > 0);
+}
+```
+
+Tab content routing uses a switch statement:
+
+```typescript
+#renderTabContent() {
+    switch (this._activeTab) {
+        case 'source':
+            return this.#renderSourceTab();
+        case 'content':
+            return this.#renderContentTab();
+        case 'destination':
+            return this.#renderDestinationTab();
+    }
 }
 ```
 
@@ -286,13 +337,12 @@ The `#handleSave` method returns `extractedSections` and `config` so the action 
 
 ## Template structure
 
-The modal uses a tabbed interface with two tabs:
+The modal uses a tabbed interface with three tabs:
 
-### Source Tab
+### Source Tab (default)
 
-1. **Blueprint box** -- Shows the selected blueprint name with an icon
-2. **Document Name box** -- Text input with explanatory text
-3. **Source box** -- Contains a source type dropdown and conditional source-specific UI
+1. **Document Name box** -- Text input with explanatory text
+2. **Source box** -- Contains a source type dropdown and conditional source-specific UI
 
 ### Content Tab
 - **Section cards** -- Each extracted section displayed as a card with:
@@ -300,14 +350,20 @@ The modal uses a tabbed interface with two tabs:
   - Body with full content (scrollable for long content)
   - Hover-reveal action bar with Edit and Copy buttons
 
+### Destination Tab
+- **Destination box** -- Read-only display of:
+  - Document Type name with icon
+  - Blueprint name with icon
+
 Uses Umbraco's UI components:
 - `umb-body-layout` -- Standard modal layout with headline "Create from Source"
 - `uui-tab-group` -- Navigation tabs in the header (via `slot="navigation"`)
-- `uui-tab` -- Individual tabs for Source and Content
+- `uui-tab` -- Individual tabs for Source, Content, and Destination
 - `uui-box` -- Content containers with headlines
 - `uui-select` -- Dropdown for choosing source type
 - `umb-property-layout` -- Form field wrapper with label
 - `umb-input-media` -- Media picker for selecting PDF/Doc
+- `umb-icon` -- Umbraco icons for document type and blueprint display
 - `uui-input` -- Text input for document name and URL
 - `uui-loader-bar` -- Loading indicator during extraction
 - `uui-icon` -- Status icons for success/error/info states

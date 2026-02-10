@@ -8,7 +8,7 @@ const o = [
     alias: "UpDoc.EntityAction",
     name: "UpDoc Entity Action",
     weight: 1100,
-    api: () => import("./up-doc-action-CrjG90uW.js"),
+    api: () => import("./up-doc-action-CgYhyv-g.js"),
     forEntityTypes: ["document"],
     meta: {
       icon: "icon-document",
@@ -59,7 +59,7 @@ const o = [
     type: "modal",
     alias: "UpDoc.Modal",
     name: "UpDoc Modal",
-    element: () => import("./up-doc-modal.element-HxxMlCos.js")
+    element: () => import("./up-doc-modal.element-BGv1q1Rg.js")
   },
   {
     type: "modal",

@@ -23,6 +23,7 @@ Defines the available source types for content extraction. `pdf` and `markdown` 
 ```typescript
 export interface UmbUpDocModalData {
     unique: string | null;     // Parent document ID
+    documentTypeName: string;  // Display name of the document type
     blueprintName: string;     // Display name of the selected blueprint
     blueprintId: string;       // Blueprint GUID, used to fetch config
 }
@@ -37,7 +38,9 @@ export interface UmbUpDocModalValue {
 }
 ```
 
-The `UmbUpDocModalData` interface includes `blueprintId` so the modal can pass it to the `extractSections` API call, which needs it to look up the correct config files on the backend.
+The `UmbUpDocModalData` interface includes:
+- `blueprintId` so the modal can pass it to the `extractSections` API call, which needs it to look up the correct config files on the backend
+- `documentTypeName` and `blueprintName` for display on the Destination tab
 
 The `UmbUpDocModalValue` interface returns:
 - `extractedSections` -- a `Record<string, string>` containing all extracted values keyed by section key (from source.json)
@@ -97,6 +100,7 @@ import { UMB_UP_DOC_MODAL } from './up-doc-modal.token.js';
 const value = await umbOpenModal(this, UMB_UP_DOC_MODAL, {
     data: {
         unique: parentId,
+        documentTypeName: 'Group Tour',
         blueprintName: 'My Blueprint',
         blueprintId: blueprintUnique,
     },  // TypeScript knows this must be UmbUpDocModalData

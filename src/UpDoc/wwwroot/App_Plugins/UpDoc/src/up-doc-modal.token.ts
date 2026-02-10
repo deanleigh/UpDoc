@@ -5,6 +5,7 @@ export type SourceType = 'pdf' | 'markdown' | 'web' | 'doc';
 
 export interface UmbUpDocModalData {
 	unique: string | null;
+	documentTypeName: string;
 	blueprintName: string;
 	blueprintId: string;
 }
