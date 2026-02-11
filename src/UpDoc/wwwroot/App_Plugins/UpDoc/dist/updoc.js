@@ -1,4 +1,4 @@
-const o = [
+const e = [
   // =====================================================================
   // Entity Action — "Create from Source" on content nodes
   // =====================================================================
@@ -112,34 +112,14 @@ const o = [
   },
   {
     type: "workspaceView",
-    alias: "UpDoc.WorkflowWorkspaceView.Markdown",
-    name: "Markdown",
-    js: () => import("./up-doc-workflow-source-views.element-CYLYsIXv.js"),
-    elementName: "up-doc-workflow-markdown-view",
+    alias: "UpDoc.WorkflowWorkspaceView.Source",
+    name: "UpDoc Workflow Source View",
+    element: () => import("./up-doc-workflow-source-view.element-CrYEoMLy.js"),
     weight: 200,
     meta: {
-      label: "Markdown",
-      pathname: "markdown",
-      icon: "icon-code"
-    },
-    conditions: [
-      {
-        alias: "Umb.Condition.WorkspaceAlias",
-        match: "UpDoc.WorkflowWorkspace"
-      }
-    ]
-  },
-  {
-    type: "workspaceView",
-    alias: "UpDoc.WorkflowWorkspaceView.Pdf",
-    name: "Pdf",
-    js: () => import("./up-doc-workflow-source-views.element-CYLYsIXv.js"),
-    elementName: "up-doc-workflow-pdf-view",
-    weight: 100,
-    meta: {
-      label: "Pdf",
-      pathname: "pdf",
-      icon: "icon-document"
+      label: "Source",
+      pathname: "source",
+      icon: "icon-page-add"
     },
     conditions: [
       {
@@ -281,6 +261,6 @@ const o = [
   }
 ];
 export {
-  o as manifests
+  e as manifests
 };
 //# sourceMappingURL=updoc.js.map

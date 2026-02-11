@@ -189,16 +189,16 @@ This is a UX and storage refactoring. **Does not require rich extraction yet.**
 This is a large refactoring. Split into sequential branches:
 
 1. **`feature/create-workflow-sidebar`** — Steps 1-3, 6-7: New sidebar + blueprint picker reuse + delete old modal. Backend unchanged (sourceType not sent yet, backwards compatible). **STATUS: COMPLETE** (merged to main, commit `252c100`)
-2. **`feature/workflow-source-type`** — Steps 4-5, 8: Backend sourceType support, new file naming, backwards compat, collection view source column. **STATUS: IN PROGRESS**
-3. **`feature/remove-source-tabs`** — Step 9: Remove per-source-type workspace views from workflow editor. **STATUS: NOT STARTED**
+2. **`feature/workflow-source-type`** — Steps 4-5, 8: Backend sourceType support, new file naming, backwards compat, collection view source column. **STATUS: COMPLETE** (merged to main, commit `9cfb230`)
+3. **`feature/remove-source-tabs`** — Step 9: Replace per-source-type workspace views with generic Source tab. **STATUS: IN PROGRESS**
 
 #### Step-by-step details
 
 **Steps 1-3, 6-7** (Branch 1 — COMPLETE): New sidebar token, sidebar element, collection view refactored to use stepped blueprint picker → sidebar flow, manifest updated, old modal files deleted.
 
-**Steps 4-5, 8** (Branch 2 — IN PROGRESS): See separate plan file for detailed implementation.
+**Steps 4-5, 8** (Branch 2 — COMPLETE): Backend accepts sourceType, creates simple-named files, backwards-compatible reading of both formats, collection view Source column with capitalized labels.
 
-**Step 9** (Branch 3 — NOT STARTED): Remove `UpDoc.WorkflowWorkspaceView.Markdown` and `UpDoc.WorkflowWorkspaceView.Pdf` from manifest. The workflow workspace shows Destination view only (the source configuration will be handled differently in Phase 4's destination-driven mapping UI). Delete or repurpose `up-doc-workflow-source-views.element.ts`.
+**Step 9** (Branch 3 — IN PROGRESS): Replaced hardcoded Markdown/Pdf workspace views with a single generic "Source" tab. Source type detected dynamically from workflow config. Every workflow shows two tabs: Source + Destination.
 
 ### Phase 3: Rich extraction data model
 - Design JSON schema for metadata-rich extraction output

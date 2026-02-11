@@ -7,14 +7,10 @@ import { UmbTextStyles } from '@umbraco-cms/backoffice/style';
 import { UMB_AUTH_CONTEXT } from '@umbraco-cms/backoffice/auth';
 import { UMB_WORKSPACE_CONTEXT } from '@umbraco-cms/backoffice/workspace';
 
-/**
- * Base class for source type workspace views.
- * Subclassed per source type (Pdf, Markdown, etc.)
- */
-class UpDocWorkflowSourceViewBase extends UmbLitElement {
-	protected sourceType = '';
-
+@customElement('up-doc-workflow-source-view')
+export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 	@state() private _sourceConfig: SourceConfig | null = null;
+	@state() private _sourceType: string | null = null;
 	@state() private _loading = true;
 	@state() private _error: string | null = null;
 
@@ -44,13 +40,26 @@ class UpDocWorkflowSourceViewBase extends UmbLitElement {
 				return;
 			}
 
-			this._sourceConfig = config.sources[this.sourceType] ?? null;
+			// Detect source type dynamically from the workflow config
+			const sourceTypes = Object.keys(config.sources);
+			if (sourceTypes.length > 0) {
+				this._sourceType = sourceTypes[0];
+				this._sourceConfig = config.sources[sourceTypes[0]] ?? null;
+			} else {
+				this._sourceType = null;
+				this._sourceConfig = null;
+			}
 		} catch (err) {
 			this._error = err instanceof Error ? err.message : 'Failed to load workflow';
 			console.error('Failed to load workflow config:', err);
 		} finally {
 			this._loading = false;
 		}
+	}
+
+	#formatSourceType(type: string): string {
+		const labels: Record<string, string> = { pdf: 'PDF', markdown: 'Markdown', web: 'Web', doc: 'Word' };
+		return labels[type] ?? type;
 	}
 
 	#renderSourceSection(section: SourceSection) {
@@ -99,15 +108,15 @@ class UpDocWorkflowSourceViewBase extends UmbLitElement {
 			return html`<p style="color: var(--uui-color-danger);">${this._error}</p>`;
 		}
 
-		if (!this._sourceConfig) {
+		if (!this._sourceConfig || !this._sourceType) {
 			return html`<umb-body-layout header-fit-height>
-				<p class="empty-message">No ${this.sourceType} source configured for this workflow.</p>
+				<p class="empty-message">No source configured for this workflow.</p>
 			</umb-body-layout>`;
 		}
 
 		return html`
 			<umb-body-layout header-fit-height>
-				<uui-box>
+				<uui-box headline="Source: ${this.#formatSourceType(this._sourceType)}">
 					${this._sourceConfig.globals?.columnDetection
 						? html`
 							<div class="source-globals">
@@ -251,19 +260,10 @@ class UpDocWorkflowSourceViewBase extends UmbLitElement {
 	];
 }
 
-@customElement('up-doc-workflow-pdf-view')
-export class UpDocWorkflowPdfViewElement extends UpDocWorkflowSourceViewBase {
-	override sourceType = 'pdf';
-}
-
-@customElement('up-doc-workflow-markdown-view')
-export class UpDocWorkflowMarkdownViewElement extends UpDocWorkflowSourceViewBase {
-	override sourceType = 'markdown';
-}
+export default UpDocWorkflowSourceViewElement;
 
 declare global {
 	interface HTMLElementTagNameMap {
-		'up-doc-workflow-pdf-view': UpDocWorkflowPdfViewElement;
-		'up-doc-workflow-markdown-view': UpDocWorkflowMarkdownViewElement;
+		'up-doc-workflow-source-view': UpDocWorkflowSourceViewElement;
 	}
 }

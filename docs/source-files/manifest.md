@@ -150,17 +150,16 @@ These manifests register a routable workspace for viewing individual workflows a
 
 ### Workflow Workspace Views
 
-Three workspace views provide tabs within the workflow workspace:
+Two workspace views provide tabs within the workflow workspace:
 
 | Alias | Label | Weight | Element | Description |
 |-------|-------|--------|---------|-------------|
 | `UpDoc.WorkflowWorkspaceView.Destination` | Destination | 300 | `up-doc-workflow-destination-view.element.js` | Blueprint fields and block grids |
-| `UpDoc.WorkflowWorkspaceView.Markdown` | Markdown | 200 | `up-doc-workflow-source-views.element.js` (`elementName: 'up-doc-workflow-markdown-view'`) | Markdown source extraction config |
-| `UpDoc.WorkflowWorkspaceView.Pdf` | Pdf | 100 | `up-doc-workflow-source-views.element.js` (`elementName: 'up-doc-workflow-pdf-view'`) | PDF source extraction config |
+| `UpDoc.WorkflowWorkspaceView.Source` | Source | 200 | `up-doc-workflow-source-view.element.js` | Source extraction config (dynamic source type) |
 
-All three are conditioned on `Umb.Condition.WorkspaceAlias` matching `UpDoc.WorkflowWorkspace`.
+Both are conditioned on `Umb.Condition.WorkspaceAlias` matching `UpDoc.WorkflowWorkspace`.
 
-The Markdown and Pdf views use the `js` + `elementName` pattern (instead of `element`) because both custom elements are defined in a single shared module.
+The Source view dynamically detects the source type from the workflow config rather than having separate tabs per source type.
 
 ## Settings Sidebar, Tree, and Workspace
 
