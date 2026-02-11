@@ -1,4 +1,4 @@
-const o = [
+const e = [
   // =====================================================================
   // Entity Action — "Create from Source" on content nodes
   // =====================================================================
@@ -79,6 +79,12 @@ const o = [
     name: "Workflow Detail Modal",
     element: () => import("./up-doc-workflow-detail-modal.element-D9WUxXO5.js")
   },
+  {
+    type: "modal",
+    alias: "UpDoc.DestinationPickerModal",
+    name: "Destination Picker Modal",
+    element: () => import("./destination-picker-modal.element-DLnGBZQB.js")
+  },
   // =====================================================================
   // Workflow Workspace — full page for editing individual workflows
   // =====================================================================
@@ -114,7 +120,7 @@ const o = [
     type: "workspaceView",
     alias: "UpDoc.WorkflowWorkspaceView.Source",
     name: "UpDoc Workflow Source View",
-    element: () => import("./up-doc-workflow-source-view.element-DezDSo87.js"),
+    element: () => import("./up-doc-workflow-source-view.element-DZaYH3TP.js"),
     weight: 200,
     meta: {
       label: "Source",
@@ -279,6 +285,6 @@ const o = [
   }
 ];
 export {
-  o as manifests
+  e as manifests
 };
 //# sourceMappingURL=updoc.js.map

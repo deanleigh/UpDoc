@@ -82,6 +82,12 @@ export const manifests: Array<UmbExtensionManifest> = [
 		name: 'Workflow Detail Modal',
 		element: () => import('./up-doc-workflow-detail-modal.element.js'),
 	},
+	{
+		type: 'modal',
+		alias: 'UpDoc.DestinationPickerModal',
+		name: 'Destination Picker Modal',
+		element: () => import('./destination-picker-modal.element.js'),
+	},
 
 	// =====================================================================
 	// Workflow Workspace — full page for editing individual workflows

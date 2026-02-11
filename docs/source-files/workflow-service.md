@@ -1,91 +1,51 @@
 # WorkflowService.cs
 
-Service that loads and caches workflow config JSON from the `updoc/workflows/` directory at the site root.
+Service that manages workflow config JSON files in the `updoc/workflows/` directory at the site root.
 
 ## What it does
 
-Scans the `updoc/workflows/` directory for workflow folders containing config files (source, destination, map), deserializes them into `DocumentTypeConfig` objects, and provides lookup methods by blueprint ID or document type alias. Configs are loaded once on first access and cached for the application lifetime (registered as singleton).
-
-Supports multiple source types per workflow folder — discovers all `{folderName}-source-*.json` files and loads them into a `Sources` dictionary keyed by type (e.g. `"pdf"`, `"markdown"`).
+Provides CRUD operations for workflow folders and their config files (source.json, destination.json, map.json, sample-extraction.json). Loads configs from disk, validates them, and supports both batch loading (all workflows) and direct single-workflow loading.
 
 ## Interface
 
 ```csharp
 public interface IWorkflowService
 {
-    Workflow? GetMapForBlueprint(Guid blueprintId);
-    Workflow? GetMapForDocumentType(string alias);
-    IReadOnlyList<Workflow> GetAllMaps();
+    IReadOnlyList<WorkflowSummary> GetAllWorkflowSummaries();
+    IReadOnlyList<DocumentTypeConfig> GetAllConfigs();
+    DocumentTypeConfig? GetConfigByName(string name);
+    void CreateWorkflow(string name, string documentTypeAlias, string sourceType, string? blueprintId, string? blueprintName);
+    void DeleteWorkflow(string name);
+    void SaveDestinationConfig(string name, DestinationConfig config);
+    void SaveMapConfig(string name, MapConfig config);
+    void SaveSampleExtraction(string name, RichExtractionResult extraction);
+    RichExtractionResult? GetSampleExtraction(string name);
 }
 ```
 
 | Method | Description |
 |--------|-------------|
-| `GetMapForBlueprint` | Returns the workflow whose `BlueprintId` matches the given GUID (case-insensitive). Returns `null` if not found. |
-| `GetMapForDocumentType` | Returns the workflow whose `DocumentTypeAlias` matches the given alias (case-insensitive). Returns `null` if not found. |
-| `GetAllMaps` | Returns all loaded workflows as a read-only list. |
-
-## Implementation
-
-```csharp
-public class WorkflowService : IWorkflowService
-{
-    private readonly IWebHostEnvironment _webHostEnvironment;
-    private readonly ILogger<WorkflowService> _logger;
-    private List<Workflow>? _cache;
-    private readonly object _lock = new();
-
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        PropertyNameCaseInsensitive = true,
-        ReadCommentHandling = JsonCommentHandling.Skip,
-        AllowTrailingCommas = true,
-    };
-}
-```
+| `GetAllWorkflowSummaries` | Returns lightweight summaries for the collection view |
+| `GetAllConfigs` | Loads all workflows with full validation |
+| `GetConfigByName` | Loads a single workflow directly from disk **without validation** — for workspace editing |
+| `CreateWorkflow` | Creates a workflow folder with stub JSON files |
+| `DeleteWorkflow` | Deletes a workflow folder |
+| `SaveDestinationConfig` | Writes destination.json |
+| `SaveMapConfig` | Writes map.json |
+| `SaveSampleExtraction` | Writes sample-extraction.json |
+| `GetSampleExtraction` | Reads sample-extraction.json |
 
 ## Key concepts
 
-### File discovery
+### GetConfigByName vs GetAllConfigs
 
-Workflows are discovered by scanning `{ContentRootPath}/updoc/workflows/` for files matching the `*-map.json` glob pattern:
+`GetAllConfigs()` runs `ValidateConfig()` which checks that all map.json targets exist in destination.json. Workflows that fail validation are skipped — this is correct for the collection view (only show complete workflows).
 
-```csharp
-var workflowsDirectory = Path.Combine(_webHostEnvironment.ContentRootPath, "updoc", "workflows");
-var mapFiles = Directory.GetFiles(workflowsDirectory, "*-map.json");
-```
+`GetConfigByName(name)` loads directly from disk without validation — the workflow workspace needs to edit partially-complete workflows where mappings may reference targets that haven't been fully validated yet.
 
-### Lazy loading with thread-safe cache
+### Validation fix
 
-The `LoadMaps()` method uses double-checked locking to ensure workflows are loaded only once:
-
-```csharp
-private List<Workflow> LoadMaps()
-{
-    if (_cache != null) return _cache;
-
-    lock (_lock)
-    {
-        if (_cache != null) return _cache;
-        // ... load from disk
-        _cache = maps;
-        return _cache;
-    }
-}
-```
-
-### Graceful handling
-
-- If the `updoc/workflows/` directory does not exist, an empty list is cached and an informational log message is written
-- If a workflow fails to deserialize, the error is logged and that file is skipped
-- Workflows missing a `documentTypeAlias` are skipped with a warning
-
-### JSON options
-
-The deserializer is configured to be lenient:
-- `PropertyNameCaseInsensitive = true` -- accepts any casing
-- `ReadCommentHandling = JsonCommentHandling.Skip` -- allows comments in JSON
-- `AllowTrailingCommas = true` -- allows trailing commas
+`ValidateConfig` uses `field.Alias` (human-readable like "pageTitle") to build the set of valid destination keys, not `field.Key` (GUIDs). The frontend writes aliases to map.json targets, so validation must match against aliases.
 
 ## Registration
 
@@ -95,12 +55,10 @@ Registered as a singleton via `UpDocComposer`:
 builder.Services.AddSingleton<IWorkflowService, WorkflowService>();
 ```
 
-`AddSingleton` is appropriate here because the service caches workflows in memory for the entire application lifetime, and the data is read-only after initial load.
-
 ## Dependencies
 
-- `IWebHostEnvironment` -- for `ContentRootPath` to locate the workflows directory
-- `ILogger<WorkflowService>` -- for logging load status and errors
+- `IWebHostEnvironment` — for `ContentRootPath` to locate the workflows directory
+- `ILogger<WorkflowService>` — for logging load status and errors
 
 ## Namespace
 

@@ -1,5 +1,5 @@
-import type { ExtractionElement, RichExtractionResult } from './workflow.types.js';
-import { fetchSampleExtraction, triggerSampleExtraction } from './workflow.service.js';
+import type { ExtractionElement, RichExtractionResult, DocumentTypeConfig } from './workflow.types.js';
+import { fetchSampleExtraction, triggerSampleExtraction, fetchWorkflowByName, saveMapConfig } from './workflow.service.js';
 import { html, css, state, nothing } from '@umbraco-cms/backoffice/external/lit';
 import { customElement } from '@umbraco-cms/backoffice/external/lit';
 import { UmbLitElement } from '@umbraco-cms/backoffice/lit-element';
@@ -8,15 +8,19 @@ import { UMB_AUTH_CONTEXT } from '@umbraco-cms/backoffice/auth';
 import { UMB_WORKSPACE_CONTEXT } from '@umbraco-cms/backoffice/workspace';
 import { UMB_MODAL_MANAGER_CONTEXT } from '@umbraco-cms/backoffice/modal';
 import { UMB_MEDIA_PICKER_MODAL } from '@umbraco-cms/backoffice/media';
+import { UMB_DESTINATION_PICKER_MODAL } from './destination-picker-modal.token.js';
 
 @customElement('up-doc-workflow-source-view')
 export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 	@state() private _extraction: RichExtractionResult | null = null;
+	@state() private _config: DocumentTypeConfig | null = null;
 	@state() private _workflowName: string | null = null;
 	@state() private _loading = true;
 	@state() private _extracting = false;
 	@state() private _error: string | null = null;
 	@state() private _successMessage: string | null = null;
+	@state() private _selectedElements = new Set<string>();
+	#token = '';
 
 	override connectedCallback() {
 		super.connectedCallback();
@@ -25,13 +29,13 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 			this.observe((context as any).unique, (unique: string | null) => {
 				if (unique) {
 					this._workflowName = decodeURIComponent(unique);
-					this.#loadSampleExtraction();
+					this.#loadData();
 				}
 			});
 		});
 	}
 
-	async #loadSampleExtraction() {
+	async #loadData() {
 		if (!this._workflowName) return;
 
 		this._loading = true;
@@ -39,8 +43,13 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 
 		try {
 			const authContext = await this.getContext(UMB_AUTH_CONTEXT);
-			const token = await authContext.getLatestToken();
-			this._extraction = await fetchSampleExtraction(this._workflowName, token);
+			this.#token = await authContext.getLatestToken();
+			const [extraction, config] = await Promise.all([
+				fetchSampleExtraction(this._workflowName, this.#token),
+				fetchWorkflowByName(this._workflowName, this.#token),
+			]);
+			this._extraction = extraction;
+			this._config = config;
 		} catch (err) {
 			this._error = err instanceof Error ? err.message : 'Failed to load sample extraction';
 			console.error('Failed to load sample extraction:', err);
@@ -101,16 +110,123 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		return groups;
 	}
 
+	#toggleSelection(id: string) {
+		const next = new Set(this._selectedElements);
+		if (next.has(id)) {
+			next.delete(id);
+		} else {
+			next.add(id);
+		}
+		this._selectedElements = next;
+	}
+
+	#clearSelection() {
+		this._selectedElements = new Set();
+	}
+
+	async #onMapTo() {
+		if (!this._config || this._selectedElements.size === 0) return;
+
+		const modalManager = await this.getContext(UMB_MODAL_MANAGER_CONTEXT);
+		const modal = modalManager.open(this, UMB_DESTINATION_PICKER_MODAL, {
+			data: {
+				destination: this._config.destination,
+			},
+		});
+
+		const result = await modal.onSubmit().catch(() => null);
+		if (!result?.selectedTargets?.length || !this._workflowName) return;
+
+		// Create a mapping for each selected source element
+		const existingMappings = this._config.map.mappings ?? [];
+		const newMappings = [...existingMappings];
+		const addedCount = this._selectedElements.size;
+		for (const sourceId of this._selectedElements) {
+			newMappings.push({
+				source: sourceId,
+				destinations: result.selectedTargets.map((target: string) => ({ target })),
+				enabled: true,
+			});
+		}
+
+		const updatedMap = { ...this._config.map, mappings: newMappings };
+		const saved = await saveMapConfig(this._workflowName, updatedMap, this.#token);
+		if (saved) {
+			this._config = { ...this._config, map: updatedMap };
+			this._selectedElements = new Set();
+			this._successMessage = `${addedCount} mapping${addedCount !== 1 ? 's' : ''} created`;
+			setTimeout(() => { this._successMessage = null; }, 3000);
+		}
+	}
+
+	#renderToolbar() {
+		const count = this._selectedElements.size;
+		if (count === 0) return nothing;
+
+		return html`
+			<div class="selection-toolbar">
+				<span class="selection-count">${count} selected</span>
+				<uui-button look="primary" compact label="Map to..." @click=${this.#onMapTo}>
+					<uui-icon name="icon-nodes"></uui-icon>
+					Map to...
+				</uui-button>
+				<uui-button look="secondary" compact label="Clear" @click=${this.#clearSelection}>
+					Clear
+				</uui-button>
+			</div>
+		`;
+	}
+
+	#getMappedTargets(elementId: string): string[] {
+		if (!this._config?.map?.mappings) return [];
+		const targets: string[] = [];
+		for (const mapping of this._config.map.mappings) {
+			if (mapping.source === elementId && mapping.enabled) {
+				for (const dest of mapping.destinations) {
+					targets.push(dest.target);
+				}
+			}
+		}
+		return targets;
+	}
+
+	#resolveTargetLabel(alias: string): string {
+		if (!this._config?.destination) return alias;
+		const field = this._config.destination.fields.find((f: any) => f.alias === alias);
+		if (field) return field.label;
+		if (this._config.destination.blockGrids) {
+			for (const grid of this._config.destination.blockGrids) {
+				for (const block of grid.blocks) {
+					const prop = block.properties?.find((p: any) => p.alias === alias);
+					if (prop) return `${block.label} > ${prop.label || prop.alias}`;
+				}
+			}
+		}
+		return alias;
+	}
+
 	#renderElement(element: ExtractionElement) {
 		const meta = element.metadata;
+		const checked = this._selectedElements.has(element.id);
+		const mappedTargets = this.#getMappedTargets(element.id);
+		const isMapped = mappedTargets.length > 0;
 		return html`
-			<div class="element-item">
-				<div class="element-text">${element.text}</div>
-				<div class="element-meta">
-					<span class="meta-badge font-size">${meta.fontSize}pt</span>
-					<span class="meta-badge font-name">${meta.fontName}</span>
-					<span class="meta-badge color" style="border-left: 3px solid ${meta.color};">${meta.color}</span>
-					<span class="meta-badge position">x:${meta.position.x} y:${meta.position.y}</span>
+			<div class="element-item ${checked ? 'element-selected' : ''} ${isMapped ? 'element-mapped' : ''}">
+				<uui-checkbox
+					label="Select for mapping"
+					?checked=${checked}
+					@change=${() => this.#toggleSelection(element.id)}
+					class="element-checkbox">
+				</uui-checkbox>
+				<div class="element-content" @click=${() => this.#toggleSelection(element.id)}>
+					<div class="element-text">${element.text}</div>
+					<div class="element-meta">
+						<span class="meta-badge font-size">${meta.fontSize}pt</span>
+						<span class="meta-badge font-name">${meta.fontName}</span>
+						<span class="meta-badge color" style="border-left: 3px solid ${meta.color};">${meta.color}</span>
+						<span class="meta-badge position">x:${meta.position.x} y:${meta.position.y}</span>
+						${mappedTargets.map((t) => html`<span class="meta-badge mapped-target"><uui-icon name="icon-arrow-right" style="font-size: 10px;"></uui-icon> ${this.#resolveTargetLabel(t)}</span>`)}
+					</div>
 				</div>
 			</div>
 		`;
@@ -153,6 +269,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				</uui-button>
 			</div>
 
+			${this.#renderToolbar()}
 			${pages.map(([pageNum, elements]) => this.#renderPageGroup(pageNum, elements))}
 		`;
 	}
@@ -266,13 +383,53 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				flex-direction: column;
 			}
 
+			/* Selection toolbar */
+			.selection-toolbar {
+				display: flex;
+				align-items: center;
+				gap: var(--uui-size-space-3);
+				padding: var(--uui-size-space-3) var(--uui-size-space-4);
+				background: var(--uui-color-selected);
+				border-bottom: 1px solid var(--uui-color-border);
+				position: sticky;
+				top: 0;
+				z-index: 1;
+			}
+
+			.selection-count {
+				font-size: var(--uui-type-small-size);
+				font-weight: 600;
+			}
+
 			.element-item {
+				display: flex;
+				align-items: flex-start;
+				gap: var(--uui-size-space-3);
 				padding: var(--uui-size-space-3) var(--uui-size-space-4);
 				border-bottom: 1px solid var(--uui-color-border);
+				cursor: pointer;
+			}
+
+			.element-item:hover {
+				background: var(--uui-color-surface-emphasis);
+			}
+
+			.element-item.element-selected {
+				background: var(--uui-color-selected);
 			}
 
 			.element-item:last-child {
 				border-bottom: none;
+			}
+
+			.element-checkbox {
+				flex-shrink: 0;
+				margin-top: 2px;
+			}
+
+			.element-content {
+				flex: 1;
+				min-width: 0;
 			}
 
 			.element-text {
@@ -300,6 +457,18 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 			.meta-badge.font-size {
 				font-weight: 600;
 				color: var(--uui-color-text);
+			}
+
+			.meta-badge.mapped-target {
+				background: var(--uui-color-positive-emphasis);
+				color: var(--uui-color-positive-contrast);
+				display: inline-flex;
+				align-items: center;
+				gap: 3px;
+			}
+
+			.element-item.element-mapped {
+				border-left: 3px solid var(--uui-color-positive-standalone);
 			}
 
 			.page-summary {

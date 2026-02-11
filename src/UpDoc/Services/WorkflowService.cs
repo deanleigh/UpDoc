@@ -18,9 +18,15 @@ public interface IWorkflowService
     DocumentTypeConfig? GetConfigForDocumentType(string alias);
 
     /// <summary>
-    /// Gets all loaded document type configs.
+    /// Gets all loaded document type configs (validated — only complete workflows).
     /// </summary>
     IReadOnlyList<DocumentTypeConfig> GetAllConfigs();
+
+    /// <summary>
+    /// Gets a workflow config by folder name, loading directly without validation.
+    /// Used by workspace views that need to load partially-complete workflows.
+    /// </summary>
+    DocumentTypeConfig? GetConfigByName(string name);
 
     /// <summary>
     /// Validates cross-file references in a document type config.
@@ -131,16 +137,16 @@ public class WorkflowService : IWorkflowService
     {
         var errors = new List<string>();
 
-        // Get valid destination keys (fields + block paths)
+        // Get valid destination aliases (fields + block property aliases)
         var validDestinationKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-        // Add simple fields
+        // Add simple field aliases
         foreach (var field in config.Destination.Fields)
         {
-            validDestinationKeys.Add(field.Key);
+            validDestinationKeys.Add(field.Alias);
         }
 
-        // Add block grid paths
+        // Add block property aliases
         if (config.Destination.BlockGrids != null)
         {
             foreach (var grid in config.Destination.BlockGrids)
@@ -151,8 +157,7 @@ public class WorkflowService : IWorkflowService
                     {
                         foreach (var prop in block.Properties)
                         {
-                            // Add full path: gridKey.blockKey.propertyKey
-                            validDestinationKeys.Add($"{grid.Key}.{block.Key}.{prop.Key}");
+                            validDestinationKeys.Add(prop.Alias);
                         }
                     }
                 }
@@ -471,6 +476,23 @@ public class WorkflowService : IWorkflowService
             filePath, config.Mappings.Count);
 
         ClearCache();
+    }
+
+    public DocumentTypeConfig? GetConfigByName(string name)
+    {
+        var folderPath = GetWorkflowFolderPath(name);
+        if (!Directory.Exists(folderPath))
+            return null;
+
+        try
+        {
+            return LoadDocumentTypeConfig(folderPath);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to load config for workflow '{Name}'", name);
+            return null;
+        }
     }
 
     public RichExtractionResult? GetSampleExtraction(string workflowName)

@@ -265,39 +265,55 @@ This is a large refactoring. Split into sequential branches:
 - `src/UpDoc/Models/` — `RichExtractionResult`, `DestinationConfig`, etc.
 - `src/UpDoc/Controllers/WorkflowController.cs` — sample extraction + regenerate-destination endpoints
 
-### Phase 4: Bidirectional mapping UI (three-tab workspace)
+### Phase 4: Bidirectional mapping UI (three-tab workspace) — IN PROGRESS
 
-Rebuild the workflow workspace to support bidirectional mapping via three tabs:
+Rebuild the workflow workspace to support bidirectional mapping via three tabs.
 
-**Destination tab:**
+#### Phase 4a: Map tab + save endpoint — COMPLETE (commit `5d93d23`)
+
+- Map workspace view showing all mappings from map.json
+- Delete individual mappings
+- `PUT /workflows/{name}/map` endpoint to save map.json
+
+#### Phase 4b: Source-to-destination mapping POC — COMPLETE (branch `feature/source-mapping-poc`)
+
+**Source tab** (source-to-destination direction):
+- ~~Show sample extraction content with metadata~~ Done
+- ~~Each element shows mapping status (green badge with destination label, green left border)~~ Done
+- ~~Multi-select elements with checkboxes~~ Done
+- ~~"Map to..." button opens destination picker sidebar~~ Done
+- ~~Destination picker shows fields + block properties organised by tabs~~ Done
+- ~~Mapping saved to map.json via PUT endpoint~~ Done
+- ~~Checkbox accessibility labels~~ Done
+
+**Bug fixes in this branch:**
+- `GetByName` endpoint used `GetAllConfigs()` which validated and rejected partially-complete workflows. Added `GetConfigByName()` that loads directly without validation.
+- `ValidateConfig` used `field.Key` (GUIDs) but map.json targets use `field.Alias` ("pageTitle"). Fixed to use aliases.
+
+**New files:**
+- `destination-picker-modal.element.ts` — sidebar modal for picking destination fields
+- `destination-picker-modal.token.ts` — modal token
+
+#### Phase 4c: Remaining work — NOT STARTED
+
+**Destination tab** (destination-to-source direction):
 - Show blueprint structure: fields + blocks (filtered per Decision #11)
-- Blocks expandable to show inner properties
-- "Map" icon on each field/property
-- Click map icon → picker shows sample extraction content → select source element(s) → mapping created
 - Visual indicators for mapped vs unmapped fields
-- Auto-populate conditions from selected element's metadata
+- Click field → picker shows sample extraction content → select source element(s) → mapping created
 
-**Source tab:**
-- Show sample extraction content with metadata
-- Each element shows mapping status (mapped/unmapped, linked destination)
-- Click element → picker shows available destination fields → mapping created
-- Conditions visible/editable alongside source elements
+**Map tab improvements:**
+- Table layout needs work (currently weird spacing for many items)
+- Edit mappings (not just delete)
+- Reorder mappings
 
-**Map tab:**
-- Flat list/table of all mappings (source → destination)
-- Each row shows: source element(s), conditions summary, destination field
-- Edit, delete, reorder mappings
-- Direct editing of map.json via UI
+**Mapping status indicators on Destination and Source tabs:**
+- Destination tab: show which fields are mapped (green) vs unmapped
+- Source tab: mapping indicators already exist but need polish
 
-All three tabs share the same underlying data (map.json). Changes from any tab update the others.
-
-**Key files:**
-- `src/UpDoc/wwwroot/App_Plugins/UpDoc/src/` — workspace views (3 tabs)
-- Destination structure rendered from destination.json (auto-populated from blueprint)
-- Source content rendered from sample-extraction.json
-- Mapping state rendered from map.json
-- Content/field picker components (new)
-- Condition display component (new)
+**Bridge between workflow authoring and content creation:**
+- The "Create from Source" flow (Content section) uses old-style section keys (`title`, `description`) as map sources
+- The new mapping UI uses element IDs (`p1-e2`, `p1-e3`) as map sources
+- These need to be reconciled — either the Create from Source flow needs to understand element IDs, or the mapping needs to store both formats
 
 ### Phase 5: Condition refinement
 - Rule builder UI for editing auto-populated conditions

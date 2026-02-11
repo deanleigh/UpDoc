@@ -1,71 +1,68 @@
 # up-doc-workflow-source-view.element.ts
 
-Generic workspace view for the Source tab in the workflow workspace. Dynamically detects the source type from the workflow config.
+Workspace view for the Source tab in the workflow workspace. Displays rich extraction results and supports source-to-destination mapping.
 
 ## What it does
 
-Displays the source extraction configuration for a workflow. The source type (PDF, Markdown, etc.) is detected automatically from the workflow's config rather than being hardcoded per tab. Every workflow workspace shows exactly two tabs: **Source** and **Destination**.
+Displays the sample extraction for a workflow — all text elements extracted from a reference PDF with full metadata (font size, font name, color, position). Users can select elements and map them to destination fields, creating entries in `map.json`. Also shows mapping status on already-mapped elements.
 
 ## How it works
 
-### Dynamic source type detection
+### Data loading
 
 On load, the component:
 
 1. Consumes `UMB_WORKSPACE_CONTEXT` and observes the `unique` value (workflow name)
-2. Loads the full workflow config via `fetchWorkflowByName()`
-3. Gets the source type from `Object.keys(config.sources)[0]` — per-source-type workflows have exactly one entry
-4. Stores both the source type and source config in state
+2. Loads the full workflow config via `fetchWorkflowByName()` (includes destination + map data)
+3. Loads the sample extraction via `fetchSampleExtraction()` (rich extraction with metadata)
+4. Stores both in state for rendering
 
-```typescript
-const sourceTypes = Object.keys(config.sources);
-if (sourceTypes.length > 0) {
-    this._sourceType = sourceTypes[0];
-    this._sourceConfig = config.sources[sourceTypes[0]] ?? null;
-}
-```
+### Sample extraction display
 
-### Section rendering
+When a sample extraction exists, elements are grouped by page number and displayed with:
 
-Each source section displays:
+- **Text content** — the extracted text
+- **Metadata badges** — font size (pt), font name, color (with color swatch), position (x, y)
+- **Mapping indicators** — green badges showing destination field names for mapped elements, green left border
 
-- **Label** (bold) + **strategy badge** + **Required** tag if applicable
-- **Key** (monospace alias) + **output format** + **pages** (if specified)
-- **Description** (if present)
-- **Strategy parameters** in a monospace code-style block (key: value pairs)
+### Extraction header
 
-### Layout pattern
+Shows source file name, page count, element count, extraction timestamp, and a "Re-extract" button that opens the media picker.
 
-The view wraps all content in `<umb-body-layout header-fit-height>` + `<uui-box headline="Source: PDF">`, matching the destination view pattern. The headline shows the detected source type formatted as a human-readable label (pdf → PDF, markdown → Markdown).
+### Element selection and mapping
 
-### Global settings
+Users can:
 
-If the source config has `globals.columnDetection`, it's rendered inside the `<uui-box>` as a header bar showing the detection status and threshold percentage.
+1. Click checkboxes to select one or more elements
+2. A sticky toolbar appears showing selection count with "Map to..." and "Clear" buttons
+3. "Map to..." opens the `UMB_DESTINATION_PICKER_MODAL` sidebar showing destination fields/blocks
+4. On confirm, new mappings are created in `map.json` via `saveMapConfig()` PUT endpoint
+5. The UI updates immediately to show the new mapping indicators
 
-## Key concepts
+### Mapped status indicators
 
-### Replaced per-source-type tabs
+For each element, `#getMappedTargets(elementId)` checks `map.json` mappings. If the element is mapped:
 
-Previously, each source type had its own workspace view tab (Markdown, Pdf) registered via the `js` + `elementName` manifest pattern. This was replaced with a single generic Source tab because:
+- A green badge with arrow icon and resolved destination label appears in the metadata row
+- The element gets a green left border (`element-mapped` class)
 
-- Per-source-type workflows have exactly one source type, making separate tabs redundant
-- The Markdown tab was irrelevant when viewing a PDF-only workflow
-- A single dynamic component is simpler to maintain
+Destination labels are resolved via `#resolveTargetLabel(alias)` — checks top-level fields first, then block properties (displayed as "Block Label > Property Label").
 
-### Old multi-source workflows
+### Empty state
 
-For legacy folders with multiple source types (e.g., `group-tour` with both `pdf` and `markdown`), the view shows the first source type. These folders will eventually be migrated to per-source-type format.
+When no sample extraction exists, shows a centered prompt with "Upload PDF" button that opens the media picker and triggers extraction via `triggerSampleExtraction()`.
 
 ## Imports
 
 ```typescript
-import type { DocumentTypeConfig, SourceConfig, SourceSection } from './workflow.types.js';
-import { fetchWorkflowByName } from './workflow.service.js';
-import { html, css, state, nothing, customElement } from '@umbraco-cms/backoffice/external/lit';
+import type { ExtractionElement, RichExtractionResult, DocumentTypeConfig } from './workflow.types.js';
+import { fetchSampleExtraction, triggerSampleExtraction, fetchWorkflowByName, saveMapConfig } from './workflow.service.js';
 import { UmbLitElement } from '@umbraco-cms/backoffice/lit-element';
-import { UmbTextStyles } from '@umbraco-cms/backoffice/style';
 import { UMB_AUTH_CONTEXT } from '@umbraco-cms/backoffice/auth';
 import { UMB_WORKSPACE_CONTEXT } from '@umbraco-cms/backoffice/workspace';
+import { UMB_MODAL_MANAGER_CONTEXT } from '@umbraco-cms/backoffice/modal';
+import { UMB_MEDIA_PICKER_MODAL } from '@umbraco-cms/backoffice/media';
+import { UMB_DESTINATION_PICKER_MODAL } from './destination-picker-modal.token.js';
 ```
 
 ## Registered in

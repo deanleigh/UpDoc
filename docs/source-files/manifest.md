@@ -150,16 +150,28 @@ These manifests register a routable workspace for viewing individual workflows a
 
 ### Workflow Workspace Views
 
-Two workspace views provide tabs within the workflow workspace:
+Three workspace views provide tabs within the workflow workspace:
 
 | Alias | Label | Weight | Element | Description |
 |-------|-------|--------|---------|-------------|
 | `UpDoc.WorkflowWorkspaceView.Destination` | Destination | 300 | `up-doc-workflow-destination-view.element.js` | Blueprint fields and block grids |
-| `UpDoc.WorkflowWorkspaceView.Source` | Source | 200 | `up-doc-workflow-source-view.element.js` | Source extraction config (dynamic source type) |
+| `UpDoc.WorkflowWorkspaceView.Source` | Source | 200 | `up-doc-workflow-source-view.element.js` | Sample extraction display + source-to-destination mapping |
+| `UpDoc.WorkflowWorkspaceView.Map` | Map | 100 | `up-doc-workflow-map-view.element.js` | All mappings overview with delete |
 
-Both are conditioned on `Umb.Condition.WorkspaceAlias` matching `UpDoc.WorkflowWorkspace`.
+All are conditioned on `Umb.Condition.WorkspaceAlias` matching `UpDoc.WorkflowWorkspace`.
 
-The Source view dynamically detects the source type from the workflow config rather than having separate tabs per source type.
+### Destination Picker Modal
+
+```typescript
+{
+    type: 'modal',
+    alias: 'UpDoc.DestinationPickerModal',
+    name: 'Destination Picker Modal',
+    element: () => import('./destination-picker-modal.element.js'),
+}
+```
+
+A sidebar modal for selecting destination fields when creating mappings from the Source tab.
 
 ## Settings Sidebar, Tree, and Workspace
 

@@ -74,9 +74,7 @@ public class WorkflowController : ControllerBase
     [HttpGet("{name}")]
     public IActionResult GetByName(string name)
     {
-        var configs = _workflowService.GetAllConfigs();
-        var config = configs.FirstOrDefault(c =>
-            Path.GetFileName(c.FolderPath).Equals(name, StringComparison.OrdinalIgnoreCase));
+        var config = _workflowService.GetConfigByName(name);
 
         if (config == null)
         {

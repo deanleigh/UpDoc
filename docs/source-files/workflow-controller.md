@@ -12,13 +12,25 @@ ASP.NET Core API controller for UpDoc workflow CRUD operations.
 |--------|------|-------------|
 | GET | `/` | Returns all workflow summaries |
 | GET | `/active` | Returns document type aliases and blueprint IDs with complete workflows |
-| GET | `/{name}` | Returns full configuration for a specific workflow |
-| POST | `/` | Creates a new workflow folder with stub files |
+| GET | `/{name}` | Returns full configuration for a specific workflow (bypasses validation) |
+| POST | `/` | Creates a new workflow folder with stub files + auto-populates destination.json |
 | DELETE | `/{name}` | Deletes a workflow folder |
+| POST | `/{name}/sample-extraction` | Extracts text from a PDF and saves as sample extraction |
+| GET | `/{name}/sample-extraction` | Returns the saved sample extraction |
+| POST | `/{name}/regenerate-destination` | Regenerates destination.json from the blueprint |
+| PUT | `/{name}/map` | Saves updated map.json |
+
+### GET /{name} — Direct config loading
+
+Uses `GetConfigByName(name)` which loads the workflow config directly from disk without running validation. This is important because validation rejects workflows with partially-complete mappings (e.g., mappings referencing aliases that haven't been fully wired yet). The workspace editor needs to load these in-progress configs.
 
 ## Dependencies
 
 - `IWorkflowService` — handles workflow file operations, config loading, and validation
+- `IDestinationStructureService` — builds destination.json from blueprint content
+- `IPdfPagePropertiesService` — extracts text from PDFs
+- `IMediaService` — resolves media file paths
+- `IWebHostEnvironment` — provides web root path for file resolution
 
 ## DocumentTypeController.cs
 
@@ -41,5 +53,6 @@ All endpoints require `BackOfficeAccess` authorization policy. Frontend calls mu
 ## Used by
 
 - `up-doc-workflows-view.element.ts` — CRUD operations on workflows
-- `create-workflow-modal.element.ts` — document type and blueprint picker data
-- `workflow.service.ts` — fetches active workflows and full configs
+- `create-workflow-sidebar.element.ts` — document type and blueprint picker data
+- `workflow.service.ts` — fetches active workflows, full configs, sample extractions, and saves map configs
+- `up-doc-workflow-source-view.element.ts` — sample extraction trigger and retrieval
