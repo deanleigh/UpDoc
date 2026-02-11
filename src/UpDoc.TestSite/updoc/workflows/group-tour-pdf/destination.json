@@ -42,30 +42,6 @@
         "text",
         "markdown"
       ]
-    },
-    {
-      "key": "49cf2a6e-9aab-47f6-9780-46ec0eefbe9c",
-      "alias": "pageThumbnail",
-      "label": "Page Thumbnail",
-      "description": "This will appear in navigation",
-      "type": "mediaPicker",
-      "tab": "Page Properties",
-      "mandatory": false,
-      "acceptsFormats": [
-        "text"
-      ]
-    },
-    {
-      "key": "f9063e61-8f71-40bf-ba22-884b93a909ea",
-      "alias": "pageSettingsBackgroundImagePicker",
-      "label": "Page Background Image",
-      "description": null,
-      "type": "mediaPicker",
-      "tab": "Page Settings",
-      "mandatory": false,
-      "acceptsFormats": [
-        "text"
-      ]
     }
   ],
   "blockGrids": [
@@ -76,193 +52,201 @@
       "description": "Hover \u0027Block Grid Editor\u0027 then click the 3 dots to switch to Sort Mode (a simplified view for rearranging the page).\nThe Block Grid Editor allows you to add Layout Blocks consisting of one or more Areas which in turn may contain Feature Blocks such as Text or Images",
       "blocks": [
         {
-          "key": "0708fc2f-92f1-4efc-a9d1-a755f66e6845",
-          "contentTypeAlias": "layout12",
-          "contentTypeKey": "0708fc2f-92f1-4efc-a9d1-a755f66e6845",
-          "label": "Layout - 12",
-          "description": null,
-          "identifyBy": null,
-          "properties": []
-        },
-        {
-          "key": "f170b29c-338f-4ab8-a5c4-f72c90826f69",
-          "contentTypeAlias": "layout363",
-          "contentTypeKey": "f170b29c-338f-4ab8-a5c4-f72c90826f69",
-          "label": "Layout - 3 | 6 | 3",
-          "description": null,
-          "identifyBy": null,
-          "properties": []
-        },
-        {
-          "key": "48dda820-9e38-4caf-a7ec-a52a6a6020ad",
-          "contentTypeAlias": "layout39",
-          "contentTypeKey": "48dda820-9e38-4caf-a7ec-a52a6a6020ad",
-          "label": "Layout - 3 | 9",
-          "description": null,
-          "identifyBy": null,
-          "properties": []
-        },
-        {
-          "key": "ba98d512-eaed-4844-9eee-441a8340c311",
-          "contentTypeAlias": "layout66",
-          "contentTypeKey": "ba98d512-eaed-4844-9eee-441a8340c311",
-          "label": "Layout - 6 | 6",
-          "description": null,
-          "identifyBy": null,
-          "properties": []
-        },
-        {
-          "key": "420d1288-9016-4ddd-b200-b289c5aaeb96",
-          "contentTypeAlias": "layout8",
-          "contentTypeKey": "420d1288-9016-4ddd-b200-b289c5aaeb96",
-          "label": "Layout - 8",
-          "description": null,
-          "identifyBy": null,
-          "properties": []
-        },
-        {
-          "key": "1e6ac523-7122-4994-9f51-7ca67065222a",
-          "contentTypeAlias": "featurePageTitleDescription",
-          "contentTypeKey": "1e6ac523-7122-4994-9f51-7ca67065222a",
-          "label": "Feature - Page - Title and Description",
-          "description": null,
-          "identifyBy": null,
-          "properties": []
-        },
-        {
-          "key": "d5bfea49-0733-48ff-9ee0-d83c01a4cbf4",
-          "contentTypeAlias": "featureRichTextEditor",
-          "contentTypeKey": "d5bfea49-0733-48ff-9ee0-d83c01a4cbf4",
-          "label": "Feature - Rich Text Editor",
-          "description": null,
-          "identifyBy": null,
-          "properties": []
-        },
-        {
-          "key": "365fd365-6ec4-4fbb-9434-1df366aa77f8",
-          "contentTypeAlias": "featureRichTextEditorItinery",
-          "contentTypeKey": "365fd365-6ec4-4fbb-9434-1df366aa77f8",
-          "label": "Feature - Rich Text Editor - Itinery",
-          "description": null,
-          "identifyBy": null,
-          "properties": []
-        },
-        {
-          "key": "1d09b5af-b95a-4af5-b8f2-323db029e817",
-          "contentTypeAlias": "featureRichTextEditorAccommodation",
-          "contentTypeKey": "1d09b5af-b95a-4af5-b8f2-323db029e817",
-          "label": "Feature - Rich Text Editor - Accommodation",
-          "description": null,
-          "identifyBy": null,
-          "properties": []
-        },
-        {
-          "key": "34e5aa3b-db10-40a1-893d-79e98cd3f2f4",
-          "contentTypeAlias": "featureRichTextEditorFeatures",
-          "contentTypeKey": "34e5aa3b-db10-40a1-893d-79e98cd3f2f4",
-          "label": "Feature - Rich Text Editor - Features",
-          "description": null,
-          "identifyBy": null,
-          "properties": []
-        },
-        {
-          "key": "dfab01ba-2429-4be9-a894-3c6c4c49df94",
-          "contentTypeAlias": "featureImage",
-          "contentTypeKey": "dfab01ba-2429-4be9-a894-3c6c4c49df94",
-          "label": "Feature - Image",
-          "description": null,
-          "identifyBy": null,
-          "properties": []
-        },
-        {
-          "key": "f444fff5-9769-4376-a831-f3c6ac6cba0f",
-          "contentTypeAlias": "featureInternalLinksChildren",
-          "contentTypeKey": "f444fff5-9769-4376-a831-f3c6ac6cba0f",
-          "label": "Feature - Internal Links - Children",
-          "description": null,
-          "identifyBy": null,
-          "properties": []
-        },
-        {
-          "key": "3db256d9-ff75-41a7-b5b4-f1fcaec92458",
-          "contentTypeAlias": "featureInternalLinks",
-          "contentTypeKey": "3db256d9-ff75-41a7-b5b4-f1fcaec92458",
-          "label": "Feature - Internal Links - Selected",
-          "description": null,
-          "identifyBy": null,
-          "properties": []
-        },
-        {
-          "key": "05a27f33-b1d6-49b0-89fe-755829ae138c",
-          "contentTypeAlias": "featureInternalLinksSlideshow",
-          "contentTypeKey": "05a27f33-b1d6-49b0-89fe-755829ae138c",
-          "label": "Feature - Internal Links - Slideshow",
-          "description": null,
-          "identifyBy": null,
-          "properties": []
-        },
-        {
-          "key": "c345e5ce-768f-47e0-968a-e7859dbe0b07",
+          "key": "ab61c3dd-7461-4a49-8620-f86efda3eb3e",
           "contentTypeAlias": "featureNavigationDescendants",
           "contentTypeKey": "c345e5ce-768f-47e0-968a-e7859dbe0b07",
           "label": "Feature - Navigation - Descendants",
           "description": null,
           "identifyBy": null,
-          "properties": []
+          "properties": [
+            {
+              "key": "4f869718-23a1-4e4d-93bf-3e63e31352b7",
+              "alias": "noConfiguration",
+              "label": "No Configuration",
+              "type": "text",
+              "acceptsFormats": [
+                "text"
+              ]
+            }
+          ]
         },
         {
-          "key": "b4148cb6-f6d9-42f9-a6df-3aa3f31ea68e",
-          "contentTypeAlias": "featureFAQs",
-          "contentTypeKey": "b4148cb6-f6d9-42f9-a6df-3aa3f31ea68e",
-          "label": "Feature - FAQs",
+          "key": "67f05ceb-217a-4a21-8c98-b2557ba1cc88",
+          "contentTypeAlias": "featureRichTextEditorItinery",
+          "contentTypeKey": "365fd365-6ec4-4fbb-9434-1df366aa77f8",
+          "label": "Suggested Itinerary",
           "description": null,
-          "identifyBy": null,
-          "properties": []
+          "identifyBy": {
+            "property": "featurePropertyFeatureTitle",
+            "value": "Suggested Itinerary"
+          },
+          "properties": [
+            {
+              "key": "1dad35be-ede4-4a57-8a19-ea34cb428481",
+              "alias": "featurePropertyFeatureTitle",
+              "label": "Title",
+              "type": "text",
+              "acceptsFormats": [
+                "text"
+              ]
+            },
+            {
+              "key": "44968294-5acd-4fb0-8e86-bff95e27ce91",
+              "alias": "featurePropertyFeatureDescription",
+              "label": "Description",
+              "type": "textArea",
+              "acceptsFormats": [
+                "text",
+                "markdown"
+              ]
+            },
+            {
+              "key": "9293baf5-f5c5-4443-a43b-c14593c8446f",
+              "alias": "richTextContent",
+              "label": "Rich Text",
+              "type": "richText",
+              "acceptsFormats": [
+                "html",
+                "markdown",
+                "text"
+              ]
+            },
+            {
+              "key": "51c9327a-cebe-49b9-bd12-373df2e4bdc0",
+              "alias": "featurePropertyFeatureSummary",
+              "label": "Summary",
+              "type": "textArea",
+              "acceptsFormats": [
+                "text",
+                "markdown"
+              ]
+            }
+          ]
         },
         {
-          "key": "663fc5bc-c5b1-45d6-916a-5aa8adaeb18a",
-          "contentTypeAlias": "featureTabs",
-          "contentTypeKey": "663fc5bc-c5b1-45d6-916a-5aa8adaeb18a",
-          "label": "Feature - Tabs",
+          "key": "8417fee1-ced6-4929-ac1b-03457fe086dd",
+          "contentTypeAlias": "featureRichTextEditorFeatures",
+          "contentTypeKey": "34e5aa3b-db10-40a1-893d-79e98cd3f2f4",
+          "label": "Features",
           "description": null,
-          "identifyBy": null,
-          "properties": []
+          "identifyBy": {
+            "property": "featurePropertyFeatureTitle",
+            "value": "Features"
+          },
+          "properties": [
+            {
+              "key": "1dad35be-ede4-4a57-8a19-ea34cb428481",
+              "alias": "featurePropertyFeatureTitle",
+              "label": "Title",
+              "type": "text",
+              "acceptsFormats": [
+                "text"
+              ]
+            },
+            {
+              "key": "44968294-5acd-4fb0-8e86-bff95e27ce91",
+              "alias": "featurePropertyFeatureDescription",
+              "label": "Description",
+              "type": "textArea",
+              "acceptsFormats": [
+                "text",
+                "markdown"
+              ]
+            },
+            {
+              "key": "9293baf5-f5c5-4443-a43b-c14593c8446f",
+              "alias": "richTextContent",
+              "label": "Rich Text",
+              "type": "richText",
+              "acceptsFormats": [
+                "html",
+                "markdown",
+                "text"
+              ]
+            },
+            {
+              "key": "51c9327a-cebe-49b9-bd12-373df2e4bdc0",
+              "alias": "featurePropertyFeatureSummary",
+              "label": "Summary",
+              "type": "textArea",
+              "acceptsFormats": [
+                "text",
+                "markdown"
+              ]
+            }
+          ]
         },
         {
-          "key": "2ede97b0-9580-41cc-a029-bf041790c209",
-          "contentTypeAlias": "featureInternalLinksPagination",
-          "contentTypeKey": "2ede97b0-9580-41cc-a029-bf041790c209",
-          "label": "Feature - Internal Links - Pagination",
+          "key": "127bf379-d4db-4774-9cce-c8c6a1e26f5c",
+          "contentTypeAlias": "featureRichTextEditorAccommodation",
+          "contentTypeKey": "1d09b5af-b95a-4af5-b8f2-323db029e817",
+          "label": "Accommodation",
           "description": null,
-          "identifyBy": null,
-          "properties": []
+          "identifyBy": {
+            "property": "featurePropertyFeatureTitle",
+            "value": "Accommodation"
+          },
+          "properties": [
+            {
+              "key": "1dad35be-ede4-4a57-8a19-ea34cb428481",
+              "alias": "featurePropertyFeatureTitle",
+              "label": "Title",
+              "type": "text",
+              "acceptsFormats": [
+                "text"
+              ]
+            },
+            {
+              "key": "44968294-5acd-4fb0-8e86-bff95e27ce91",
+              "alias": "featurePropertyFeatureDescription",
+              "label": "Description",
+              "type": "textArea",
+              "acceptsFormats": [
+                "text",
+                "markdown"
+              ]
+            },
+            {
+              "key": "9293baf5-f5c5-4443-a43b-c14593c8446f",
+              "alias": "richTextContent",
+              "label": "Rich Text",
+              "type": "richText",
+              "acceptsFormats": [
+                "html",
+                "markdown",
+                "text"
+              ]
+            },
+            {
+              "key": "51c9327a-cebe-49b9-bd12-373df2e4bdc0",
+              "alias": "featurePropertyFeatureSummary",
+              "label": "Summary",
+              "type": "textArea",
+              "acceptsFormats": [
+                "text",
+                "markdown"
+              ]
+            }
+          ]
         },
         {
-          "key": "6d7aa5eb-5edc-40c3-8013-2d4d4016f601",
-          "contentTypeAlias": "featureHTML",
-          "contentTypeKey": "6d7aa5eb-5edc-40c3-8013-2d4d4016f601",
-          "label": "Feature - HTML",
+          "key": "a18c5909-6215-4c99-906d-e3a2d646fe6b",
+          "contentTypeAlias": "featurePageTitleDescription",
+          "contentTypeKey": "1e6ac523-7122-4994-9f51-7ca67065222a",
+          "label": "Feature - Page - Title and Description",
           "description": null,
           "identifyBy": null,
-          "properties": []
-        },
-        {
-          "key": "9aae0bbd-9a9b-4685-9b28-fe7fa4fbaaf8",
-          "contentTypeAlias": "featureCode",
-          "contentTypeKey": "9aae0bbd-9a9b-4685-9b28-fe7fa4fbaaf8",
-          "label": "Feature - Code",
-          "description": null,
-          "identifyBy": null,
-          "properties": []
-        },
-        {
-          "key": "2f09e4b4-b147-4371-86b0-d8575984726f",
-          "contentTypeAlias": "featureFormContactUs",
-          "contentTypeKey": "2f09e4b4-b147-4371-86b0-d8575984726f",
-          "label": "Feature - Form - Contact Us",
-          "description": null,
-          "identifyBy": null,
-          "properties": []
+          "properties": [
+            {
+              "key": "4f869718-23a1-4e4d-93bf-3e63e31352b7",
+              "alias": "noConfiguration",
+              "label": "No Configuration",
+              "type": "text",
+              "acceptsFormats": [
+                "text"
+              ]
+            }
+          ]
         }
       ]
     }

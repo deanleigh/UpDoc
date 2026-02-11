@@ -1,7 +1,7 @@
+using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using UpDoc.Models;
 using Umbraco.Cms.Core.Models;
-using Umbraco.Cms.Core.PropertyEditors;
 using Umbraco.Cms.Core.Services;
 
 namespace UpDoc.Services;
@@ -9,9 +9,10 @@ namespace UpDoc.Services;
 public interface IDestinationStructureService
 {
     /// <summary>
-    /// Builds a DestinationConfig by introspecting the Umbraco document type.
-    /// Walks property groups (tabs), maps property editor aliases to UpDoc field types,
-    /// and resolves block grid configurations including element type properties.
+    /// Builds a DestinationConfig by introspecting the actual blueprint content.
+    /// Only includes properties that are populated in the blueprint and text-mappable.
+    /// Block grids only include block instances actually placed in the blueprint's grid.
+    /// The "Page Settings" tab is excluded entirely.
     /// </summary>
     Task<DestinationConfig> BuildDestinationConfigAsync(
         string documentTypeAlias,
@@ -22,20 +23,26 @@ public interface IDestinationStructureService
 public class DestinationStructureService : IDestinationStructureService
 {
     private readonly IContentTypeService _contentTypeService;
-    private readonly IDataTypeService _dataTypeService;
+    private readonly IContentService _contentService;
     private readonly ILogger<DestinationStructureService> _logger;
+
+    // Property editor types that can receive text-based mapped content
+    private static readonly HashSet<string> TextMappableTypes = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "text", "textArea", "richText"
+    };
 
     public DestinationStructureService(
         IContentTypeService contentTypeService,
-        IDataTypeService dataTypeService,
+        IContentService contentService,
         ILogger<DestinationStructureService> logger)
     {
         _contentTypeService = contentTypeService;
-        _dataTypeService = dataTypeService;
+        _contentService = contentService;
         _logger = logger;
     }
 
-    public async Task<DestinationConfig> BuildDestinationConfigAsync(
+    public Task<DestinationConfig> BuildDestinationConfigAsync(
         string documentTypeAlias,
         string? blueprintId,
         string? blueprintName)
@@ -57,6 +64,23 @@ public class DestinationStructureService : IDestinationStructureService
             BlockGrids = new List<DestinationBlockGrid>()
         };
 
+        // Load the actual blueprint content to filter by what's populated
+        IContent? blueprint = null;
+        if (!string.IsNullOrWhiteSpace(blueprintId) && Guid.TryParse(blueprintId, out var bpGuid))
+        {
+            blueprint = _contentService.GetBlueprintById(bpGuid);
+            if (blueprint == null)
+            {
+                _logger.LogWarning("Blueprint '{BlueprintId}' not found. Destination will be empty.", blueprintId);
+            }
+        }
+
+        if (blueprint == null)
+        {
+            _logger.LogWarning("No blueprint available for '{Alias}'. Cannot build destination config.", documentTypeAlias);
+            return Task.FromResult(config);
+        }
+
         // Walk property groups (tabs) and their properties — use CompositionPropertyGroups
         // to include properties from compositions, not just directly-defined ones
         var groupedPropertyAliases = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -65,13 +89,24 @@ public class DestinationStructureService : IDestinationStructureService
         {
             var tabName = group.Name ?? "General";
 
+            // Exclude Page Settings tab entirely
+            if (tabName.Equals("Page Settings", StringComparison.OrdinalIgnoreCase))
+            {
+                // Track these aliases so we skip them in the ungrouped pass too
+                foreach (var pt in group.PropertyTypes ?? Enumerable.Empty<IPropertyType>())
+                {
+                    groupedPropertyAliases.Add(pt.Alias);
+                }
+                continue;
+            }
+
             foreach (var propertyType in group.PropertyTypes?.OrderBy(p => p.SortOrder) ?? Enumerable.Empty<IPropertyType>())
             {
                 groupedPropertyAliases.Add(propertyType.Alias);
 
                 if (propertyType.PropertyEditorAlias == "Umbraco.BlockGrid")
                 {
-                    var blockGrid = await BuildBlockGridAsync(propertyType, tabName);
+                    var blockGrid = BuildBlockGridFromBlueprint(propertyType, blueprint);
                     if (blockGrid != null)
                     {
                         config.BlockGrids!.Add(blockGrid);
@@ -79,7 +114,11 @@ public class DestinationStructureService : IDestinationStructureService
                 }
                 else
                 {
-                    config.Fields.Add(BuildField(propertyType, tabName));
+                    var field = BuildFieldIfEligible(propertyType, tabName, blueprint);
+                    if (field != null)
+                    {
+                        config.Fields.Add(field);
+                    }
                 }
             }
         }
@@ -91,7 +130,7 @@ public class DestinationStructureService : IDestinationStructureService
         {
             if (propertyType.PropertyEditorAlias == "Umbraco.BlockGrid")
             {
-                var blockGrid = await BuildBlockGridAsync(propertyType, "General");
+                var blockGrid = BuildBlockGridFromBlueprint(propertyType, blueprint);
                 if (blockGrid != null)
                 {
                     config.BlockGrids!.Add(blockGrid);
@@ -99,7 +138,11 @@ public class DestinationStructureService : IDestinationStructureService
             }
             else
             {
-                config.Fields.Add(BuildField(propertyType, "General"));
+                var field = BuildFieldIfEligible(propertyType, "General", blueprint);
+                if (field != null)
+                {
+                    config.Fields.Add(field);
+                }
             }
         }
 
@@ -107,12 +150,29 @@ public class DestinationStructureService : IDestinationStructureService
             "Built destination config for '{Alias}': {FieldCount} fields, {BlockGridCount} block grids",
             documentTypeAlias, config.Fields.Count, config.BlockGrids?.Count ?? 0);
 
-        return config;
+        return Task.FromResult(config);
     }
 
-    private DestinationField BuildField(IPropertyType propertyType, string tabName)
+    /// <summary>
+    /// Builds a DestinationField only if the property is text-mappable AND populated in the blueprint.
+    /// Returns null if the property should be excluded.
+    /// </summary>
+    private DestinationField? BuildFieldIfEligible(IPropertyType propertyType, string tabName, IContent blueprint)
     {
         var fieldType = MapEditorAlias(propertyType.PropertyEditorAlias);
+
+        // Only include text-mappable types
+        if (!TextMappableTypes.Contains(fieldType))
+        {
+            return null;
+        }
+
+        // Only include properties that are populated in the blueprint
+        var blueprintValue = blueprint.GetValue(propertyType.Alias);
+        if (IsValueEmpty(blueprintValue))
+        {
+            return null;
+        }
 
         return new DestinationField
         {
@@ -127,52 +187,165 @@ public class DestinationStructureService : IDestinationStructureService
         };
     }
 
-    private async Task<DestinationBlockGrid?> BuildBlockGridAsync(IPropertyType propertyType, string tabName)
+    /// <summary>
+    /// Builds a block grid by reading the actual block instances placed in the blueprint's grid,
+    /// rather than listing all allowed block types from the editor configuration.
+    /// </summary>
+    private DestinationBlockGrid? BuildBlockGridFromBlueprint(IPropertyType propertyType, IContent blueprint)
     {
-        var dataType = await _dataTypeService.GetAsync(propertyType.DataTypeKey);
-        if (dataType?.ConfigurationObject is not BlockGridConfiguration blockGridConfig)
+        // Get block grid value from the blueprint — may be string, JsonElement, or JsonNode
+        var rawObj = blueprint.GetValue(propertyType.Alias);
+        if (rawObj == null)
         {
-            _logger.LogWarning(
-                "Could not read BlockGrid configuration for property '{Alias}' (DataTypeKey: {Key})",
-                propertyType.Alias, propertyType.DataTypeKey);
+            _logger.LogWarning("Block grid '{Alias}': no value found on blueprint", propertyType.Alias);
             return null;
         }
 
-        var blockGrid = new DestinationBlockGrid
+        // Convert to a JSON string regardless of the runtime type
+        string rawJson;
+        if (rawObj is string s)
         {
-            Key = propertyType.Key.ToString(),
-            Alias = propertyType.Alias,
-            Label = propertyType.Name ?? propertyType.Alias,
-            Description = propertyType.Description,
-            Blocks = new List<DestinationBlock>()
-        };
+            rawJson = s;
+        }
+        else
+        {
+            // Handles JsonElement, JsonNode, or any other type Umbraco might store
+            rawJson = JsonSerializer.Serialize(rawObj);
+        }
 
-        foreach (var blockConfig in blockGridConfig.Blocks ?? Array.Empty<BlockGridConfiguration.BlockGridBlockConfiguration>())
+        if (string.IsNullOrWhiteSpace(rawJson))
         {
-            var elementType = _contentTypeService.Get(blockConfig.ContentElementTypeKey);
-            if (elementType == null)
+            return null;
+        }
+
+        _logger.LogDebug("Block grid '{Alias}': raw type={Type}, length={Length}",
+            propertyType.Alias, rawObj.GetType().Name, rawJson.Length);
+
+        JsonDocument doc;
+        try
+        {
+            doc = JsonDocument.Parse(rawJson);
+        }
+        catch (JsonException ex)
+        {
+            _logger.LogWarning(ex, "Failed to parse block grid JSON for property '{Alias}'", propertyType.Alias);
+            return null;
+        }
+
+        using (doc)
+        {
+            var root = doc.RootElement;
+
+            // Get contentData array — try both camelCase and PascalCase
+            if (!root.TryGetProperty("contentData", out var contentDataArray) &&
+                !root.TryGetProperty("ContentData", out contentDataArray))
             {
-                _logger.LogWarning(
-                    "Element type not found for ContentElementTypeKey '{Key}' in block grid '{Alias}'",
-                    blockConfig.ContentElementTypeKey, propertyType.Alias);
-                continue;
+                _logger.LogWarning("Block grid '{Alias}': no contentData found in JSON. Keys: {Keys}",
+                    propertyType.Alias,
+                    string.Join(", ", root.EnumerateObject().Select(p => p.Name)));
+                return null;
             }
 
-            var block = new DestinationBlock
+            if (contentDataArray.ValueKind != JsonValueKind.Array)
             {
-                Key = blockConfig.ContentElementTypeKey.ToString(),
-                ContentTypeAlias = elementType.Alias,
-                ContentTypeKey = blockConfig.ContentElementTypeKey.ToString(),
-                Label = elementType.Name ?? elementType.Alias,
-                Description = elementType.Description,
-                Properties = new List<BlockProperty>()
+                return null;
+            }
+
+            var blockGrid = new DestinationBlockGrid
+            {
+                Key = propertyType.Key.ToString(),
+                Alias = propertyType.Alias,
+                Label = propertyType.Name ?? propertyType.Alias,
+                Description = propertyType.Description,
+                Blocks = new List<DestinationBlock>()
             };
 
-            // Walk element type properties
-            foreach (var elementProp in elementType.PropertyTypes.OrderBy(p => p.SortOrder))
+            foreach (var blockData in contentDataArray.EnumerateArray())
             {
-                var propType = MapEditorAlias(elementProp.PropertyEditorAlias);
-                block.Properties.Add(new BlockProperty
+                var block = BuildBlockFromInstance(blockData);
+                if (block != null)
+                {
+                    blockGrid.Blocks.Add(block);
+                }
+            }
+
+            // Only return the block grid if it has blocks with text-mappable properties
+            return blockGrid.Blocks.Count > 0 ? blockGrid : null;
+        }
+    }
+
+    /// <summary>
+    /// Builds a DestinationBlock from a single block instance in the blueprint's contentData.
+    /// Only includes blocks that have at least one text-mappable property.
+    /// Derives an identifyBy label from the block's populated text properties.
+    /// </summary>
+    private DestinationBlock? BuildBlockFromInstance(JsonElement blockData)
+    {
+        if (!TryGetJsonProperty(blockData, "contentTypeKey", out var contentTypeKeyElement))
+        {
+            return null;
+        }
+
+        var contentTypeKey = contentTypeKeyElement.GetGuid();
+        var elementType = _contentTypeService.Get(contentTypeKey);
+        if (elementType == null)
+        {
+            _logger.LogWarning("Element type not found for ContentTypeKey '{Key}'", contentTypeKey);
+            return null;
+        }
+
+        // Get the block instance's property values from the JSON.
+        // Handles both v17 format (values array: [{alias, value}]) and
+        // v13 format (properties directly on the object: {title: "...", text: "..."})
+        var instanceValues = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        if (TryGetJsonProperty(blockData, "values", out var valuesArray) &&
+            valuesArray.ValueKind == JsonValueKind.Array)
+        {
+            // v17 format: values array with {alias, value} objects
+            foreach (var val in valuesArray.EnumerateArray())
+            {
+                var alias = TryGetJsonProperty(val, "alias", out var a) ? a.GetString() : null;
+                if (string.IsNullOrEmpty(alias)) continue;
+
+                var value = TryGetJsonProperty(val, "value", out var v) ? ExtractStringValue(v) : null;
+                if (!string.IsNullOrWhiteSpace(value))
+                {
+                    instanceValues[alias] = value;
+                }
+            }
+        }
+        else
+        {
+            // v13 format: properties directly on the contentData object
+            // Known system properties to skip
+            var systemProps = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+                { "contentTypeKey", "ContentTypeKey", "udi", "Udi", "key", "Key" };
+
+            foreach (var prop in blockData.EnumerateObject())
+            {
+                if (systemProps.Contains(prop.Name)) continue;
+
+                var value = ExtractStringValue(prop.Value);
+                if (!string.IsNullOrWhiteSpace(value))
+                {
+                    instanceValues[prop.Name] = value;
+                }
+            }
+        }
+
+        // Collect text-mappable properties from the element type definition
+        // Use CompositionPropertyTypes to include properties from compositions,
+        // not just directly-defined ones (same pattern as the document type iteration)
+        var textMappableProperties = new List<BlockProperty>();
+        BlockIdentifier? identifyBy = null;
+
+        foreach (var elementProp in elementType.CompositionPropertyTypes.OrderBy(p => p.SortOrder))
+        {
+            var propType = MapEditorAlias(elementProp.PropertyEditorAlias);
+
+            if (TextMappableTypes.Contains(propType))
+            {
+                textMappableProperties.Add(new BlockProperty
                 {
                     Key = elementProp.Key.ToString(),
                     Alias = elementProp.Alias,
@@ -182,10 +355,67 @@ public class DestinationStructureService : IDestinationStructureService
                 });
             }
 
-            blockGrid.Blocks.Add(block);
+            // Find identifying label: first text/textArea property with a non-empty value
+            if (identifyBy == null &&
+                (propType == "text" || propType == "textArea") &&
+                instanceValues.TryGetValue(elementProp.Alias, out var identValue))
+            {
+                identifyBy = new BlockIdentifier
+                {
+                    Property = elementProp.Alias,
+                    Value = identValue
+                };
+            }
         }
 
-        return blockGrid;
+        // Skip blocks that have no text-mappable properties (e.g., layout blocks)
+        if (textMappableProperties.Count == 0)
+        {
+            return null;
+        }
+
+        // Build a human-readable label from the identifying value
+        var label = identifyBy != null
+            ? identifyBy.Value
+            : elementType.Name ?? elementType.Alias;
+
+        var blockKey = TryGetJsonProperty(blockData, "key", out var keyElement)
+            ? keyElement.GetGuid().ToString()
+            : contentTypeKey.ToString();
+
+        return new DestinationBlock
+        {
+            Key = blockKey,
+            ContentTypeAlias = elementType.Alias,
+            ContentTypeKey = contentTypeKey.ToString(),
+            Label = label,
+            Description = elementType.Description,
+            IdentifyBy = identifyBy,
+            Properties = textMappableProperties
+        };
+    }
+
+    /// <summary>
+    /// Extracts a string value from a JSON element. Handles both simple strings
+    /// and complex objects (returns null for complex objects like rich text markup).
+    /// </summary>
+    private static string? ExtractStringValue(JsonElement element)
+    {
+        return element.ValueKind switch
+        {
+            JsonValueKind.String => element.GetString(),
+            JsonValueKind.Number => element.GetRawText(),
+            JsonValueKind.True => "true",
+            JsonValueKind.False => "false",
+            _ => null // Complex objects (arrays, objects) are not suitable for identification
+        };
+    }
+
+    private static bool IsValueEmpty(object? value)
+    {
+        if (value == null) return true;
+        if (value is string s) return string.IsNullOrWhiteSpace(s);
+        return false;
     }
 
     private static string MapEditorAlias(string editorAlias) => editorAlias switch
@@ -208,4 +438,23 @@ public class DestinationStructureService : IDestinationStructureService
         "textArea" => new List<string> { "text", "markdown" },
         _ => new List<string> { "text" }
     };
+
+    /// <summary>
+    /// Case-insensitive JSON property lookup — tries camelCase then PascalCase.
+    /// </summary>
+    private static bool TryGetJsonProperty(JsonElement element, string name, out JsonElement value)
+    {
+        // Try as-is (camelCase)
+        if (element.TryGetProperty(name, out value))
+            return true;
+
+        // Try PascalCase
+        var pascal = char.ToUpperInvariant(name[0]) + name[1..];
+        if (element.TryGetProperty(pascal, out value))
+            return true;
+
+        // Try camelCase (in case the input was PascalCase)
+        var camel = char.ToLowerInvariant(name[0]) + name[1..];
+        return element.TryGetProperty(camel, out value);
+    }
 }

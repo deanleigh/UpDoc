@@ -1,10 +1,10 @@
-# Plan: Rich Extraction Format & Destination-Driven Mapping
+# Plan: Rich Extraction Format & Bidirectional Mapping
 
 ## Context
 
 Before building further UI for the workflow editor, we identified a fundamental limitation in the data architecture: extraction currently produces flat strings (text or markdown), which discards all metadata (font size, position, color, heading level). This prevents building a visual rule builder, makes mapping to compound destinations (blocks with multiple fields) clumsy, and forces markdown conversion too early in the pipeline.
 
-This plan captures architectural decisions from a brainstorming session and outlines the implementation sequence. The goal is to enable **destination-driven mapping** where the workflow author sees the destination structure, clicks on a field, picks content from a sample extraction, and conditions auto-populate from metadata.
+This plan captures architectural decisions from brainstorming sessions and outlines the implementation sequence. The goal is to enable **bidirectional mapping** where the workflow author can create mappings from whichever direction feels natural — starting from the destination ("I need to fill this field"), starting from the source ("I have this content, where does it go?"), or editing the map directly.
 
 ---
 
@@ -26,22 +26,39 @@ This plan captures architectural decisions from a brainstorming session and outl
 
 **Storage:** Folder structure can stay as-is or adapt — this is a UI presentation decision. The three-file separation (source config, destination config, map) is preserved.
 
-### 2. Destination-driven mapping
+### 2. Bidirectional mapping via three-tab workspace
 
 **Change from current:** The current UI shows source sections on separate tabs (PDF, Markdown) and destination fields on the Destination tab, with mapping wiring in a separate map.json. The workflow author must mentally connect these.
 
-**New approach:** The workflow editor shows the **destination structure** (document type fields and blocks), and the workflow author maps from destination to source. They click on a destination field, pick content from the sample extraction, and conditions auto-populate.
+**Previous plan:** Destination-driven only — click destination field, pick source content. This was one of three approaches considered (destination-driven, source-driven, split-pane). None was chosen.
 
-**Flow:**
-1. Open "Group Tour from PDF"
-2. See destination structure: Page Properties (fields) + Page Content (blocks)
-3. Click on a destination field (e.g., Accommodation > Title)
-4. Side panel opens showing extracted sample content with metadata
-5. Pick the right content element — conditions auto-populate from its metadata
-6. Refine conditions if needed (e.g., disambiguate between two "Accommodation" occurrences)
-7. Visual indicator shows mapped vs unmapped fields
+**New approach (Feb 2026):** All approaches work together. The workflow workspace has **three tabs** — Destination, Map, Source — and all three are views over the same underlying `map.json`. The workflow author can create and edit mappings from whichever direction feels natural for what they're doing at that moment.
 
-**Destination structure** is auto-populated from the document type/blueprint — not manually entered. The blocks are listed as they appear in the editor, expandable to show their inner fields. Each field has a "map" action icon.
+**UX rationale:** Different workflow authors think differently. Some think "I need to fill this field" (destination-first), others think "I have this content, where does it go?" (source-first). Forcing one direction adds friction for the other mental model. Letting the user work from either direction removes the question entirely.
+
+#### Three-tab model
+
+**Destination tab** — Shows the blueprint structure (fields + blocks). Each field shows its mapping status (mapped/unmapped). Click a field to pick source content and create a mapping.
+- Authoring direction: "I need to fill this field, where does the content come from?"
+- Flow: Click destination field → picker shows source content from sample extraction → select source element(s) → conditions auto-populate → mapping created
+
+**Source tab** — Shows the extracted sample content with metadata. Each element shows its mapping status. Click an element to pick a destination field and create a mapping.
+- Authoring direction: "I have this content, where does it go?"
+- Flow: Click source element → picker shows available destination fields → select destination → mapping created
+
+**Map tab** — Shows all mappings directly as a flat list/table. Full overview of every source→destination wiring. Edit, delete, reorder mappings. The single source of truth made visible and directly editable.
+- Authoring direction: "Let me see and manage all the wiring at once"
+
+All three tabs read from and write to `map.json`. Creating a mapping from the Destination or Source tab updates the other views. The Map tab is always current.
+
+#### Multi-element-to-one-field mapping
+
+The case where multiple source elements map to a single destination field (e.g., a title split across two lines in the PDF) works naturally from either direction:
+- **From destination:** Click the destination field, pick multiple source elements
+- **From source:** Both source elements point to the same destination field (visible in Map tab)
+- **From map:** Edit the mapping to add/remove source elements
+
+**Destination structure** is auto-populated from the blueprint content — not the full document type. Only fields populated in the blueprint and text-mappable (text, textarea, richText) are shown. Only block instances actually placed in the blueprint's block grid are shown. See Decision #11 for details.
 
 ### 3. Rich extraction format (metadata preserved)
 
@@ -162,6 +179,38 @@ The UI presents a unified experience, but the underlying storage maintains separ
 - **Text content only** — headings and body text, organised into sections
 - **Two user roles:** Workflow author (Settings section, admin) and Content editor (Content section, uses workflows without seeing configuration)
 
+### 11. Destination auto-populate from blueprint content (not document type)
+
+**Bug discovered (Feb 2026):** The `DestinationStructureService` was building destination structure from the full document type (all compositions, all property groups, all allowed block types). This showed every field and every possible block — not what the blueprint actually contains.
+
+**Correct behaviour:** The destination must reflect the **actual blueprint content**, not the document type definition. The blueprint is the content blueprint — it defines the specific arrangement of fields and blocks for this workflow.
+
+**Filtering rules:**
+- **Properties:** Include only properties that (a) have a value populated in the blueprint AND (b) have a text-mappable property editor (text, textarea, richText). Excludes media pickers, image croppers, etc. even if populated.
+- **Page Settings tab:** Exclude entirely. Nothing from source documents maps to page settings.
+- **Blocks:** Read the blueprint's actual block grid content value. Only include block instances that are placed in the blueprint's grid — not all block types the editor allows. Each block's text-mappable inner properties are listed.
+- **Block labels:** Pull a human-readable identifier from each block instance (e.g., its title property value) for display in the UI.
+
+**Implementation:** Load the actual blueprint content via `IContentService.GetById(blueprintId)` instead of just reading the document type definition.
+
+### 12. Conditions location in three-tab model
+
+**Conditions** (extraction rules — how to find content in a source) are fundamentally a **source-side concern**. They are stored in `source.json` and describe how to locate specific content in a source document.
+
+**Auto-population varies by source type:**
+- **PDF:** Richest metadata — PdfPig provides font size, position, color, page number. Conditions auto-populate when the workflow author picks content from the sample extraction.
+- **Markdown:** Some auto-population possible — heading levels, code blocks, syntax patterns.
+- **Web:** Largely manual — CSS selectors, element types. User defines conditions.
+- **Word:** Some auto-population — document style names (Heading 1, Normal).
+
+**Where conditions surface in the UI** — to be decided. Options:
+1. **Source tab only:** Conditions edited alongside source content. Keeps separation of concerns clean.
+2. **Inline during mapping flow:** When mapping from the Destination tab, conditions appear after selecting source content for review/tweaking, but "live" on the Source tab.
+3. **Map tab:** Each mapping row shows source + conditions + destination for a complete picture.
+4. **Combination:** Conditions auto-populate during mapping (from either direction), are visible on the Map tab, and are fully editable on the Source tab.
+
+This decision is **parked for now** — the right answer will become clearer once the three-tab structure is built and we can test the flows.
+
 ---
 
 ## Implementation Phases
@@ -213,20 +262,39 @@ This is a large refactoring. Split into sequential branches:
 - `src/UpDoc/Models/` — new/modified models
 - `src/UpDoc/Controllers/` — API changes
 
-### Phase 4: Destination-driven mapping UI
-- Rebuild workflow editor to show destination structure (fields + blocks)
+### Phase 4: Bidirectional mapping UI (three-tab workspace)
+
+Rebuild the workflow workspace to support bidirectional mapping via three tabs:
+
+**Destination tab:**
+- Show blueprint structure: fields + blocks (filtered per Decision #11)
 - Blocks expandable to show inner properties
-- "Map" icon on each field
-- Side panel with sample extraction content picker
+- "Map" icon on each field/property
+- Click map icon → picker shows sample extraction content → select source element(s) → mapping created
+- Visual indicators for mapped vs unmapped fields
 - Auto-populate conditions from selected element's metadata
-- Visual indicators for mapped/unmapped fields
-- Save conditions back to source config JSON, save mapping back to map JSON
+
+**Source tab:**
+- Show sample extraction content with metadata
+- Each element shows mapping status (mapped/unmapped, linked destination)
+- Click element → picker shows available destination fields → mapping created
+- Conditions visible/editable alongside source elements
+
+**Map tab:**
+- Flat list/table of all mappings (source → destination)
+- Each row shows: source element(s), conditions summary, destination field
+- Edit, delete, reorder mappings
+- Direct editing of map.json via UI
+
+All three tabs share the same underlying data (map.json). Changes from any tab update the others.
 
 **Key files:**
-- `src/UpDoc/wwwroot/App_Plugins/UpDoc/src/` — new workspace views
-- Destination structure rendered from destination-blueprint.json
-- Content picker panel (new component)
-- Condition editor (new component)
+- `src/UpDoc/wwwroot/App_Plugins/UpDoc/src/` — workspace views (3 tabs)
+- Destination structure rendered from destination.json (auto-populated from blueprint)
+- Source content rendered from sample-extraction.json
+- Mapping state rendered from map.json
+- Content/field picker components (new)
+- Condition display component (new)
 
 ### Phase 5: Condition refinement
 - Rule builder UI for editing auto-populated conditions
@@ -242,7 +310,7 @@ Each phase should be testable independently:
 
 - **Phase 2:** Click "Create Workflow" in Settings → UpDoc → Workflows. Verify blueprint picker dialog opens (doc type → blueprint). Verify sidebar opens with workflow name (auto-generated as `{blueprint}-{sourceType}`) and source type dropdown. Select PDF, click Create. Verify workflow folder created on disk with `source.json`, `destination.json`, `map.json`. Verify collection view shows new workflow with Source column. Verify old `group-tour` folder still loads correctly (backwards compatibility). Verify Markdown/Pdf tabs no longer appear on workflow workspace.
 - **Phase 3:** Extract a PDF via API, verify response includes full metadata per text element. Check sample extraction file is created in workflow folder.
-- **Phase 4:** Open a workflow, see destination fields with map icons. Click map icon, see sample content in picker. Select content, verify conditions auto-populate. Save and verify JSON files updated.
+- **Phase 4:** Open a workflow, verify three tabs (Destination, Map, Source). On Destination tab: see filtered fields/blocks from blueprint with map icons; click map icon, see sample content in picker; select content, verify mapping created in map.json. On Source tab: see sample extraction elements with metadata; click element, see destination field picker; select field, verify mapping created. On Map tab: see all mappings; edit/delete a mapping; verify changes reflected on other tabs.
 - **Phase 5:** Edit conditions in rule builder. Re-extract sample, verify matching reflects changes.
 
 ---
