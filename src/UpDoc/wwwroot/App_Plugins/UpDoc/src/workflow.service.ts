@@ -1,4 +1,4 @@
-import type { DocumentTypeConfig, ExtractSectionsResponse } from './workflow.types.js';
+import type { DocumentTypeConfig, ExtractSectionsResponse, RichExtractionResult } from './workflow.types.js';
 
 const configCache = new Map<string, DocumentTypeConfig>();
 
@@ -125,6 +125,81 @@ export async function fetchWorkflowByName(name: string, token: string): Promise<
 		return null;
 	}
 
+	return response.json();
+}
+
+/**
+ * Fetches the sample extraction for a workflow, if it exists.
+ */
+export async function fetchSampleExtraction(
+	workflowName: string,
+	token: string
+): Promise<RichExtractionResult | null> {
+	const response = await fetch(
+		`/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(workflowName)}/sample-extraction`,
+		{
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${token}`,
+			},
+		}
+	);
+
+	if (!response.ok) return null;
+	return response.json();
+}
+
+/**
+ * Triggers a sample extraction for a workflow from a media item (PDF).
+ * The extraction is saved to sample-extraction.json in the workflow folder.
+ */
+export async function triggerSampleExtraction(
+	workflowName: string,
+	mediaKey: string,
+	token: string
+): Promise<RichExtractionResult | null> {
+	const response = await fetch(
+		`/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(workflowName)}/sample-extraction`,
+		{
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${token}`,
+			},
+			body: JSON.stringify({ mediaKey }),
+		}
+	);
+
+	if (!response.ok) {
+		const error = await response.json();
+		console.error('Sample extraction failed:', error);
+		return null;
+	}
+
+	return response.json();
+}
+
+/**
+ * Runs a standalone rich extraction from a media item (PDF) without saving to a workflow.
+ * Used for validation/preview before the workflow folder exists.
+ */
+export async function extractRich(
+	mediaKey: string,
+	token: string
+): Promise<RichExtractionResult | null> {
+	const response = await fetch(
+		`/umbraco/management/api/v1/updoc/extract-rich?mediaKey=${mediaKey}`,
+		{
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${token}`,
+			},
+		}
+	);
+
+	if (!response.ok) return null;
 	return response.json();
 }
 

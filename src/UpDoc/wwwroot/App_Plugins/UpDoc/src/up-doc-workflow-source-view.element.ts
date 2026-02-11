@@ -1,18 +1,22 @@
-import type { DocumentTypeConfig, SourceConfig, SourceSection } from './workflow.types.js';
-import { fetchWorkflowByName } from './workflow.service.js';
+import type { ExtractionElement, RichExtractionResult } from './workflow.types.js';
+import { fetchSampleExtraction, triggerSampleExtraction } from './workflow.service.js';
 import { html, css, state, nothing } from '@umbraco-cms/backoffice/external/lit';
 import { customElement } from '@umbraco-cms/backoffice/external/lit';
 import { UmbLitElement } from '@umbraco-cms/backoffice/lit-element';
 import { UmbTextStyles } from '@umbraco-cms/backoffice/style';
 import { UMB_AUTH_CONTEXT } from '@umbraco-cms/backoffice/auth';
 import { UMB_WORKSPACE_CONTEXT } from '@umbraco-cms/backoffice/workspace';
+import { UMB_MODAL_MANAGER_CONTEXT } from '@umbraco-cms/backoffice/modal';
+import { UMB_MEDIA_PICKER_MODAL } from '@umbraco-cms/backoffice/media';
 
 @customElement('up-doc-workflow-source-view')
 export class UpDocWorkflowSourceViewElement extends UmbLitElement {
-	@state() private _sourceConfig: SourceConfig | null = null;
-	@state() private _sourceType: string | null = null;
+	@state() private _extraction: RichExtractionResult | null = null;
+	@state() private _workflowName: string | null = null;
 	@state() private _loading = true;
+	@state() private _extracting = false;
 	@state() private _error: string | null = null;
+	@state() private _successMessage: string | null = null;
 
 	override connectedCallback() {
 		super.connectedCallback();
@@ -20,81 +24,148 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 			if (!context) return;
 			this.observe((context as any).unique, (unique: string | null) => {
 				if (unique) {
-					this.#loadConfig(decodeURIComponent(unique));
+					this._workflowName = decodeURIComponent(unique);
+					this.#loadSampleExtraction();
 				}
 			});
 		});
 	}
 
-	async #loadConfig(workflowName: string) {
+	async #loadSampleExtraction() {
+		if (!this._workflowName) return;
+
 		this._loading = true;
 		this._error = null;
 
 		try {
 			const authContext = await this.getContext(UMB_AUTH_CONTEXT);
 			const token = await authContext.getLatestToken();
-			const config: DocumentTypeConfig | null = await fetchWorkflowByName(workflowName, token);
-
-			if (!config) {
-				this._error = `Workflow "${workflowName}" not found`;
-				return;
-			}
-
-			// Detect source type dynamically from the workflow config
-			const sourceTypes = Object.keys(config.sources);
-			if (sourceTypes.length > 0) {
-				this._sourceType = sourceTypes[0];
-				this._sourceConfig = config.sources[sourceTypes[0]] ?? null;
-			} else {
-				this._sourceType = null;
-				this._sourceConfig = null;
-			}
+			this._extraction = await fetchSampleExtraction(this._workflowName, token);
 		} catch (err) {
-			this._error = err instanceof Error ? err.message : 'Failed to load workflow';
-			console.error('Failed to load workflow config:', err);
+			this._error = err instanceof Error ? err.message : 'Failed to load sample extraction';
+			console.error('Failed to load sample extraction:', err);
 		} finally {
 			this._loading = false;
 		}
 	}
 
-	#formatSourceType(type: string): string {
-		const labels: Record<string, string> = { pdf: 'PDF', markdown: 'Markdown', web: 'Web', doc: 'Word' };
-		return labels[type] ?? type;
+	async #onPickMedia() {
+		if (!this._workflowName) return;
+
+		const modalManager = await this.getContext(UMB_MODAL_MANAGER_CONTEXT);
+		const modal = modalManager.open(this, UMB_MEDIA_PICKER_MODAL, {
+			data: {
+				multiple: false,
+			},
+		});
+
+		const result = await modal.onSubmit().catch(() => null);
+		if (!result?.selection?.length) return;
+
+		const mediaKey = result.selection[0];
+		if (!mediaKey) return;
+
+		this._extracting = true;
+		this._error = null;
+
+		try {
+			const authContext = await this.getContext(UMB_AUTH_CONTEXT);
+			const token = await authContext.getLatestToken();
+			const extraction = await triggerSampleExtraction(this._workflowName, mediaKey, token);
+
+			if (extraction) {
+				this._extraction = extraction;
+				this._successMessage = `Content extracted successfully — ${extraction.elements.length} elements from ${extraction.source.totalPages} pages`;
+				setTimeout(() => { this._successMessage = null; }, 5000);
+			} else {
+				this._error = 'Extraction failed. Check that the selected media item is a PDF.';
+			}
+		} catch (err) {
+			this._error = err instanceof Error ? err.message : 'Extraction failed';
+			console.error('Sample extraction failed:', err);
+		} finally {
+			this._extracting = false;
+		}
 	}
 
-	#renderSourceSection(section: SourceSection) {
+	#groupByPage(elements: ExtractionElement[]): Map<number, ExtractionElement[]> {
+		const groups = new Map<number, ExtractionElement[]>();
+		for (const el of elements) {
+			const existing = groups.get(el.page);
+			if (existing) {
+				existing.push(el);
+			} else {
+				groups.set(el.page, [el]);
+			}
+		}
+		return groups;
+	}
+
+	#renderElement(element: ExtractionElement) {
+		const meta = element.metadata;
 		return html`
-			<div class="section-item">
-				<div class="section-header">
-					<span class="section-label">${section.label}</span>
-					<span class="section-strategy">${section.strategy}</span>
-					${section.required ? html`<uui-tag look="primary" color="danger" class="field-badge">Required</uui-tag>` : nothing}
+			<div class="element-item">
+				<div class="element-text">${element.text}</div>
+				<div class="element-meta">
+					<span class="meta-badge font-size">${meta.fontSize}pt</span>
+					<span class="meta-badge font-name">${meta.fontName}</span>
+					<span class="meta-badge color" style="border-left: 3px solid ${meta.color};">${meta.color}</span>
+					<span class="meta-badge position">x:${meta.position.x} y:${meta.position.y}</span>
 				</div>
-				<div class="section-meta">
-					<span class="field-alias">${section.key}</span>
-					<span class="section-output">${section.outputFormat}</span>
-					${section.pages ? html`<span class="section-pages">pages: ${Array.isArray(section.pages) ? section.pages.join(', ') : section.pages}</span>` : nothing}
-				</div>
-				${section.description ? html`<p class="section-description">${section.description}</p>` : nothing}
-				${section.strategyParams ? this.#renderStrategyParams(section.strategyParams) : nothing}
 			</div>
 		`;
 	}
 
-	#renderStrategyParams(params: Record<string, unknown>) {
-		const entries = Object.entries(params).filter(([, v]) => v !== undefined && v !== null);
-		if (entries.length === 0) return nothing;
+	#renderPageGroup(pageNum: number, elements: ExtractionElement[]) {
+		return html`
+			<uui-box headline="Page ${pageNum}" class="page-box">
+				<div class="element-list">
+					${elements.map((el) => this.#renderElement(el))}
+				</div>
+				<div class="page-summary">${elements.length} element${elements.length !== 1 ? 's' : ''}</div>
+			</uui-box>
+		`;
+	}
+
+	#renderExtraction() {
+		if (!this._extraction) return nothing;
+
+		const grouped = this.#groupByPage(this._extraction.elements);
+		const pages = Array.from(grouped.entries()).sort(([a], [b]) => a - b);
 
 		return html`
-			<div class="strategy-params">
-				${entries.map(
-					([key, value]) => html`
-						<span class="param">
-							<span class="param-key">${key}:</span>
-							<span class="param-value">${Array.isArray(value) ? value.join(', ') : String(value)}</span>
-						</span>
-					`
-				)}
+			<div class="extraction-header">
+				<div class="extraction-info">
+					<span class="info-label">Source:</span>
+					<span>${this._extraction.source.fileName}</span>
+				</div>
+				<div class="extraction-info">
+					<span class="info-label">Pages:</span>
+					<span>${this._extraction.source.totalPages}</span>
+					<span class="info-label" style="margin-left: var(--uui-size-space-4);">Elements:</span>
+					<span>${this._extraction.elements.length}</span>
+					<span class="info-label" style="margin-left: var(--uui-size-space-4);">Extracted:</span>
+					<span>${new Date(this._extraction.source.extractedDate).toLocaleString()}</span>
+				</div>
+				<uui-button look="secondary" label="Re-extract" @click=${this.#onPickMedia} ?disabled=${this._extracting}>
+					<uui-icon name="icon-refresh"></uui-icon>
+					Re-extract
+				</uui-button>
+			</div>
+
+			${pages.map(([pageNum, elements]) => this.#renderPageGroup(pageNum, elements))}
+		`;
+	}
+
+	#renderEmpty() {
+		return html`
+			<div class="empty-state">
+				<uui-icon name="icon-document" style="font-size: 48px; color: var(--uui-color-text-alt);"></uui-icon>
+				<h3>No sample extraction</h3>
+				<p>Upload a PDF to extract all text elements with their metadata.</p>
+				<uui-button look="primary" label="Upload PDF" @click=${this.#onPickMedia} ?disabled=${this._extracting}>
+					${this._extracting ? html`<uui-loader-bar></uui-loader-bar>` : 'Upload PDF'}
+				</uui-button>
 			</div>
 		`;
 	}
@@ -105,33 +176,16 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		}
 
 		if (this._error) {
-			return html`<p style="color: var(--uui-color-danger);">${this._error}</p>`;
-		}
-
-		if (!this._sourceConfig || !this._sourceType) {
-			return html`<umb-body-layout header-fit-height>
-				<p class="empty-message">No source configured for this workflow.</p>
-			</umb-body-layout>`;
+			return html`
+				<umb-body-layout header-fit-height>
+					<p style="color: var(--uui-color-danger); padding: var(--uui-size-layout-1);">${this._error}</p>
+				</umb-body-layout>`;
 		}
 
 		return html`
 			<umb-body-layout header-fit-height>
-				<uui-box headline="Source: ${this.#formatSourceType(this._sourceType)}">
-					${this._sourceConfig.globals?.columnDetection
-						? html`
-							<div class="source-globals">
-								<span class="globals-label">Column Detection:</span>
-								<span>${this._sourceConfig.globals.columnDetection.enabled ? 'Enabled' : 'Disabled'}
-									${this._sourceConfig.globals.columnDetection.enabled
-										? `(threshold: ${(this._sourceConfig.globals.columnDetection.thresholdPercent * 100).toFixed(0)}%)`
-										: ''}</span>
-							</div>
-						`
-						: nothing}
-					<div class="section-list">
-						${this._sourceConfig.sections.map((section) => this.#renderSourceSection(section))}
-					</div>
-				</uui-box>
+				${this._successMessage ? html`<div class="success-banner"><uui-icon name="icon-check"></uui-icon> ${this._successMessage}</div>` : nothing}
+				${this._extraction ? this.#renderExtraction() : this.#renderEmpty()}
 			</umb-body-layout>
 		`;
 	}
@@ -142,119 +196,117 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 			:host {
 				display: block;
 				height: 100%;
-				--uui-tab-background: var(--uui-color-surface);
 			}
 
 			.loading {
 				padding: var(--uui-size-layout-1);
 			}
 
-			.empty-message {
-				color: var(--uui-color-text-alt);
-				font-style: italic;
-			}
-
-			.field-badge {
-				font-size: 11px;
-			}
-
-			.source-globals {
-				padding: var(--uui-size-space-3) var(--uui-size-space-4);
-				background: var(--uui-color-surface-alt);
-				border-bottom: 1px solid var(--uui-color-border);
-				font-size: var(--uui-type-small-size);
+			.success-banner {
 				display: flex;
+				align-items: center;
+				gap: var(--uui-size-space-2);
+				padding: var(--uui-size-space-2);
+				border-radius: var(--uui-border-radius);
+				background-color: var(--uui-color-positive-emphasis);
+				color: var(--uui-color-positive-contrast);
+				font-size: var(--uui-type-small-size);
+			}
+
+			/* Empty state */
+			.empty-state {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+				padding: var(--uui-size-layout-2);
+				gap: var(--uui-size-space-3);
+				text-align: center;
+				min-height: 300px;
+			}
+
+			.empty-state h3 {
+				margin: 0;
+				color: var(--uui-color-text);
+			}
+
+			.empty-state p {
+				margin: 0;
+				color: var(--uui-color-text-alt);
+			}
+
+			/* Extraction header */
+			.extraction-header {
+				padding: var(--uui-size-space-4);
+				border-bottom: 1px solid var(--uui-color-border);
+				display: flex;
+				flex-direction: column;
 				gap: var(--uui-size-space-2);
 			}
 
-			.globals-label {
-				font-weight: 600;
+			.extraction-info {
+				display: flex;
+				align-items: center;
+				gap: var(--uui-size-space-2);
+				font-size: var(--uui-type-small-size);
 			}
 
-			.section-list {
+			.info-label {
+				font-weight: 600;
+				color: var(--uui-color-text-alt);
+			}
+
+			/* Page groups */
+			.page-box {
+				margin: var(--uui-size-space-4);
+			}
+
+			.element-list {
 				display: flex;
 				flex-direction: column;
 			}
 
-			.section-item {
+			.element-item {
 				padding: var(--uui-size-space-3) var(--uui-size-space-4);
 				border-bottom: 1px solid var(--uui-color-border);
 			}
 
-			.section-item:last-child {
+			.element-item:last-child {
 				border-bottom: none;
 			}
 
-			.section-header {
-				display: flex;
-				align-items: center;
-				gap: var(--uui-size-space-3);
+			.element-text {
+				font-size: var(--uui-type-default-size);
+				margin-bottom: var(--uui-size-space-2);
+				word-break: break-word;
+				white-space: pre-wrap;
 			}
 
-			.section-label {
-				font-weight: 600;
-			}
-
-			.section-strategy {
-				font-size: var(--uui-type-small-size);
-				color: var(--uui-color-text-alt);
-				background: var(--uui-color-surface-alt);
-				padding: 2px 8px;
-				border-radius: var(--uui-border-radius);
-			}
-
-			.section-meta {
-				display: flex;
-				gap: var(--uui-size-space-3);
-				margin-top: var(--uui-size-space-1);
-			}
-
-			.field-alias {
-				font-size: var(--uui-type-small-size);
-				color: var(--uui-color-text-alt);
-				font-family: monospace;
-			}
-
-			.section-output {
-				font-size: var(--uui-type-small-size);
-				color: var(--uui-color-text-alt);
-			}
-
-			.section-pages {
-				font-size: var(--uui-type-small-size);
-				color: var(--uui-color-text-alt);
-			}
-
-			.section-description {
-				font-size: var(--uui-type-small-size);
-				color: var(--uui-color-text-alt);
-				margin: var(--uui-size-space-1) 0 0 0;
-			}
-
-			.strategy-params {
+			.element-meta {
 				display: flex;
 				flex-wrap: wrap;
 				gap: var(--uui-size-space-2);
-				margin-top: var(--uui-size-space-2);
-				padding: var(--uui-size-space-2);
-				background: var(--uui-color-surface-alt);
-				border-radius: var(--uui-border-radius);
-				font-size: 12px;
+			}
+
+			.meta-badge {
+				font-size: 11px;
 				font-family: monospace;
-			}
-
-			.param {
-				display: inline-flex;
-				gap: 4px;
-			}
-
-			.param-key {
+				padding: 1px 6px;
+				border-radius: var(--uui-border-radius);
+				background: var(--uui-color-surface-alt);
 				color: var(--uui-color-text-alt);
 			}
 
-			.param-value {
+			.meta-badge.font-size {
+				font-weight: 600;
 				color: var(--uui-color-text);
-				word-break: break-all;
+			}
+
+			.page-summary {
+				padding: var(--uui-size-space-2) var(--uui-size-space-4);
+				font-size: var(--uui-type-small-size);
+				color: var(--uui-color-text-alt);
+				text-align: right;
 			}
 		`,
 	];

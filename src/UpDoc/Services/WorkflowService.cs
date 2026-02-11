@@ -48,6 +48,16 @@ public interface IWorkflowService
     /// Deletes a workflow folder and all its files.
     /// </summary>
     void DeleteWorkflow(string name);
+
+    /// <summary>
+    /// Saves a rich extraction result as sample-extraction.json in the workflow folder.
+    /// </summary>
+    void SaveSampleExtraction(string workflowName, RichExtractionResult extraction);
+
+    /// <summary>
+    /// Loads the stored sample-extraction.json from a workflow folder, if it exists.
+    /// </summary>
+    RichExtractionResult? GetSampleExtraction(string workflowName);
 }
 
 /// <summary>
@@ -396,6 +406,40 @@ public class WorkflowService : IWorkflowService
         _logger.LogInformation("Deleted workflow folder: {Name}", name);
 
         ClearCache();
+    }
+
+    public void SaveSampleExtraction(string workflowName, RichExtractionResult extraction)
+    {
+        var folderPath = GetWorkflowFolderPath(workflowName);
+        if (!Directory.Exists(folderPath))
+        {
+            throw new DirectoryNotFoundException($"Workflow folder '{workflowName}' does not exist.");
+        }
+
+        var filePath = Path.Combine(folderPath, "sample-extraction.json");
+        var writeOptions = new JsonSerializerOptions { WriteIndented = true };
+        var json = JsonSerializer.Serialize(extraction, writeOptions);
+        File.WriteAllText(filePath, json);
+
+        _logger.LogInformation("Saved sample extraction to {Path} ({Count} elements)",
+            filePath, extraction.Elements.Count);
+    }
+
+    public RichExtractionResult? GetSampleExtraction(string workflowName)
+    {
+        var folderPath = GetWorkflowFolderPath(workflowName);
+        var filePath = Path.Combine(folderPath, "sample-extraction.json");
+
+        if (!File.Exists(filePath))
+            return null;
+
+        var json = File.ReadAllText(filePath);
+        return JsonSerializer.Deserialize<RichExtractionResult>(json, JsonOptions);
+    }
+
+    private string GetWorkflowFolderPath(string workflowName)
+    {
+        return Path.Combine(_webHostEnvironment.ContentRootPath, "updoc", "workflows", workflowName);
     }
 
     private List<DocumentTypeConfig> LoadConfigs()

@@ -1,7 +1,9 @@
 import type { CreateWorkflowSidebarData, CreateWorkflowSidebarValue } from './create-workflow-sidebar.token.js';
+import { extractRich } from './workflow.service.js';
 import { html, customElement, css, state, nothing } from '@umbraco-cms/backoffice/external/lit';
 import { UmbTextStyles } from '@umbraco-cms/backoffice/style';
 import { UmbModalBaseElement } from '@umbraco-cms/backoffice/modal';
+import { UMB_AUTH_CONTEXT } from '@umbraco-cms/backoffice/auth';
 import type { UUIInputEvent } from '@umbraco-cms/backoffice/external/uui';
 import type { UmbInputMediaElement } from '@umbraco-cms/backoffice/media';
 
@@ -24,6 +26,8 @@ export class CreateWorkflowSidebarElement extends UmbModalBaseElement<
 	@state() private _sourceType = '';
 	@state() private _selectedMediaUnique: string | null = null;
 	@state() private _sourceUrl = '';
+	@state() private _extracting = false;
+	@state() private _successMessage: string | null = null;
 	private _nameManuallyEdited = false;
 
 	#toKebabCase(value: string): string {
@@ -40,6 +44,7 @@ export class CreateWorkflowSidebarElement extends UmbModalBaseElement<
 		if (newSourceType !== this._sourceType) {
 			this._selectedMediaUnique = null;
 			this._sourceUrl = '';
+			this._successMessage = null;
 		}
 
 		this._sourceType = newSourceType;
@@ -52,10 +57,27 @@ export class CreateWorkflowSidebarElement extends UmbModalBaseElement<
 		this.requestUpdate();
 	}
 
-	#handleMediaChange(e: CustomEvent) {
+	async #handleMediaChange(e: CustomEvent) {
 		const target = e.target as UmbInputMediaElement;
 		const selection = target.selection;
 		this._selectedMediaUnique = selection.length > 0 ? selection[0] : null;
+		this._successMessage = null;
+
+		if (this._selectedMediaUnique && this._sourceType === 'pdf') {
+			this._extracting = true;
+			try {
+				const authContext = await this.getContext(UMB_AUTH_CONTEXT);
+				const token = await authContext.getLatestToken();
+				const result = await extractRich(this._selectedMediaUnique, token);
+				if (result) {
+					this._successMessage = `Content extracted successfully — ${result.elements.length} elements from ${result.source.totalPages} pages`;
+				}
+			} catch {
+				// Extraction preview failed — not critical, will retry on Create
+			} finally {
+				this._extracting = false;
+			}
+		}
 	}
 
 	#handleNameInput(e: UUIInputEvent) {
@@ -188,6 +210,8 @@ export class CreateWorkflowSidebarElement extends UmbModalBaseElement<
 				</umb-property-layout>
 
 				${this.#renderSourceUI()}
+				${this._extracting ? html`<uui-loader-bar></uui-loader-bar>` : nothing}
+				${this._successMessage ? html`<div class="success-banner"><uui-icon name="icon-check"></uui-icon> ${this._successMessage}</div>` : nothing}
 			</uui-box>
 		`;
 	}
@@ -273,6 +297,18 @@ export class CreateWorkflowSidebarElement extends UmbModalBaseElement<
 			.tab-content {
 				display: flex;
 				flex-direction: column;
+			}
+
+			.success-banner {
+				display: flex;
+				align-items: center;
+				gap: var(--uui-size-space-2);
+				margin-top: var(--uui-size-space-3);
+				padding: var(--uui-size-space-2);
+				border-radius: var(--uui-border-radius);
+				background-color: var(--uui-color-positive-emphasis);
+				color: var(--uui-color-positive-contrast);
+				font-size: var(--uui-type-small-size);
 			}
 		`,
 	];

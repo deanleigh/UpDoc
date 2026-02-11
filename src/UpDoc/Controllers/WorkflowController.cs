@@ -1,9 +1,13 @@
 using Asp.Versioning;
+using UpDoc.Models;
 using UpDoc.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Umbraco.Cms.Api.Common.Attributes;
 using Umbraco.Cms.Api.Common.Filters;
+using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Web.Common.Authorization;
 
 namespace UpDoc.Controllers;
@@ -17,10 +21,23 @@ namespace UpDoc.Controllers;
 public class WorkflowController : ControllerBase
 {
     private readonly IWorkflowService _workflowService;
+    private readonly IPdfPagePropertiesService _pdfPagePropertiesService;
+    private readonly IMediaService _mediaService;
+    private readonly IWebHostEnvironment _webHostEnvironment;
+    private readonly ILogger<WorkflowController> _logger;
 
-    public WorkflowController(IWorkflowService workflowService)
+    public WorkflowController(
+        IWorkflowService workflowService,
+        IPdfPagePropertiesService pdfPagePropertiesService,
+        IMediaService mediaService,
+        IWebHostEnvironment webHostEnvironment,
+        ILogger<WorkflowController> logger)
     {
         _workflowService = workflowService;
+        _pdfPagePropertiesService = pdfPagePropertiesService;
+        _mediaService = mediaService;
+        _webHostEnvironment = webHostEnvironment;
+        _logger = logger;
     }
 
     [HttpGet]
@@ -125,6 +142,86 @@ public class WorkflowController : ControllerBase
             return BadRequest(new { error = ex.Message });
         }
     }
+
+    [HttpPost("{name}/sample-extraction")]
+    public IActionResult ExtractSample(string name, [FromBody] SampleExtractionRequest request)
+    {
+        var absolutePath = ResolveMediaFilePath(request.MediaKey);
+        if (absolutePath == null)
+        {
+            return NotFound(new { error = "Media item not found or file not on disk" });
+        }
+
+        var media = _mediaService.GetById(request.MediaKey);
+        var fileName = media?.Name ?? Path.GetFileName(absolutePath);
+
+        var result = _pdfPagePropertiesService.ExtractRichDump(absolutePath);
+
+        if (!string.IsNullOrEmpty(result.Error))
+        {
+            return BadRequest(new { error = result.Error });
+        }
+
+        // Populate source metadata
+        result.Source.FileName = fileName;
+        result.Source.MediaKey = request.MediaKey.ToString();
+
+        try
+        {
+            _workflowService.SaveSampleExtraction(name, result);
+        }
+        catch (DirectoryNotFoundException)
+        {
+            return NotFound(new { error = $"Workflow '{name}' not found." });
+        }
+
+        _logger.LogInformation("Extracted and saved sample for workflow '{Name}': {Count} elements from {FileName}",
+            name, result.Elements.Count, fileName);
+
+        return Ok(result);
+    }
+
+    [HttpGet("{name}/sample-extraction")]
+    public IActionResult GetSampleExtraction(string name)
+    {
+        var result = _workflowService.GetSampleExtraction(name);
+        if (result == null)
+        {
+            return NotFound(new { error = $"No sample extraction found for workflow '{name}'." });
+        }
+
+        return Ok(result);
+    }
+
+    private string? ResolveMediaFilePath(Guid mediaKey)
+    {
+        var media = _mediaService.GetById(mediaKey);
+        if (media == null) return null;
+
+        var umbracoFile = media.GetValue<string>("umbracoFile");
+        if (string.IsNullOrEmpty(umbracoFile)) return null;
+
+        string filePath;
+        if (umbracoFile.StartsWith("{"))
+        {
+            var json = System.Text.Json.JsonDocument.Parse(umbracoFile);
+            filePath = json.RootElement.GetProperty("src").GetString() ?? string.Empty;
+        }
+        else
+        {
+            filePath = umbracoFile;
+        }
+
+        if (string.IsNullOrEmpty(filePath)) return null;
+
+        var absolutePath = Path.Combine(_webHostEnvironment.WebRootPath, filePath.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
+        return System.IO.File.Exists(absolutePath) ? absolutePath : null;
+    }
+}
+
+public class SampleExtractionRequest
+{
+    public Guid MediaKey { get; set; }
 }
 
 public class CreateWorkflowRequest

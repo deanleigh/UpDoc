@@ -8,7 +8,7 @@ const e = [
     alias: "UpDoc.EntityAction",
     name: "UpDoc Entity Action",
     weight: 1100,
-    api: () => import("./up-doc-action-BZ3yRovI.js"),
+    api: () => import("./up-doc-action-CY4R4gMG.js"),
     forEntityTypes: ["document"],
     meta: {
       icon: "icon-document",
@@ -30,7 +30,7 @@ const e = [
     type: "condition",
     alias: "UpDoc.Condition.HasAvailableWorkflows",
     name: "Has Available Workflows",
-    api: () => import("./up-doc-has-workflows.condition-DXeNAITS.js")
+    api: () => import("./up-doc-has-workflows.condition-Dnwum_6q.js")
   },
   // =====================================================================
   // Collection Action — "Create from Source" button in collection toolbar
@@ -40,7 +40,7 @@ const e = [
     kind: "button",
     alias: "UpDoc.CollectionAction",
     name: "UpDoc Collection Action",
-    element: () => import("./up-doc-collection-action.element-DdGlJy3P.js"),
+    element: () => import("./up-doc-collection-action.element-1Myxfmju.js"),
     weight: 50,
     meta: {
       label: "Create from Source"
@@ -59,7 +59,7 @@ const e = [
     type: "modal",
     alias: "UpDoc.Modal",
     name: "UpDoc Modal",
-    element: () => import("./up-doc-modal.element-frCNoB5s.js")
+    element: () => import("./up-doc-modal.element-BjEBZUyv.js")
   },
   {
     type: "modal",
@@ -71,13 +71,13 @@ const e = [
     type: "modal",
     alias: "UpDoc.CreateWorkflowSidebar",
     name: "Create Workflow Sidebar",
-    element: () => import("./create-workflow-sidebar.element-D2LwLsG-.js")
+    element: () => import("./create-workflow-sidebar.element-DbRJBIu3.js")
   },
   {
     type: "modal",
     alias: "UpDoc.WorkflowDetailModal",
     name: "Workflow Detail Modal",
-    element: () => import("./up-doc-workflow-detail-modal.element-DXb2a5-q.js")
+    element: () => import("./up-doc-workflow-detail-modal.element-B5aYiNGz.js")
   },
   // =====================================================================
   // Workflow Workspace — full page for editing individual workflows
@@ -96,7 +96,7 @@ const e = [
     type: "workspaceView",
     alias: "UpDoc.WorkflowWorkspaceView.Destination",
     name: "Destination",
-    element: () => import("./up-doc-workflow-destination-view.element-PnXq6XBd.js"),
+    element: () => import("./up-doc-workflow-destination-view.element-Bwh_tOtZ.js"),
     weight: 300,
     meta: {
       label: "Destination",
@@ -114,7 +114,7 @@ const e = [
     type: "workspaceView",
     alias: "UpDoc.WorkflowWorkspaceView.Source",
     name: "UpDoc Workflow Source View",
-    element: () => import("./up-doc-workflow-source-view.element-CrYEoMLy.js"),
+    element: () => import("./up-doc-workflow-source-view.element-B5Y3sU9Q.js"),
     weight: 200,
     meta: {
       label: "Source",
@@ -209,7 +209,7 @@ const e = [
     type: "workspaceView",
     alias: "UpDoc.WorkspaceView.Workflows",
     name: "Workflows",
-    element: () => import("./up-doc-workflows-view.element-DRbvjMUu.js"),
+    element: () => import("./up-doc-workflows-view.element-DdZj57qT.js"),
     weight: 300,
     meta: {
       label: "Workflows",

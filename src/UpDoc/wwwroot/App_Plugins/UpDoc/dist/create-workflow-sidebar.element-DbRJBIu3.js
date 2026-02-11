@@ -1,73 +1,84 @@
-import { html as r, css as M, state as c, customElement as E, nothing as D } from "@umbraco-cms/backoffice/external/lit";
-import { UmbTextStyles as W } from "@umbraco-cms/backoffice/style";
-import { UmbModalBaseElement as P } from "@umbraco-cms/backoffice/modal";
-var q = Object.defineProperty, N = Object.getOwnPropertyDescriptor, _ = (e) => {
+import { b as E } from "./workflow.service-BWNI6sBi.js";
+import { html as o, css as z, state as d, customElement as D, nothing as m } from "@umbraco-cms/backoffice/external/lit";
+import { UmbTextStyles as P } from "@umbraco-cms/backoffice/style";
+import { UmbModalBaseElement as W } from "@umbraco-cms/backoffice/modal";
+import { UMB_AUTH_CONTEXT as q } from "@umbraco-cms/backoffice/auth";
+var N = Object.defineProperty, O = Object.getOwnPropertyDescriptor, v = (e) => {
   throw TypeError(e);
 }, l = (e, t, a, u) => {
-  for (var s = u > 1 ? void 0 : u ? N(t, a) : t, p = e.length - 1, h; p >= 0; p--)
-    (h = e[p]) && (s = (u ? h(t, a, s) : h(s)) || s);
-  return u && s && q(t, a, s), s;
-}, v = (e, t, a) => t.has(e) || _("Cannot " + a), f = (e, t, a) => (v(e, t, "read from private field"), a ? a.call(e) : t.get(e)), z = (e, t, a) => t.has(e) ? _("Cannot add the same private member more than once") : t instanceof WeakSet ? t.add(e) : t.set(e, a), n = (e, t, a) => (v(e, t, "access private method"), a), i, y, g, d, T, m, b, w, $, U, S, C, x, k;
-const O = [
+  for (var r = u > 1 ? void 0 : u ? O(t, a) : t, c = e.length - 1, h; c >= 0; c--)
+    (h = e[c]) && (r = (u ? h(t, a, r) : h(r)) || r);
+  return u && r && N(t, a, r), r;
+}, f = (e, t, a) => t.has(e) || v("Cannot " + a), y = (e, t, a) => (f(e, t, "read from private field"), a ? a.call(e) : t.get(e)), A = (e, t, a) => t.has(e) ? v("Cannot add the same private member more than once") : t instanceof WeakSet ? t.add(e) : t.set(e, a), s = (e, t, a) => (f(e, t, "access private method"), a), i, g, T, p, w, b, _, $, x, U, C, M, S, k;
+const L = [
   { value: "pdf", name: "PDF Document" },
   { value: "markdown", name: "Markdown" },
   { value: "web", name: "Web Page" },
   { value: "doc", name: "Word Document" }
 ];
-let o = class extends P {
+let n = class extends W {
   constructor() {
-    super(...arguments), z(this, i), this._activeTab = "source", this._name = "", this._sourceType = "", this._selectedMediaUnique = null, this._sourceUrl = "", this._nameManuallyEdited = !1;
+    super(...arguments), A(this, i), this._activeTab = "source", this._name = "", this._sourceType = "", this._selectedMediaUnique = null, this._sourceUrl = "", this._extracting = !1, this._successMessage = null, this._nameManuallyEdited = !1;
   }
   render() {
-    return r`
+    return o`
 			<umb-body-layout headline="Create Workflow">
-				${n(this, i, U).call(this)}
+				${s(this, i, U).call(this)}
 
 				<div class="tab-content">
-					${n(this, i, k).call(this)}
+					${s(this, i, k).call(this)}
 				</div>
 
 				<uui-button
 					slot="actions"
 					id="close"
 					label=${this.localize.term("general_close")}
-					@click="${n(this, i, $)}"></uui-button>
+					@click="${s(this, i, x)}"></uui-button>
 				<uui-button
 					slot="actions"
 					id="save"
 					look="primary"
 					color="positive"
 					label=${this.localize.term("general_create")}
-					?disabled=${!f(this, i, b)}
-					@click="${n(this, i, w)}"></uui-button>
+					?disabled=${!y(this, i, _)}
+					@click="${s(this, i, $)}"></uui-button>
 			</umb-body-layout>
 		`;
   }
 };
 i = /* @__PURE__ */ new WeakSet();
-y = function(e) {
+g = function(e) {
   return e.replace(/([a-z])([A-Z])/g, "$1-$2").replace(/[\s_]+/g, "-").toLowerCase();
 };
-g = function(e) {
+T = function(e) {
   var u;
   const a = e.target.value;
-  a !== this._sourceType && (this._selectedMediaUnique = null, this._sourceUrl = ""), this._sourceType = a, !this._nameManuallyEdited && ((u = this.data) != null && u.blueprintName) && this._sourceType && (this._name = `${n(this, i, y).call(this, this.data.blueprintName)}-${this._sourceType}`), this.requestUpdate();
+  a !== this._sourceType && (this._selectedMediaUnique = null, this._sourceUrl = "", this._successMessage = null), this._sourceType = a, !this._nameManuallyEdited && ((u = this.data) != null && u.blueprintName) && this._sourceType && (this._name = `${s(this, i, g).call(this, this.data.blueprintName)}-${this._sourceType}`), this.requestUpdate();
 };
-d = function(e) {
+p = async function(e) {
   const a = e.target.selection;
-  this._selectedMediaUnique = a.length > 0 ? a[0] : null;
+  if (this._selectedMediaUnique = a.length > 0 ? a[0] : null, this._successMessage = null, this._selectedMediaUnique && this._sourceType === "pdf") {
+    this._extracting = !0;
+    try {
+      const r = await (await this.getContext(q)).getLatestToken(), c = await E(this._selectedMediaUnique, r);
+      c && (this._successMessage = `Content extracted successfully — ${c.elements.length} elements from ${c.source.totalPages} pages`);
+    } catch {
+    } finally {
+      this._extracting = !1;
+    }
+  }
 };
-T = function(e) {
+w = function(e) {
   this._name = e.target.value, this._nameManuallyEdited = !0;
 };
-m = function(e) {
+b = function(e) {
   this._activeTab = e;
 };
-b = function() {
+_ = function() {
   return this._name.trim().length > 0 && this._sourceType.length > 0;
 };
-w = function() {
-  f(this, i, b) && (this.value = {
+$ = function() {
+  y(this, i, _) && (this.value = {
     name: this._name.trim(),
     sourceType: this._sourceType,
     mediaUnique: this._selectedMediaUnique,
@@ -77,17 +88,17 @@ w = function() {
     blueprintName: this.data.blueprintName
   }, this._submitModal());
 };
-$ = function() {
+x = function() {
   this._rejectModal();
 };
 U = function() {
-  return r`
+  return o`
 			<uui-tab-group slot="navigation">
 				<uui-tab
 					label="Source"
 					?active=${this._activeTab === "source"}
 					orientation="horizontal"
-					@click=${() => n(this, i, m).call(this, "source")}>
+					@click=${() => s(this, i, b).call(this, "source")}>
 					<uui-icon slot="icon" name="icon-page-add"></uui-icon>
 					Source
 				</uui-tab>
@@ -95,33 +106,33 @@ U = function() {
 					label="Destination"
 					?active=${this._activeTab === "destination"}
 					orientation="horizontal"
-					@click=${() => n(this, i, m).call(this, "destination")}>
+					@click=${() => s(this, i, b).call(this, "destination")}>
 					<uui-icon slot="icon" name="icon-document"></uui-icon>
 					Destination
 				</uui-tab>
 			</uui-tab-group>
 		`;
 };
-S = function() {
+C = function() {
   switch (this._sourceType) {
     case "pdf":
-      return r`
+      return o`
 					<umb-property-layout label="Sample PDF" description="Choose a representative PDF to use as a reference when building mapping rules." orientation="vertical">
 						<div slot="editor">
-							<umb-input-media max="1" @change=${n(this, i, d)}></umb-input-media>
+							<umb-input-media max="1" @change=${s(this, i, p)}></umb-input-media>
 						</div>
 					</umb-property-layout>
 				`;
     case "markdown":
-      return r`
+      return o`
 					<umb-property-layout label="Sample Markdown File" description="Choose a representative Markdown file to use as a reference when building mapping rules." orientation="vertical">
 						<div slot="editor">
-							<umb-input-media max="1" @change=${n(this, i, d)}></umb-input-media>
+							<umb-input-media max="1" @change=${s(this, i, p)}></umb-input-media>
 						</div>
 					</umb-property-layout>
 				`;
     case "web":
-      return r`
+      return o`
 					<umb-property-layout label="Sample Web Page URL" description="Enter a representative URL to use as a reference when building mapping rules." orientation="vertical">
 						<div slot="editor">
 							<uui-input
@@ -134,19 +145,19 @@ S = function() {
 					</umb-property-layout>
 				`;
     case "doc":
-      return r`
+      return o`
 					<umb-property-layout label="Sample Word Document" description="Choose a representative Word document to use as a reference when building mapping rules." orientation="vertical">
 						<div slot="editor">
-							<umb-input-media max="1" @change=${n(this, i, d)}></umb-input-media>
+							<umb-input-media max="1" @change=${s(this, i, p)}></umb-input-media>
 						</div>
 					</umb-property-layout>
 				`;
     default:
-      return D;
+      return m;
   }
 };
-C = function() {
-  return r`
+M = function() {
+  return o`
 			<uui-box headline="Workflow Name">
 				<p>A unique name for this workflow. Used as the folder name on disk.</p>
 				<uui-input
@@ -154,7 +165,7 @@ C = function() {
 					label="name"
 					placeholder="e.g. group-tour-pdf"
 					.value=${this._name}
-					@input=${n(this, i, T)}>
+					@input=${s(this, i, w)}>
 				</uui-input>
 			</uui-box>
 
@@ -165,23 +176,25 @@ C = function() {
 							label="Select source type"
 							.options=${[
     { name: "Choose a source...", value: "", selected: this._sourceType === "" },
-    ...O.map((e) => ({
+    ...L.map((e) => ({
       ...e,
       selected: this._sourceType === e.value
     }))
   ]}
-							@change=${n(this, i, g)}>
+							@change=${s(this, i, T)}>
 						</uui-select>
 					</div>
 				</umb-property-layout>
 
-				${n(this, i, S).call(this)}
+				${s(this, i, C).call(this)}
+				${this._extracting ? o`<uui-loader-bar></uui-loader-bar>` : m}
+				${this._successMessage ? o`<div class="success-banner"><uui-icon name="icon-check"></uui-icon> ${this._successMessage}</div>` : m}
 			</uui-box>
 		`;
 };
-x = function() {
+S = function() {
   var e, t;
-  return r`
+  return o`
 			<uui-box headline="Document Type">
 				<div class="destination-value">
 					<umb-icon name="icon-document-dashed-line"></umb-icon>
@@ -200,14 +213,14 @@ x = function() {
 k = function() {
   switch (this._activeTab) {
     case "source":
-      return n(this, i, C).call(this);
+      return s(this, i, M).call(this);
     case "destination":
-      return n(this, i, x).call(this);
+      return s(this, i, S).call(this);
   }
 };
-o.styles = [
-  W,
-  M`
+n.styles = [
+  P,
+  z`
 			.destination-value {
 				display: flex;
 				align-items: center;
@@ -234,29 +247,47 @@ o.styles = [
 				display: flex;
 				flex-direction: column;
 			}
+
+			.success-banner {
+				display: flex;
+				align-items: center;
+				gap: var(--uui-size-space-2);
+				margin-top: var(--uui-size-space-3);
+				padding: var(--uui-size-space-2);
+				border-radius: var(--uui-border-radius);
+				background-color: var(--uui-color-positive-emphasis);
+				color: var(--uui-color-positive-contrast);
+				font-size: var(--uui-type-small-size);
+			}
 		`
 ];
 l([
-  c()
-], o.prototype, "_activeTab", 2);
+  d()
+], n.prototype, "_activeTab", 2);
 l([
-  c()
-], o.prototype, "_name", 2);
+  d()
+], n.prototype, "_name", 2);
 l([
-  c()
-], o.prototype, "_sourceType", 2);
+  d()
+], n.prototype, "_sourceType", 2);
 l([
-  c()
-], o.prototype, "_selectedMediaUnique", 2);
+  d()
+], n.prototype, "_selectedMediaUnique", 2);
 l([
-  c()
-], o.prototype, "_sourceUrl", 2);
-o = l([
-  E("create-workflow-sidebar")
-], o);
-const L = o;
+  d()
+], n.prototype, "_sourceUrl", 2);
+l([
+  d()
+], n.prototype, "_extracting", 2);
+l([
+  d()
+], n.prototype, "_successMessage", 2);
+n = l([
+  D("create-workflow-sidebar")
+], n);
+const H = n;
 export {
-  o as CreateWorkflowSidebarElement,
-  L as default
+  n as CreateWorkflowSidebarElement,
+  H as default
 };
-//# sourceMappingURL=create-workflow-sidebar.element-D2LwLsG-.js.map
+//# sourceMappingURL=create-workflow-sidebar.element-DbRJBIu3.js.map

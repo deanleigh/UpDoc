@@ -281,6 +281,38 @@ public class PdfExtractionController : ControllerBase
         });
     }
 
+    [HttpGet("extract-rich")]
+    public IActionResult ExtractRich(Guid mediaKey)
+    {
+        var absolutePath = ResolveMediaFilePath(mediaKey);
+        if (absolutePath == null)
+        {
+            return NotFound(new { error = "Media item not found or file not on disk" });
+        }
+
+        var media = _mediaService.GetById(mediaKey);
+        var fileName = media?.Name ?? Path.GetFileName(absolutePath);
+
+        var result = _pdfPagePropertiesService.ExtractRichDump(absolutePath);
+
+        if (!string.IsNullOrEmpty(result.Error))
+        {
+            return BadRequest(new { error = result.Error });
+        }
+
+        // Populate source metadata
+        result.Source.FileName = fileName;
+        result.Source.MediaKey = mediaKey.ToString();
+
+        _logger.LogInformation("=== Rich PDF Extraction ===");
+        _logger.LogInformation("File: {FileName}", fileName);
+        _logger.LogInformation("Pages: {Pages}", result.Source.TotalPages);
+        _logger.LogInformation("Elements: {Count}", result.Elements.Count);
+        _logger.LogInformation("===========================");
+
+        return Ok(result);
+    }
+
     [HttpGet("config/{blueprintId}")]
     public IActionResult GetConfigForBlueprint(Guid blueprintId)
     {

@@ -24,6 +24,13 @@ public interface IPdfPagePropertiesService
     /// Each section is extracted according to its strategy and returned with its key.
     /// </summary>
     ExtractionResult ExtractSectionsFromConfig(string filePath, SourceConfig sourceConfig);
+
+    /// <summary>
+    /// Extracts every text element from a PDF with full metadata (font size, position,
+    /// color, font name, bounding box). This is the "full dump" extraction that powers
+    /// the destination-driven mapping workflow.
+    /// </summary>
+    RichExtractionResult ExtractRichDump(string filePath);
 }
 
 /// <summary>
@@ -201,6 +208,181 @@ public class PdfPagePropertiesService : IPdfPagePropertiesService
                 Error = $"Failed to extract PDF sections: {ex.Message}"
             };
         }
+    }
+
+    public RichExtractionResult ExtractRichDump(string filePath)
+    {
+        try
+        {
+            using var document = PdfDocument.Open(filePath);
+            return ExtractRichDumpFromDocument(document);
+        }
+        catch (Exception ex)
+        {
+            return new RichExtractionResult
+            {
+                Error = $"Failed to extract PDF: {ex.Message}"
+            };
+        }
+    }
+
+    private static RichExtractionResult ExtractRichDumpFromDocument(PdfDocument document)
+    {
+        if (document.NumberOfPages == 0)
+        {
+            return new RichExtractionResult { Error = "PDF has no pages" };
+        }
+
+        var elements = new List<ExtractionElement>();
+        var elementIndex = 0;
+
+        for (int pageNum = 1; pageNum <= document.NumberOfPages; pageNum++)
+        {
+            var page = document.GetPage(pageNum);
+            var lines = ExtractRichTextLines(page);
+
+            foreach (var line in lines)
+            {
+                elementIndex++;
+                elements.Add(new ExtractionElement
+                {
+                    Id = $"p{pageNum}-e{elementIndex}",
+                    Page = pageNum,
+                    Text = line.Text,
+                    Metadata = new ElementMetadata
+                    {
+                        FontSize = Math.Round(line.FontSize, 1),
+                        FontName = line.FontName,
+                        Position = new ElementPosition
+                        {
+                            X = Math.Round(line.BoundingBoxLeft, 1),
+                            Y = Math.Round(line.BoundingBoxTop, 1)
+                        },
+                        BoundingBox = new ElementBoundingBox
+                        {
+                            Left = Math.Round(line.BoundingBoxLeft, 1),
+                            Top = Math.Round(line.BoundingBoxTop, 1),
+                            Width = Math.Round(line.BoundingBoxWidth, 1),
+                            Height = Math.Round(line.BoundingBoxHeight, 1)
+                        },
+                        Color = line.Color
+                    }
+                });
+            }
+        }
+
+        return new RichExtractionResult
+        {
+            SourceType = "pdf",
+            Source = new ExtractionSource
+            {
+                TotalPages = document.NumberOfPages,
+                ExtractedDate = DateTime.UtcNow
+            },
+            Elements = elements
+        };
+    }
+
+    /// <summary>
+    /// Extracts text lines from a page with full metadata from PdfPig's Letter objects.
+    /// Unlike ExtractTextLines which only captures Y, Text, and average font size,
+    /// this method captures font name, point size, color, and precise bounding boxes.
+    /// </summary>
+    private static List<RichTextLine> ExtractRichTextLines(Page page)
+    {
+        var words = page.GetWords().ToList();
+        if (words.Count == 0)
+            return new List<RichTextLine>();
+
+        // Group words into lines by Y-coordinate (same logic as ExtractTextLines)
+        var lines = new List<RichTextLine>();
+        var sortedWords = words.OrderByDescending(w => w.BoundingBox.Bottom).ToList();
+        const double yTolerance = 5.0;
+
+        foreach (var word in sortedWords)
+        {
+            var existingLine = lines.FirstOrDefault(l =>
+                Math.Abs(l.Y - word.BoundingBox.Bottom) < yTolerance);
+
+            if (existingLine != null)
+            {
+                existingLine.Words.Add(word);
+            }
+            else
+            {
+                lines.Add(new RichTextLine
+                {
+                    Y = word.BoundingBox.Bottom,
+                    Words = new List<Word> { word }
+                });
+            }
+        }
+
+        // Process each line: sort words left-to-right, extract metadata from letters
+        foreach (var line in lines)
+        {
+            line.Words = line.Words.OrderBy(w => w.BoundingBox.Left).ToList();
+            line.Text = string.Join(" ", line.Words.Select(w => w.Text));
+
+            // Bounding box enclosing all words
+            line.BoundingBoxLeft = line.Words.Min(w => w.BoundingBox.Left);
+            line.BoundingBoxTop = line.Words.Max(w => w.BoundingBox.Top);
+            line.BoundingBoxWidth = line.Words.Max(w => w.BoundingBox.Right) - line.BoundingBoxLeft;
+            line.BoundingBoxHeight = line.BoundingBoxTop - line.Words.Min(w => w.BoundingBox.Bottom);
+
+            // Font name from first word
+            line.FontName = line.Words.First().FontName ?? string.Empty;
+
+            // Font size: use Letter.PointSize from first letter (actual font size in points)
+            var firstLetter = line.Words.SelectMany(w => w.Letters).FirstOrDefault();
+            if (firstLetter != null)
+            {
+                line.FontSize = firstLetter.PointSize;
+                line.Color = ConvertColorToHex(firstLetter.Color);
+            }
+            else
+            {
+                // Fallback to bounding box height estimate
+                line.FontSize = line.Words.Average(w => w.BoundingBox.Height);
+                line.Color = "#000000";
+            }
+        }
+
+        // Sort lines top to bottom (higher Y = top in PDF coordinates)
+        return lines.OrderByDescending(l => l.Y).ToList();
+    }
+
+    /// <summary>
+    /// Converts a PdfPig IColor to a hex string (e.g., "#1A3C6E").
+    /// Handles RGB, Grayscale, and CMYK color spaces.
+    /// </summary>
+    private static string ConvertColorToHex(UglyToad.PdfPig.Graphics.Colors.IColor? color)
+    {
+        if (color == null)
+            return "#000000";
+
+        var rgb = color.ToRGBValues();
+        var r = (byte)(rgb.r * 255);
+        var g = (byte)(rgb.g * 255);
+        var b = (byte)(rgb.b * 255);
+        return $"#{r:X2}{g:X2}{b:X2}";
+    }
+
+    /// <summary>
+    /// Rich text line with full metadata, used by ExtractRichTextLines.
+    /// </summary>
+    private class RichTextLine
+    {
+        public double Y { get; set; }
+        public List<Word> Words { get; set; } = new();
+        public string Text { get; set; } = string.Empty;
+        public double FontSize { get; set; }
+        public string FontName { get; set; } = string.Empty;
+        public string Color { get; set; } = "#000000";
+        public double BoundingBoxLeft { get; set; }
+        public double BoundingBoxTop { get; set; }
+        public double BoundingBoxWidth { get; set; }
+        public double BoundingBoxHeight { get; set; }
     }
 
     private static ExtractionResult ExtractSectionsFromDocument(PdfDocument document, PdfExtractionRules rules)

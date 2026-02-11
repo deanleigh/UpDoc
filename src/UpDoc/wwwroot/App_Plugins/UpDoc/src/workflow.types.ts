@@ -218,6 +218,39 @@ export interface DocumentTypeConfig {
 }
 
 // ============================================================================
+// Rich Extraction Types (sample-extraction.json)
+// ============================================================================
+
+export interface RichExtractionResult {
+	version: string;
+	sourceType: string;
+	source: ExtractionSource;
+	elements: ExtractionElement[];
+}
+
+export interface ExtractionSource {
+	fileName: string;
+	mediaKey: string;
+	extractedDate: string;
+	totalPages: number;
+}
+
+export interface ExtractionElement {
+	id: string;
+	page: number;
+	text: string;
+	metadata: ElementMetadata;
+}
+
+export interface ElementMetadata {
+	fontSize: number;
+	fontName: string;
+	position: { x: number; y: number };
+	boundingBox: { left: number; top: number; width: number; height: number };
+	color: string;
+}
+
+// ============================================================================
 // API Response Types
 // ============================================================================
 
