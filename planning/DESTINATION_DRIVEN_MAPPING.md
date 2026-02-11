@@ -249,18 +249,21 @@ This is a large refactoring. Split into sequential branches:
 
 **Step 9** (Branch 3 — COMPLETE): Replaced hardcoded Markdown/Pdf workspace views with a single generic "Source" tab. Source type detected dynamically from workflow config. Every workflow shows two tabs: Source + Destination.
 
-### Phase 3: Rich extraction data model
-- Design JSON schema for metadata-rich extraction output
-- Modify `PdfPagePropertiesService` to produce rich format (PDF has richest metadata)
-- Store sample extraction as new file in workflow folder
-- API endpoint changes to return rich format
-- Validate with markdown extraction service too
+### Phase 3: Rich extraction data model — COMPLETE
+
+- ~~Design JSON schema for metadata-rich extraction output~~ — Done (commit `e222d64`)
+- ~~Modify `PdfPagePropertiesService` to produce rich format (PDF has richest metadata)~~ — Done (commit `8737fa3`)
+- ~~Store sample extraction as new file in workflow folder~~ — Done (API saves to `sample-extraction.json`)
+- ~~API endpoint changes to return rich format~~ — Done (`POST /workflows/{name}/sample-extraction`, `GET /workflows/{name}/sample-extraction`)
+- Validate with markdown extraction service — **Deferred** (markdown source type not yet prioritised)
+
+**Destination auto-populate:** `DestinationStructureService` builds `destination.json` from actual blueprint content. Initial implementation commit `c2feb20`, bug fix commit `b826817` (used `CompositionPropertyTypes` for element types in block grids).
 
 **Key files:**
 - `src/UpDoc/Services/PdfPagePropertiesService.cs`
-- `src/UpDoc/Services/MarkdownExtractionService.cs`
-- `src/UpDoc/Models/` — new/modified models
-- `src/UpDoc/Controllers/` — API changes
+- `src/UpDoc/Services/DestinationStructureService.cs`
+- `src/UpDoc/Models/` — `RichExtractionResult`, `DestinationConfig`, etc.
+- `src/UpDoc/Controllers/WorkflowController.cs` — sample extraction + regenerate-destination endpoints
 
 ### Phase 4: Bidirectional mapping UI (three-tab workspace)
 
@@ -309,7 +312,7 @@ All three tabs share the same underlying data (map.json). Changes from any tab u
 Each phase should be testable independently:
 
 - **Phase 2:** Click "Create Workflow" in Settings → UpDoc → Workflows. Verify blueprint picker dialog opens (doc type → blueprint). Verify sidebar opens with workflow name (auto-generated as `{blueprint}-{sourceType}`) and source type dropdown. Select PDF, click Create. Verify workflow folder created on disk with `source.json`, `destination.json`, `map.json`. Verify collection view shows new workflow with Source column. Verify old `group-tour` folder still loads correctly (backwards compatibility). Verify Markdown/Pdf tabs no longer appear on workflow workspace.
-- **Phase 3:** Extract a PDF via API, verify response includes full metadata per text element. Check sample extraction file is created in workflow folder.
+- **Phase 3:** ~~Extract a PDF via API, verify response includes full metadata per text element. Check sample extraction file is created in workflow folder.~~ VERIFIED — sample extraction works end-to-end including persistence. Destination auto-populate verified with both Page Properties fields (3) and Page Content block grid (3 blocks with text-mappable properties).
 - **Phase 4:** Open a workflow, verify three tabs (Destination, Map, Source). On Destination tab: see filtered fields/blocks from blueprint with map icons; click map icon, see sample content in picker; select content, verify mapping created in map.json. On Source tab: see sample extraction elements with metadata; click element, see destination field picker; select field, verify mapping created. On Map tab: see all mappings; edit/delete a mapping; verify changes reflected on other tabs.
 - **Phase 5:** Edit conditions in rule builder. Re-extract sample, verify matching reflects changes.
 
