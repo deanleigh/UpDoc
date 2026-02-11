@@ -169,7 +169,7 @@ The UI presents a unified experience, but the underlying storage maintains separ
 ### Phase 1: Planning document
 Capture all decisions. Done.
 
-### Phase 2: Create Workflow refactoring — stepped flow + per-source-type workflows
+### Phase 2: Create Workflow refactoring — stepped flow + per-source-type workflows — COMPLETE
 
 Synchronise the "Create Workflow" flow (Settings) with the "Create from Source" flow (Content). Both use the same stepped pattern: **blueprint picker dialog → sidebar modal**. The only difference is what "Create" does — one creates a document, the other creates a workflow folder on disk.
 
@@ -190,7 +190,7 @@ This is a large refactoring. Split into sequential branches:
 
 1. **`feature/create-workflow-sidebar`** — Steps 1-3, 6-7: New sidebar + blueprint picker reuse + delete old modal. Backend unchanged (sourceType not sent yet, backwards compatible). **STATUS: COMPLETE** (merged to main, commit `252c100`)
 2. **`feature/workflow-source-type`** — Steps 4-5, 8: Backend sourceType support, new file naming, backwards compat, collection view source column. **STATUS: COMPLETE** (merged to main, commit `9cfb230`)
-3. **`feature/remove-source-tabs`** — Step 9: Replace per-source-type workspace views with generic Source tab. **STATUS: IN PROGRESS**
+3. **`feature/remove-source-tabs`** — Step 9: Replace per-source-type workspace views with generic Source tab. **STATUS: COMPLETE** (merged to main, commit `5e03711`)
 
 #### Step-by-step details
 
@@ -198,7 +198,7 @@ This is a large refactoring. Split into sequential branches:
 
 **Steps 4-5, 8** (Branch 2 — COMPLETE): Backend accepts sourceType, creates simple-named files, backwards-compatible reading of both formats, collection view Source column with capitalized labels.
 
-**Step 9** (Branch 3 — IN PROGRESS): Replaced hardcoded Markdown/Pdf workspace views with a single generic "Source" tab. Source type detected dynamically from workflow config. Every workflow shows two tabs: Source + Destination.
+**Step 9** (Branch 3 — COMPLETE): Replaced hardcoded Markdown/Pdf workspace views with a single generic "Source" tab. Source type detected dynamically from workflow config. Every workflow shows two tabs: Source + Destination.
 
 ### Phase 3: Rich extraction data model
 - Design JSON schema for metadata-rich extraction output
