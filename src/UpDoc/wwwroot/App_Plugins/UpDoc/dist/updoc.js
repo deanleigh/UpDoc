@@ -96,7 +96,7 @@ const e = [
     type: "workspaceView",
     alias: "UpDoc.WorkflowWorkspaceView.Destination",
     name: "Destination",
-    element: () => import("./up-doc-workflow-destination-view.element-Bwh_tOtZ.js"),
+    element: () => import("./up-doc-workflow-destination-view.element-CS2Qfnfd.js"),
     weight: 300,
     meta: {
       label: "Destination",

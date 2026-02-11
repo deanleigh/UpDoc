@@ -50,6 +50,11 @@ public interface IWorkflowService
     void DeleteWorkflow(string name);
 
     /// <summary>
+    /// Saves a DestinationConfig as destination.json in the workflow folder, replacing the existing file.
+    /// </summary>
+    void SaveDestinationConfig(string workflowName, DestinationConfig config);
+
+    /// <summary>
     /// Saves a rich extraction result as sample-extraction.json in the workflow folder.
     /// </summary>
     void SaveSampleExtraction(string workflowName, RichExtractionResult extraction);
@@ -423,6 +428,25 @@ public class WorkflowService : IWorkflowService
 
         _logger.LogInformation("Saved sample extraction to {Path} ({Count} elements)",
             filePath, extraction.Elements.Count);
+    }
+
+    public void SaveDestinationConfig(string workflowName, DestinationConfig config)
+    {
+        var folderPath = GetWorkflowFolderPath(workflowName);
+        if (!Directory.Exists(folderPath))
+        {
+            throw new DirectoryNotFoundException($"Workflow folder '{workflowName}' does not exist.");
+        }
+
+        var filePath = Path.Combine(folderPath, "destination.json");
+        var writeOptions = new JsonSerializerOptions { WriteIndented = true };
+        var json = JsonSerializer.Serialize(config, writeOptions);
+        File.WriteAllText(filePath, json);
+
+        _logger.LogInformation("Saved destination config to {Path} ({FieldCount} fields, {BlockCount} block grids)",
+            filePath, config.Fields.Count, config.BlockGrids?.Count ?? 0);
+
+        ClearCache();
     }
 
     public RichExtractionResult? GetSampleExtraction(string workflowName)

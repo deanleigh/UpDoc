@@ -21,6 +21,7 @@ namespace UpDoc.Controllers;
 public class WorkflowController : ControllerBase
 {
     private readonly IWorkflowService _workflowService;
+    private readonly IDestinationStructureService _destinationStructureService;
     private readonly IPdfPagePropertiesService _pdfPagePropertiesService;
     private readonly IMediaService _mediaService;
     private readonly IWebHostEnvironment _webHostEnvironment;
@@ -28,12 +29,14 @@ public class WorkflowController : ControllerBase
 
     public WorkflowController(
         IWorkflowService workflowService,
+        IDestinationStructureService destinationStructureService,
         IPdfPagePropertiesService pdfPagePropertiesService,
         IMediaService mediaService,
         IWebHostEnvironment webHostEnvironment,
         ILogger<WorkflowController> logger)
     {
         _workflowService = workflowService;
+        _destinationStructureService = destinationStructureService;
         _pdfPagePropertiesService = pdfPagePropertiesService;
         _mediaService = mediaService;
         _webHostEnvironment = webHostEnvironment;
@@ -84,7 +87,7 @@ public class WorkflowController : ControllerBase
     }
 
     [HttpPost]
-    public IActionResult Create([FromBody] CreateWorkflowRequest request)
+    public async Task<IActionResult> Create([FromBody] CreateWorkflowRequest request)
     {
         if (string.IsNullOrWhiteSpace(request.Name))
         {
@@ -109,6 +112,20 @@ public class WorkflowController : ControllerBase
                 request.SourceType,
                 request.BlueprintId,
                 request.BlueprintName);
+
+            // Auto-populate destination.json from document type structure
+            try
+            {
+                var destinationConfig = await _destinationStructureService.BuildDestinationConfigAsync(
+                    request.DocumentTypeAlias,
+                    request.BlueprintId,
+                    request.BlueprintName);
+                _workflowService.SaveDestinationConfig(request.Name, destinationConfig);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to auto-populate destination for workflow '{Name}'. Empty stub will be used.", request.Name);
+            }
 
             return Created(
                 $"/umbraco/management/api/v1/updoc/workflows/{request.Name}",
@@ -179,6 +196,34 @@ public class WorkflowController : ControllerBase
             name, result.Elements.Count, fileName);
 
         return Ok(result);
+    }
+
+    [HttpPost("{name}/regenerate-destination")]
+    public async Task<IActionResult> RegenerateDestination(string name)
+    {
+        var configs = _workflowService.GetAllConfigs();
+        var config = configs.FirstOrDefault(c =>
+            Path.GetFileName(c.FolderPath).Equals(name, StringComparison.OrdinalIgnoreCase));
+
+        if (config == null)
+        {
+            return NotFound(new { error = $"Workflow '{name}' not found." });
+        }
+
+        try
+        {
+            var destinationConfig = await _destinationStructureService.BuildDestinationConfigAsync(
+                config.DocumentTypeAlias,
+                config.Destination.BlueprintId,
+                config.Destination.BlueprintName);
+            _workflowService.SaveDestinationConfig(name, destinationConfig);
+
+            return Ok(destinationConfig);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
     }
 
     [HttpGet("{name}/sample-extraction")]

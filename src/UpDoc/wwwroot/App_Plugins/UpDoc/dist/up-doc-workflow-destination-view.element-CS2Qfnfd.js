@@ -1,24 +1,24 @@
 import { c as z } from "./workflow.service-BWNI6sBi.js";
-import { html as s, nothing as l, css as x, state as u, customElement as $ } from "@umbraco-cms/backoffice/external/lit";
+import { html as s, nothing as r, css as x, state as d, customElement as $ } from "@umbraco-cms/backoffice/external/lit";
 import { UmbLitElement as w } from "@umbraco-cms/backoffice/lit-element";
 import { UmbTextStyles as C } from "@umbraco-cms/backoffice/style";
 import { UMB_AUTH_CONTEXT as T } from "@umbraco-cms/backoffice/auth";
 import { UMB_WORKSPACE_CONTEXT as E } from "@umbraco-cms/backoffice/workspace";
-var U = Object.defineProperty, B = Object.getOwnPropertyDescriptor, v = (e) => {
-  throw TypeError(e);
-}, d = (e, i, t, a) => {
-  for (var o = a > 1 ? void 0 : a ? B(i, t) : i, p = e.length - 1, f; p >= 0; p--)
-    (f = e[p]) && (o = (a ? f(i, t, o) : f(o)) || o);
-  return a && o && U(i, t, o), o;
-}, D = (e, i, t) => i.has(e) || v("Cannot " + t), W = (e, i, t) => i.has(e) ? v("Cannot add the same private member more than once") : i instanceof WeakSet ? i.add(e) : i.set(e, t), n = (e, i, t) => (D(e, i, "access private method"), t), r, h, b, g, m, _, y, k;
+var U = Object.defineProperty, B = Object.getOwnPropertyDescriptor, v = (i) => {
+  throw TypeError(i);
+}, u = (i, e, t, a) => {
+  for (var o = a > 1 ? void 0 : a ? B(e, t) : e, p = i.length - 1, f; p >= 0; p--)
+    (f = i[p]) && (o = (a ? f(e, t, o) : f(o)) || o);
+  return a && o && U(e, t, o), o;
+}, D = (i, e, t) => e.has(i) || v("Cannot " + t), W = (i, e, t) => e.has(i) ? v("Cannot add the same private member more than once") : e instanceof WeakSet ? e.add(i) : e.set(i, t), n = (i, e, t) => (D(i, e, "access private method"), t), l, h, b, m, g, _, y, k;
 let c = class extends w {
   constructor() {
-    super(...arguments), W(this, r), this._config = null, this._loading = !0, this._error = null, this._activeTab = "";
+    super(...arguments), W(this, l), this._config = null, this._loading = !0, this._error = null, this._activeTab = "";
   }
   connectedCallback() {
-    super.connectedCallback(), this.consumeContext(E, (e) => {
-      e && this.observe(e.unique, (i) => {
-        i && n(this, r, h).call(this, decodeURIComponent(i));
+    super.connectedCallback(), this.consumeContext(E, (i) => {
+      i && this.observe(i.unique, (e) => {
+        e && n(this, l, h).call(this, decodeURIComponent(e));
       });
     });
   }
@@ -27,43 +27,43 @@ let c = class extends w {
       return s`<div class="loading"><uui-loader-bar></uui-loader-bar></div>`;
     if (this._error)
       return s`<p style="color: var(--uui-color-danger);">${this._error}</p>`;
-    const e = n(this, r, b).call(this);
+    const i = n(this, l, b).call(this);
     return s`
 			<umb-body-layout header-fit-height>
 				<uui-tab-group slot="header" dropdown-content-direction="vertical">
-					${e.map(
-      (i) => s`
+					${i.map(
+      (e) => s`
 							<uui-tab
-								label=${i.label}
-								?active=${this._activeTab === i.id}
+								label=${e.label}
+								?active=${this._activeTab === e.id}
 								@click=${() => {
-        this._activeTab = i.id;
+        this._activeTab = e.id;
       }}>
-								${i.label}
+								${e.label}
 							</uui-tab>
 						`
     )}
 				</uui-tab-group>
 				<uui-box>
-					${n(this, r, k).call(this)}
+					${n(this, l, k).call(this)}
 				</uui-box>
 			</umb-body-layout>
 		`;
   }
 };
-r = /* @__PURE__ */ new WeakSet();
-h = async function(e) {
+l = /* @__PURE__ */ new WeakSet();
+h = async function(i) {
   this._loading = !0, this._error = null;
   try {
     const t = await (await this.getContext(T)).getLatestToken();
-    if (this._config = await z(e, t), !this._config) {
-      this._error = `Workflow "${e}" not found`;
+    if (this._config = await z(i, t), !this._config) {
+      this._error = `Workflow "${i}" not found`;
       return;
     }
-    const a = n(this, r, b).call(this);
+    const a = n(this, l, b).call(this);
     a.length > 0 && (this._activeTab = a[0].id);
-  } catch (i) {
-    this._error = i instanceof Error ? i.message : "Failed to load workflow", console.error("Failed to load workflow config:", i);
+  } catch (e) {
+    this._error = e instanceof Error ? e.message : "Failed to load workflow", console.error("Failed to load workflow config:", e);
   } finally {
     this._loading = !1;
   }
@@ -71,79 +71,85 @@ h = async function(e) {
 b = function() {
   var t;
   if (!this._config) return [];
-  const e = [], i = new Set(this._config.destination.fields.map((a) => a.tab).filter(Boolean));
-  for (const a of i)
-    e.push({
+  const i = [], e = new Set(this._config.destination.fields.map((a) => a.tab).filter(Boolean));
+  for (const a of e)
+    i.push({
       id: a.toLowerCase().replace(/\s+/g, "-"),
       label: a
     });
-  return (t = this._config.destination.blockGrids) != null && t.length && (i.has("Page Content") || e.push({ id: "page-content", label: "Page Content" })), e;
+  return (t = this._config.destination.blockGrids) != null && t.length && (e.has("Page Content") || i.push({ id: "page-content", label: "Page Content" })), i;
 };
-g = function(e) {
-  if (!this._config) return l;
-  const i = this._config.destination.fields.filter((t) => t.tab === e);
-  return i.length === 0 ? s`<p class="empty-message">No fields in this tab.</p>` : s`
+m = function(i) {
+  if (!this._config) return r;
+  const e = this._config.destination.fields.filter((t) => t.tab === i);
+  return e.length === 0 ? s`<p class="empty-message">No fields in this tab.</p>` : s`
 			<div class="field-list">
-				${i.map((t) => n(this, r, m).call(this, t))}
+				${e.map((t) => n(this, l, g).call(this, t))}
 			</div>
 		`;
 };
-m = function(e) {
+g = function(i) {
   return s`
 			<div class="field-item">
 				<div class="field-header">
-					<span class="field-label">${e.label}</span>
-					<span class="field-type">${e.type}</span>
-					${e.mandatory ? s`<uui-tag look="primary" color="danger" class="field-badge">Required</uui-tag>` : l}
+					<span class="field-label">${i.label}</span>
+					<span class="field-type">${i.type}</span>
+					${i.mandatory ? s`<uui-tag look="primary" color="danger" class="field-badge">Required</uui-tag>` : r}
+					<uui-button compact look="outline" label="Map" class="map-button" disabled>
+						<uui-icon name="icon-nodes"></uui-icon>
+					</uui-button>
 				</div>
 				<div class="field-meta">
-					<span class="field-alias">${e.alias}</span>
-					${e.description ? s`<span class="field-description">${e.description}</span>` : l}
+					<span class="field-alias">${i.alias}</span>
+					${i.description ? s`<span class="field-description">${i.description}</span>` : r}
 				</div>
 			</div>
 		`;
 };
 _ = function() {
-  var e, i;
-  return (i = (e = this._config) == null ? void 0 : e.destination.blockGrids) != null && i.length ? s`
-			${this._config.destination.blockGrids.map((t) => n(this, r, y).call(this, t))}
+  var i, e;
+  return (e = (i = this._config) == null ? void 0 : i.destination.blockGrids) != null && e.length ? s`
+			${this._config.destination.blockGrids.map((t) => n(this, l, y).call(this, t))}
 		` : s`<p class="empty-message">No block grids configured.</p>`;
 };
-y = function(e) {
+y = function(i) {
   return s`
 			<div class="block-grid">
 				<div class="block-grid-header">
-					<span class="block-grid-label">${e.label}</span>
-					<span class="field-alias">${e.alias}</span>
+					<span class="block-grid-label">${i.label}</span>
+					<span class="field-alias">${i.alias}</span>
 				</div>
-				${e.description ? s`<p class="block-grid-description">${e.description}</p>` : l}
+				${i.description ? s`<p class="block-grid-description">${i.description}</p>` : r}
 				<div class="block-list">
-					${e.blocks.map(
-    (i) => {
+					${i.blocks.map(
+    (e) => {
       var t;
       return s`
 							<div class="block-item">
 								<div class="block-header">
 									<umb-icon name="icon-box"></umb-icon>
-									<span class="block-label">${i.label}</span>
-									${i.identifyBy ? s`<span class="block-identify">identified by: "${i.identifyBy.value}"</span>` : l}
+									<span class="block-label">${e.label}</span>
+									${e.identifyBy ? s`<span class="block-identify">identified by: "${e.identifyBy.value}"</span>` : r}
 								</div>
-								${(t = i.properties) != null && t.length ? s`
+								${(t = e.properties) != null && t.length ? s`
 										<div class="block-properties">
-											${i.properties.map(
+											${e.properties.map(
         (a) => {
           var o;
           return s`
 													<div class="block-property">
 														<span class="block-property-label">${a.label || a.alias}</span>
 														<span class="field-type">${a.type}</span>
-														${(o = a.acceptsFormats) != null && o.length ? s`<span class="accepts-formats">${a.acceptsFormats.join(", ")}</span>` : l}
+														${(o = a.acceptsFormats) != null && o.length ? s`<span class="accepts-formats">${a.acceptsFormats.join(", ")}</span>` : r}
+														<uui-button compact look="outline" label="Map" class="map-button" disabled>
+															<uui-icon name="icon-nodes"></uui-icon>
+														</uui-button>
 													</div>
 												`;
         }
       )}
 										</div>
-									` : l}
+									` : r}
 							</div>
 						`;
     }
@@ -153,14 +159,14 @@ y = function(e) {
 		`;
 };
 k = function() {
-  var i;
-  if (!this._config) return l;
+  var e;
+  if (!this._config) return r;
   if (this._activeTab === "page-content")
-    return n(this, r, _).call(this);
-  const e = (i = this._config.destination.fields.find(
+    return n(this, l, _).call(this);
+  const i = (e = this._config.destination.fields.find(
     (t) => t.tab && t.tab.toLowerCase().replace(/\s+/g, "-") === this._activeTab
-  )) == null ? void 0 : i.tab;
-  return e ? n(this, r, g).call(this, e) : l;
+  )) == null ? void 0 : e.tab;
+  return i ? n(this, l, m).call(this, i) : r;
 };
 c.styles = [
   C,
@@ -309,26 +315,31 @@ c.styles = [
 				font-size: 11px;
 				color: var(--uui-color-text-alt);
 			}
+
+			.map-button {
+				margin-left: auto;
+				--uui-button-font-size: var(--uui-type-small-size);
+			}
 		`
 ];
-d([
-  u()
+u([
+  d()
 ], c.prototype, "_config", 2);
-d([
-  u()
+u([
+  d()
 ], c.prototype, "_loading", 2);
-d([
-  u()
+u([
+  d()
 ], c.prototype, "_error", 2);
-d([
-  u()
+u([
+  d()
 ], c.prototype, "_activeTab", 2);
-c = d([
+c = u([
   $("up-doc-workflow-destination-view")
 ], c);
-const L = c;
+const S = c;
 export {
   c as UpDocWorkflowDestinationViewElement,
-  L as default
+  S as default
 };
-//# sourceMappingURL=up-doc-workflow-destination-view.element-Bwh_tOtZ.js.map
+//# sourceMappingURL=up-doc-workflow-destination-view.element-CS2Qfnfd.js.map

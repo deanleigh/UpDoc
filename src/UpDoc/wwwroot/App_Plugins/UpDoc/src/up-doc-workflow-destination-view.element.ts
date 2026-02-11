@@ -93,6 +93,9 @@ export class UpDocWorkflowDestinationViewElement extends UmbLitElement {
 					<span class="field-label">${field.label}</span>
 					<span class="field-type">${field.type}</span>
 					${field.mandatory ? html`<uui-tag look="primary" color="danger" class="field-badge">Required</uui-tag>` : nothing}
+					<uui-button compact look="outline" label="Map" class="map-button" disabled>
+						<uui-icon name="icon-nodes"></uui-icon>
+					</uui-button>
 				</div>
 				<div class="field-meta">
 					<span class="field-alias">${field.alias}</span>
@@ -142,6 +145,9 @@ export class UpDocWorkflowDestinationViewElement extends UmbLitElement {
 														${prop.acceptsFormats?.length
 															? html`<span class="accepts-formats">${prop.acceptsFormats.join(', ')}</span>`
 															: nothing}
+														<uui-button compact look="outline" label="Map" class="map-button" disabled>
+															<uui-icon name="icon-nodes"></uui-icon>
+														</uui-button>
 													</div>
 												`
 											)}
@@ -352,6 +358,11 @@ export class UpDocWorkflowDestinationViewElement extends UmbLitElement {
 			.accepts-formats {
 				font-size: 11px;
 				color: var(--uui-color-text-alt);
+			}
+
+			.map-button {
+				margin-left: auto;
+				--uui-button-font-size: var(--uui-type-small-size);
 			}
 		`,
 	];
