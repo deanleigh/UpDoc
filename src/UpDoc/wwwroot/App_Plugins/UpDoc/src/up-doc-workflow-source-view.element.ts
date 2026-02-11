@@ -1,4 +1,4 @@
-import type { ExtractionElement, RichExtractionResult, DocumentTypeConfig, VisualGroup } from './workflow.types.js';
+import type { ExtractionElement, RichExtractionResult, DocumentTypeConfig, VisualGroup, MappingDestination } from './workflow.types.js';
 import { groupElementsByHeading } from './visual-grouping.js';
 import { fetchSampleExtraction, triggerSampleExtraction, fetchWorkflowByName, saveMapConfig } from './workflow.service.js';
 import { html, css, state, nothing } from '@umbraco-cms/backoffice/external/lit';
@@ -145,7 +145,10 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		for (const sourceId of this._selectedElements) {
 			newMappings.push({
 				source: sourceId,
-				destinations: result.selectedTargets.map((target: string) => ({ target })),
+				destinations: result.selectedTargets.map((t: { target: string; blockKey?: string }) => ({
+					target: t.target,
+					...(t.blockKey ? { blockKey: t.blockKey } : {}),
+				})),
 				enabled: true,
 			});
 		}
@@ -178,32 +181,48 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		`;
 	}
 
-	#getMappedTargets(elementId: string): string[] {
+	#getMappedTargets(elementId: string): MappingDestination[] {
 		if (!this._config?.map?.mappings) return [];
-		const targets: string[] = [];
+		const targets: MappingDestination[] = [];
 		for (const mapping of this._config.map.mappings) {
 			if (mapping.source === elementId && mapping.enabled) {
 				for (const dest of mapping.destinations) {
-					targets.push(dest.target);
+					targets.push(dest);
 				}
 			}
 		}
 		return targets;
 	}
 
-	#resolveTargetLabel(alias: string): string {
-		if (!this._config?.destination) return alias;
-		const field = this._config.destination.fields.find((f: any) => f.alias === alias);
+	#resolveTargetLabel(dest: MappingDestination): string {
+		if (!this._config?.destination) return dest.target;
+
+		// If blockKey present, find the specific block
+		if (dest.blockKey && this._config.destination.blockGrids) {
+			for (const grid of this._config.destination.blockGrids) {
+				const block = grid.blocks.find((b) => b.key === dest.blockKey);
+				if (block) {
+					const prop = block.properties?.find((p) => p.alias === dest.target);
+					return `${block.label} > ${prop?.label || dest.target}`;
+				}
+			}
+		}
+
+		// Top-level field
+		const field = this._config.destination.fields.find((f) => f.alias === dest.target);
 		if (field) return field.label;
+
+		// Fall back: first block match (backwards compat for old mappings without blockKey)
 		if (this._config.destination.blockGrids) {
 			for (const grid of this._config.destination.blockGrids) {
 				for (const block of grid.blocks) {
-					const prop = block.properties?.find((p: any) => p.alias === alias);
+					const prop = block.properties?.find((p) => p.alias === dest.target);
 					if (prop) return `${block.label} > ${prop.label || prop.alias}`;
 				}
 			}
 		}
-		return alias;
+
+		return dest.target;
 	}
 
 	#renderElement(element: ExtractionElement) {
@@ -233,38 +252,21 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		`;
 	}
 
-	#toggleGroupSelection(heading: ExtractionElement, children: ExtractionElement[]) {
-		const next = new Set(this._selectedElements);
-		const allIds = [heading.id, ...children.map((c) => c.id)];
-		const allSelected = allIds.every((id) => next.has(id));
-
-		if (allSelected) {
-			for (const id of allIds) next.delete(id);
-		} else {
-			for (const id of allIds) next.add(id);
-		}
-
-		this._selectedElements = next;
-	}
-
 	#renderGroupHeading(heading: ExtractionElement, children: ExtractionElement[]) {
 		const meta = heading.metadata;
-		const allIds = [heading.id, ...children.map((c) => c.id)];
-		const allSelected = allIds.every((id) => this._selectedElements.has(id));
-		const someSelected = allIds.some((id) => this._selectedElements.has(id));
+		const checked = this._selectedElements.has(heading.id);
 		const mappedTargets = this.#getMappedTargets(heading.id);
 		const isMapped = mappedTargets.length > 0;
 
 		return html`
-			<div class="group-heading ${isMapped ? 'element-mapped' : ''}">
+			<div class="group-heading ${checked ? 'element-selected' : ''} ${isMapped ? 'element-mapped' : ''}">
 				<uui-checkbox
-					label="Select ${heading.text} and all items in this group"
-					?checked=${allSelected}
-					.indeterminate=${someSelected && !allSelected}
-					@change=${() => this.#toggleGroupSelection(heading, children)}
+					label="Select ${heading.text}"
+					?checked=${checked}
+					@change=${() => this.#toggleSelection(heading.id)}
 					class="element-checkbox">
 				</uui-checkbox>
-				<div class="heading-content" @click=${() => this.#toggleGroupSelection(heading, children)}>
+				<div class="heading-content" @click=${() => this.#toggleSelection(heading.id)}>
 					<div class="heading-text">${heading.text}</div>
 					<div class="element-meta">
 						<span class="meta-badge font-size">${meta.fontSize}pt</span>
@@ -552,6 +554,10 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 
 			.group-heading:hover {
 				background: var(--uui-color-surface-emphasis);
+			}
+
+			.group-heading.element-selected {
+				background: var(--uui-color-selected);
 			}
 
 			.group-heading.element-mapped {

@@ -28,6 +28,7 @@ theme:
 nav:
   - Home: index.md
   - User Journeys: user-journeys.md
+  - Mapping Directions: mapping-directions.md
   - Frontend (TypeScript):
     - frontend/index.md
     - index.ts: source-files/index.md

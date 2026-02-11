@@ -157,7 +157,8 @@ export interface SectionMapping {
 }
 
 export interface MappingDestination {
-    target: string;                  // Target path (see below)
+    target: string;                  // Property alias (see below)
+    blockKey?: string;               // Block instance key for disambiguation
     transforms?: MappingTransform[];
 }
 
@@ -178,12 +179,15 @@ export type TransformType =
     | 'stripHtml';
 ```
 
-### Target Path Syntax
+### Target Syntax
 
 | Pattern | Example | Meaning |
 |---------|---------|---------|
-| Simple field | `"pageTitle"` | Direct property on document |
-| Block property | `"contentGrid.itineraryBlock.richTextContent"` | blockGridKey.blockKey.propertyKey |
+| Simple field | `{ target: "pageTitle" }` | Direct property on document |
+| Block property | `{ target: "richTextContent", blockKey: "67f05ceb-..." }` | Property within a specific block instance |
+| Block property (legacy) | `{ target: "contentGrid.itineraryBlock.richTextContent" }` | Dot-path format (backwards compat) |
+
+When `blockKey` is present, the bridge code looks up the block instance in `destination.json` to find its `identifyBy` matcher, then uses that to locate the correct block in the scaffold at content creation time. See [Mapping Directions](../mapping-directions.md) for details on how disambiguation works.
 
 ## Combined Document Type Config
 

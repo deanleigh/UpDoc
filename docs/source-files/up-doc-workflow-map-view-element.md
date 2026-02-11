@@ -29,13 +29,13 @@ Each row displays:
 
 ### Label resolution
 
-- **Destination labels**: Resolved from `destination.json` — checks top-level fields first, then block properties (displayed as "Block Label > Property Label")
+- **Destination labels**: Resolved from `destination.json` via `#resolveDestinationLabel(dest)` which accepts a `MappingDestination` object. When `blockKey` is present, finds the specific block by key for an accurate label. Otherwise checks top-level fields first, then falls back to first block match (backwards compat for old mappings). Block properties display as "Block Label > Property Label".
 - **Source text**: Resolved from `sample-extraction.json` by matching element ID
 
 ## Imports
 
 ```typescript
-import type { DocumentTypeConfig, SectionMapping, DestinationField, BlockProperty, RichExtractionResult, ExtractionElement } from './workflow.types.js';
+import type { DocumentTypeConfig, SectionMapping, MappingDestination, DestinationField, BlockProperty, RichExtractionResult, ExtractionElement } from './workflow.types.js';
 import { fetchWorkflowByName, fetchSampleExtraction, saveMapConfig } from './workflow.service.js';
 import { html, customElement, css, state, nothing } from '@umbraco-cms/backoffice/external/lit';
 import { UmbLitElement } from '@umbraco-cms/backoffice/lit-element';

@@ -1,32 +1,32 @@
 import { b as M, c as D, s as S } from "./workflow.service-Cy8WOA0g.js";
-import { html as s, nothing as _, css as T, state as d, customElement as U } from "@umbraco-cms/backoffice/external/lit";
+import { html as l, nothing as _, css as T, state as h, customElement as U } from "@umbraco-cms/backoffice/external/lit";
 import { UmbLitElement as W } from "@umbraco-cms/backoffice/lit-element";
 import { UmbTextStyles as O } from "@umbraco-cms/backoffice/style";
 import { UMB_AUTH_CONTEXT as N } from "@umbraco-cms/backoffice/auth";
 import { UMB_WORKSPACE_CONTEXT as P } from "@umbraco-cms/backoffice/workspace";
-var A = Object.defineProperty, B = Object.getOwnPropertyDescriptor, v = (t) => {
+var G = Object.defineProperty, A = Object.getOwnPropertyDescriptor, y = (t) => {
   throw TypeError(t);
-}, f = (t, e, i, a) => {
-  for (var o = a > 1 ? void 0 : a ? B(e, i) : e, h = t.length - 1, m; h >= 0; h--)
-    (m = t[h]) && (o = (a ? m(e, i, o) : m(o)) || o);
-  return a && o && A(e, i, o), o;
-}, b = (t, e, i) => e.has(t) || v("Cannot " + i), r = (t, e, i) => (b(t, e, "read from private field"), i ? i.call(t) : e.get(t)), g = (t, e, i) => e.has(t) ? v("Cannot add the same private member more than once") : e instanceof WeakSet ? e.add(t) : e.set(t, i), y = (t, e, i, a) => (b(t, e, "write to private field"), e.set(t, i), i), c = (t, e, i) => (b(t, e, "access private method"), i), u, p, l, x, w, k, z, $, C, E;
-let n = class extends W {
+}, d = (t, e, i, o) => {
+  for (var a = o > 1 ? void 0 : o ? A(e, i) : e, f = t.length - 1, g; f >= 0; f--)
+    (g = t[f]) && (a = (o ? g(e, i, a) : g(a)) || a);
+  return o && a && G(e, i, a), a;
+}, b = (t, e, i) => e.has(t) || y("Cannot " + i), s = (t, e, i) => (b(t, e, "read from private field"), i ? i.call(t) : e.get(t)), m = (t, e, i) => e.has(t) ? y("Cannot add the same private member more than once") : e instanceof WeakSet ? e.add(t) : e.set(t, i), v = (t, e, i, o) => (b(t, e, "write to private field"), e.set(t, i), i), c = (t, e, i) => (b(t, e, "access private method"), i), u, p, n, x, w, k, $, z, C, E;
+let r = class extends W {
   constructor() {
-    super(...arguments), g(this, l), this._config = null, this._extraction = null, this._loading = !0, this._error = null, g(this, u, ""), g(this, p, "");
+    super(...arguments), m(this, n), this._config = null, this._extraction = null, this._loading = !0, this._error = null, m(this, u, ""), m(this, p, "");
   }
   connectedCallback() {
     super.connectedCallback(), this.consumeContext(P, (t) => {
       t && this.observe(t.unique, (e) => {
-        e && (y(this, u, decodeURIComponent(e)), c(this, l, x).call(this));
+        e && (v(this, u, decodeURIComponent(e)), c(this, n, x).call(this));
       });
     });
   }
   render() {
-    return this._loading ? s`<div class="loading"><uui-loader-bar></uui-loader-bar></div>` : this._error ? s`<p style="color: var(--uui-color-danger);">${this._error}</p>` : s`
+    return this._loading ? l`<div class="loading"><uui-loader-bar></uui-loader-bar></div>` : this._error ? l`<p style="color: var(--uui-color-danger);">${this._error}</p>` : l`
 			<umb-body-layout header-fit-height>
 				<uui-box>
-					${c(this, l, E).call(this)}
+					${c(this, n, E).call(this)}
 				</uui-box>
 			</umb-body-layout>
 		`;
@@ -34,16 +34,16 @@ let n = class extends W {
 };
 u = /* @__PURE__ */ new WeakMap();
 p = /* @__PURE__ */ new WeakMap();
-l = /* @__PURE__ */ new WeakSet();
+n = /* @__PURE__ */ new WeakSet();
 x = async function() {
   this._loading = !0, this._error = null;
   try {
     const t = await this.getContext(N);
-    if (y(this, p, await t.getLatestToken()), this._config = await M(r(this, u), r(this, p)), !this._config) {
-      this._error = `Workflow "${r(this, u)}" not found`;
+    if (v(this, p, await t.getLatestToken()), this._config = await M(s(this, u), s(this, p)), !this._config) {
+      this._error = `Workflow "${s(this, u)}" not found`;
       return;
     }
-    this._extraction = await D(r(this, u), r(this, p));
+    this._extraction = await D(s(this, u), s(this, p));
   } catch (t) {
     this._error = t instanceof Error ? t.message : "Failed to load workflow", console.error("Failed to load workflow config:", t);
   } finally {
@@ -51,31 +51,40 @@ x = async function() {
   }
 };
 w = function(t) {
-  if (!this._config) return t;
-  for (const e of this._config.destination.fields)
-    if (e.alias === t) return e.label;
-  for (const e of this._config.destination.blockGrids ?? [])
-    for (const i of e.blocks)
-      for (const a of i.properties ?? [])
-        if (a.alias === t)
-          return `${i.label} > ${a.label || a.alias}`;
-  return t;
+  var e;
+  if (!this._config) return t.target;
+  if (t.blockKey && this._config.destination.blockGrids)
+    for (const i of this._config.destination.blockGrids) {
+      const o = i.blocks.find((a) => a.key === t.blockKey);
+      if (o) {
+        const a = (e = o.properties) == null ? void 0 : e.find((f) => f.alias === t.target);
+        return `${o.label} > ${(a == null ? void 0 : a.label) || t.target}`;
+      }
+    }
+  for (const i of this._config.destination.fields)
+    if (i.alias === t.target) return i.label;
+  for (const i of this._config.destination.blockGrids ?? [])
+    for (const o of i.blocks)
+      for (const a of o.properties ?? [])
+        if (a.alias === t.target)
+          return `${o.label} > ${a.label || a.alias}`;
+  return t.target;
 };
 k = function(t) {
   if (!this._extraction) return t;
-  const e = this._extraction.elements.find((a) => a.id === t);
+  const e = this._extraction.elements.find((o) => o.id === t);
   return e ? e.text.length > 60 ? e.text.substring(0, 60) + "..." : e.text : t;
 };
-z = async function(t) {
+$ = async function(t) {
   if (!this._config) return;
   const e = {
     ...this._config.map,
-    mappings: this._config.map.mappings.filter((a, o) => o !== t)
+    mappings: this._config.map.mappings.filter((o, a) => a !== t)
   };
-  await S(r(this, u), e, r(this, p)) && (this._config = { ...this._config, map: e });
+  await S(s(this, u), e, s(this, p)) && (this._config = { ...this._config, map: e });
 };
-$ = function() {
-  return s`
+z = function() {
+  return l`
 			<div class="empty-state">
 				<uui-icon name="icon-nodes" class="empty-icon"></uui-icon>
 				<p class="empty-title">No mappings yet</p>
@@ -84,11 +93,11 @@ $ = function() {
 		`;
 };
 C = function(t, e) {
-  return s`
+  return l`
 			<uui-table-row>
 				<uui-table-cell class="source-cell">
 					<span class="source-id">${t.source}</span>
-					<span class="source-text">${c(this, l, k).call(this, t.source)}</span>
+					<span class="source-text">${c(this, n, k).call(this, t.source)}</span>
 				</uui-table-cell>
 				<uui-table-cell class="arrow-cell">
 					<uui-icon name="icon-arrow-right"></uui-icon>
@@ -96,22 +105,22 @@ C = function(t, e) {
 				<uui-table-cell class="destination-cell">
 					${t.destinations.map(
     (i) => {
-      var a;
-      return s`
-							<span class="destination-target">${c(this, l, w).call(this, i.target)}</span>
-							${(a = i.transforms) != null && a.length ? s`<span class="transform-badge">${i.transforms.map((o) => o.type).join(", ")}</span>` : _}
+      var o;
+      return l`
+							<span class="destination-target">${c(this, n, w).call(this, i)}</span>
+							${(o = i.transforms) != null && o.length ? l`<span class="transform-badge">${i.transforms.map((a) => a.type).join(", ")}</span>` : _}
 						`;
     }
   )}
 				</uui-table-cell>
 				<uui-table-cell class="actions-cell">
-					${t.enabled ? _ : s`<uui-tag look="secondary" class="disabled-badge">Disabled</uui-tag>`}
+					${t.enabled ? _ : l`<uui-tag look="secondary" class="disabled-badge">Disabled</uui-tag>`}
 					<uui-button
 						compact
 						look="outline"
 						color="danger"
 						label="Delete"
-						@click=${() => c(this, l, z).call(this, e)}>
+						@click=${() => c(this, n, $).call(this, e)}>
 						<uui-icon name="icon-trash"></uui-icon>
 					</uui-button>
 				</uui-table-cell>
@@ -121,7 +130,7 @@ C = function(t, e) {
 E = function() {
   if (!this._config) return _;
   const t = this._config.map.mappings;
-  return t.length === 0 ? c(this, l, $).call(this) : s`
+  return t.length === 0 ? c(this, n, z).call(this) : l`
 			<div class="mappings-header">
 				<span class="mapping-count">${t.length} mapping${t.length !== 1 ? "s" : ""}</span>
 			</div>
@@ -132,11 +141,11 @@ E = function() {
 					<uui-table-head-cell>Destination</uui-table-head-cell>
 					<uui-table-head-cell style="width: 100px;"></uui-table-head-cell>
 				</uui-table-head>
-				${t.map((e, i) => c(this, l, C).call(this, e, i))}
+				${t.map((e, i) => c(this, n, C).call(this, e, i))}
 			</uui-table>
 		`;
 };
-n.styles = [
+r.styles = [
   O,
   T`
 			:host {
@@ -237,24 +246,24 @@ n.styles = [
 			}
 		`
 ];
-f([
-  d()
-], n.prototype, "_config", 2);
-f([
-  d()
-], n.prototype, "_extraction", 2);
-f([
-  d()
-], n.prototype, "_loading", 2);
-f([
-  d()
-], n.prototype, "_error", 2);
-n = f([
+d([
+  h()
+], r.prototype, "_config", 2);
+d([
+  h()
+], r.prototype, "_extraction", 2);
+d([
+  h()
+], r.prototype, "_loading", 2);
+d([
+  h()
+], r.prototype, "_error", 2);
+r = d([
   U("up-doc-workflow-map-view")
-], n);
-const H = n;
+], r);
+const X = r;
 export {
-  n as UpDocWorkflowMapViewElement,
-  H as default
+  r as UpDocWorkflowMapViewElement,
+  X as default
 };
-//# sourceMappingURL=up-doc-workflow-map-view.element-D3fKm7G_.js.map
+//# sourceMappingURL=up-doc-workflow-map-view.element-B_AJ7vQV.js.map

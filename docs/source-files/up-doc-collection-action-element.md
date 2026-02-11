@@ -55,6 +55,32 @@ The button is self-hiding. Instead of using a custom condition (which would need
 
 The `Umb.Condition.CollectionAlias` condition ensures it only appears on document collections (not media, members, etc.). The `weight: 50` places it after Umbraco's own create button (weight 100).
 
+## Document creation and mapping
+
+The collection action contains the full document creation pipeline:
+
+1. Scaffolds a document from the selected blueprint
+2. Deep-clones scaffold values
+3. Iterates through `config.map.mappings`, applying each to the cloned values
+4. Creates the document via Umbraco Management API POST
+5. Immediately saves (PUT) to persist and trigger cache updates
+
+### Destination mapping with block disambiguation
+
+`#applyDestinationMapping` handles three cases:
+
+1. **Block property with `blockKey`** — looks up the specific block instance in `destination.json` by key, retrieves its `identifyBy` matcher, then calls `#applyBlockGridValue`
+2. **Simple field** — direct property alias (e.g., `"pageTitle"`)
+3. **Legacy dot-path** — `"gridKey.blockKey.propertyKey"` format for backwards compat
+
+### Concatenation tracking
+
+`mappedFields` (a `Set<string>`) tracks which fields have been written. First write replaces the blueprint default; subsequent writes concatenate:
+- **Top-level fields**: key = alias (e.g., `"pageTitle"`), concatenated with space
+- **Block properties**: key = `${block.key}:${propertyAlias}` (e.g., `"abc-123:richTextContent"`), concatenated with newline
+
+This allows multiple source elements mapped to the same destination to assemble into one value (e.g., 12 bullet points → one rich text field).
+
 ## Relationship to up-doc-action.ts
 
 The collection action duplicates the document creation logic from `up-doc-action.ts`. Both files contain:
@@ -62,9 +88,12 @@ The collection action duplicates the document creation logic from `up-doc-action
 - Modal opening (blueprint picker + source sidebar)
 - Scaffolding from blueprint
 - Property mapping (`#applyDestinationMapping`, `#applyBlockGridValue`)
+- Concatenation tracking via `mappedFields`
 - Document creation and save
 
 This duplication exists because the entity action extends `UmbEntityActionBase` while the collection action extends `UmbLitElement` — they have different base classes and lifecycle patterns. A future refactoring could extract the shared logic into a service module.
+
+**IMPORTANT:** When modifying mapping or bridge logic, changes must be applied to BOTH files. The collection action is the primary code path used by the "Create from Source" button in content collection views.
 
 ## Key difference from entity action
 

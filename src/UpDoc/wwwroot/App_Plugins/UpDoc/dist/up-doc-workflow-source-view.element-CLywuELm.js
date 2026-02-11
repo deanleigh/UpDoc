@@ -1,80 +1,80 @@
-import { c as W, b as F, t as R, s as V } from "./workflow.service-Cy8WOA0g.js";
-import { html as c, nothing as g, css as K, state as m, customElement as H } from "@umbraco-cms/backoffice/external/lit";
-import { UmbLitElement as X } from "@umbraco-cms/backoffice/lit-element";
-import { UmbTextStyles as q } from "@umbraco-cms/backoffice/style";
+import { c as L, b as W, t as F, s as I } from "./workflow.service-Cy8WOA0g.js";
+import { html as u, nothing as v, css as R, state as h, customElement as V } from "@umbraco-cms/backoffice/external/lit";
+import { UmbLitElement as H } from "@umbraco-cms/backoffice/lit-element";
+import { UmbTextStyles as X } from "@umbraco-cms/backoffice/style";
 import { UMB_AUTH_CONTEXT as $ } from "@umbraco-cms/backoffice/auth";
-import { UMB_WORKSPACE_CONTEXT as J } from "@umbraco-cms/backoffice/workspace";
-import { UmbModalToken as Q, UMB_MODAL_MANAGER_CONTEXT as E } from "@umbraco-cms/backoffice/modal";
-import { UMB_MEDIA_PICKER_MODAL as Y } from "@umbraco-cms/backoffice/media";
-function Z(e) {
+import { UMB_WORKSPACE_CONTEXT as q } from "@umbraco-cms/backoffice/workspace";
+import { UmbModalToken as J, UMB_MODAL_MANAGER_CONTEXT as M } from "@umbraco-cms/backoffice/modal";
+import { UMB_MEDIA_PICKER_MODAL as Q } from "@umbraco-cms/backoffice/media";
+function Y(e) {
   const t = /* @__PURE__ */ new Map();
-  for (const s of e) {
-    const o = Math.round(s.metadata.fontSize * 10) / 10;
+  for (const a of e) {
+    const o = Math.round(a.metadata.fontSize * 10) / 10;
     t.set(o, (t.get(o) ?? 0) + 1);
   }
-  let i = 0, a = 0;
-  for (const [s, o] of t)
-    o > i && (i = o, a = s);
-  return a;
+  let i = 0, s = 0;
+  for (const [a, o] of t)
+    o > i && (i = o, s = a);
+  return s;
 }
-function j(e) {
+function Z(e) {
   if (e.length === 0) return [];
-  const t = Z(e);
+  const t = Y(e);
   if (e.every((o) => Math.round(o.metadata.fontSize * 10) / 10 === t))
     return [{ heading: null, children: [...e] }];
-  const a = [];
-  let s = { heading: null, children: [] };
+  const s = [];
+  let a = { heading: null, children: [] };
   for (const o of e)
-    Math.round(o.metadata.fontSize * 10) / 10 > t ? ((s.heading || s.children.length > 0) && a.push(s), s = { heading: o, children: [] }) : s.children.push(o);
-  return (s.heading || s.children.length > 0) && a.push(s), a;
+    Math.round(o.metadata.fontSize * 10) / 10 > t ? ((a.heading || a.children.length > 0) && s.push(a), a = { heading: o, children: [] }) : a.children.push(o);
+  return (a.heading || a.children.length > 0) && s.push(a), s;
 }
-const ee = new Q("UpDoc.DestinationPickerModal", {
+const j = new J("UpDoc.DestinationPickerModal", {
   modal: {
     type: "sidebar",
     size: "small"
   }
 });
-var te = Object.defineProperty, ie = Object.getOwnPropertyDescriptor, M = (e) => {
+var ee = Object.defineProperty, te = Object.getOwnPropertyDescriptor, E = (e) => {
   throw TypeError(e);
-}, h = (e, t, i, a) => {
-  for (var s = a > 1 ? void 0 : a ? ie(t, i) : t, o = e.length - 1, l; o >= 0; o--)
-    (l = e[o]) && (s = (a ? l(t, i, s) : l(s)) || s);
-  return a && s && te(t, i, s), s;
-}, b = (e, t, i) => t.has(e) || M("Cannot " + i), v = (e, t, i) => (b(e, t, "read from private field"), i ? i.call(e) : t.get(e)), k = (e, t, i) => t.has(e) ? M("Cannot add the same private member more than once") : t instanceof WeakSet ? t.add(e) : t.set(e, i), ae = (e, t, i, a) => (b(e, t, "write to private field"), t.set(e, i), i), r = (e, t, i) => (b(e, t, "access private method"), i), f, n, S, y, C, _, T, N, P, w, z, D, x, U, O, A, I, B;
-let u = class extends X {
+}, p = (e, t, i, s) => {
+  for (var a = s > 1 ? void 0 : s ? te(t, i) : t, o = e.length - 1, l; o >= 0; o--)
+    (l = e[o]) && (a = (s ? l(t, i, a) : l(a)) || a);
+  return s && a && ee(t, i, a), a;
+}, x = (e, t, i) => t.has(e) || E("Cannot " + i), b = (e, t, i) => (x(e, t, "read from private field"), i ? i.call(e) : t.get(e)), z = (e, t, i) => t.has(e) ? E("Cannot add the same private member more than once") : t instanceof WeakSet ? t.add(e) : t.set(e, i), ie = (e, t, i, s) => (x(e, t, "write to private field"), t.set(e, i), i), r = (e, t, i) => (x(e, t, "access private method"), i), m, n, S, y, C, g, T, N, P, k, w, D, U, O, A, G, K;
+let d = class extends H {
   constructor() {
-    super(...arguments), k(this, n), this._extraction = null, this._config = null, this._workflowName = null, this._loading = !0, this._extracting = !1, this._error = null, this._successMessage = null, this._selectedElements = /* @__PURE__ */ new Set(), k(this, f, "");
+    super(...arguments), z(this, n), this._extraction = null, this._config = null, this._workflowName = null, this._loading = !0, this._extracting = !1, this._error = null, this._successMessage = null, this._selectedElements = /* @__PURE__ */ new Set(), z(this, m, "");
   }
   connectedCallback() {
-    super.connectedCallback(), this.consumeContext(J, (e) => {
+    super.connectedCallback(), this.consumeContext(q, (e) => {
       e && this.observe(e.unique, (t) => {
         t && (this._workflowName = decodeURIComponent(t), r(this, n, S).call(this));
       });
     });
   }
   render() {
-    return this._loading ? c`<div class="loading"><uui-loader-bar></uui-loader-bar></div>` : this._error ? c`
+    return this._loading ? u`<div class="loading"><uui-loader-bar></uui-loader-bar></div>` : this._error ? u`
 				<umb-body-layout header-fit-height>
 					<p style="color: var(--uui-color-danger); padding: var(--uui-size-layout-1);">${this._error}</p>
-				</umb-body-layout>` : c`
+				</umb-body-layout>` : u`
 			<umb-body-layout header-fit-height>
-				${this._successMessage ? c`<div class="success-banner"><uui-icon name="icon-check"></uui-icon> ${this._successMessage}</div>` : g}
-				${this._extraction ? r(this, n, I).call(this) : r(this, n, B).call(this)}
+				${this._successMessage ? u`<div class="success-banner"><uui-icon name="icon-check"></uui-icon> ${this._successMessage}</div>` : v}
+				${this._extraction ? r(this, n, G).call(this) : r(this, n, K).call(this)}
 			</umb-body-layout>
 		`;
   }
 };
-f = /* @__PURE__ */ new WeakMap();
+m = /* @__PURE__ */ new WeakMap();
 n = /* @__PURE__ */ new WeakSet();
 S = async function() {
   if (this._workflowName) {
     this._loading = !0, this._error = null;
     try {
       const e = await this.getContext($);
-      ae(this, f, await e.getLatestToken());
+      ie(this, m, await e.getLatestToken());
       const [t, i] = await Promise.all([
-        W(this._workflowName, v(this, f)),
-        F(this._workflowName, v(this, f))
+        L(this._workflowName, b(this, m)),
+        W(this._workflowName, b(this, m))
       ]);
       this._extraction = t, this._config = i;
     } catch (e) {
@@ -85,20 +85,20 @@ S = async function() {
   }
 };
 y = async function() {
-  var s;
+  var a;
   if (!this._workflowName) return;
-  const i = await (await this.getContext(E)).open(this, Y, {
+  const i = await (await this.getContext(M)).open(this, Q, {
     data: {
       multiple: !1
     }
   }).onSubmit().catch(() => null);
-  if (!((s = i == null ? void 0 : i.selection) != null && s.length)) return;
-  const a = i.selection[0];
-  if (a) {
+  if (!((a = i == null ? void 0 : i.selection) != null && a.length)) return;
+  const s = i.selection[0];
+  if (s) {
     this._extracting = !0, this._error = null;
     try {
-      const l = await (await this.getContext($)).getLatestToken(), p = await R(this._workflowName, a, l);
-      p ? (this._extraction = p, this._successMessage = `Content extracted successfully — ${p.elements.length} elements from ${p.source.totalPages} pages`, setTimeout(() => {
+      const l = await (await this.getContext($)).getLatestToken(), c = await F(this._workflowName, s, l);
+      c ? (this._extraction = c, this._successMessage = `Content extracted successfully — ${c.elements.length} elements from ${c.source.totalPages} pages`, setTimeout(() => {
         this._successMessage = null;
       }, 5e3)) : this._error = "Extraction failed. Check that the selected media item is a PDF.";
     } catch (o) {
@@ -111,12 +111,12 @@ y = async function() {
 C = function(e) {
   const t = /* @__PURE__ */ new Map();
   for (const i of e) {
-    const a = t.get(i.page);
-    a ? a.push(i) : t.set(i.page, [i]);
+    const s = t.get(i.page);
+    s ? s.push(i) : t.set(i.page, [i]);
   }
   return t;
 };
-_ = function(e) {
+g = function(e) {
   const t = new Set(this._selectedElements);
   t.has(e) ? t.delete(e) : t.add(e), this._selectedElements = t;
 };
@@ -124,29 +124,32 @@ T = function() {
   this._selectedElements = /* @__PURE__ */ new Set();
 };
 N = async function() {
-  var d;
+  var f;
   if (!this._config || this._selectedElements.size === 0) return;
-  const i = await (await this.getContext(E)).open(this, ee, {
+  const i = await (await this.getContext(M)).open(this, j, {
     data: {
       destination: this._config.destination
     }
   }).onSubmit().catch(() => null);
-  if (!((d = i == null ? void 0 : i.selectedTargets) != null && d.length) || !this._workflowName) return;
-  const s = [...this._config.map.mappings ?? []], o = this._selectedElements.size;
-  for (const G of this._selectedElements)
-    s.push({
-      source: G,
-      destinations: i.selectedTargets.map((L) => ({ target: L })),
+  if (!((f = i == null ? void 0 : i.selectedTargets) != null && f.length) || !this._workflowName) return;
+  const a = [...this._config.map.mappings ?? []], o = this._selectedElements.size;
+  for (const B of this._selectedElements)
+    a.push({
+      source: B,
+      destinations: i.selectedTargets.map((_) => ({
+        target: _.target,
+        ..._.blockKey ? { blockKey: _.blockKey } : {}
+      })),
       enabled: !0
     });
-  const l = { ...this._config.map, mappings: s };
-  await V(this._workflowName, l, v(this, f)) && (this._config = { ...this._config, map: l }, this._selectedElements = /* @__PURE__ */ new Set(), this._successMessage = `${o} mapping${o !== 1 ? "s" : ""} created`, setTimeout(() => {
+  const l = { ...this._config.map, mappings: a };
+  await I(this._workflowName, l, b(this, m)) && (this._config = { ...this._config, map: l }, this._selectedElements = /* @__PURE__ */ new Set(), this._successMessage = `${o} mapping${o !== 1 ? "s" : ""} created`, setTimeout(() => {
     this._successMessage = null;
   }, 3e3));
 };
 P = function() {
   const e = this._selectedElements.size;
-  return e === 0 ? g : c`
+  return e === 0 ? v : u`
 			<div class="selection-toolbar">
 				<span class="selection-count">${e} selected</span>
 				<uui-button look="primary" compact label="Map to..." @click=${r(this, n, N)}>
@@ -159,78 +162,77 @@ P = function() {
 			</div>
 		`;
 };
-w = function(e) {
-  var i, a;
-  if (!((a = (i = this._config) == null ? void 0 : i.map) != null && a.mappings)) return [];
+k = function(e) {
+  var i, s;
+  if (!((s = (i = this._config) == null ? void 0 : i.map) != null && s.mappings)) return [];
   const t = [];
-  for (const s of this._config.map.mappings)
-    if (s.source === e && s.enabled)
-      for (const o of s.destinations)
-        t.push(o.target);
+  for (const a of this._config.map.mappings)
+    if (a.source === e && a.enabled)
+      for (const o of a.destinations)
+        t.push(o);
   return t;
 };
-z = function(e) {
-  var i, a;
-  if (!((i = this._config) != null && i.destination)) return e;
-  const t = this._config.destination.fields.find((s) => s.alias === e);
+w = function(e) {
+  var i, s, a;
+  if (!((i = this._config) != null && i.destination)) return e.target;
+  if (e.blockKey && this._config.destination.blockGrids)
+    for (const o of this._config.destination.blockGrids) {
+      const l = o.blocks.find((c) => c.key === e.blockKey);
+      if (l) {
+        const c = (s = l.properties) == null ? void 0 : s.find((f) => f.alias === e.target);
+        return `${l.label} > ${(c == null ? void 0 : c.label) || e.target}`;
+      }
+    }
+  const t = this._config.destination.fields.find((o) => o.alias === e.target);
   if (t) return t.label;
   if (this._config.destination.blockGrids)
-    for (const s of this._config.destination.blockGrids)
-      for (const o of s.blocks) {
-        const l = (a = o.properties) == null ? void 0 : a.find((p) => p.alias === e);
-        if (l) return `${o.label} > ${l.label || l.alias}`;
+    for (const o of this._config.destination.blockGrids)
+      for (const l of o.blocks) {
+        const c = (a = l.properties) == null ? void 0 : a.find((f) => f.alias === e.target);
+        if (c) return `${l.label} > ${c.label || c.alias}`;
       }
-  return e;
+  return e.target;
 };
 D = function(e) {
-  const t = e.metadata, i = this._selectedElements.has(e.id), a = r(this, n, w).call(this, e.id), s = a.length > 0;
-  return c`
-			<div class="element-item ${i ? "element-selected" : ""} ${s ? "element-mapped" : ""}">
+  const t = e.metadata, i = this._selectedElements.has(e.id), s = r(this, n, k).call(this, e.id), a = s.length > 0;
+  return u`
+			<div class="element-item ${i ? "element-selected" : ""} ${a ? "element-mapped" : ""}">
 				<uui-checkbox
 					label="Select for mapping"
 					?checked=${i}
-					@change=${() => r(this, n, _).call(this, e.id)}
+					@change=${() => r(this, n, g).call(this, e.id)}
 					class="element-checkbox">
 				</uui-checkbox>
-				<div class="element-content" @click=${() => r(this, n, _).call(this, e.id)}>
+				<div class="element-content" @click=${() => r(this, n, g).call(this, e.id)}>
 					<div class="element-text">${e.text}</div>
 					<div class="element-meta">
 						<span class="meta-badge font-size">${t.fontSize}pt</span>
 						<span class="meta-badge font-name">${t.fontName}</span>
 						<span class="meta-badge color" style="border-left: 3px solid ${t.color};">${t.color}</span>
 						<span class="meta-badge position">x:${t.position.x} y:${t.position.y}</span>
-						${a.map((o) => c`<span class="meta-badge mapped-target"><uui-icon name="icon-arrow-right" style="font-size: 10px;"></uui-icon> ${r(this, n, z).call(this, o)}</span>`)}
+						${s.map((o) => u`<span class="meta-badge mapped-target"><uui-icon name="icon-arrow-right" style="font-size: 10px;"></uui-icon> ${r(this, n, w).call(this, o)}</span>`)}
 					</div>
 				</div>
 			</div>
 		`;
 };
-x = function(e, t) {
-  const i = new Set(this._selectedElements), a = [e.id, ...t.map((o) => o.id)];
-  if (a.every((o) => i.has(o)))
-    for (const o of a) i.delete(o);
-  else
-    for (const o of a) i.add(o);
-  this._selectedElements = i;
-};
 U = function(e, t) {
-  const i = e.metadata, a = [e.id, ...t.map((d) => d.id)], s = a.every((d) => this._selectedElements.has(d)), o = a.some((d) => this._selectedElements.has(d)), l = r(this, n, w).call(this, e.id), p = l.length > 0;
-  return c`
-			<div class="group-heading ${p ? "element-mapped" : ""}">
+  const i = e.metadata, s = this._selectedElements.has(e.id), a = r(this, n, k).call(this, e.id), o = a.length > 0;
+  return u`
+			<div class="group-heading ${s ? "element-selected" : ""} ${o ? "element-mapped" : ""}">
 				<uui-checkbox
-					label="Select ${e.text} and all items in this group"
+					label="Select ${e.text}"
 					?checked=${s}
-					.indeterminate=${o && !s}
-					@change=${() => r(this, n, x).call(this, e, t)}
+					@change=${() => r(this, n, g).call(this, e.id)}
 					class="element-checkbox">
 				</uui-checkbox>
-				<div class="heading-content" @click=${() => r(this, n, x).call(this, e, t)}>
+				<div class="heading-content" @click=${() => r(this, n, g).call(this, e.id)}>
 					<div class="heading-text">${e.text}</div>
 					<div class="element-meta">
 						<span class="meta-badge font-size">${i.fontSize}pt</span>
 						<span class="meta-badge font-name">${i.fontName}</span>
 						<span class="meta-badge color" style="border-left: 3px solid ${i.color};">${i.color}</span>
-						${l.map((d) => c`<span class="meta-badge mapped-target"><uui-icon name="icon-arrow-right" style="font-size: 10px;"></uui-icon> ${r(this, n, z).call(this, d)}</span>`)}
+						${a.map((l) => u`<span class="meta-badge mapped-target"><uui-icon name="icon-arrow-right" style="font-size: 10px;"></uui-icon> ${r(this, n, w).call(this, l)}</span>`)}
 					</div>
 				</div>
 				<span class="group-count">${t.length} item${t.length !== 1 ? "s" : ""}</span>
@@ -238,9 +240,9 @@ U = function(e, t) {
 		`;
 };
 O = function(e) {
-  return c`
+  return u`
 			<div class="visual-group">
-				${e.heading ? r(this, n, U).call(this, e.heading, e.children) : g}
+				${e.heading ? r(this, n, U).call(this, e.heading, e.children) : v}
 				<div class="group-children ${e.heading ? "indented" : ""}">
 					${e.children.map((t) => r(this, n, D).call(this, t))}
 				</div>
@@ -248,18 +250,18 @@ O = function(e) {
 		`;
 };
 A = function(e, t) {
-  const i = j(t);
-  return c`
+  const i = Z(t);
+  return u`
 			<uui-box headline="Page ${e}" class="page-box">
-				${i.map((a) => r(this, n, O).call(this, a))}
+				${i.map((s) => r(this, n, O).call(this, s))}
 				<div class="page-summary">${t.length} element${t.length !== 1 ? "s" : ""}</div>
 			</uui-box>
 		`;
 };
-I = function() {
-  if (!this._extraction) return g;
-  const e = r(this, n, C).call(this, this._extraction.elements), t = Array.from(e.entries()).sort(([i], [a]) => i - a);
-  return c`
+G = function() {
+  if (!this._extraction) return v;
+  const e = r(this, n, C).call(this, this._extraction.elements), t = Array.from(e.entries()).sort(([i], [s]) => i - s);
+  return u`
 			<div class="extraction-header">
 				<div class="extraction-info">
 					<span class="info-label">Source:</span>
@@ -280,24 +282,24 @@ I = function() {
 			</div>
 
 			${r(this, n, P).call(this)}
-			${t.map(([i, a]) => r(this, n, A).call(this, i, a))}
+			${t.map(([i, s]) => r(this, n, A).call(this, i, s))}
 		`;
 };
-B = function() {
-  return c`
+K = function() {
+  return u`
 			<div class="empty-state">
 				<uui-icon name="icon-document" style="font-size: 48px; color: var(--uui-color-text-alt);"></uui-icon>
 				<h3>No sample extraction</h3>
 				<p>Upload a PDF to extract all text elements with their metadata.</p>
 				<uui-button look="primary" label="Upload PDF" @click=${r(this, n, y)} ?disabled=${this._extracting}>
-					${this._extracting ? c`<uui-loader-bar></uui-loader-bar>` : "Upload PDF"}
+					${this._extracting ? u`<uui-loader-bar></uui-loader-bar>` : "Upload PDF"}
 				</uui-button>
 			</div>
 		`;
 };
-u.styles = [
-  q,
-  K`
+d.styles = [
+  X,
+  R`
 			:host {
 				display: block;
 				height: 100%;
@@ -486,6 +488,10 @@ u.styles = [
 				background: var(--uui-color-surface-emphasis);
 			}
 
+			.group-heading.element-selected {
+				background: var(--uui-color-selected);
+			}
+
 			.group-heading.element-mapped {
 				border-left: 3px solid var(--uui-color-positive-standalone);
 			}
@@ -514,36 +520,36 @@ u.styles = [
 			}
 		`
 ];
-h([
-  m()
-], u.prototype, "_extraction", 2);
-h([
-  m()
-], u.prototype, "_config", 2);
-h([
-  m()
-], u.prototype, "_workflowName", 2);
-h([
-  m()
-], u.prototype, "_loading", 2);
-h([
-  m()
-], u.prototype, "_extracting", 2);
-h([
-  m()
-], u.prototype, "_error", 2);
-h([
-  m()
-], u.prototype, "_successMessage", 2);
-h([
-  m()
-], u.prototype, "_selectedElements", 2);
-u = h([
-  H("up-doc-workflow-source-view")
-], u);
-const pe = u;
+p([
+  h()
+], d.prototype, "_extraction", 2);
+p([
+  h()
+], d.prototype, "_config", 2);
+p([
+  h()
+], d.prototype, "_workflowName", 2);
+p([
+  h()
+], d.prototype, "_loading", 2);
+p([
+  h()
+], d.prototype, "_extracting", 2);
+p([
+  h()
+], d.prototype, "_error", 2);
+p([
+  h()
+], d.prototype, "_successMessage", 2);
+p([
+  h()
+], d.prototype, "_selectedElements", 2);
+d = p([
+  V("up-doc-workflow-source-view")
+], d);
+const de = d;
 export {
-  u as UpDocWorkflowSourceViewElement,
-  pe as default
+  d as UpDocWorkflowSourceViewElement,
+  de as default
 };
-//# sourceMappingURL=up-doc-workflow-source-view.element-Aphv4LgX.js.map
+//# sourceMappingURL=up-doc-workflow-source-view.element-CLywuELm.js.map

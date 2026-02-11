@@ -133,40 +133,34 @@ mappedFields.add(alias);
 
 This prevents blueprint defaults from being prepended to mapped values while still allowing multi-element concatenation.
 
-### Path-based destination mapping
+### Destination mapping with block disambiguation
 
-The `#applyDestinationMapping` method handles both simple fields and block grid targets:
+The `#applyDestinationMapping` method handles three cases:
+
+1. **Block property with `blockKey`** — looks up the specific block instance in `destination.json` by key, retrieves its `identifyBy` matcher, then calls `#applyBlockGridValue` to find and update the correct block in the scaffold
+2. **Simple field** — direct property alias (e.g., `"pageTitle"`)
+3. **Dot-path block property** (legacy) — `"gridKey.blockKey.propertyKey"` format for backwards compatibility
 
 ```typescript
-#applyDestinationMapping(
-    values: Array<{ alias: string; value: unknown }>,
-    dest: MappingDestination,
-    sectionValue: string,
-    config: DocumentTypeConfig,
-    mappedFields: Set<string>
-) {
-    const pathParts = dest.target.split('.');
-
-    if (pathParts.length === 1) {
-        // Simple field mapping: "pageTitle"
-    } else if (pathParts.length === 3) {
-        // Block grid mapping: "contentGrid.itineraryBlock.richTextContent"
+#applyDestinationMapping(values, dest, sectionValue, config, mappedFields) {
+    // 1. Block property with blockKey — find specific block instance
+    if (dest.blockKey) {
+        // Look up block in destination config by key → get identifyBy → apply
     }
+
+    // 2. Simple field: "pageTitle"
+    if (pathParts.length === 1) { ... }
+
+    // 3. Legacy dot-path: "contentGrid.itineraryBlock.richTextContent"
+    if (pathParts.length === 3) { ... }
 }
 ```
 
-### Target path syntax
-
-| Pattern | Example | Meaning |
-|---------|---------|---------|
-| Simple field | `"pageTitle"` | Direct property on document |
-| Block property | `"contentGrid.itineraryBlock.richTextContent"` | blockGridKey.blockKey.propertyKey |
-
-The `key` values in the path are looked up in `config.destination.blockGrids` and `config.destination.blocks` to resolve the actual Umbraco aliases.
+See [Mapping Directions](../mapping-directions.md) for details on how block disambiguation works in each mapping direction.
 
 ### Block grid value application
 
-The `#applyBlockGridValue` method finds a block within a block grid by searching for a property value match, then writes the extracted content:
+The `#applyBlockGridValue` method finds a block within a block grid by searching for a property value match, then writes the extracted content. It uses `mappedFields` with a compound key (`${block.key}:${targetProperty}`) to track writes — first write replaces the blueprint default, subsequent writes concatenate with newline:
 
 ```typescript
 #applyBlockGridValue(
@@ -175,28 +169,23 @@ The `#applyBlockGridValue` method finds a block within a block grid by searching
     blockSearch: { property: string; value: string },
     targetProperty: string,
     value: string,
-    convertMarkdown: boolean | undefined
+    convertMarkdown: boolean | undefined,
+    mappedFields: Set<string>
 ) {
-    const contentGridValue = values.find((v) => v.alias === gridAlias);
-    const contentGrid = JSON.parse(contentGridValue.value as string);
-
-    for (const block of contentGrid.contentData) {
-        const searchValue = block.values?.find((v) => v.alias === blockSearch.property);
-        if (searchValue?.value?.toLowerCase().includes(blockSearch.value.toLowerCase())) {
-            const targetValue = block.values?.find((v) => v.alias === targetProperty);
-            if (convertMarkdown) {
-                const htmlContent = markdownToHtml(value);
-                targetValue.value = buildRteValue(htmlContent);
-            } else {
-                targetValue.value = value;
-            }
-            break;
-        }
+    // Find block by identifyBy matcher, then:
+    const fieldKey = `${block.key}:${targetProperty}`;
+    if (mappedFields.has(fieldKey)) {
+        // Concatenate with newline
+        targetValue.value = `${currentValue}\n${value}`;
+    } else {
+        // First write — replace blueprint default
+        targetValue.value = value;
     }
-
-    contentGridValue.value = JSON.stringify(contentGrid);
+    mappedFields.add(fieldKey);
 }
 ```
+
+This allows multiple source elements mapped to the same block property (e.g., 12 bullet points → one rich text field) to assemble into a single concatenated value.
 
 ### Markdown to HTML conversion
 

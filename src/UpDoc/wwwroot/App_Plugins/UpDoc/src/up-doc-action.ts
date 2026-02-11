@@ -307,6 +307,19 @@ export class UpDocEntityAction extends UmbEntityActionBase<never> {
 		let transformedValue = sectionValue;
 		const shouldConvertMarkdown = dest.transforms?.some((t) => t.type === 'convertMarkdownToHtml');
 
+		// Block property with blockKey — find the specific block instance
+		if (dest.blockKey) {
+			for (const grid of config.destination.blockGrids ?? []) {
+				const block = grid.blocks.find((b) => b.key === dest.blockKey);
+				if (block?.identifyBy) {
+					this.#applyBlockGridValue(values, grid.alias, block.identifyBy, dest.target, transformedValue, shouldConvertMarkdown, mappedFields);
+					return;
+				}
+			}
+			console.log(`Block ${dest.blockKey} not found in destination config`);
+			return;
+		}
+
 		// Parse the target path
 		const pathParts = dest.target.split('.');
 
@@ -351,13 +364,14 @@ export class UpDocEntityAction extends UmbEntityActionBase<never> {
 				return;
 			}
 
-			this.#applyBlockGridValue(values, gridAlias, blockSearch, targetProperty, transformedValue, shouldConvertMarkdown);
+			this.#applyBlockGridValue(values, gridAlias, blockSearch, targetProperty, transformedValue, shouldConvertMarkdown, mappedFields);
 		}
 	}
 
 	/**
 	 * Applies a value to a property within a block grid.
 	 * Finds the block by searching for a property value match.
+	 * mappedFields tracks writes — first replaces blueprint default, subsequent concatenate.
 	 */
 	#applyBlockGridValue(
 		values: Array<{ alias: string; value: unknown }>,
@@ -365,7 +379,8 @@ export class UpDocEntityAction extends UmbEntityActionBase<never> {
 		blockSearch: { property: string; value: string },
 		targetProperty: string,
 		value: string,
-		convertMarkdown: boolean | undefined
+		convertMarkdown: boolean | undefined,
+		mappedFields: Set<string>
 	) {
 		const contentGridValue = values.find((v) => v.alias === gridAlias);
 		if (!contentGridValue || !contentGridValue.value) {
@@ -403,12 +418,18 @@ export class UpDocEntityAction extends UmbEntityActionBase<never> {
 
 					const targetValue = block.values?.find((v) => v.alias === targetProperty);
 					if (targetValue) {
-						if (convertMarkdown) {
-							const htmlContent = markdownToHtml(value);
-							targetValue.value = buildRteValue(htmlContent);
+						// Use compound key for block property tracking
+						const fieldKey = `${block.key}:${targetProperty}`;
+
+						if (mappedFields.has(fieldKey)) {
+							// Already written — concatenate with newline
+							const currentValue = typeof targetValue.value === 'string' ? targetValue.value : '';
+							targetValue.value = `${currentValue}\n${value}`;
 						} else {
+							// First write — replace the blueprint default
 							targetValue.value = value;
 						}
+						mappedFields.add(fieldKey);
 						console.log(`Updated ${targetProperty} in block`);
 					}
 					break;

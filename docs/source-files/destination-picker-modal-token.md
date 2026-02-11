@@ -34,11 +34,13 @@ export interface DestinationPickerModalData {
 
 ```typescript
 export interface DestinationPickerModalValue {
-    selectedTargets: string[];
+    selectedTargets: Array<{ target: string; blockKey?: string }>;
 }
 ```
 
-- `selectedTargets` — array of field/property aliases selected by the user
+- `selectedTargets` — array of structured target objects selected by the user
+    - `target` — the property alias (e.g., `"pageTitle"` or `"richTextContent"`)
+    - `blockKey` — optional block instance key from `destination.json`, present when the target is a block property. Used to disambiguate when multiple blocks share the same property alias.
 
 ## Used by
 

@@ -8,7 +8,7 @@ const e = [
     alias: "UpDoc.EntityAction",
     name: "UpDoc Entity Action",
     weight: 1100,
-    api: () => import("./up-doc-action-h0qLtZsD.js"),
+    api: () => import("./up-doc-action-Rh-_kn3B.js"),
     forEntityTypes: ["document"],
     meta: {
       icon: "icon-document",
@@ -40,7 +40,7 @@ const e = [
     kind: "button",
     alias: "UpDoc.CollectionAction",
     name: "UpDoc Collection Action",
-    element: () => import("./up-doc-collection-action.element-BDS2gzhP.js"),
+    element: () => import("./up-doc-collection-action.element-CqwZaXaG.js"),
     weight: 50,
     meta: {
       label: "Create from Source"
@@ -83,7 +83,7 @@ const e = [
     type: "modal",
     alias: "UpDoc.DestinationPickerModal",
     name: "Destination Picker Modal",
-    element: () => import("./destination-picker-modal.element-DLnGBZQB.js")
+    element: () => import("./destination-picker-modal.element-F3Vk8ObK.js")
   },
   // =====================================================================
   // Workflow Workspace — full page for editing individual workflows
@@ -120,7 +120,7 @@ const e = [
     type: "workspaceView",
     alias: "UpDoc.WorkflowWorkspaceView.Source",
     name: "UpDoc Workflow Source View",
-    element: () => import("./up-doc-workflow-source-view.element-Aphv4LgX.js"),
+    element: () => import("./up-doc-workflow-source-view.element-CLywuELm.js"),
     weight: 200,
     meta: {
       label: "Source",
@@ -138,7 +138,7 @@ const e = [
     type: "workspaceView",
     alias: "UpDoc.WorkflowWorkspaceView.Map",
     name: "UpDoc Workflow Map View",
-    element: () => import("./up-doc-workflow-map-view.element-D3fKm7G_.js"),
+    element: () => import("./up-doc-workflow-map-view.element-B_AJ7vQV.js"),
     weight: 100,
     meta: {
       label: "Map",

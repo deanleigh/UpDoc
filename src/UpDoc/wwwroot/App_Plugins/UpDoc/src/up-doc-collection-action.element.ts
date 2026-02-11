@@ -183,13 +183,17 @@ export class UpDocCollectionActionElement extends UmbLitElement {
 				? JSON.parse(JSON.stringify(scaffold.values))
 				: [];
 
+			// Track which fields have been written by our mappings.
+			// First write replaces the blueprint default; subsequent writes concatenate.
+			const mappedFields = new Set<string>();
+
 			for (const mapping of config.map.mappings) {
 				if (mapping.enabled === false) continue;
 				const sectionValue = extractedSections[mapping.source];
 				if (!sectionValue) continue;
 
 				for (const dest of mapping.destinations) {
-					this.#applyDestinationMapping(values, dest, sectionValue, config);
+					this.#applyDestinationMapping(values, dest, sectionValue, config, mappedFields);
 				}
 			}
 
@@ -262,20 +266,47 @@ export class UpDocCollectionActionElement extends UmbLitElement {
 		dest: MappingDestination,
 		sectionValue: string,
 		config: DocumentTypeConfig,
+		mappedFields: Set<string>,
 	) {
 		let transformedValue = sectionValue;
 		const shouldConvertMarkdown = dest.transforms?.some((t) => t.type === 'convertMarkdownToHtml');
+
+		// Block property with blockKey — find the specific block instance
+		if (dest.blockKey) {
+			for (const grid of config.destination.blockGrids ?? []) {
+				const block = grid.blocks.find((b) => b.key === dest.blockKey);
+				if (block?.identifyBy) {
+					this.#applyBlockGridValue(values, grid.alias, block.identifyBy, dest.target, transformedValue, shouldConvertMarkdown, mappedFields);
+					return;
+				}
+			}
+			console.log(`Block ${dest.blockKey} not found in destination config`);
+			return;
+		}
+
+		// Parse the target path
 		const pathParts = dest.target.split('.');
 
 		if (pathParts.length === 1) {
+			// Simple field mapping: "pageTitle"
 			const alias = pathParts[0];
 			const existing = values.find((v) => v.alias === alias);
+
 			if (existing) {
-				existing.value = transformedValue;
+				if (mappedFields.has(alias)) {
+					// Already written by a previous mapping — concatenate
+					const currentValue = typeof existing.value === 'string' ? existing.value : '';
+					existing.value = `${currentValue} ${transformedValue}`;
+				} else {
+					// First write — replace the blueprint default
+					existing.value = transformedValue;
+				}
 			} else {
 				values.push({ alias, value: transformedValue });
 			}
+			mappedFields.add(alias);
 		} else if (pathParts.length === 3) {
+			// Legacy dot-path: "contentGrid.itineraryBlock.richTextContent"
 			const [gridKey, blockKey, propertyKey] = pathParts;
 			const blockGrid = config.destination.blockGrids?.find((g) => g.key === gridKey);
 			const block = blockGrid?.blocks.find((b) => b.key === blockKey);
@@ -288,7 +319,7 @@ export class UpDocCollectionActionElement extends UmbLitElement {
 
 			if (!blockSearch) return;
 
-			this.#applyBlockGridValue(values, gridAlias, blockSearch, targetProperty, transformedValue, shouldConvertMarkdown);
+			this.#applyBlockGridValue(values, gridAlias, blockSearch, targetProperty, transformedValue, shouldConvertMarkdown, mappedFields);
 		}
 	}
 
@@ -299,6 +330,7 @@ export class UpDocCollectionActionElement extends UmbLitElement {
 		targetProperty: string,
 		value: string,
 		convertMarkdown: boolean | undefined,
+		mappedFields: Set<string>,
 	) {
 		const contentGridValue = values.find((v) => v.alias === gridAlias);
 		if (!contentGridValue || !contentGridValue.value) return;
@@ -326,12 +358,18 @@ export class UpDocCollectionActionElement extends UmbLitElement {
 				) {
 					const targetValue = block.values?.find((v) => v.alias === targetProperty);
 					if (targetValue) {
-						if (convertMarkdown) {
-							const htmlContent = markdownToHtml(value);
-							targetValue.value = buildRteValue(htmlContent);
+						// Use compound key for block property tracking
+						const fieldKey = `${block.key}:${targetProperty}`;
+
+						if (mappedFields.has(fieldKey)) {
+							// Already written — concatenate with newline
+							const currentValue = typeof targetValue.value === 'string' ? targetValue.value : '';
+							targetValue.value = `${currentValue}\n${value}`;
 						} else {
+							// First write — replace the blueprint default
 							targetValue.value = value;
 						}
+						mappedFields.add(fieldKey);
 					}
 					break;
 				}

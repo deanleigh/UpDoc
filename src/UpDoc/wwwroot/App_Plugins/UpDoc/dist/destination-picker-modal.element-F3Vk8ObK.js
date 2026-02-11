@@ -1,16 +1,16 @@
-import { html as o, nothing as h, css as w, state as g, customElement as P } from "@umbraco-cms/backoffice/external/lit";
-import { UmbModalBaseElement as D } from "@umbraco-cms/backoffice/modal";
-import { UmbTextStyles as S } from "@umbraco-cms/backoffice/style";
-var E = Object.defineProperty, G = Object.getOwnPropertyDescriptor, m = (e) => {
+import { html as r, nothing as h, css as P, state as m, customElement as D } from "@umbraco-cms/backoffice/external/lit";
+import { UmbModalBaseElement as M } from "@umbraco-cms/backoffice/modal";
+import { UmbTextStyles as E } from "@umbraco-cms/backoffice/style";
+var G = Object.defineProperty, S = Object.getOwnPropertyDescriptor, k = (e) => {
   throw TypeError(e);
 }, v = (e, t, i, s) => {
-  for (var r = s > 1 ? void 0 : s ? G(t, i) : t, d = e.length - 1, p; d >= 0; d--)
-    (p = e[d]) && (r = (s ? p(t, i, r) : p(r)) || r);
-  return s && r && E(t, i, r), r;
-}, k = (e, t, i) => t.has(e) || m("Cannot " + i), n = (e, t, i) => (k(e, t, "read from private field"), i ? i.call(e) : t.get(e)), M = (e, t, i) => t.has(e) ? m("Cannot add the same private member more than once") : t instanceof WeakSet ? t.add(e) : t.set(e, i), l = (e, t, i) => (k(e, t, "access private method"), i), a, c, f, b, _, y, $, x, z, T, C;
-let u = class extends D {
+  for (var c = s > 1 ? void 0 : s ? S(t, i) : t, d = e.length - 1, p; d >= 0; d--)
+    (p = e[d]) && (c = (s ? p(t, i, c) : p(c)) || c);
+  return s && c && G(t, i, c), c;
+}, _ = (e, t, i) => t.has(e) || k("Cannot " + i), n = (e, t, i) => (_(e, t, "read from private field"), i ? i.call(e) : t.get(e)), N = (e, t, i) => t.has(e) ? k("Cannot add the same private member more than once") : t instanceof WeakSet ? t.add(e) : t.set(e, i), l = (e, t, i) => (_(e, t, "access private method"), i), a, o, f, g, b, y, $, x, z, T, C, w;
+let u = class extends M {
   constructor() {
-    super(...arguments), M(this, a), this._activeTab = "", this._selectedTargets = /* @__PURE__ */ new Set();
+    super(...arguments), N(this, a), this._activeTab = "", this._selectedTargets = /* @__PURE__ */ new Map();
   }
   connectedCallback() {
     super.connectedCallback();
@@ -19,11 +19,11 @@ let u = class extends D {
   }
   render() {
     const e = l(this, a, f).call(this);
-    return o`
+    return r`
 			<umb-body-layout headline="Pick destination field(s)">
 				<uui-tab-group slot="header" dropdown-content-direction="vertical">
 					${e.map(
-      (t) => o`
+      (t) => r`
 							<uui-tab
 								label=${t.label}
 								?active=${this._activeTab === t.id}
@@ -37,17 +37,17 @@ let u = class extends D {
 				</uui-tab-group>
 
 				<uui-box>
-					${l(this, a, C).call(this)}
+					${l(this, a, w).call(this)}
 				</uui-box>
 
 				<div slot="actions">
-					<uui-button label="Cancel" @click=${l(this, a, y)}>Cancel</uui-button>
+					<uui-button label="Cancel" @click=${l(this, a, $)}>Cancel</uui-button>
 					<uui-button
 						look="primary"
 						color="positive"
 						label="Confirm"
 						?disabled=${this._selectedTargets.size === 0}
-						@click=${l(this, a, _)}>
+						@click=${l(this, a, y)}>
 						Map to ${this._selectedTargets.size} field${this._selectedTargets.size !== 1 ? "s" : ""}
 					</uui-button>
 				</div>
@@ -56,36 +56,39 @@ let u = class extends D {
   }
 };
 a = /* @__PURE__ */ new WeakSet();
-c = function() {
+o = function() {
   var e;
   return (e = this.data) == null ? void 0 : e.destination;
 };
 f = function() {
   var i;
-  if (!n(this, a, c)) return [];
-  const e = [], t = new Set(n(this, a, c).fields.map((s) => s.tab).filter(Boolean));
+  if (!n(this, a, o)) return [];
+  const e = [], t = new Set(n(this, a, o).fields.map((s) => s.tab).filter(Boolean));
   for (const s of t)
     e.push({
       id: s.toLowerCase().replace(/\s+/g, "-"),
       label: s
     });
-  return (i = n(this, a, c).blockGrids) != null && i.length && (t.has("Page Content") || e.push({ id: "page-content", label: "Page Content" })), e;
+  return (i = n(this, a, o).blockGrids) != null && i.length && (t.has("Page Content") || e.push({ id: "page-content", label: "Page Content" })), e;
 };
-b = function(e) {
-  const t = new Set(this._selectedTargets);
-  t.has(e) ? t.delete(e) : t.add(e), this._selectedTargets = t;
+g = function(e, t) {
+  return t ? `${t}:${e}` : e;
 };
-_ = function() {
-  var e;
-  this.value = { selectedTargets: Array.from(this._selectedTargets) }, (e = this.modalContext) == null || e.submit();
+b = function(e, t) {
+  const i = l(this, a, g).call(this, e, t), s = new Map(this._selectedTargets);
+  s.has(i) ? s.delete(i) : s.set(i, { target: e, blockKey: t }), this._selectedTargets = s;
 };
 y = function() {
   var e;
+  this.value = { selectedTargets: Array.from(this._selectedTargets.values()) }, (e = this.modalContext) == null || e.submit();
+};
+$ = function() {
+  var e;
   (e = this.modalContext) == null || e.reject();
 };
-$ = function(e) {
+x = function(e) {
   const t = this._selectedTargets.has(e.alias);
-  return o`
+  return r`
 			<div class="field-item ${t ? "field-selected" : ""}" @click=${() => l(this, a, b).call(this, e.alias)}>
 				<uui-checkbox
 					label="Select ${e.label}"
@@ -100,23 +103,23 @@ $ = function(e) {
 			</div>
 		`;
 };
-x = function(e) {
-  if (!n(this, a, c)) return h;
-  const t = n(this, a, c).fields.filter((i) => i.tab === e);
-  return t.length === 0 ? o`<p class="empty-message">No fields in this tab.</p>` : o`
+z = function(e) {
+  if (!n(this, a, o)) return h;
+  const t = n(this, a, o).fields.filter((i) => i.tab === e);
+  return t.length === 0 ? r`<p class="empty-message">No fields in this tab.</p>` : r`
 			<div class="field-list">
-				${t.map((i) => l(this, a, $).call(this, i))}
+				${t.map((i) => l(this, a, x).call(this, i))}
 			</div>
 		`;
 };
-z = function() {
+T = function() {
   var e, t;
-  return (t = (e = n(this, a, c)) == null ? void 0 : e.blockGrids) != null && t.length ? o`
-			${n(this, a, c).blockGrids.map((i) => l(this, a, T).call(this, i))}
-		` : o`<p class="empty-message">No block grids configured.</p>`;
+  return (t = (e = n(this, a, o)) == null ? void 0 : e.blockGrids) != null && t.length ? r`
+			${n(this, a, o).blockGrids.map((i) => l(this, a, C).call(this, i))}
+		` : r`<p class="empty-message">No block grids configured.</p>`;
 };
-T = function(e) {
-  return o`
+C = function(e) {
+  return r`
 			<div class="block-grid">
 				<div class="block-grid-header">
 					<span class="block-grid-label">${e.label}</span>
@@ -125,23 +128,23 @@ T = function(e) {
 					${e.blocks.map(
     (t) => {
       var i;
-      return o`
+      return r`
 							<div class="block-item">
 								<div class="block-header">
 									<umb-icon name="icon-box"></umb-icon>
 									<span class="block-label">${t.label}</span>
 								</div>
-								${(i = t.properties) != null && i.length ? o`
+								${(i = t.properties) != null && i.length ? r`
 										<div class="block-properties">
 											${t.properties.map((s) => {
-        const r = s.alias, d = this._selectedTargets.has(r);
-        return o`
-													<div class="block-property ${d ? "field-selected" : ""}" @click=${() => l(this, a, b).call(this, r)}>
+        const c = l(this, a, g).call(this, s.alias, t.key), d = this._selectedTargets.has(c);
+        return r`
+													<div class="block-property ${d ? "field-selected" : ""}" @click=${() => l(this, a, b).call(this, s.alias, t.key)}>
 														<uui-checkbox
 															label="Select ${s.label || s.alias}"
 															?checked=${d}
 															@click=${(p) => p.stopPropagation()}
-															@change=${() => l(this, a, b).call(this, r)}>
+															@change=${() => l(this, a, b).call(this, s.alias, t.key)}>
 														</uui-checkbox>
 														<span class="block-property-label">${s.label || s.alias}</span>
 														<span class="field-type">${s.type}</span>
@@ -158,19 +161,19 @@ T = function(e) {
 			</div>
 		`;
 };
-C = function() {
+w = function() {
   var t;
-  if (!n(this, a, c)) return h;
+  if (!n(this, a, o)) return h;
   if (this._activeTab === "page-content")
-    return l(this, a, z).call(this);
-  const e = (t = n(this, a, c).fields.find(
+    return l(this, a, T).call(this);
+  const e = (t = n(this, a, o).fields.find(
     (i) => i.tab && i.tab.toLowerCase().replace(/\s+/g, "-") === this._activeTab
   )) == null ? void 0 : t.tab;
-  return e ? l(this, a, x).call(this, e) : h;
+  return e ? l(this, a, z).call(this, e) : h;
 };
 u.styles = [
-  S,
-  w`
+  E,
+  P`
 			:host {
 				display: block;
 				height: 100%;
@@ -295,17 +298,17 @@ u.styles = [
 		`
 ];
 v([
-  g()
+  m()
 ], u.prototype, "_activeTab", 2);
 v([
-  g()
+  m()
 ], u.prototype, "_selectedTargets", 2);
 u = v([
-  P("up-doc-destination-picker-modal")
+  D("up-doc-destination-picker-modal")
 ], u);
-const O = u;
+const F = u;
 export {
   u as UpDocDestinationPickerModalElement,
-  O as default
+  F as default
 };
-//# sourceMappingURL=destination-picker-modal.element-DLnGBZQB.js.map
+//# sourceMappingURL=destination-picker-modal.element-F3Vk8ObK.js.map

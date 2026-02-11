@@ -10,7 +10,7 @@ export class UpDocDestinationPickerModalElement extends UmbModalBaseElement<
 	DestinationPickerModalValue
 > {
 	@state() private _activeTab = '';
-	@state() private _selectedTargets = new Set<string>();
+	@state() private _selectedTargets = new Map<string, { target: string; blockKey?: string }>();
 
 	override connectedCallback() {
 		super.connectedCallback();
@@ -46,18 +46,23 @@ export class UpDocDestinationPickerModalElement extends UmbModalBaseElement<
 		return tabs;
 	}
 
-	#toggleTarget(alias: string) {
-		const next = new Set(this._selectedTargets);
-		if (next.has(alias)) {
-			next.delete(alias);
+	#makeKey(alias: string, blockKey?: string): string {
+		return blockKey ? `${blockKey}:${alias}` : alias;
+	}
+
+	#toggleTarget(alias: string, blockKey?: string) {
+		const key = this.#makeKey(alias, blockKey);
+		const next = new Map(this._selectedTargets);
+		if (next.has(key)) {
+			next.delete(key);
 		} else {
-			next.add(alias);
+			next.set(key, { target: alias, blockKey });
 		}
 		this._selectedTargets = next;
 	}
 
 	#onConfirm() {
-		this.value = { selectedTargets: Array.from(this._selectedTargets) };
+		this.value = { selectedTargets: Array.from(this._selectedTargets.values()) };
 		this.modalContext?.submit();
 	}
 
@@ -124,15 +129,15 @@ export class UpDocDestinationPickerModalElement extends UmbModalBaseElement<
 									? html`
 										<div class="block-properties">
 											${block.properties.map((prop) => {
-												const alias = prop.alias;
-												const checked = this._selectedTargets.has(alias);
+												const compoundKey = this.#makeKey(prop.alias, block.key);
+												const checked = this._selectedTargets.has(compoundKey);
 												return html`
-													<div class="block-property ${checked ? 'field-selected' : ''}" @click=${() => this.#toggleTarget(alias)}>
+													<div class="block-property ${checked ? 'field-selected' : ''}" @click=${() => this.#toggleTarget(prop.alias, block.key)}>
 														<uui-checkbox
 															label="Select ${prop.label || prop.alias}"
 															?checked=${checked}
 															@click=${(e: Event) => e.stopPropagation()}
-															@change=${() => this.#toggleTarget(alias)}>
+															@change=${() => this.#toggleTarget(prop.alias, block.key)}>
 														</uui-checkbox>
 														<span class="block-property-label">${prop.label || prop.alias}</span>
 														<span class="field-type">${prop.type}</span>

@@ -178,6 +178,7 @@ export interface SectionMapping {
 
 export interface MappingDestination {
 	target: string;
+	blockKey?: string;
 	transforms?: MappingTransform[];
 }
 

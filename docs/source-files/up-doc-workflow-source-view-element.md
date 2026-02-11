@@ -44,9 +44,8 @@ Shows source file name, page count, element count, extraction timestamp, and a "
 
 Users can:
 
-1. Click checkboxes to select individual elements
-2. Click a **group heading checkbox** to select/deselect the heading and all its children (supports indeterminate state)
-3. A sticky toolbar appears showing selection count with "Map to..." and "Clear" buttons
+1. Click checkboxes to select individual elements (headings and children are independently selectable)
+2. A sticky toolbar appears showing selection count with "Map to..." and "Clear" buttons
 4. "Map to..." opens the `UMB_DESTINATION_PICKER_MODAL` sidebar showing destination fields/blocks
 5. On confirm, new mappings are created in `map.json` via `saveMapConfig()` PUT endpoint
 6. The UI updates immediately to show the new mapping indicators
@@ -58,7 +57,7 @@ For each element, `#getMappedTargets(elementId)` checks `map.json` mappings. If 
 - A green badge with arrow icon and resolved destination label appears in the metadata row
 - The element gets a green left border (`element-mapped` class)
 
-Destination labels are resolved via `#resolveTargetLabel(alias)` — checks top-level fields first, then block properties (displayed as "Block Label > Property Label").
+Destination labels are resolved via `#resolveTargetLabel(dest)` — accepts a `MappingDestination` object. When `blockKey` is present, finds the specific block by key for an accurate label. Otherwise checks top-level fields first, then falls back to first block match (backwards compat). Block properties display as "Block Label > Property Label".
 
 ### Empty state
 
@@ -67,7 +66,7 @@ When no sample extraction exists, shows a centered prompt with "Upload PDF" butt
 ## Imports
 
 ```typescript
-import type { ExtractionElement, RichExtractionResult, DocumentTypeConfig, VisualGroup } from './workflow.types.js';
+import type { ExtractionElement, RichExtractionResult, DocumentTypeConfig, VisualGroup, MappingDestination } from './workflow.types.js';
 import { groupElementsByHeading } from './visual-grouping.js';
 import { fetchSampleExtraction, triggerSampleExtraction, fetchWorkflowByName, saveMapConfig } from './workflow.service.js';
 import { UmbLitElement } from '@umbraco-cms/backoffice/lit-element';

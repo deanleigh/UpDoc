@@ -33,16 +33,20 @@ Block grids show a header with the grid label, then nested blocks. Each block sh
 - Block icon and label
 - Indented properties with checkboxes (same selection pattern as fields)
 
+### Block property disambiguation
+
+Multiple block instances can share the same property alias (e.g., three blocks all have `richTextContent`). The modal uses **compound keys** internally (`blockKey:alias`) so that selecting a property in one block does not affect the same property in other blocks. Each block property is independently selectable.
+
 ### Confirm action
 
-The confirm button shows "Map to N field(s)" with a count. It's disabled when nothing is selected. On confirm, returns `{ selectedTargets: string[] }` — an array of field/property aliases.
+The confirm button shows "Map to N field(s)" with a count. It's disabled when nothing is selected. On confirm, returns `{ selectedTargets: Array<{ target, blockKey? }> }` — structured objects with the property alias and optional block instance key for disambiguation.
 
 ## Data flow
 
 ```
 Source tab selects elements → opens this modal with destination config
-                           → user picks target fields
-                           → modal returns selected aliases
+                           → user picks target fields (block context preserved)
+                           → modal returns structured targets with blockKey
                            → Source tab creates mapping entries in map.json
 ```
 

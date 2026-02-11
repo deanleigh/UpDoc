@@ -1,4 +1,4 @@
-import type { DocumentTypeConfig, SectionMapping, DestinationField, BlockProperty, RichExtractionResult, ExtractionElement } from './workflow.types.js';
+import type { DocumentTypeConfig, SectionMapping, MappingDestination, DestinationField, BlockProperty, RichExtractionResult, ExtractionElement } from './workflow.types.js';
 import { fetchWorkflowByName, fetchSampleExtraction, saveMapConfig } from './workflow.service.js';
 import { html, customElement, css, state, nothing } from '@umbraco-cms/backoffice/external/lit';
 import { UmbLitElement } from '@umbraco-cms/backoffice/lit-element';
@@ -51,26 +51,37 @@ export class UpDocWorkflowMapViewElement extends UmbLitElement {
 		}
 	}
 
-	#resolveDestinationLabel(target: string): string {
-		if (!this._config) return target;
+	#resolveDestinationLabel(dest: MappingDestination): string {
+		if (!this._config) return dest.target;
 
-		// Check top-level fields
-		for (const field of this._config.destination.fields) {
-			if (field.alias === target) return field.label;
+		// If blockKey present, find the specific block
+		if (dest.blockKey && this._config.destination.blockGrids) {
+			for (const grid of this._config.destination.blockGrids) {
+				const block = grid.blocks.find((b) => b.key === dest.blockKey);
+				if (block) {
+					const prop = block.properties?.find((p) => p.alias === dest.target);
+					return `${block.label} > ${prop?.label || dest.target}`;
+				}
+			}
 		}
 
-		// Check block properties
+		// Top-level field
+		for (const field of this._config.destination.fields) {
+			if (field.alias === dest.target) return field.label;
+		}
+
+		// Fall back: first block match (backwards compat for old mappings without blockKey)
 		for (const grid of this._config.destination.blockGrids ?? []) {
 			for (const block of grid.blocks) {
 				for (const prop of block.properties ?? []) {
-					if (prop.alias === target) {
+					if (prop.alias === dest.target) {
 						return `${block.label} > ${prop.label || prop.alias}`;
 					}
 				}
 			}
 		}
 
-		return target;
+		return dest.target;
 	}
 
 	#resolveSourceText(sourceId: string): string {
@@ -120,7 +131,7 @@ export class UpDocWorkflowMapViewElement extends UmbLitElement {
 				<uui-table-cell class="destination-cell">
 					${mapping.destinations.map(
 						(dest) => html`
-							<span class="destination-target">${this.#resolveDestinationLabel(dest.target)}</span>
+							<span class="destination-target">${this.#resolveDestinationLabel(dest)}</span>
 							${dest.transforms?.length
 								? html`<span class="transform-badge">${dest.transforms.map((t) => t.type).join(', ')}</span>`
 								: nothing}

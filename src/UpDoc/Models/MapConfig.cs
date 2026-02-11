@@ -49,6 +49,9 @@ public class MappingDestination
     [JsonPropertyName("target")]
     public string Target { get; set; } = string.Empty;
 
+    [JsonPropertyName("blockKey")]
+    public string? BlockKey { get; set; }
+
     [JsonPropertyName("transforms")]
     public List<MappingTransform>? Transforms { get; set; }
 }
