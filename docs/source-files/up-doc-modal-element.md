@@ -8,11 +8,11 @@ Provides the UI for users to:
 
 1. Choose a source type (PDF Document, Markdown, Web Page, or Word Document)
 2. Configure the source (pick a media item, paste a URL, etc.)
-3. Enter a document name (or leave blank to auto-populate from source)
-4. For PDF and Markdown sources: automatically extracts sections using the config's extraction rules when a media item is selected
-5. Pre-fills the document name with the extracted title (if not already entered)
-6. Review extracted content in the **Content tab** before creating the document
-7. Edit or copy individual sections via hover-reveal action buttons
+3. Enter a document name (or leave blank to auto-populate from mapped title elements)
+4. For PDF and Markdown sources: automatically runs rich extraction when a media item is selected
+5. Pre-fills the document name by finding elements mapped to the first destination field and concatenating them
+6. Review mapped content in the **Content tab** — shows destination field labels with assembled values from the extraction
+7. Copy individual mapped values via hover-reveal action buttons
 8. Check the destination document type and blueprint in the **Destination tab**
 9. Submit or cancel the operation
 
@@ -25,7 +25,7 @@ The source type dropdown is **dynamically populated** from the workflow config. 
 The modal uses a tabbed interface with navigation tabs in the header:
 
 - **Source tab** (default, active on open): Choose a source type, provide the source file/URL, enter document name
-- **Content tab**: Review and manage extracted content before creating the document (disabled until extraction completes)
+- **Content tab**: Review mapped content before creating the document (disabled until extraction completes)
 - **Destination tab**: Read-only reference showing the selected document type and blueprint
 
 The tab order follows the user's workflow: Source (what to import) -> Content (review extraction) -> Destination (where it's going, already decided). The Source tab is active on arrival because that's the user's immediate next action. The Destination tab is last because the user already chose the document type and blueprint in the preceding dialog steps — it's a reference, not a next step.
@@ -60,8 +60,8 @@ export class UpDocModalElement extends UmbModalBaseElement<
 
 The modal stores:
 - `_activeTab` -- tracks which tab is currently active ('source', 'content', or 'destination')
-- `_extractedSections` -- a `Record<string, string>` holding all extracted values keyed by section key (e.g., "title", "description", "itinerary")
-- `_config` -- the full `DocumentTypeConfig` containing source, destination, and map configs
+- `_extractedSections` -- a `Record<string, string>` holding all extracted values keyed by **element ID** (e.g., `p1-e2`, `p1-e3`). These IDs match the source keys in `map.json`.
+- `_config` -- the full `DocumentTypeConfig` loaded once at startup via `fetchConfig()`, containing source, destination, and map configs
 
 ## Key concepts
 
@@ -71,9 +71,9 @@ All Umbraco modals extend `UmbModalBaseElement<TData, TValue>`:
 - `TData` -- The data passed TO the modal when opening
 - `TValue` -- The data returned FROM the modal when submitted
 
-### Unified extraction via #extractFromSource
+### Rich extraction via #extractFromSource
 
-The `#extractFromSource` method calls the `extractSections` function from `workflow.service.ts`:
+The `#extractFromSource` method calls the `extractRich` function from `workflow.service.ts` to get elements with IDs that match the element IDs stored in `map.json`:
 
 ```typescript
 async #extractFromSource(mediaUnique: string) {
@@ -81,28 +81,28 @@ async #extractFromSource(mediaUnique: string) {
     this._extractionError = null;
 
     try {
-        const blueprintId = this.data?.blueprintId;
-        if (!blueprintId) {
-            this._extractionError = 'No blueprint ID available';
-            return;
-        }
-
         const authContext = await this.getContext(UMB_AUTH_CONTEXT);
         const token = await authContext.getLatestToken();
 
-        const result = await extractSections(mediaUnique, blueprintId, token);
+        // Use rich extraction — returns elements with IDs matching map.json
+        const extraction = await extractRich(mediaUnique, token);
 
-        if (!result) {
+        if (!extraction?.elements?.length) {
             this._extractionError = 'Failed to extract content from source';
             return;
         }
 
-        this._extractedSections = result.sections;
-        this._config = result.config;
+        // Build element ID → text lookup (same key format as map.json sources)
+        const elementLookup: Record<string, string> = {};
+        for (const element of extraction.elements) {
+            elementLookup[element.id] = element.text;
+        }
 
-        // Pre-fill document name with extracted title
-        if (result.sections['title'] && !this._documentName) {
-            this._documentName = result.sections['title'];
+        this._extractedSections = elementLookup;
+
+        // Pre-fill document name from mapped title elements
+        if (!this._documentName && this._config) {
+            this.#prefillDocumentName(elementLookup);
         }
     } catch (error) {
         this._extractionError = 'Failed to connect to extraction service';
@@ -112,80 +112,64 @@ async #extractFromSource(mediaUnique: string) {
 }
 ```
 
-This method delegates all extraction logic to the backend, passing `this._sourceType` so the backend routes to the correct extraction service (PDF or Markdown). The config's source.json sections determine how to parse the source document.
+This method uses the same rich extraction endpoint as the workflow authoring Source tab, ensuring element IDs are consistent. The config is loaded once at modal startup (not per-extraction), so `_config` is already available when extraction completes.
 
-### Human-readable section labels
+### Document name pre-fill
 
-The modal converts internal section keys to user-friendly labels:
-
-```typescript
-const SECTION_LABELS: Record<string, string> = {
-    title: 'Page Title',
-    description: 'Description',
-    itinerary: 'Itinerary',
-    features: 'Features',
-    accommodation: 'Accommodation',
-};
-
-#getSectionLabel(key: string): string {
-    return SECTION_LABELS[key] || key.charAt(0).toUpperCase() + key.slice(1);
-}
-```
-
-### Content tab with hover action buttons
-
-The Content tab displays extracted sections as cards with hover-reveal action buttons:
+The `#prefillDocumentName` method finds the first destination target in `map.json`, collects text from all elements mapped to that target, and joins them with spaces:
 
 ```typescript
-#renderContentTab() {
-    const sections = this._extractedSections;
+#prefillDocumentName(elementLookup: Record<string, string>) {
+    if (!this._config?.map?.mappings?.length) return;
 
-    return html`
-        <div class="content-editor">
-            <p class="content-editor-intro">
-                Review the extracted content before creating the document.
-            </p>
-            ${Object.entries(sections).map(([key, value]) => {
-                if (!value) return nothing;
-                return html`
-                    <div class="section-card">
-                        <div class="section-card-header">
-                            <span class="section-card-label">${this.#getSectionLabel(key)}</span>
-                        </div>
-                        <div class="section-card-body">
-                            <uui-action-bar class="section-card-actions">
-                                <uui-button compact title="Edit" ...>
-                                    <uui-icon name="icon-edit"></uui-icon>
-                                </uui-button>
-                                <uui-button compact title="Copy" ...>
-                                    <uui-icon name="icon-documents"></uui-icon>
-                                </uui-button>
-                            </uui-action-bar>
-                            <div class="section-card-content">${value}</div>
-                        </div>
-                    </div>
-                `;
-            })}
-        </div>
-    `;
+    const firstTarget = this._config.map.mappings[0]?.destinations?.[0]?.target;
+    if (!firstTarget) return;
+
+    const parts: string[] = [];
+    for (const mapping of this._config.map.mappings) {
+        if (mapping.enabled === false) continue;
+        const mapsToTarget = mapping.destinations.some((d) => d.target === firstTarget);
+        if (mapsToTarget && elementLookup[mapping.source]) {
+            parts.push(elementLookup[mapping.source]);
+        }
+    }
+
+    if (parts.length > 0) {
+        this._documentName = parts.join(' ');
+    }
 }
 ```
 
-The action buttons use `uui-action-bar` and appear on hover, following the block editor UX pattern. CSS controls the hover-reveal behavior:
+This handles cases like a title split across two PDF lines (e.g., "Flemish Masters –" + "Bruges, Antwerp & Ghent" → "Flemish Masters – Bruges, Antwerp & Ghent").
 
-```css
-.section-card-actions {
-    position: absolute;
-    top: var(--uui-size-space-2);
-    right: var(--uui-size-space-2);
-    opacity: 0;
-    transition: opacity 120ms ease;
-}
+### Content tab with mapped preview
 
-.section-card:hover .section-card-actions {
-    opacity: 1;
+The Content tab shows destination field labels with assembled values from the extraction, rather than raw extraction elements. This gives the user a preview of what the created document will look like:
+
+```typescript
+#buildMappedPreview(): Array<{ label: string; value: string }> {
+    if (!this._config?.map?.mappings?.length) return [];
+
+    const preview = new Map<string, string[]>();
+    for (const mapping of this._config.map.mappings) {
+        if (mapping.enabled === false) continue;
+        const text = this._extractedSections[mapping.source];
+        if (!text) continue;
+        for (const dest of mapping.destinations) {
+            const existing = preview.get(dest.target) ?? [];
+            existing.push(text);
+            preview.set(dest.target, existing);
+        }
+    }
+
+    return Array.from(preview.entries()).map(([alias, parts]) => ({
+        label: this.#resolveDestinationLabel(alias),
+        value: parts.join(' '),
+    }));
 }
 ```
+
+The `#resolveDestinationLabel` method looks up human-readable labels from the destination config — checking both top-level fields and block grid properties.
 
 ### Destination tab
 
@@ -251,7 +235,7 @@ The tabs are rendered in the modal header using `slot="navigation"`:
 }
 
 #hasExtractedContent(): boolean {
-    return Object.values(this._extractedSections).some((v) => v.length > 0);
+    return Object.keys(this._extractedSections).length > 0;
 }
 ```
 
@@ -272,18 +256,20 @@ Tab content routing uses a switch statement:
 
 ### Dynamic source type loading
 
-When the modal opens, it immediately fetches the workflow config via `fetchConfig()` to discover which source types have config files:
+When the modal opens, it immediately fetches the workflow config via `fetchConfig()` to discover which source types have config files. The config is stored in `_config` for use by extraction and preview:
 
 ```typescript
 async #loadAvailableSourceTypes() {
     this._loadingSourceTypes = true;
     try {
         const config = await fetchConfig(blueprintId, token);
-        if (config?.sources) {
-            this._availableSourceTypes = Object.keys(config.sources);
-            // Auto-select if only one source type
-            if (this._availableSourceTypes.length === 1) {
-                this._sourceType = this._availableSourceTypes[0] as SourceType;
+        if (config) {
+            this._config = config;
+            if (config.sources) {
+                this._availableSourceTypes = Object.keys(config.sources);
+                if (this._availableSourceTypes.length === 1) {
+                    this._sourceType = this._availableSourceTypes[0] as SourceType;
+                }
             }
         }
     } finally {
@@ -296,7 +282,7 @@ The dropdown only shows source types that exist in the config's `sources` dictio
 
 ### Source type selection
 
-The `uui-select` dropdown shows "Choose a source..." when no source type is selected (only when multiple source types are available). When the user changes the source type, all source-specific state is reset (selected media, URL, extracted sections, config). This ensures a clean slate when switching between source types.
+The `uui-select` dropdown shows "Choose a source..." when no source type is selected (only when multiple source types are available). When the user changes the source type, source-specific state is reset (selected media, URL, extracted sections, extraction error). The `_config` is preserved across source type changes since it was loaded once at startup.
 
 ### Conditional source UI rendering
 
@@ -333,7 +319,7 @@ The `#getCanCreate()` method controls when the Create button is enabled:
 }
 ```
 
-The `#handleSave` method returns `extractedSections` and `config` so the action has everything needed to apply mappings.
+The `#handleSave` method returns `extractedSections` (element ID → text lookup) and `config` so the action has everything needed to apply mappings.
 
 ## Template structure
 
@@ -345,10 +331,11 @@ The modal uses a tabbed interface with three tabs:
 2. **Source box** -- Contains a source type dropdown and conditional source-specific UI
 
 ### Content Tab
-- **Section cards** -- Each extracted section displayed as a card with:
-  - Header showing the human-readable section label
-  - Body with full content (scrollable for long content)
-  - Hover-reveal action bar with Edit and Copy buttons
+- **Mapped field cards** -- Each destination field displayed as a card with:
+  - Header showing the human-readable destination field label (resolved from destination config)
+  - Body with assembled content from all mapped source elements (concatenated with spaces)
+  - Hover-reveal action bar with Copy button
+  - Empty state message when no mappings exist
 
 ### Destination Tab
 - **Destination box** -- Read-only display of:
@@ -368,7 +355,7 @@ Uses Umbraco's UI components:
 - `uui-loader-bar` -- Loading indicator during extraction
 - `uui-icon` -- Status icons for success/error/info states
 - `uui-action-bar` -- Container for hover-reveal action buttons
-- `uui-button` -- Action buttons (Create, Close, Edit, Copy)
+- `uui-button` -- Action buttons (Create, Close, Copy)
 
 ## Extraction status display
 
@@ -382,7 +369,7 @@ The modal shows visual feedback during and after extraction:
 ```typescript
 import type { UmbUpDocModalData, UmbUpDocModalValue, SourceType } from './up-doc-modal.token.js';
 import type { DocumentTypeConfig } from './workflow.types.js';
-import { extractSections, fetchConfig } from './workflow.service.js';
+import { extractRich, fetchConfig } from './workflow.service.js';
 import { html, customElement, css, state, nothing } from '@umbraco-cms/backoffice/external/lit';
 import { UmbTextStyles } from '@umbraco-cms/backoffice/style';
 import { UmbModalBaseElement } from '@umbraco-cms/backoffice/modal';

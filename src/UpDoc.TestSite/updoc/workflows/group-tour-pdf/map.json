@@ -1,6 +1,41 @@
 {
+  "$schema": null,
   "version": "1.0",
   "name": "group-tour-pdf Mapping",
   "description": "Mapping configuration for group-tour-pdf",
-  "mappings": []
+  "mappings": [
+    {
+      "source": "p1-e2",
+      "destinations": [
+        {
+          "target": "pageTitle",
+          "transforms": null
+        }
+      ],
+      "enabled": true,
+      "comment": null
+    },
+    {
+      "source": "p1-e3",
+      "destinations": [
+        {
+          "target": "pageTitle",
+          "transforms": null
+        }
+      ],
+      "enabled": true,
+      "comment": null
+    },
+    {
+      "source": "p1-e4",
+      "destinations": [
+        {
+          "target": "pageDescription",
+          "transforms": null
+        }
+      ],
+      "enabled": true,
+      "comment": null
+    }
+  ]
 }

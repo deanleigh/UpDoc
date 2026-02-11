@@ -160,8 +160,12 @@ export class UpDocEntityAction extends UmbEntityActionBase<never> {
 				? JSON.parse(JSON.stringify(scaffold.values))
 				: [];
 
-			console.log('Extracted sections available:', Object.keys(extractedSections));
+			console.log('Extracted sections available:', Object.keys(extractedSections).length, 'elements');
 			console.log('Mappings to apply:', config.map.mappings.map(m => `${m.source} -> ${m.destinations.map(d => d.target).join(', ')}`));
+
+			// Track which fields have been written by our mappings.
+			// First write replaces the blueprint default; subsequent writes concatenate.
+			const mappedFields = new Set<string>();
 
 			// Apply each mapping from the config
 			for (const mapping of config.map.mappings) {
@@ -179,7 +183,7 @@ export class UpDocEntityAction extends UmbEntityActionBase<never> {
 				console.log(`Applying mapping for "${mapping.source}" (${sectionValue.length} chars)`);
 
 				for (const dest of mapping.destinations) {
-					this.#applyDestinationMapping(values, dest, sectionValue, config);
+					this.#applyDestinationMapping(values, dest, sectionValue, config, mappedFields);
 				}
 			}
 
@@ -289,12 +293,15 @@ export class UpDocEntityAction extends UmbEntityActionBase<never> {
 	/**
 	 * Applies a single destination mapping from the config.
 	 * Handles both simple field mappings and block grid mappings.
+	 * mappedFields tracks which fields have been written by our mappings —
+	 * first write replaces the blueprint default, subsequent writes concatenate.
 	 */
 	#applyDestinationMapping(
 		values: Array<{ alias: string; value: unknown }>,
 		dest: MappingDestination,
 		sectionValue: string,
-		config: DocumentTypeConfig
+		config: DocumentTypeConfig,
+		mappedFields: Set<string>
 	) {
 		// Apply transforms to the value
 		let transformedValue = sectionValue;
@@ -307,12 +314,21 @@ export class UpDocEntityAction extends UmbEntityActionBase<never> {
 			// Simple field mapping: "pageTitle"
 			const alias = pathParts[0];
 			const existing = values.find((v) => v.alias === alias);
+
 			if (existing) {
-				existing.value = transformedValue;
+				if (mappedFields.has(alias)) {
+					// Already written by a previous mapping — concatenate (e.g., title split across two lines)
+					const currentValue = typeof existing.value === 'string' ? existing.value : '';
+					existing.value = `${currentValue} ${transformedValue}`;
+				} else {
+					// First write — replace the blueprint default
+					existing.value = transformedValue;
+				}
 			} else {
 				values.push({ alias, value: transformedValue });
 			}
-			console.log(`Set ${alias} = "${transformedValue.substring(0, 50)}..."`);
+			mappedFields.add(alias);
+			console.log(`Set ${alias} = "${String(existing?.value ?? transformedValue).substring(0, 80)}"`);
 		} else if (pathParts.length === 3) {
 			// Block grid mapping: "contentGrid.itineraryBlock.richTextContent"
 			const [gridKey, blockKey, propertyKey] = pathParts;

@@ -1,4 +1,4 @@
-import { b as E } from "./workflow.service-BLucYv1b.js";
+import { e as E } from "./workflow.service-Cy8WOA0g.js";
 import { html as o, css as z, state as d, customElement as D, nothing as m } from "@umbraco-cms/backoffice/external/lit";
 import { UmbTextStyles as P } from "@umbraco-cms/backoffice/style";
 import { UmbModalBaseElement as W } from "@umbraco-cms/backoffice/modal";
@@ -290,4 +290,4 @@ export {
   n as CreateWorkflowSidebarElement,
   H as default
 };
-//# sourceMappingURL=create-workflow-sidebar.element-benCYGiK.js.map
+//# sourceMappingURL=create-workflow-sidebar.element-MnVQ7rIF.js.map

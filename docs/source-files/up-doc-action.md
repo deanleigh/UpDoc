@@ -4,16 +4,16 @@ The entity action class that handles the "Create Document from Source" menu clic
 
 ## What it does
 
-When a user clicks "Create Document from Source" in the document tree context menu, this action:
+When a user clicks "Create from Source" in the collection view, this action:
 
 1. Gets the parent document's document type
 2. Discovers allowed child document types and their blueprints (grouped by document type)
 3. Fetches active workflows and **filters blueprints** to only those with complete workflows
 4. Opens the **blueprint picker dialog** -- user selects a document type, then a blueprint
-5. Opens the **source sidebar modal** -- passes the selected `blueprintId` so the modal can fetch the config and extract sections
-6. Receives `extractedSections` and `config` from the modal return value
+5. Opens the **source sidebar modal** -- passes the selected `blueprintId` so the modal can fetch the config and extract content
+6. Receives `extractedSections` (element ID → text lookup) and `config` from the modal return value
 7. Scaffolds from the selected blueprint to get default values
-8. Loops over `config.map.mappings` to apply each mapping using path-based targeting
+8. Loops over `config.map.mappings` to apply each mapping using path-based targeting, with first-write-replaces and subsequent-writes-concatenate semantics
 9. Creates a new document via the Management API
 10. Saves the document to properly persist it and trigger cache updates
 11. Shows success/error notifications
@@ -49,6 +49,7 @@ try {
     modalValue = await umbOpenModal(this, UMB_UP_DOC_MODAL, {
         data: {
             unique: parentUnique,
+            documentTypeName: selectedDocType?.documentTypeName ?? '',
             blueprintName: selectedBlueprint?.blueprintName ?? '',
             blueprintId: blueprintUnique,
         },
@@ -61,7 +62,7 @@ try {
 
 ### Destructuring modal return value
 
-The modal returns `extractedSections` (a `Record<string, string>`) and `config` (the full `DocumentTypeConfig`):
+The modal returns `extractedSections` (a `Record<string, string>` keyed by element IDs like `p1-e2`) and `config` (the full `DocumentTypeConfig`):
 
 ```typescript
 const { name, mediaUnique, extractedSections, config } = modalValue;
@@ -88,11 +89,13 @@ const workflowBlueprints = blueprints.filter((bp) => activeBlueprintIds.has(bp.u
 
 This means editors only see blueprints where an admin has fully configured the workflow (destination + map + at least one source). If no workflows match any allowed child type, a warning notification is shown and the action exits early.
 
-### Config-driven mapping loop
+### Config-driven mapping loop with field tracking
 
-The action loops over `config.map.mappings` and applies each mapping:
+The action loops over `config.map.mappings` and applies each mapping. A `mappedFields` Set tracks which destination fields have already been written:
 
 ```typescript
+const mappedFields = new Set<string>();
+
 for (const mapping of config.map.mappings) {
     if (mapping.enabled === false) continue;
 
@@ -100,10 +103,35 @@ for (const mapping of config.map.mappings) {
     if (!sectionValue) continue;
 
     for (const dest of mapping.destinations) {
-        this.#applyDestinationMapping(values, dest, sectionValue, config);
+        this.#applyDestinationMapping(values, dest, sectionValue, config, mappedFields);
     }
 }
 ```
+
+### Multi-element field handling
+
+When multiple source elements map to the same destination field (e.g., a title split across two PDF lines), the `mappedFields` Set controls the behavior:
+
+- **First write** to a field: **replaces** the blueprint default value
+- **Subsequent writes** to the same field: **concatenates** with a space separator
+
+```typescript
+if (existing) {
+    if (mappedFields.has(alias)) {
+        // Already written — concatenate
+        const currentValue = typeof existing.value === 'string' ? existing.value : '';
+        existing.value = `${currentValue} ${transformedValue}`;
+    } else {
+        // First write — replace the blueprint default
+        existing.value = transformedValue;
+    }
+} else {
+    values.push({ alias, value: transformedValue });
+}
+mappedFields.add(alias);
+```
+
+This prevents blueprint defaults from being prepended to mapped values while still allowing multi-element concatenation.
 
 ### Path-based destination mapping
 
@@ -114,34 +142,15 @@ The `#applyDestinationMapping` method handles both simple fields and block grid 
     values: Array<{ alias: string; value: unknown }>,
     dest: MappingDestination,
     sectionValue: string,
-    config: DocumentTypeConfig
+    config: DocumentTypeConfig,
+    mappedFields: Set<string>
 ) {
     const pathParts = dest.target.split('.');
 
     if (pathParts.length === 1) {
         // Simple field mapping: "pageTitle"
-        const alias = pathParts[0];
-        const existing = values.find((v) => v.alias === alias);
-        if (existing) {
-            existing.value = sectionValue;
-        } else {
-            values.push({ alias, value: sectionValue });
-        }
     } else if (pathParts.length === 3) {
         // Block grid mapping: "contentGrid.itineraryBlock.richTextContent"
-        const [gridKey, blockKey, propertyKey] = pathParts;
-
-        // Look up block info from destination config
-        const blockGrid = config.destination.blockGrids?.find((g) => g.key === gridKey);
-        const block = blockGrid?.blocks.find((b) => b.key === blockKey);
-
-        if (!blockGrid || !block) return;
-
-        const gridAlias = blockGrid.alias;
-        const targetProperty = block.properties?.find((p) => p.key === propertyKey)?.alias ?? propertyKey;
-        const blockSearch = block.identifyBy;
-
-        this.#applyBlockGridValue(values, gridAlias, blockSearch, targetProperty, sectionValue, shouldConvertMarkdown);
     }
 }
 ```
@@ -249,14 +258,14 @@ import { UmbDocumentItemRepository } from '@umbraco-cms/backoffice/document';
 
 ## Data flow
 
-1. `this.args.unique` -- Parent document ID (where user right-clicked)
+1. `this.args.unique` -- Parent document ID (from the collection view context)
 2. Action fetches parent document to get its document type unique
 3. Action discovers allowed child document types and their blueprints
 4. Fetches active workflows, filters blueprints to only those with complete workflows
 5. Blueprint picker dialog returns `{ blueprintUnique, documentTypeUnique }`
-6. Source sidebar modal receives `{ unique, blueprintName, blueprintId }` and returns `{ name, mediaUnique, extractedSections, config }`
+6. Source sidebar modal receives `{ unique, documentTypeName, blueprintName, blueprintId }` and returns `{ name, mediaUnique, extractedSections, config }`
 7. Scaffolds from selected blueprint to get default values
-8. Loops over `config.map.mappings`, applying each to scaffold values
+8. Loops over `config.map.mappings`, applying each to scaffold values (first write replaces, subsequent writes concatenate)
 9. POSTs to create document API
 10. Fetches and saves the document to properly persist it
 11. Shows notification and navigates to the new document

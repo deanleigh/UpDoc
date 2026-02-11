@@ -1,21 +1,12 @@
 import type { UmbUpDocModalData, UmbUpDocModalValue, SourceType } from './up-doc-modal.token.js';
 import type { DocumentTypeConfig } from './workflow.types.js';
-import { extractSections, fetchConfig } from './workflow.service.js';
+import { extractRich, fetchConfig } from './workflow.service.js';
 import { html, customElement, css, state, nothing } from '@umbraco-cms/backoffice/external/lit';
 import { UmbTextStyles } from '@umbraco-cms/backoffice/style';
 import { UmbModalBaseElement } from '@umbraco-cms/backoffice/modal';
 import type { UUIInputEvent } from '@umbraco-cms/backoffice/external/uui';
 import type { UmbInputMediaElement } from '@umbraco-cms/backoffice/media';
 import { UMB_AUTH_CONTEXT } from '@umbraco-cms/backoffice/auth';
-
-// Human-readable labels for extracted section keys
-const SECTION_LABELS: Record<string, string> = {
-	title: 'Page Title',
-	description: 'Description',
-	itinerary: 'Itinerary',
-	features: 'Features',
-	accommodation: 'Accommodation',
-};
 
 // Human-readable labels for source type keys
 const SOURCE_TYPE_LABELS: Record<string, string> = {
@@ -85,12 +76,16 @@ export class UpDocModalElement extends UmbModalBaseElement<
 			const token = await authContext.getLatestToken();
 			const config = await fetchConfig(blueprintId, token);
 
-			if (config?.sources) {
-				this._availableSourceTypes = Object.keys(config.sources);
+			if (config) {
+				this._config = config;
 
-				// Auto-select if only one source type is available
-				if (this._availableSourceTypes.length === 1) {
-					this._sourceType = this._availableSourceTypes[0] as SourceType;
+				if (config.sources) {
+					this._availableSourceTypes = Object.keys(config.sources);
+
+					// Auto-select if only one source type is available
+					if (this._availableSourceTypes.length === 1) {
+						this._sourceType = this._availableSourceTypes[0] as SourceType;
+					}
 				}
 			}
 		} catch (err) {
@@ -108,7 +103,6 @@ export class UpDocModalElement extends UmbModalBaseElement<
 			this._selectedMediaUnique = null;
 			this._sourceUrl = '';
 			this._extractedSections = {};
-			this._config = null;
 			this._extractionError = null;
 		}
 
@@ -124,7 +118,6 @@ export class UpDocModalElement extends UmbModalBaseElement<
 			await this.#extractFromSource(this._selectedMediaUnique);
 		} else {
 			this._extractedSections = {};
-			this._config = null;
 			this._documentName = '';
 			this._extractionError = null;
 		}
@@ -135,48 +128,68 @@ export class UpDocModalElement extends UmbModalBaseElement<
 		this._extractionError = null;
 
 		try {
-			const blueprintId = this.data?.blueprintId;
-			if (!blueprintId) {
-				this._extractionError = 'No blueprint ID available';
-				return;
-			}
-
 			const authContext = await this.getContext(UMB_AUTH_CONTEXT);
 			const token = await authContext.getLatestToken();
 
-			const result = await extractSections(mediaUnique, blueprintId, token, this._sourceType || 'pdf');
+			// Use rich extraction — returns elements with IDs matching map.json
+			const extraction = await extractRich(mediaUnique, token);
 
-			if (!result) {
+			if (!extraction?.elements?.length) {
 				this._extractionError = 'Failed to extract content from source';
 				return;
 			}
 
-			this._extractedSections = result.sections;
-			this._config = result.config;
-
-			// === DEBUG: Log extracted sections ===
-			console.log('=== EXTRACTION COMPLETE ===');
-			console.log('Extracted sections:');
-			for (const [key, value] of Object.entries(result.sections)) {
-				console.log(`  ${key}: ${value ? `${value.length} chars - "${value.substring(0, 80)}..."` : '(empty)'}`);
+			// Build element ID → text lookup (same key format as map.json sources)
+			const elementLookup: Record<string, string> = {};
+			for (const element of extraction.elements) {
+				elementLookup[element.id] = element.text;
 			}
-			console.log('Config loaded:', result.config ? 'yes' : 'no');
-			if (result.config) {
-				console.log('  Document type:', result.config.destination.documentTypeAlias);
-				console.log('  Blueprint:', result.config.destination.blueprintName);
-				console.log('  Mappings:', result.config.map.mappings.map(m => `${m.source} -> ${m.destinations.map(d => d.target).join(', ')}`));
+
+			this._extractedSections = elementLookup;
+
+			console.log('=== RICH EXTRACTION COMPLETE ===');
+			console.log(`Extracted ${extraction.elements.length} elements from ${extraction.source.totalPages} pages`);
+			console.log('Config loaded:', this._config ? 'yes' : 'no');
+			if (this._config) {
+				console.log('  Mappings:', this._config.map.mappings.map(m => `${m.source} -> ${m.destinations.map(d => d.target).join(', ')}`));
 			}
 			console.log('=== END EXTRACTION ===');
 
-			// Pre-fill document name with extracted title
-			if (result.sections['title'] && !this._documentName) {
-				this._documentName = result.sections['title'];
+			// Pre-fill document name from mapped title elements
+			if (!this._documentName && this._config) {
+				this.#prefillDocumentName(elementLookup);
 			}
 		} catch (error) {
 			this._extractionError = 'Failed to connect to extraction service';
 			console.error('Extraction error:', error);
 		} finally {
 			this._isExtracting = false;
+		}
+	}
+
+	/**
+	 * Pre-fills the document name by finding elements mapped to the first destination field.
+	 * Concatenates multiple elements with a space (e.g., title split across two lines).
+	 */
+	#prefillDocumentName(elementLookup: Record<string, string>) {
+		if (!this._config?.map?.mappings?.length) return;
+
+		// Find the first destination field that has mappings (usually pageTitle)
+		const firstTarget = this._config.map.mappings[0]?.destinations?.[0]?.target;
+		if (!firstTarget) return;
+
+		// Collect text from all elements mapped to this target
+		const parts: string[] = [];
+		for (const mapping of this._config.map.mappings) {
+			if (mapping.enabled === false) continue;
+			const mapsToTarget = mapping.destinations.some((d) => d.target === firstTarget);
+			if (mapsToTarget && elementLookup[mapping.source]) {
+				parts.push(elementLookup[mapping.source]);
+			}
+		}
+
+		if (parts.length > 0) {
+			this._documentName = parts.join(' ');
 		}
 	}
 
@@ -289,12 +302,8 @@ export class UpDocModalElement extends UmbModalBaseElement<
 		`;
 	}
 
-	#getSectionLabel(key: string): string {
-		return SECTION_LABELS[key] || key.charAt(0).toUpperCase() + key.slice(1);
-	}
-
 	#hasExtractedContent(): boolean {
-		return Object.values(this._extractedSections).some((v) => v.length > 0);
+		return Object.keys(this._extractedSections).length > 0;
 	}
 
 	#handleTabClick(tab: TabType) {
@@ -302,13 +311,6 @@ export class UpDocModalElement extends UmbModalBaseElement<
 			return; // Don't switch to content tab if no content
 		}
 		this._activeTab = tab;
-	}
-
-	#updateSection(key: string, value: string) {
-		this._extractedSections = {
-			...this._extractedSections,
-			[key]: value,
-		};
 	}
 
 	#renderExtractionStatus() {
@@ -414,43 +416,82 @@ export class UpDocModalElement extends UmbModalBaseElement<
 		`;
 	}
 
+	/**
+	 * Builds a preview of what the mapped values will look like.
+	 * Groups extracted elements by their destination field and concatenates.
+	 */
+	#buildMappedPreview(): Array<{ label: string; value: string }> {
+		if (!this._config?.map?.mappings?.length) return [];
+
+		const preview = new Map<string, string[]>();
+		for (const mapping of this._config.map.mappings) {
+			if (mapping.enabled === false) continue;
+			const text = this._extractedSections[mapping.source];
+			if (!text) continue;
+			for (const dest of mapping.destinations) {
+				const existing = preview.get(dest.target) ?? [];
+				existing.push(text);
+				preview.set(dest.target, existing);
+			}
+		}
+
+		// Resolve labels from destination config
+		return Array.from(preview.entries()).map(([alias, parts]) => ({
+			label: this.#resolveDestinationLabel(alias),
+			value: parts.join(' '),
+		}));
+	}
+
+	#resolveDestinationLabel(alias: string): string {
+		if (!this._config?.destination) return alias;
+		const field = this._config.destination.fields.find((f) => f.alias === alias);
+		if (field) return field.label;
+		if (this._config.destination.blockGrids) {
+			for (const grid of this._config.destination.blockGrids) {
+				for (const block of grid.blocks) {
+					const prop = block.properties?.find((p) => p.alias === alias);
+					if (prop) return `${block.label} > ${prop.label || prop.alias}`;
+				}
+			}
+		}
+		return alias;
+	}
+
 	#renderContentTab() {
-		const sections = this._extractedSections;
+		const mapped = this.#buildMappedPreview();
+
+		if (mapped.length === 0) {
+			return html`
+				<div class="content-editor">
+					<p class="content-editor-intro">No mapped content to preview. Create mappings in the workflow editor first.</p>
+				</div>
+			`;
+		}
 
 		return html`
 			<div class="content-editor">
 				<p class="content-editor-intro">
-					Review the extracted content before creating the document.
+					Review the content that will be mapped to the document.
 				</p>
-				${Object.entries(sections).map(([key, value]) => {
-					if (!value) return nothing;
-					return html`
-						<div class="section-card">
-							<div class="section-card-header">
-								<span class="section-card-label">${this.#getSectionLabel(key)}</span>
-							</div>
-							<div class="section-card-body">
-								<uui-action-bar class="section-card-actions">
-									<uui-button
-										compact
-										title="Edit"
-										label="Edit ${this.#getSectionLabel(key)}"
-										@click=${() => this.#openSectionEditor(key)}>
-										<uui-icon name="icon-edit"></uui-icon>
-									</uui-button>
-									<uui-button
-										compact
-										title="Copy"
-										label="Copy ${this.#getSectionLabel(key)}"
-										@click=${() => this.#copySection(key, value)}>
-										<uui-icon name="icon-documents"></uui-icon>
-									</uui-button>
-								</uui-action-bar>
-								<div class="section-card-content">${value}</div>
-							</div>
+				${mapped.map(({ label, value }) => html`
+					<div class="section-card">
+						<div class="section-card-header">
+							<span class="section-card-label">${label}</span>
 						</div>
-					`;
-				})}
+						<div class="section-card-body">
+							<uui-action-bar class="section-card-actions">
+								<uui-button
+									compact
+									title="Copy"
+									label="Copy ${label}"
+									@click=${() => this.#copySection(label, value)}>
+									<uui-icon name="icon-documents"></uui-icon>
+								</uui-button>
+							</uui-action-bar>
+							<div class="section-card-content">${value}</div>
+						</div>
+					</div>
+				`)}
 			</div>
 		`;
 	}
@@ -471,11 +512,6 @@ export class UpDocModalElement extends UmbModalBaseElement<
 				</div>
 			</uui-box>
 		`;
-	}
-
-	#openSectionEditor(key: string) {
-		// TODO: Open editor modal for this section
-		console.log('Edit section:', key);
 	}
 
 	async #copySection(key: string, value: string) {

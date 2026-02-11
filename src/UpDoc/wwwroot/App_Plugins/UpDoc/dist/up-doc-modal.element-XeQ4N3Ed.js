@@ -1,49 +1,43 @@
-import { a as F, e as j } from "./workflow.service-BLucYv1b.js";
-import { html as n, css as W, state as l, customElement as B, nothing as _ } from "@umbraco-cms/backoffice/external/lit";
-import { UmbTextStyles as R } from "@umbraco-cms/backoffice/style";
-import { UmbModalBaseElement as X } from "@umbraco-cms/backoffice/modal";
-import { UMB_AUTH_CONTEXT as y } from "@umbraco-cms/backoffice/auth";
-var Y = Object.defineProperty, G = Object.getOwnPropertyDescriptor, x = (t) => {
+import { a as B, e as G } from "./workflow.service-Cy8WOA0g.js";
+import { html as u, css as X, state as p, customElement as H, nothing as y } from "@umbraco-cms/backoffice/external/lit";
+import { UmbTextStyles as Y } from "@umbraco-cms/backoffice/style";
+import { UmbModalBaseElement as K } from "@umbraco-cms/backoffice/modal";
+import { UMB_AUTH_CONTEXT as x } from "@umbraco-cms/backoffice/auth";
+var J = Object.defineProperty, Q = Object.getOwnPropertyDescriptor, T = (t) => {
   throw TypeError(t);
-}, u = (t, e, o, p) => {
-  for (var c = p > 1 ? void 0 : p ? G(e, o) : e, s = t.length - 1, d; s >= 0; s--)
-    (d = t[s]) && (c = (p ? d(e, o, c) : d(c)) || c);
-  return p && c && Y(e, o, c), c;
-}, H = (t, e, o) => e.has(t) || x("Cannot " + o), K = (t, e, o) => e.has(t) ? x("Cannot add the same private member more than once") : e instanceof WeakSet ? e.add(t) : e.set(t, o), a = (t, e, o) => (H(t, e, "access private method"), o), i, T, S, f, E, C, $, w, U, z, D, N, m, v, b, g, M, k, O, A, P, q, I, L;
-const J = {
-  title: "Page Title",
-  description: "Description",
-  itinerary: "Itinerary",
-  features: "Features",
-  accommodation: "Accommodation"
-}, Q = {
+}, d = (t, e, i, c) => {
+  for (var o = c > 1 ? void 0 : c ? Q(e, i) : e, r = t.length - 1, s; r >= 0; r--)
+    (s = t[r]) && (o = (c ? s(e, i, o) : s(o)) || o);
+  return c && o && J(e, i, o), o;
+}, V = (t, e, i) => e.has(t) || T("Cannot " + i), Z = (t, e, i) => e.has(t) ? T("Cannot add the same private member more than once") : e instanceof WeakSet ? e.add(t) : e.set(t, i), a = (t, e, i) => (V(t, e, "access private method"), i), n, S, C, b, E, w, $, U, k, z, M, D, N, g, f, _, O, P, q, R, j, A, F, L, W;
+const tt = {
   pdf: "PDF Document",
   markdown: "Markdown",
   web: "Web Page",
   doc: "Word Document"
 };
-let r = class extends X {
+let l = class extends K {
   constructor() {
-    super(...arguments), K(this, i), this._activeTab = "source", this._documentName = "", this._sourceType = "", this._sourceUrl = "", this._selectedMediaUnique = null, this._extractedSections = {}, this._config = null, this._isExtracting = !1, this._extractionError = null, this._availableSourceTypes = [], this._loadingSourceTypes = !0;
+    super(...arguments), Z(this, n), this._activeTab = "source", this._documentName = "", this._sourceType = "", this._sourceUrl = "", this._selectedMediaUnique = null, this._extractedSections = {}, this._config = null, this._isExtracting = !1, this._extractionError = null, this._availableSourceTypes = [], this._loadingSourceTypes = !0;
   }
   firstUpdated() {
-    this._documentName = "", this._sourceType = "", this._sourceUrl = "", this._selectedMediaUnique = null, this._extractedSections = {}, this._config = null, a(this, i, T).call(this);
+    this._documentName = "", this._sourceType = "", this._sourceUrl = "", this._selectedMediaUnique = null, this._extractedSections = {}, this._config = null, a(this, n, S).call(this);
   }
   render() {
-    const t = a(this, i, I).call(this);
-    return n`
+    const t = a(this, n, L).call(this);
+    return u`
 			<umb-body-layout headline="Create from Source">
-				${a(this, i, M).call(this)}
+				${a(this, n, O).call(this)}
 
 				<div class="tab-content">
-					${a(this, i, L).call(this)}
+					${a(this, n, W).call(this)}
 				</div>
 
 				<uui-button
 					slot="actions"
 					id="close"
 					label=${this.localize.term("general_close")}
-					@click="${a(this, i, $)}"></uui-button>
+					@click="${a(this, n, U)}"></uui-button>
 				<uui-button
 					slot="actions"
 					id="save"
@@ -51,59 +45,66 @@ let r = class extends X {
 					color="positive"
 					label=${this.localize.term("general_create")}
 					?disabled=${!t}
-					@click="${a(this, i, C)}"></uui-button>
+					@click="${a(this, n, $)}"></uui-button>
 			</umb-body-layout>
 		`;
   }
 };
-i = /* @__PURE__ */ new WeakSet();
-T = async function() {
+n = /* @__PURE__ */ new WeakSet();
+S = async function() {
   var t;
   this._loadingSourceTypes = !0;
   try {
     const e = (t = this.data) == null ? void 0 : t.blueprintId;
     if (!e) return;
-    const p = await (await this.getContext(y)).getLatestToken(), c = await F(e, p);
-    c != null && c.sources && (this._availableSourceTypes = Object.keys(c.sources), this._availableSourceTypes.length === 1 && (this._sourceType = this._availableSourceTypes[0]));
+    const c = await (await this.getContext(x)).getLatestToken(), o = await B(e, c);
+    o && (this._config = o, o.sources && (this._availableSourceTypes = Object.keys(o.sources), this._availableSourceTypes.length === 1 && (this._sourceType = this._availableSourceTypes[0])));
   } catch (e) {
     console.error("Failed to load available source types:", e);
   } finally {
     this._loadingSourceTypes = !1;
   }
 };
-S = function(t) {
-  const o = t.target.value;
-  o !== this._sourceType && (this._selectedMediaUnique = null, this._sourceUrl = "", this._extractedSections = {}, this._config = null, this._extractionError = null), this._sourceType = o;
+C = function(t) {
+  const i = t.target.value;
+  i !== this._sourceType && (this._selectedMediaUnique = null, this._sourceUrl = "", this._extractedSections = {}, this._extractionError = null), this._sourceType = i;
 };
-f = async function(t) {
-  const o = t.target.selection;
-  this._selectedMediaUnique = o.length > 0 ? o[0] : null, this._selectedMediaUnique ? await a(this, i, E).call(this, this._selectedMediaUnique) : (this._extractedSections = {}, this._config = null, this._documentName = "", this._extractionError = null);
+b = async function(t) {
+  const i = t.target.selection;
+  this._selectedMediaUnique = i.length > 0 ? i[0] : null, this._selectedMediaUnique ? await a(this, n, E).call(this, this._selectedMediaUnique) : (this._extractedSections = {}, this._documentName = "", this._extractionError = null);
 };
 E = async function(t) {
   var e;
   this._isExtracting = !0, this._extractionError = null;
   try {
-    const o = (e = this.data) == null ? void 0 : e.blueprintId;
-    if (!o) {
-      this._extractionError = "No blueprint ID available";
-      return;
-    }
-    const c = await (await this.getContext(y)).getLatestToken(), s = await j(t, o, c, this._sourceType || "pdf");
-    if (!s) {
+    const c = await (await this.getContext(x)).getLatestToken(), o = await G(t, c);
+    if (!((e = o == null ? void 0 : o.elements) != null && e.length)) {
       this._extractionError = "Failed to extract content from source";
       return;
     }
-    this._extractedSections = s.sections, this._config = s.config, console.log("=== EXTRACTION COMPLETE ==="), console.log("Extracted sections:");
-    for (const [d, h] of Object.entries(s.sections))
-      console.log(`  ${d}: ${h ? `${h.length} chars - "${h.substring(0, 80)}..."` : "(empty)"}`);
-    console.log("Config loaded:", s.config ? "yes" : "no"), s.config && (console.log("  Document type:", s.config.destination.documentTypeAlias), console.log("  Blueprint:", s.config.destination.blueprintName), console.log("  Mappings:", s.config.map.mappings.map((d) => `${d.source} -> ${d.destinations.map((h) => h.target).join(", ")}`))), console.log("=== END EXTRACTION ==="), s.sections.title && !this._documentName && (this._documentName = s.sections.title);
-  } catch (o) {
-    this._extractionError = "Failed to connect to extraction service", console.error("Extraction error:", o);
+    const r = {};
+    for (const s of o.elements)
+      r[s.id] = s.text;
+    this._extractedSections = r, console.log("=== RICH EXTRACTION COMPLETE ==="), console.log(`Extracted ${o.elements.length} elements from ${o.source.totalPages} pages`), console.log("Config loaded:", this._config ? "yes" : "no"), this._config && console.log("  Mappings:", this._config.map.mappings.map((s) => `${s.source} -> ${s.destinations.map((h) => h.target).join(", ")}`)), console.log("=== END EXTRACTION ==="), !this._documentName && this._config && a(this, n, w).call(this, r);
+  } catch (i) {
+    this._extractionError = "Failed to connect to extraction service", console.error("Extraction error:", i);
   } finally {
     this._isExtracting = !1;
   }
 };
-C = function() {
+w = function(t) {
+  var c, o, r, s, h, v;
+  if (!((r = (o = (c = this._config) == null ? void 0 : c.map) == null ? void 0 : o.mappings) != null && r.length)) return;
+  const e = (v = (h = (s = this._config.map.mappings[0]) == null ? void 0 : s.destinations) == null ? void 0 : h[0]) == null ? void 0 : v.target;
+  if (!e) return;
+  const i = [];
+  for (const m of this._config.map.mappings) {
+    if (m.enabled === !1) continue;
+    m.destinations.some((I) => I.target === e) && t[m.source] && i.push(t[m.source]);
+  }
+  i.length > 0 && (this._documentName = i.join(" "));
+};
+$ = function() {
   console.log("=== CREATE BUTTON CLICKED ==="), console.log("Document name:", this._documentName), console.log("Extracted sections being passed:");
   for (const [t, e] of Object.entries(this._extractedSections))
     console.log(`  ${t}: ${e ? `${e.length} chars` : "(empty)"}`);
@@ -116,51 +117,51 @@ C = function() {
     config: this._config
   }, this._submitModal();
 };
-$ = function() {
+U = function() {
   this._rejectModal();
 };
-w = function() {
+k = function() {
   switch (this._sourceType) {
     case "pdf":
-      return a(this, i, U).call(this);
+      return a(this, n, z).call(this);
     case "markdown":
-      return a(this, i, z).call(this);
+      return a(this, n, M).call(this);
     case "web":
-      return a(this, i, D).call(this);
+      return a(this, n, D).call(this);
     case "doc":
-      return a(this, i, N).call(this);
+      return a(this, n, N).call(this);
     default:
-      return _;
+      return y;
   }
 };
-U = function() {
-  return n`
+z = function() {
+  return u`
 			<umb-property-layout label="PDF File" orientation="vertical">
 				<div slot="editor">
 					<umb-input-media
 						max="1"
-						@change=${a(this, i, f)}>
+						@change=${a(this, n, b)}>
 					</umb-input-media>
-					${a(this, i, g).call(this)}
+					${a(this, n, _).call(this)}
 				</div>
 			</umb-property-layout>
 		`;
 };
-z = function() {
-  return n`
+M = function() {
+  return u`
 			<umb-property-layout label="Markdown File" orientation="vertical">
 				<div slot="editor">
 					<umb-input-media
 						max="1"
-						@change=${a(this, i, f)}>
+						@change=${a(this, n, b)}>
 					</umb-input-media>
-					${a(this, i, g).call(this)}
+					${a(this, n, _).call(this)}
 				</div>
 			</umb-property-layout>
 		`;
 };
 D = function() {
-  return n`
+  return u`
 			<umb-property-layout label="Web Page URL" orientation="vertical">
 				<div slot="editor">
 					<uui-input
@@ -178,14 +179,14 @@ D = function() {
 		`;
 };
 N = function() {
-  return n`
+  return u`
 			<umb-property-layout label="Word Document" orientation="vertical">
 				<div slot="editor">
 					<umb-input-media
 						max="1"
 						@change=${(t) => {
-    const o = t.target.selection;
-    this._selectedMediaUnique = o.length > 0 ? o[0] : null;
+    const i = t.target.selection;
+    this._selectedMediaUnique = i.length > 0 ? i[0] : null;
   }}>
 					</umb-input-media>
 					<div class="source-coming-soon">
@@ -196,36 +197,33 @@ N = function() {
 			</umb-property-layout>
 		`;
 };
-m = function(t) {
-  return J[t] || t.charAt(0).toUpperCase() + t.slice(1);
-};
-v = function() {
-  return Object.values(this._extractedSections).some((t) => t.length > 0);
-};
-b = function(t) {
-  t === "content" && !a(this, i, v).call(this) || (this._activeTab = t);
-};
 g = function() {
-  return this._isExtracting ? n`<div class="extraction-status extracting">
+  return Object.keys(this._extractedSections).length > 0;
+};
+f = function(t) {
+  t === "content" && !a(this, n, g).call(this) || (this._activeTab = t);
+};
+_ = function() {
+  return this._isExtracting ? u`<div class="extraction-status extracting">
 				<uui-loader-bar></uui-loader-bar>
 				<span>Extracting content from source...</span>
-			</div>` : this._extractionError ? n`<div class="extraction-status error">
+			</div>` : this._extractionError ? u`<div class="extraction-status error">
 				<uui-icon name="icon-alert"></uui-icon>
 				<span>${this._extractionError}</span>
-			</div>` : Object.values(this._extractedSections).some((e) => e.length > 0) ? n`<div class="extraction-status success">
+			</div>` : Object.values(this._extractedSections).some((e) => e.length > 0) ? u`<div class="extraction-status success">
 				<uui-icon name="icon-check"></uui-icon>
 				<span>Content extracted successfully</span>
-			</div>` : _;
+			</div>` : y;
 };
-M = function() {
-  const t = a(this, i, v).call(this);
-  return n`
+O = function() {
+  const t = a(this, n, g).call(this);
+  return u`
 			<uui-tab-group slot="navigation">
 				<uui-tab
 					label="Source"
 					?active=${this._activeTab === "source"}
 					orientation="horizontal"
-					@click=${() => a(this, i, b).call(this, "source")}>
+					@click=${() => a(this, n, f).call(this, "source")}>
 					<uui-icon slot="icon" name="icon-page-add"></uui-icon>
 					Source
 				</uui-tab>
@@ -234,7 +232,7 @@ M = function() {
 					?active=${this._activeTab === "content"}
 					orientation="horizontal"
 					?disabled=${!t}
-					@click=${() => a(this, i, b).call(this, "content")}>
+					@click=${() => a(this, n, f).call(this, "content")}>
 					<uui-icon slot="icon" name="icon-edit"></uui-icon>
 					Content
 				</uui-tab>
@@ -242,15 +240,15 @@ M = function() {
 					label="Destination"
 					?active=${this._activeTab === "destination"}
 					orientation="horizontal"
-					@click=${() => a(this, i, b).call(this, "destination")}>
+					@click=${() => a(this, n, f).call(this, "destination")}>
 					<uui-icon slot="icon" name="icon-document"></uui-icon>
 					Destination
 				</uui-tab>
 			</uui-tab-group>
 		`;
 };
-k = function() {
-  return n`
+P = function() {
+  return u`
 			<uui-box headline="Document Name">
 				<p>Enter a document name or let it be populated from the source. You can edit this later.</p>
 				<uui-input
@@ -263,7 +261,7 @@ k = function() {
 			</uui-box>
 
 			<uui-box headline="Source">
-				${this._loadingSourceTypes ? n`<uui-loader-bar></uui-loader-bar>` : this._availableSourceTypes.length === 0 ? n`<p style="color: var(--uui-color-danger);">No source types configured for this workflow.</p>` : n`
+				${this._loadingSourceTypes ? u`<uui-loader-bar></uui-loader-bar>` : this._availableSourceTypes.length === 0 ? u`<p style="color: var(--uui-color-danger);">No source types configured for this workflow.</p>` : u`
 							<umb-property-layout label="Source Type" orientation="vertical">
 								<div slot="editor">
 									<uui-select
@@ -271,60 +269,88 @@ k = function() {
 										.options=${[
     ...this._availableSourceTypes.length > 1 ? [{ name: "Choose a source...", value: "", selected: this._sourceType === "" }] : [],
     ...this._availableSourceTypes.map((t) => ({
-      name: Q[t] || t,
+      name: tt[t] || t,
       value: t,
       selected: this._sourceType === t
     }))
   ]}
-										@change=${a(this, i, S)}>
+										@change=${a(this, n, C)}>
 									</uui-select>
 								</div>
 							</umb-property-layout>
 
-							${a(this, i, w).call(this)}
+							${a(this, n, k).call(this)}
 						`}
 			</uui-box>
 		`;
 };
-O = function() {
-  const t = this._extractedSections;
-  return n`
+q = function() {
+  var e, i, c;
+  if (!((c = (i = (e = this._config) == null ? void 0 : e.map) == null ? void 0 : i.mappings) != null && c.length)) return [];
+  const t = /* @__PURE__ */ new Map();
+  for (const o of this._config.map.mappings) {
+    if (o.enabled === !1) continue;
+    const r = this._extractedSections[o.source];
+    if (r)
+      for (const s of o.destinations) {
+        const h = t.get(s.target) ?? [];
+        h.push(r), t.set(s.target, h);
+      }
+  }
+  return Array.from(t.entries()).map(([o, r]) => ({
+    label: a(this, n, R).call(this, o),
+    value: r.join(" ")
+  }));
+};
+R = function(t) {
+  var i, c;
+  if (!((i = this._config) != null && i.destination)) return t;
+  const e = this._config.destination.fields.find((o) => o.alias === t);
+  if (e) return e.label;
+  if (this._config.destination.blockGrids)
+    for (const o of this._config.destination.blockGrids)
+      for (const r of o.blocks) {
+        const s = (c = r.properties) == null ? void 0 : c.find((h) => h.alias === t);
+        if (s) return `${r.label} > ${s.label || s.alias}`;
+      }
+  return t;
+};
+j = function() {
+  const t = a(this, n, q).call(this);
+  return t.length === 0 ? u`
+				<div class="content-editor">
+					<p class="content-editor-intro">No mapped content to preview. Create mappings in the workflow editor first.</p>
+				</div>
+			` : u`
 			<div class="content-editor">
 				<p class="content-editor-intro">
-					Review the extracted content before creating the document.
+					Review the content that will be mapped to the document.
 				</p>
-				${Object.entries(t).map(([e, o]) => o ? n`
-						<div class="section-card">
-							<div class="section-card-header">
-								<span class="section-card-label">${a(this, i, m).call(this, e)}</span>
-							</div>
-							<div class="section-card-body">
-								<uui-action-bar class="section-card-actions">
-									<uui-button
-										compact
-										title="Edit"
-										label="Edit ${a(this, i, m).call(this, e)}"
-										@click=${() => a(this, i, P).call(this, e)}>
-										<uui-icon name="icon-edit"></uui-icon>
-									</uui-button>
-									<uui-button
-										compact
-										title="Copy"
-										label="Copy ${a(this, i, m).call(this, e)}"
-										@click=${() => a(this, i, q).call(this, e, o)}>
-										<uui-icon name="icon-documents"></uui-icon>
-									</uui-button>
-								</uui-action-bar>
-								<div class="section-card-content">${o}</div>
-							</div>
+				${t.map(({ label: e, value: i }) => u`
+					<div class="section-card">
+						<div class="section-card-header">
+							<span class="section-card-label">${e}</span>
 						</div>
-					` : _)}
+						<div class="section-card-body">
+							<uui-action-bar class="section-card-actions">
+								<uui-button
+									compact
+									title="Copy"
+									label="Copy ${e}"
+									@click=${() => a(this, n, F).call(this, e, i)}>
+									<uui-icon name="icon-documents"></uui-icon>
+								</uui-button>
+							</uui-action-bar>
+							<div class="section-card-content">${i}</div>
+						</div>
+					</div>
+				`)}
 			</div>
 		`;
 };
 A = function() {
   var t, e;
-  return n`
+  return u`
 			<uui-box headline="Document Type">
 				<div class="destination-value">
 					<umb-icon name="icon-document-dashed-line"></umb-icon>
@@ -340,17 +366,14 @@ A = function() {
 			</uui-box>
 		`;
 };
-P = function(t) {
-  console.log("Edit section:", t);
-};
-q = async function(t, e) {
+F = async function(t, e) {
   try {
     await navigator.clipboard.writeText(e), console.log("Copied to clipboard:", t);
-  } catch (o) {
-    console.error("Failed to copy:", o);
+  } catch (i) {
+    console.error("Failed to copy:", i);
   }
 };
-I = function() {
+L = function() {
   if (!this._documentName || this._isExtracting) return !1;
   switch (this._sourceType) {
     case "pdf":
@@ -363,19 +386,19 @@ I = function() {
       return !1;
   }
 };
-L = function() {
+W = function() {
   switch (this._activeTab) {
     case "source":
-      return a(this, i, k).call(this);
+      return a(this, n, P).call(this);
     case "content":
-      return a(this, i, O).call(this);
+      return a(this, n, j).call(this);
     case "destination":
-      return a(this, i, A).call(this);
+      return a(this, n, A).call(this);
   }
 };
-r.styles = [
-  R,
-  W`
+l.styles = [
+  Y,
+  X`
 			/* Navigation tabs */
 			uui-tab[disabled] {
 				opacity: 0.5;
@@ -509,45 +532,45 @@ r.styles = [
 			}
 		`
 ];
-u([
-  l()
-], r.prototype, "_activeTab", 2);
-u([
-  l()
-], r.prototype, "_documentName", 2);
-u([
-  l()
-], r.prototype, "_sourceType", 2);
-u([
-  l()
-], r.prototype, "_sourceUrl", 2);
-u([
-  l()
-], r.prototype, "_selectedMediaUnique", 2);
-u([
-  l()
-], r.prototype, "_extractedSections", 2);
-u([
-  l()
-], r.prototype, "_config", 2);
-u([
-  l()
-], r.prototype, "_isExtracting", 2);
-u([
-  l()
-], r.prototype, "_extractionError", 2);
-u([
-  l()
-], r.prototype, "_availableSourceTypes", 2);
-u([
-  l()
-], r.prototype, "_loadingSourceTypes", 2);
-r = u([
-  B("up-doc-modal")
-], r);
-const ot = r;
+d([
+  p()
+], l.prototype, "_activeTab", 2);
+d([
+  p()
+], l.prototype, "_documentName", 2);
+d([
+  p()
+], l.prototype, "_sourceType", 2);
+d([
+  p()
+], l.prototype, "_sourceUrl", 2);
+d([
+  p()
+], l.prototype, "_selectedMediaUnique", 2);
+d([
+  p()
+], l.prototype, "_extractedSections", 2);
+d([
+  p()
+], l.prototype, "_config", 2);
+d([
+  p()
+], l.prototype, "_isExtracting", 2);
+d([
+  p()
+], l.prototype, "_extractionError", 2);
+d([
+  p()
+], l.prototype, "_availableSourceTypes", 2);
+d([
+  p()
+], l.prototype, "_loadingSourceTypes", 2);
+l = d([
+  H("up-doc-modal")
+], l);
+const rt = l;
 export {
-  r as UpDocModalElement,
-  ot as default
+  l as UpDocModalElement,
+  rt as default
 };
-//# sourceMappingURL=up-doc-modal.element-DwIfGtqc.js.map
+//# sourceMappingURL=up-doc-modal.element-XeQ4N3Ed.js.map
