@@ -1,6 +1,6 @@
 import { U as X } from "./blueprint-picker-modal.token-mXZoRNwG.js";
 import { U as H, m as Q, b as Y } from "./transforms-DnejYoqT.js";
-import { f as V } from "./workflow.service-BWNI6sBi.js";
+import { f as V } from "./workflow.service-BLucYv1b.js";
 import { html as R, css as Z, state as W, customElement as tt } from "@umbraco-cms/backoffice/external/lit";
 import { UmbLitElement as et } from "@umbraco-cms/backoffice/lit-element";
 import { UMB_DOCUMENT_WORKSPACE_CONTEXT as nt } from "@umbraco-cms/backoffice/document";
@@ -259,4 +259,4 @@ export {
   v as UpDocCollectionActionElement,
   gt as default
 };
-//# sourceMappingURL=up-doc-collection-action.element-1Myxfmju.js.map
+//# sourceMappingURL=up-doc-collection-action.element-BCdvlL9J.js.map

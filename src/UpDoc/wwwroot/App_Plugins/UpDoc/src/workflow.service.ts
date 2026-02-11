@@ -1,4 +1,4 @@
-import type { DocumentTypeConfig, ExtractSectionsResponse, RichExtractionResult } from './workflow.types.js';
+import type { DocumentTypeConfig, ExtractSectionsResponse, MapConfig, RichExtractionResult } from './workflow.types.js';
 
 const configCache = new Map<string, DocumentTypeConfig>();
 
@@ -200,6 +200,36 @@ export async function extractRich(
 	);
 
 	if (!response.ok) return null;
+	return response.json();
+}
+
+/**
+ * Saves the map config for a workflow.
+ */
+export async function saveMapConfig(
+	workflowName: string,
+	config: MapConfig,
+	token: string
+): Promise<MapConfig | null> {
+	const response = await fetch(
+		`/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(workflowName)}/map`,
+		{
+			method: 'PUT',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${token}`,
+			},
+			body: JSON.stringify(config),
+		}
+	);
+
+	if (!response.ok) {
+		const error = await response.json();
+		console.error('Save map config failed:', error);
+		return null;
+	}
+
+	clearConfigCache();
 	return response.json();
 }
 

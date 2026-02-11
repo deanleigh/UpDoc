@@ -226,6 +226,20 @@ public class WorkflowController : ControllerBase
         }
     }
 
+    [HttpPut("{name}/map")]
+    public IActionResult UpdateMap(string name, [FromBody] MapConfig config)
+    {
+        try
+        {
+            _workflowService.SaveMapConfig(name, config);
+            return Ok(config);
+        }
+        catch (DirectoryNotFoundException)
+        {
+            return NotFound(new { error = $"Workflow '{name}' not found." });
+        }
+    }
+
     [HttpGet("{name}/sample-extraction")]
     public IActionResult GetSampleExtraction(string name)
     {

@@ -132,6 +132,24 @@ export const manifests: Array<UmbExtensionManifest> = [
 			},
 		],
 	},
+	{
+		type: 'workspaceView',
+		alias: 'UpDoc.WorkflowWorkspaceView.Map',
+		name: 'UpDoc Workflow Map View',
+		element: () => import('./up-doc-workflow-map-view.element.js'),
+		weight: 100,
+		meta: {
+			label: 'Map',
+			pathname: 'map',
+			icon: 'icon-nodes',
+		},
+		conditions: [
+			{
+				alias: 'Umb.Condition.WorkspaceAlias',
+				match: 'UpDoc.WorkflowWorkspace',
+			},
+		],
+	},
 
 	// =====================================================================
 	// Settings sidebar — UpDoc appears in Settings section

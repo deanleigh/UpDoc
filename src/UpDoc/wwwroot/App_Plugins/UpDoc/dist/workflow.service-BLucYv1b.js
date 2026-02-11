@@ -1,32 +1,32 @@
 const i = /* @__PURE__ */ new Map();
 let r = null, c = null;
-async function u(e) {
+async function p(e) {
   return r || (c || (c = (async () => {
     try {
-      const o = await fetch("/umbraco/management/api/v1/updoc/workflows/active", {
+      const n = await fetch("/umbraco/management/api/v1/updoc/workflows/active", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${e}`
         }
       });
-      o.ok ? r = await o.json() : r = { documentTypeAliases: [], blueprintIds: [] };
+      n.ok ? r = await n.json() : r = { documentTypeAliases: [], blueprintIds: [] };
     } catch {
       r = { documentTypeAliases: [], blueprintIds: [] };
     }
     return c = null, r;
   })()), c);
 }
-async function l(e, o) {
-  const n = i.get(e);
-  if (n) return n;
+async function l(e, n) {
+  const o = i.get(e);
+  if (o) return o;
   const t = await fetch(
     `/umbraco/management/api/v1/updoc/config/${e}`,
     {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${o}`
+        Authorization: `Bearer ${n}`
       }
     }
   );
@@ -35,14 +35,14 @@ async function l(e, o) {
   const a = await t.json();
   return i.set(e, a), a;
 }
-async function p(e, o, n, t = "pdf") {
+async function f(e, n, o, t = "pdf") {
   const a = await fetch(
-    `/umbraco/management/api/v1/updoc/extract-sections?mediaKey=${e}&blueprintId=${o}&sourceType=${t}`,
+    `/umbraco/management/api/v1/updoc/extract-sections?mediaKey=${e}&blueprintId=${n}&sourceType=${t}`,
     {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${n}`
+        Authorization: `Bearer ${o}`
       }
     }
   );
@@ -52,42 +52,42 @@ async function p(e, o, n, t = "pdf") {
   }
   return a.json();
 }
-async function f(e, o) {
-  const n = await fetch(
+async function m(e, n) {
+  const o = await fetch(
     `/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(e)}`,
     {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${o}`
+        Authorization: `Bearer ${n}`
       }
     }
   );
-  return n.ok ? n.json() : (console.warn(`No workflow found with name "${e}"`), null);
+  return o.ok ? o.json() : (console.warn(`No workflow found with name "${e}"`), null);
 }
-async function m(e, o) {
-  const n = await fetch(
+async function h(e, n) {
+  const o = await fetch(
     `/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(e)}/sample-extraction`,
     {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${o}`
+        Authorization: `Bearer ${n}`
       }
     }
   );
-  return n.ok ? n.json() : null;
+  return o.ok ? o.json() : null;
 }
-async function h(e, o, n) {
+async function d(e, n, o) {
   const t = await fetch(
     `/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(e)}/sample-extraction`,
     {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${n}`
+        Authorization: `Bearer ${o}`
       },
-      body: JSON.stringify({ mediaKey: o })
+      body: JSON.stringify({ mediaKey: n })
     }
   );
   if (!t.ok) {
@@ -96,30 +96,49 @@ async function h(e, o, n) {
   }
   return t.json();
 }
-async function d(e, o) {
-  const n = await fetch(
+async function w(e, n) {
+  const o = await fetch(
     `/umbraco/management/api/v1/updoc/extract-rich?mediaKey=${e}`,
     {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${o}`
+        Authorization: `Bearer ${n}`
       }
     }
   );
-  return n.ok ? n.json() : null;
+  return o.ok ? o.json() : null;
 }
-function w() {
+async function y(e, n, o) {
+  const t = await fetch(
+    `/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(e)}/map`,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${o}`
+      },
+      body: JSON.stringify(n)
+    }
+  );
+  if (!t.ok) {
+    const a = await t.json();
+    return console.error("Save map config failed:", a), null;
+  }
+  return u(), t.json();
+}
+function u() {
   i.clear(), r = null, c = null;
 }
 export {
   l as a,
-  d as b,
-  f as c,
-  m as d,
-  p as e,
-  u as f,
-  w as g,
-  h as t
+  w as b,
+  m as c,
+  h as d,
+  f as e,
+  p as f,
+  u as g,
+  y as s,
+  d as t
 };
-//# sourceMappingURL=workflow.service-BWNI6sBi.js.map
+//# sourceMappingURL=workflow.service-BLucYv1b.js.map

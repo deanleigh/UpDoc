@@ -63,6 +63,11 @@ public interface IWorkflowService
     /// Loads the stored sample-extraction.json from a workflow folder, if it exists.
     /// </summary>
     RichExtractionResult? GetSampleExtraction(string workflowName);
+
+    /// <summary>
+    /// Saves a MapConfig as map.json in the workflow folder, replacing the existing file.
+    /// </summary>
+    void SaveMapConfig(string workflowName, MapConfig config);
 }
 
 /// <summary>
@@ -445,6 +450,25 @@ public class WorkflowService : IWorkflowService
 
         _logger.LogInformation("Saved destination config to {Path} ({FieldCount} fields, {BlockCount} block grids)",
             filePath, config.Fields.Count, config.BlockGrids?.Count ?? 0);
+
+        ClearCache();
+    }
+
+    public void SaveMapConfig(string workflowName, MapConfig config)
+    {
+        var folderPath = GetWorkflowFolderPath(workflowName);
+        if (!Directory.Exists(folderPath))
+        {
+            throw new DirectoryNotFoundException($"Workflow folder '{workflowName}' does not exist.");
+        }
+
+        var filePath = Path.Combine(folderPath, "map.json");
+        var writeOptions = new JsonSerializerOptions { WriteIndented = true };
+        var json = JsonSerializer.Serialize(config, writeOptions);
+        File.WriteAllText(filePath, json);
+
+        _logger.LogInformation("Saved map config to {Path} ({Count} mappings)",
+            filePath, config.Mappings.Count);
 
         ClearCache();
     }

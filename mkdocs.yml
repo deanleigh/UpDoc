@@ -48,6 +48,7 @@ nav:
     - up-doc-workflow-workspace.context.ts: source-files/up-doc-workflow-workspace-context.md
     - up-doc-workflow-destination-view.element.ts: source-files/up-doc-workflow-destination-view-element.md
     - up-doc-workflow-source-view.element.ts: source-files/up-doc-workflow-source-view-element.md
+    - up-doc-workflow-map-view.element.ts: source-files/up-doc-workflow-map-view-element.md
     - transforms.ts: source-files/transforms.md
     - up-doc-collection-action.element.ts: source-files/up-doc-collection-action-element.md
   - Backend (C#):
