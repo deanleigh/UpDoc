@@ -149,6 +149,7 @@ export class UpDocWorkflowsViewElement extends UmbLitElement {
 				body: JSON.stringify({
 					name: sidebarResult.name,
 					documentTypeAlias: sidebarResult.documentTypeAlias,
+					sourceType: sidebarResult.sourceType,
 					blueprintId: sidebarResult.blueprintId,
 					blueprintName: sidebarResult.blueprintName,
 				}),
@@ -241,6 +242,12 @@ export class UpDocWorkflowsViewElement extends UmbLitElement {
 		return this.#renderWorkflowList();
 	}
 
+	#formatSourceTypes(sourceTypes: string[]): string {
+		if (!sourceTypes.length) return '—';
+		const labels: Record<string, string> = { pdf: 'PDF', markdown: 'Markdown', web: 'Web', doc: 'Word' };
+		return sourceTypes.map((t) => labels[t] ?? t).join(', ');
+	}
+
 	#renderEmptyState() {
 		return html`
 			<uui-box headline="No workflows configured">
@@ -276,7 +283,7 @@ export class UpDocWorkflowsViewElement extends UmbLitElement {
 						<uui-table-head-cell>Workflow</uui-table-head-cell>
 						<uui-table-head-cell>Document Type</uui-table-head-cell>
 						<uui-table-head-cell>Blueprint</uui-table-head-cell>
-						<uui-table-head-cell>Sources</uui-table-head-cell>
+						<uui-table-head-cell>Source</uui-table-head-cell>
 						<uui-table-head-cell>Mappings</uui-table-head-cell>
 						<uui-table-head-cell>Status</uui-table-head-cell>
 						<uui-table-head-cell style="width: 1px;"></uui-table-head-cell>
@@ -287,7 +294,7 @@ export class UpDocWorkflowsViewElement extends UmbLitElement {
 								<uui-table-cell>${w.name}</uui-table-cell>
 								<uui-table-cell>${w.documentTypeAlias}</uui-table-cell>
 								<uui-table-cell>${w.blueprintName ?? w.blueprintId ?? '—'}</uui-table-cell>
-								<uui-table-cell>${w.sourceTypes.join(', ') || '—'}</uui-table-cell>
+								<uui-table-cell>${this.#formatSourceTypes(w.sourceTypes)}</uui-table-cell>
 								<uui-table-cell>${w.mappingCount}</uui-table-cell>
 								<uui-table-cell>
 									<uui-tag

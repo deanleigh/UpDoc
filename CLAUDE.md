@@ -7,6 +7,7 @@ At the start of **every session or continued conversation**, you MUST read the f
 1. `planning/REFACTOR_TO_CONFIGURABLE.md` — Config-driven extraction and mapping architecture
 2. `planning/CREATE_FROM_SOURCE_SIDEBAR.md` — Unified sidebar modal design
 3. `planning/CREATE_FROM_SOURCE_UI.md` — Single entry point UI design
+4. `planning/DESTINATION_DRIVEN_MAPPING.md` — Outlook-rules-inspired destination-driven mapping (Phases 2-5)
 
 These files contain agreed-upon design decisions, config schemas, and implementation roadmaps. You must have their full content in your working context before answering questions, entering plan mode, or writing any code. If you find yourself unsure about an architectural decision, the answer is almost certainly in these files.
 
@@ -45,6 +46,8 @@ This project uses the Umbraco Skills Marketplace for Claude Code. When working o
 The `planning/` folder contains architectural planning documents for this project. These files are read at session startup (see **Session Startup** above) and must be in your working context at all times.
 
 Do not duplicate or contradict decisions already made in these files. If the current task relates to an existing planning document, build on it rather than designing from scratch. Never ask the user questions that are already answered in the planning files.
+
+**Saving plans:** At the end of any significant planning phase (architecture decisions, multi-step implementation plans, design brainstorms), ask the user if they'd like the plan saved to `planning/` and suggest a meaningful filename. Claude Code's `.claude/plans/` directory uses auto-generated names that are hard to find later — the `planning/` directory is the permanent, human-readable record.
 
 ## Git Branching
 

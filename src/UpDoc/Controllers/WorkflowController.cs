@@ -79,11 +79,17 @@ public class WorkflowController : ControllerBase
             return BadRequest(new { error = "Document type alias is required." });
         }
 
+        if (string.IsNullOrWhiteSpace(request.SourceType))
+        {
+            return BadRequest(new { error = "Source type is required." });
+        }
+
         try
         {
             _workflowService.CreateWorkflow(
                 request.Name,
                 request.DocumentTypeAlias,
+                request.SourceType,
                 request.BlueprintId,
                 request.BlueprintName);
 
@@ -125,6 +131,7 @@ public class CreateWorkflowRequest
 {
     public string Name { get; set; } = string.Empty;
     public string DocumentTypeAlias { get; set; } = string.Empty;
+    public string SourceType { get; set; } = string.Empty;
     public string? BlueprintId { get; set; }
     public string? BlueprintName { get; set; }
 }

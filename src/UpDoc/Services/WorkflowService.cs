@@ -40,9 +40,9 @@ public interface IWorkflowService
     void ClearCache();
 
     /// <summary>
-    /// Creates a new workflow folder with stub destination and map files.
+    /// Creates a new workflow folder with stub source, destination, and map files.
     /// </summary>
-    void CreateWorkflow(string name, string documentTypeAlias, string? blueprintId, string? blueprintName);
+    void CreateWorkflow(string name, string documentTypeAlias, string sourceType, string? blueprintId, string? blueprintName);
 
     /// <summary>
     /// Deletes a workflow folder and all its files.
@@ -201,8 +201,55 @@ public class WorkflowService : IWorkflowService
             var folderName = Path.GetFileName(folderPath);
             var summary = new WorkflowSummary { Name = folderName };
 
-            // Try to read destination-blueprint.json for metadata
-            var destinationFile = Path.Combine(folderPath, $"{folderName}-destination-blueprint.json");
+            // Format detection: source.json exists → new format, else → old prefixed format
+            var isNewFormat = File.Exists(Path.Combine(folderPath, "source.json"));
+
+            string destinationFile;
+            string mapFile;
+
+            if (isNewFormat)
+            {
+                destinationFile = Path.Combine(folderPath, "destination.json");
+                mapFile = Path.Combine(folderPath, "map.json");
+
+                // Read source types from source.json
+                var sourceFile = Path.Combine(folderPath, "source.json");
+                try
+                {
+                    var json = File.ReadAllText(sourceFile);
+                    var source = JsonSerializer.Deserialize<SourceConfig>(json, JsonOptions);
+                    if (source?.SourceTypes.Count > 0)
+                    {
+                        summary.SourceTypes = source.SourceTypes.ToArray();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Failed to read source config for {Folder}", folderName);
+                }
+            }
+            else
+            {
+                destinationFile = Path.Combine(folderPath, $"{folderName}-destination-blueprint.json");
+                mapFile = Path.Combine(folderPath, $"{folderName}-map.json");
+
+                // Discover source types from prefixed source files
+                var sourcePattern = $"{folderName}-source-*.json";
+                var sourceFiles = Directory.GetFiles(folderPath, sourcePattern);
+                var sourceTypes = new List<string>();
+                foreach (var sf in sourceFiles)
+                {
+                    var fileName = Path.GetFileNameWithoutExtension(sf);
+                    var prefix = $"{folderName}-source-";
+                    if (fileName.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+                    {
+                        sourceTypes.Add(fileName[prefix.Length..]);
+                    }
+                }
+                summary.SourceTypes = sourceTypes.ToArray();
+            }
+
+            // Read destination config for metadata
             if (File.Exists(destinationFile))
             {
                 try
@@ -222,23 +269,7 @@ public class WorkflowService : IWorkflowService
                 }
             }
 
-            // Discover source files
-            var sourcePattern = $"{folderName}-source-*.json";
-            var sourceFiles = Directory.GetFiles(folderPath, sourcePattern);
-            var sourceTypes = new List<string>();
-            foreach (var sourceFile in sourceFiles)
-            {
-                var fileName = Path.GetFileNameWithoutExtension(sourceFile);
-                var prefix = $"{folderName}-source-";
-                if (fileName.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
-                {
-                    sourceTypes.Add(fileName[prefix.Length..]);
-                }
-            }
-            summary.SourceTypes = sourceTypes.ToArray();
-
-            // Try to read map.json for mapping count
-            var mapFile = Path.Combine(folderPath, $"{folderName}-map.json");
+            // Read map config for mapping count
             if (File.Exists(mapFile))
             {
                 try
@@ -259,7 +290,7 @@ public class WorkflowService : IWorkflowService
             // A workflow is complete when it has destination + map + at least one source
             summary.IsComplete = File.Exists(destinationFile)
                 && File.Exists(mapFile)
-                && sourceTypes.Count > 0;
+                && summary.SourceTypes.Length > 0;
 
             // Get validation warnings for complete workflows
             if (summary.IsComplete)
@@ -288,7 +319,7 @@ public class WorkflowService : IWorkflowService
         }
     }
 
-    public void CreateWorkflow(string name, string documentTypeAlias, string? blueprintId, string? blueprintName)
+    public void CreateWorkflow(string name, string documentTypeAlias, string sourceType, string? blueprintId, string? blueprintName)
     {
         var workflowsDirectory = Path.Combine(_webHostEnvironment.ContentRootPath, "updoc", "workflows");
         var folderPath = Path.Combine(workflowsDirectory, name);
@@ -302,7 +333,17 @@ public class WorkflowService : IWorkflowService
 
         var writeOptions = new JsonSerializerOptions { WriteIndented = true };
 
-        // Create stub destination-blueprint.json
+        // Create stub source.json (new simple naming convention)
+        var source = new
+        {
+            version = "1.0",
+            sourceTypes = new[] { sourceType },
+            sections = Array.Empty<object>()
+        };
+        var sourceJson = JsonSerializer.Serialize(source, writeOptions);
+        File.WriteAllText(Path.Combine(folderPath, "source.json"), sourceJson);
+
+        // Create stub destination.json (new simple naming convention)
         var destination = new
         {
             version = "1.0",
@@ -313,9 +354,9 @@ public class WorkflowService : IWorkflowService
             blockGrids = Array.Empty<object>()
         };
         var destinationJson = JsonSerializer.Serialize(destination, writeOptions);
-        File.WriteAllText(Path.Combine(folderPath, $"{name}-destination-blueprint.json"), destinationJson);
+        File.WriteAllText(Path.Combine(folderPath, "destination.json"), destinationJson);
 
-        // Create stub map.json
+        // Create stub map.json (new simple naming convention)
         var map = new
         {
             version = "1.0",
@@ -324,10 +365,10 @@ public class WorkflowService : IWorkflowService
             mappings = Array.Empty<object>()
         };
         var mapJson = JsonSerializer.Serialize(map, writeOptions);
-        File.WriteAllText(Path.Combine(folderPath, $"{name}-map.json"), mapJson);
+        File.WriteAllText(Path.Combine(folderPath, "map.json"), mapJson);
 
-        _logger.LogInformation("Created workflow folder: {Name} (docType: {DocType}, blueprint: {Blueprint})",
-            name, documentTypeAlias, blueprintId ?? "none");
+        _logger.LogInformation("Created workflow folder: {Name} (docType: {DocType}, sourceType: {SourceType}, blueprint: {Blueprint})",
+            name, documentTypeAlias, sourceType, blueprintId ?? "none");
 
         ClearCache();
     }
@@ -421,48 +462,76 @@ public class WorkflowService : IWorkflowService
     {
         var folderName = Path.GetFileName(folderPath);
 
-        // File names are prefixed with folder name for clarity when multiple files are open
-        var destinationFile = Path.Combine(folderPath, $"{folderName}-destination-blueprint.json");
-        var mapFile = Path.Combine(folderPath, $"{folderName}-map.json");
+        // Format detection: source.json exists → new format, else → old prefixed format
+        var isNewFormat = File.Exists(Path.Combine(folderPath, "source.json"));
 
-        // Discover all source-*.json files
-        var sourcePattern = $"{folderName}-source-*.json";
-        var sourceFiles = Directory.GetFiles(folderPath, sourcePattern);
+        string destinationFile;
+        string mapFile;
 
-        if (sourceFiles.Length == 0)
+        if (isNewFormat)
         {
-            _logger.LogWarning("Config folder {Folder} has no source files matching {Pattern}, skipping.", folderName, sourcePattern);
-            return null;
+            destinationFile = Path.Combine(folderPath, "destination.json");
+            mapFile = Path.Combine(folderPath, "map.json");
+        }
+        else
+        {
+            destinationFile = Path.Combine(folderPath, $"{folderName}-destination-blueprint.json");
+            mapFile = Path.Combine(folderPath, $"{folderName}-map.json");
         }
 
         if (!File.Exists(destinationFile))
         {
-            _logger.LogWarning("Config folder {Folder} missing {FileName}, skipping.", folderName, $"{folderName}-destination-blueprint.json");
+            _logger.LogWarning("Config folder {Folder} missing destination file, skipping.", folderName);
             return null;
         }
 
         if (!File.Exists(mapFile))
         {
-            _logger.LogWarning("Config folder {Folder} missing {FileName}, skipping.", folderName, $"{folderName}-map.json");
+            _logger.LogWarning("Config folder {Folder} missing map file, skipping.", folderName);
             return null;
         }
 
-        // Load source configs — extract source type from filename
+        // Load source configs
         var sources = new Dictionary<string, SourceConfig>(StringComparer.OrdinalIgnoreCase);
-        foreach (var sourceFile in sourceFiles)
-        {
-            var fileName = Path.GetFileNameWithoutExtension(sourceFile);
-            // "{folderName}-source-{type}" → extract type
-            var prefix = $"{folderName}-source-";
-            if (!fileName.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)) continue;
-            var sourceType = fileName[prefix.Length..];
 
+        if (isNewFormat)
+        {
+            // New format: single source.json with sourceTypes array
+            var sourceFile = Path.Combine(folderPath, "source.json");
             var sourceJson = File.ReadAllText(sourceFile);
             var source = JsonSerializer.Deserialize<SourceConfig>(sourceJson, JsonOptions);
-            if (source != null)
+            if (source != null && source.SourceTypes.Count > 0)
             {
-                sources[sourceType] = source;
-                _logger.LogInformation("  Loaded source config: {SourceType} from {FileName}", sourceType, Path.GetFileName(sourceFile));
+                sources[source.SourceTypes[0]] = source;
+                _logger.LogInformation("  Loaded source config: {SourceType} from source.json", source.SourceTypes[0]);
+            }
+        }
+        else
+        {
+            // Old format: discover {folderName}-source-*.json files
+            var sourcePattern = $"{folderName}-source-*.json";
+            var sourceFiles = Directory.GetFiles(folderPath, sourcePattern);
+
+            if (sourceFiles.Length == 0)
+            {
+                _logger.LogWarning("Config folder {Folder} has no source files matching {Pattern}, skipping.", folderName, sourcePattern);
+                return null;
+            }
+
+            foreach (var sourceFile in sourceFiles)
+            {
+                var fileName = Path.GetFileNameWithoutExtension(sourceFile);
+                var prefix = $"{folderName}-source-";
+                if (!fileName.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)) continue;
+                var sourceType = fileName[prefix.Length..];
+
+                var sourceJson = File.ReadAllText(sourceFile);
+                var source = JsonSerializer.Deserialize<SourceConfig>(sourceJson, JsonOptions);
+                if (source != null)
+                {
+                    sources[sourceType] = source;
+                    _logger.LogInformation("  Loaded source config: {SourceType} from {FileName}", sourceType, Path.GetFileName(sourceFile));
+                }
             }
         }
 
