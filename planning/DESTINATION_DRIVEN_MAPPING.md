@@ -294,26 +294,24 @@ Rebuild the workflow workspace to support bidirectional mapping via three tabs.
 - `destination-picker-modal.element.ts` — sidebar modal for picking destination fields
 - `destination-picker-modal.token.ts` — modal token
 
-#### Phase 4c: Remaining work — NOT STARTED
+#### Phase 4c: Bridge + remaining mapping work — BRIDGE COMPLETE
 
-**Destination tab** (destination-to-source direction):
+**Bridge between workflow authoring and content creation — COMPLETE (Feb 2026):**
+Branch `feature/bridge-extraction`, commit `be2caa7`. Switched Create from Source modal to use `extractRich()` instead of `extractSections()`, building an element ID → text lookup that matches map.json source keys. Added `mappedFields` tracking so first write replaces blueprint defaults, subsequent writes concatenate (for multi-element fields like split titles). Content tab now shows destination field labels with assembled values from the mapping. Verified end-to-end: Page Title = "Flemish Masters – Bruges, Antwerp & Ghent" (two elements concatenated), Page Description = "5 days from £1,199 Departing 30th September 2026".
+
+**Destination tab** (destination-to-source direction) — NOT STARTED:
 - Show blueprint structure: fields + blocks (filtered per Decision #11)
 - Visual indicators for mapped vs unmapped fields
 - Click field → picker shows sample extraction content → select source element(s) → mapping created
 
-**Map tab improvements:**
+**Map tab improvements — NOT STARTED:**
 - Table layout needs work (currently weird spacing for many items)
 - Edit mappings (not just delete)
 - Reorder mappings
 
-**Mapping status indicators on Destination and Source tabs:**
+**Mapping status indicators on Destination and Source tabs — NOT STARTED:**
 - Destination tab: show which fields are mapped (green) vs unmapped
 - Source tab: mapping indicators already exist but need polish
-
-**Bridge between workflow authoring and content creation:**
-- The "Create from Source" flow (Content section) uses old-style section keys (`title`, `description`) as map sources
-- The new mapping UI uses element IDs (`p1-e2`, `p1-e3`) as map sources
-- These need to be reconciled — either the Create from Source flow needs to understand element IDs, or the mapping needs to store both formats
 
 ### Phase 5: Condition refinement
 - Rule builder UI for editing auto-populated conditions

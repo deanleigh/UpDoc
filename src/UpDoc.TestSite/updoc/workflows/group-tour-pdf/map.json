@@ -36,6 +36,17 @@
       ],
       "enabled": true,
       "comment": null
+    },
+    {
+      "source": "p1-e5",
+      "destinations": [
+        {
+          "target": "featurePropertyFeatureTitle",
+          "transforms": null
+        }
+      ],
+      "enabled": true,
+      "comment": null
     }
   ]
 }
