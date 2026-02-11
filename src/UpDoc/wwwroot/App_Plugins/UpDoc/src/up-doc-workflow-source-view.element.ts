@@ -1,4 +1,5 @@
-import type { ExtractionElement, RichExtractionResult, DocumentTypeConfig } from './workflow.types.js';
+import type { ExtractionElement, RichExtractionResult, DocumentTypeConfig, VisualGroup } from './workflow.types.js';
+import { groupElementsByHeading } from './visual-grouping.js';
 import { fetchSampleExtraction, triggerSampleExtraction, fetchWorkflowByName, saveMapConfig } from './workflow.service.js';
 import { html, css, state, nothing } from '@umbraco-cms/backoffice/external/lit';
 import { customElement } from '@umbraco-cms/backoffice/external/lit';
@@ -232,12 +233,67 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		`;
 	}
 
+	#toggleGroupSelection(heading: ExtractionElement, children: ExtractionElement[]) {
+		const next = new Set(this._selectedElements);
+		const allIds = [heading.id, ...children.map((c) => c.id)];
+		const allSelected = allIds.every((id) => next.has(id));
+
+		if (allSelected) {
+			for (const id of allIds) next.delete(id);
+		} else {
+			for (const id of allIds) next.add(id);
+		}
+
+		this._selectedElements = next;
+	}
+
+	#renderGroupHeading(heading: ExtractionElement, children: ExtractionElement[]) {
+		const meta = heading.metadata;
+		const allIds = [heading.id, ...children.map((c) => c.id)];
+		const allSelected = allIds.every((id) => this._selectedElements.has(id));
+		const someSelected = allIds.some((id) => this._selectedElements.has(id));
+		const mappedTargets = this.#getMappedTargets(heading.id);
+		const isMapped = mappedTargets.length > 0;
+
+		return html`
+			<div class="group-heading ${isMapped ? 'element-mapped' : ''}">
+				<uui-checkbox
+					label="Select ${heading.text} and all items in this group"
+					?checked=${allSelected}
+					.indeterminate=${someSelected && !allSelected}
+					@change=${() => this.#toggleGroupSelection(heading, children)}
+					class="element-checkbox">
+				</uui-checkbox>
+				<div class="heading-content" @click=${() => this.#toggleGroupSelection(heading, children)}>
+					<div class="heading-text">${heading.text}</div>
+					<div class="element-meta">
+						<span class="meta-badge font-size">${meta.fontSize}pt</span>
+						<span class="meta-badge font-name">${meta.fontName}</span>
+						<span class="meta-badge color" style="border-left: 3px solid ${meta.color};">${meta.color}</span>
+						${mappedTargets.map((t) => html`<span class="meta-badge mapped-target"><uui-icon name="icon-arrow-right" style="font-size: 10px;"></uui-icon> ${this.#resolveTargetLabel(t)}</span>`)}
+					</div>
+				</div>
+				<span class="group-count">${children.length} item${children.length !== 1 ? 's' : ''}</span>
+			</div>
+		`;
+	}
+
+	#renderVisualGroup(group: VisualGroup) {
+		return html`
+			<div class="visual-group">
+				${group.heading ? this.#renderGroupHeading(group.heading, group.children) : nothing}
+				<div class="group-children ${group.heading ? 'indented' : ''}">
+					${group.children.map((el) => this.#renderElement(el))}
+				</div>
+			</div>
+		`;
+	}
+
 	#renderPageGroup(pageNum: number, elements: ExtractionElement[]) {
+		const groups = groupElementsByHeading(elements);
 		return html`
 			<uui-box headline="Page ${pageNum}" class="page-box">
-				<div class="element-list">
-					${elements.map((el) => this.#renderElement(el))}
-				</div>
+				${groups.map((group) => this.#renderVisualGroup(group))}
 				<div class="page-summary">${elements.length} element${elements.length !== 1 ? 's' : ''}</div>
 			</uui-box>
 		`;
@@ -476,6 +532,53 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				font-size: var(--uui-type-small-size);
 				color: var(--uui-color-text-alt);
 				text-align: right;
+			}
+
+			/* Visual grouping */
+			.visual-group + .visual-group {
+				border-top: 2px solid var(--uui-color-border);
+				margin-top: var(--uui-size-space-2);
+			}
+
+			.group-heading {
+				display: flex;
+				align-items: center;
+				gap: var(--uui-size-space-3);
+				padding: var(--uui-size-space-3) var(--uui-size-space-4);
+				background: var(--uui-color-surface-alt);
+				border-bottom: 1px solid var(--uui-color-border);
+				cursor: pointer;
+			}
+
+			.group-heading:hover {
+				background: var(--uui-color-surface-emphasis);
+			}
+
+			.group-heading.element-mapped {
+				border-left: 3px solid var(--uui-color-positive-standalone);
+			}
+
+			.heading-content {
+				flex: 1;
+				min-width: 0;
+			}
+
+			.heading-text {
+				font-weight: 700;
+				font-size: var(--uui-type-default-size);
+				margin-bottom: var(--uui-size-space-1);
+			}
+
+			.group-count {
+				font-size: var(--uui-type-small-size);
+				color: var(--uui-color-text-alt);
+				white-space: nowrap;
+			}
+
+			.group-children.indented {
+				padding-left: var(--uui-size-space-5);
+				border-left: 2px solid var(--uui-color-border);
+				margin-left: var(--uui-size-space-4);
 			}
 		`,
 	];

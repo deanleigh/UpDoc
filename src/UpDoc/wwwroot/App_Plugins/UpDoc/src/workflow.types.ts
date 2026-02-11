@@ -251,6 +251,15 @@ export interface ElementMetadata {
 }
 
 // ============================================================================
+// Visual Grouping Types (frontend-only, computed from extraction metadata)
+// ============================================================================
+
+export interface VisualGroup {
+	heading: ExtractionElement | null;
+	children: ExtractionElement[];
+}
+
+// ============================================================================
 // API Response Types
 // ============================================================================
 

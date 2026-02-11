@@ -51,6 +51,7 @@ nav:
     - up-doc-workflow-map-view.element.ts: source-files/up-doc-workflow-map-view-element.md
     - destination-picker-modal.element.ts: source-files/destination-picker-modal-element.md
     - destination-picker-modal.token.ts: source-files/destination-picker-modal-token.md
+    - visual-grouping.ts: source-files/visual-grouping.md
     - transforms.ts: source-files/transforms.md
     - up-doc-collection-action.element.ts: source-files/up-doc-collection-action-element.md
   - Backend (C#):

@@ -17,9 +17,20 @@ On load, the component:
 3. Loads the sample extraction via `fetchSampleExtraction()` (rich extraction with metadata)
 4. Stores both in state for rendering
 
+### Visual grouping by heading hierarchy
+
+Elements within each page are grouped by font size using `groupElementsByHeading()` from `visual-grouping.ts`. The algorithm:
+
+1. Computes the **mode** (most frequent) font size per page — this is the body text size
+2. Any element with a larger font size becomes a **heading** that starts a new visual group
+3. Subsequent body-sized elements are **children** of the current heading
+4. Elements before the first heading on a page form an ungrouped section
+
+Headings render as bold rows with a subtle background and an "N items" count. Children are indented with a left border. If all elements on a page have the same font size, no grouping is applied and elements render flat (same as before).
+
 ### Sample extraction display
 
-When a sample extraction exists, elements are grouped by page number and displayed with:
+When a sample extraction exists, elements are displayed within their visual groups with:
 
 - **Text content** — the extracted text
 - **Metadata badges** — font size (pt), font name, color (with color swatch), position (x, y)
@@ -33,11 +44,12 @@ Shows source file name, page count, element count, extraction timestamp, and a "
 
 Users can:
 
-1. Click checkboxes to select one or more elements
-2. A sticky toolbar appears showing selection count with "Map to..." and "Clear" buttons
-3. "Map to..." opens the `UMB_DESTINATION_PICKER_MODAL` sidebar showing destination fields/blocks
-4. On confirm, new mappings are created in `map.json` via `saveMapConfig()` PUT endpoint
-5. The UI updates immediately to show the new mapping indicators
+1. Click checkboxes to select individual elements
+2. Click a **group heading checkbox** to select/deselect the heading and all its children (supports indeterminate state)
+3. A sticky toolbar appears showing selection count with "Map to..." and "Clear" buttons
+4. "Map to..." opens the `UMB_DESTINATION_PICKER_MODAL` sidebar showing destination fields/blocks
+5. On confirm, new mappings are created in `map.json` via `saveMapConfig()` PUT endpoint
+6. The UI updates immediately to show the new mapping indicators
 
 ### Mapped status indicators
 
@@ -55,7 +67,8 @@ When no sample extraction exists, shows a centered prompt with "Upload PDF" butt
 ## Imports
 
 ```typescript
-import type { ExtractionElement, RichExtractionResult, DocumentTypeConfig } from './workflow.types.js';
+import type { ExtractionElement, RichExtractionResult, DocumentTypeConfig, VisualGroup } from './workflow.types.js';
+import { groupElementsByHeading } from './visual-grouping.js';
 import { fetchSampleExtraction, triggerSampleExtraction, fetchWorkflowByName, saveMapConfig } from './workflow.service.js';
 import { UmbLitElement } from '@umbraco-cms/backoffice/lit-element';
 import { UMB_AUTH_CONTEXT } from '@umbraco-cms/backoffice/auth';
