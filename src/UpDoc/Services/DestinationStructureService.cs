@@ -260,13 +260,26 @@ public class DestinationStructureService : IDestinationStructureService
                 Blocks = new List<DestinationBlock>()
             };
 
+            // Build blocks from contentData (unordered), keyed by their instance key
+            var blocksByKey = new Dictionary<string, DestinationBlock>(StringComparer.OrdinalIgnoreCase);
             foreach (var blockData in contentDataArray.EnumerateArray())
             {
                 var block = BuildBlockFromInstance(blockData);
                 if (block != null)
                 {
-                    blockGrid.Blocks.Add(block);
+                    blocksByKey[block.Key] = block;
                 }
+            }
+
+            // Reorder blocks using the layout tree (visual order) if available
+            if (TryGetLayoutArray(root, out var layoutArray))
+            {
+                blockGrid.Blocks = GetBlocksInLayoutOrder(layoutArray, blocksByKey);
+            }
+            else
+            {
+                // Fallback: contentData order (previous behaviour)
+                blockGrid.Blocks = blocksByKey.Values.ToList();
             }
 
             // Only return the block grid if it has blocks with text-mappable properties
@@ -456,5 +469,72 @@ public class DestinationStructureService : IDestinationStructureService
         // Try camelCase (in case the input was PascalCase)
         var camel = char.ToLowerInvariant(name[0]) + name[1..];
         return element.TryGetProperty(camel, out value);
+    }
+
+    /// <summary>
+    /// Extracts the block grid layout array from the root JSON element.
+    /// The layout tree defines the visual order of blocks on the page.
+    /// </summary>
+    private static bool TryGetLayoutArray(JsonElement root, out JsonElement layoutArray)
+    {
+        layoutArray = default;
+
+        if (!TryGetJsonProperty(root, "layout", out var layoutObj))
+            return false;
+
+        if (layoutObj.TryGetProperty("Umbraco.BlockGrid", out layoutArray) &&
+            layoutArray.ValueKind == JsonValueKind.Array)
+            return true;
+
+        return false;
+    }
+
+    /// <summary>
+    /// Walks the block grid layout tree depth-first to produce blocks
+    /// in visual order (top-to-bottom, left-to-right within each layout row).
+    /// Layout blocks themselves are skipped (they have no text-mappable properties
+    /// so they won't be in blocksByKey) but their nested content blocks are included.
+    /// </summary>
+    private static List<DestinationBlock> GetBlocksInLayoutOrder(
+        JsonElement layoutArray,
+        Dictionary<string, DestinationBlock> blocksByKey)
+    {
+        var ordered = new List<DestinationBlock>();
+        WalkLayoutItems(layoutArray, blocksByKey, ordered);
+        return ordered;
+    }
+
+    private static void WalkLayoutItems(
+        JsonElement items,
+        Dictionary<string, DestinationBlock> blocksByKey,
+        List<DestinationBlock> ordered)
+    {
+        foreach (var item in items.EnumerateArray())
+        {
+            // Get contentKey for this layout item
+            if (TryGetJsonProperty(item, "contentKey", out var keyEl))
+            {
+                var key = keyEl.GetString();
+                if (key != null && blocksByKey.TryGetValue(key, out var block))
+                {
+                    ordered.Add(block);
+                    blocksByKey.Remove(key); // Prevent duplicates
+                }
+            }
+
+            // Recurse into areas → items
+            if (TryGetJsonProperty(item, "areas", out var areas) &&
+                areas.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var area in areas.EnumerateArray())
+                {
+                    if (TryGetJsonProperty(area, "items", out var areaItems) &&
+                        areaItems.ValueKind == JsonValueKind.Array)
+                    {
+                        WalkLayoutItems(areaItems, blocksByKey, ordered);
+                    }
+                }
+            }
+        }
     }
 }
