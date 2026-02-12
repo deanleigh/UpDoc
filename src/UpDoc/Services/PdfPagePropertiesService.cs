@@ -691,8 +691,15 @@ public class PdfPagePropertiesService : IPdfPagePropertiesService
         const double fontSizeTolerance = 0.5;
         const double xAlignmentTolerance = 10.0; // pts — continuation lines may indent slightly
 
-        // Sort by Y descending (top to bottom) before merging
-        splitLines = splitLines.OrderByDescending(l => l.Y).ToList();
+        // Sort by column bucket, then Y descending (top to bottom) before merging.
+        // After column splitting, lines from different columns can share the same Y.
+        // Without column-aware sorting, they interleave and break consecutive merging.
+        // E.g., sidebar line at Y=500 sits between two body lines at Y=500 and Y=490,
+        // preventing the body lines from merging into a paragraph.
+        splitLines = splitLines
+            .OrderBy(l => GetColumnBucket(l.BoundingBoxLeft, columnBoundaries))
+            .ThenByDescending(l => l.Y)
+            .ToList();
 
         var mergedLines = new List<RichTextLine>();
         for (int i = 0; i < splitLines.Count; i++)
@@ -827,6 +834,21 @@ public class PdfPagePropertiesService : IPdfPagePropertiesService
             .Select(g => minX + ((g.start + g.end) / 2.0) * resolution)
             .OrderBy(x => x) // left to right
             .ToList();
+    }
+
+    /// <summary>
+    /// Returns which column a line belongs to based on its X position and the detected
+    /// column boundaries. Column 0 is left of the first boundary, column 1 between
+    /// first and second, etc. Used to group same-column lines for continuation merging.
+    /// </summary>
+    private static int GetColumnBucket(double x, List<double> boundaries)
+    {
+        for (int i = 0; i < boundaries.Count; i++)
+        {
+            if (x < boundaries[i])
+                return i;
+        }
+        return boundaries.Count;
     }
 
     /// <summary>
