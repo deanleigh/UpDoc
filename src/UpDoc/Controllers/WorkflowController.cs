@@ -75,13 +75,33 @@ public class WorkflowController : ControllerBase
     }
 
     [HttpGet("{name}")]
-    public IActionResult GetByName(string name)
+    public async Task<IActionResult> GetByName(string name)
     {
         var config = _workflowService.GetConfigByName(name);
 
         if (config == null)
         {
             return NotFound(new { error = $"No workflow found with name '{name}'" });
+        }
+
+        // Always regenerate destination from blueprint to ensure it reflects
+        // the current blueprint state (block ordering, property changes, etc.)
+        if (!string.IsNullOrEmpty(config.DocumentTypeAlias)
+            && !string.IsNullOrEmpty(config.Destination.BlueprintId))
+        {
+            try
+            {
+                var destinationConfig = await _destinationStructureService.BuildDestinationConfigAsync(
+                    config.DocumentTypeAlias,
+                    config.Destination.BlueprintId,
+                    config.Destination.BlueprintName);
+                _workflowService.SaveDestinationConfig(name, destinationConfig);
+                config.Destination = destinationConfig;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to regenerate destination for workflow '{Name}', using cached version", name);
+            }
         }
 
         return Ok(config);
