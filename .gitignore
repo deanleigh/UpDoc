@@ -459,6 +459,14 @@ $RECYCLE.BIN/
 .claude/settings.local.json
 
 ##
+## Playwright E2E Testing
+##
+**/.env
+**/tests/e2e/.auth/
+**/test-results/
+**/playwright-report/
+
+##
 ## Umbraco CMS
 ##
 
