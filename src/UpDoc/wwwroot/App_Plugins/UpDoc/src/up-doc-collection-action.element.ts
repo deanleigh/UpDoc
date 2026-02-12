@@ -152,7 +152,7 @@ export class UpDocCollectionActionElement extends UmbLitElement {
 				return;
 			}
 
-			const { name, mediaUnique, extractedSections, config } = modalValue;
+			const { name, mediaUnique, extractedSections, sectionLookup, config } = modalValue;
 
 			if (!mediaUnique || !name || !config) return;
 
@@ -189,7 +189,7 @@ export class UpDocCollectionActionElement extends UmbLitElement {
 
 			for (const mapping of config.map.mappings) {
 				if (mapping.enabled === false) continue;
-				const sectionValue = extractedSections[mapping.source];
+				const sectionValue = sectionLookup?.[mapping.source] ?? extractedSections[mapping.source];
 				if (!sectionValue) continue;
 
 				for (const dest of mapping.destinations) {

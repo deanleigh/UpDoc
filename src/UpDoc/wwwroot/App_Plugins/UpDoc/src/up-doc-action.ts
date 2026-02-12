@@ -121,7 +121,7 @@ export class UpDocEntityAction extends UmbEntityActionBase<never> {
 				return;
 			}
 
-			const { name, mediaUnique, extractedSections, config } = modalValue;
+			const { name, mediaUnique, extractedSections, sectionLookup, config } = modalValue;
 
 			if (!mediaUnique || !name || !config) {
 				return;
@@ -174,7 +174,7 @@ export class UpDocEntityAction extends UmbEntityActionBase<never> {
 					continue;
 				}
 
-				const sectionValue = extractedSections[mapping.source];
+				const sectionValue = sectionLookup?.[mapping.source] ?? extractedSections[mapping.source];
 				if (!sectionValue) {
 					console.log(`No extracted value for source: "${mapping.source}"`);
 					continue;

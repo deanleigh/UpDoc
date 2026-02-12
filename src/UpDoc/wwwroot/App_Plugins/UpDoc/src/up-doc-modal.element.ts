@@ -1,6 +1,6 @@
 import type { UmbUpDocModalData, UmbUpDocModalValue, SourceType } from './up-doc-modal.token.js';
 import type { DocumentTypeConfig } from './workflow.types.js';
-import { extractRich, fetchConfig } from './workflow.service.js';
+import { extractRich, fetchConfig, transformAdhoc } from './workflow.service.js';
 import { html, customElement, css, state, nothing } from '@umbraco-cms/backoffice/external/lit';
 import { UmbTextStyles } from '@umbraco-cms/backoffice/style';
 import { UmbModalBaseElement } from '@umbraco-cms/backoffice/modal';
@@ -42,6 +42,9 @@ export class UpDocModalElement extends UmbModalBaseElement<
 	private _extractedSections: Record<string, string> = {};
 
 	@state()
+	private _sectionLookup: Record<string, string> = {};
+
+	@state()
 	private _config: DocumentTypeConfig | null = null;
 
 	@state()
@@ -62,6 +65,7 @@ export class UpDocModalElement extends UmbModalBaseElement<
 		this._sourceUrl = '';
 		this._selectedMediaUnique = null;
 		this._extractedSections = {};
+		this._sectionLookup = {};
 		this._config = null;
 		this.#loadAvailableSourceTypes();
 	}
@@ -103,6 +107,7 @@ export class UpDocModalElement extends UmbModalBaseElement<
 			this._selectedMediaUnique = null;
 			this._sourceUrl = '';
 			this._extractedSections = {};
+			this._sectionLookup = {};
 			this._extractionError = null;
 		}
 
@@ -118,6 +123,7 @@ export class UpDocModalElement extends UmbModalBaseElement<
 			await this.#extractFromSource(this._selectedMediaUnique);
 		} else {
 			this._extractedSections = {};
+			this._sectionLookup = {};
 			this._documentName = '';
 			this._extractionError = null;
 		}
@@ -147,17 +153,30 @@ export class UpDocModalElement extends UmbModalBaseElement<
 
 			this._extractedSections = elementLookup;
 
-			console.log('=== RICH EXTRACTION COMPLETE ===');
-			console.log(`Extracted ${extraction.elements.length} elements from ${extraction.source.totalPages} pages`);
-			console.log('Config loaded:', this._config ? 'yes' : 'no');
-			if (this._config) {
-				console.log('  Mappings:', this._config.map.mappings.map(m => `${m.source} -> ${m.destinations.map(d => d.target).join(', ')}`));
+			// Run adhoc transform to build section-based lookup
+			if (this._config?.folderPath) {
+				const workflowName = this._config.folderPath.replace(/\\/g, '/').split('/').pop() ?? '';
+				if (workflowName) {
+					const transformResult = await transformAdhoc(workflowName, mediaUnique, token);
+					if (transformResult?.sections) {
+						const sectionLookup: Record<string, string> = {};
+						for (const section of transformResult.sections) {
+							if (!section.included) continue;
+							if (section.heading) {
+								sectionLookup[`${section.id}.heading`] = section.heading;
+							}
+							sectionLookup[`${section.id}.content`] = section.content;
+						}
+						this._sectionLookup = sectionLookup;
+					}
+				}
 			}
-			console.log('=== END EXTRACTION ===');
 
 			// Pre-fill document name from mapped title elements
+			// Try section lookup first, fall back to element lookup
+			const combinedLookup = { ...elementLookup, ...this._sectionLookup };
 			if (!this._documentName && this._config) {
-				this.#prefillDocumentName(elementLookup);
+				this.#prefillDocumentName(combinedLookup);
 			}
 		} catch (error) {
 			this._extractionError = 'Failed to connect to extraction service';
@@ -210,6 +229,7 @@ export class UpDocModalElement extends UmbModalBaseElement<
 			mediaUnique: this._selectedMediaUnique,
 			sourceUrl: this._sourceUrl || null,
 			extractedSections: this._extractedSections,
+			sectionLookup: this._sectionLookup,
 			config: this._config,
 		};
 		this._submitModal();
@@ -426,7 +446,7 @@ export class UpDocModalElement extends UmbModalBaseElement<
 		const preview = new Map<string, string[]>();
 		for (const mapping of this._config.map.mappings) {
 			if (mapping.enabled === false) continue;
-			const text = this._extractedSections[mapping.source];
+			const text = this._sectionLookup[mapping.source] ?? this._extractedSections[mapping.source];
 			if (!text) continue;
 			for (const dest of mapping.destinations) {
 				const existing = preview.get(dest.target) ?? [];

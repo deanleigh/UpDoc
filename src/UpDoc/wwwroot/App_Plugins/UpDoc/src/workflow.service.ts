@@ -308,6 +308,31 @@ export async function triggerTransform(
 }
 
 /**
+ * Runs zone detection + transform on a media item without saving to disk.
+ * Returns a TransformResult with include/exclude state from the stored transform.
+ */
+export async function transformAdhoc(
+	workflowName: string,
+	mediaKey: string,
+	token: string
+): Promise<TransformResult | null> {
+	const response = await fetch(
+		`/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(workflowName)}/transform-adhoc`,
+		{
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${token}`,
+			},
+			body: JSON.stringify({ mediaKey }),
+		}
+	);
+
+	if (!response.ok) return null;
+	return response.json();
+}
+
+/**
  * Updates the include/exclude state for a single section in transform.json.
  */
 export async function updateSectionInclusion(

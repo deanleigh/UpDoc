@@ -26,6 +26,9 @@ public class ContentTransformService : IContentTransformService
         var result = new TransformResult();
         var diagnostics = new TransformDiagnostics();
 
+        // Track seen IDs to deduplicate (same heading in multiple zones → same kebab ID)
+        var seenIds = new Dictionary<string, int>();
+
         foreach (var page in zoneDetection.Pages)
         {
             for (int zoneIndex = 0; zoneIndex < page.Zones.Count; zoneIndex++)
@@ -34,6 +37,7 @@ public class ContentTransformService : IContentTransformService
                 foreach (var section in zone.Sections)
                 {
                     var transformed = TransformSection(section, page.Page, zone.Color, zoneIndex);
+                    DeduplicateId(transformed, seenIds);
                     result.Sections.Add(transformed);
                     UpdateDiagnostics(diagnostics, transformed.Pattern);
                 }
@@ -44,6 +48,7 @@ public class ContentTransformService : IContentTransformService
                 foreach (var section in page.UnzonedContent.Sections)
                 {
                     var transformed = TransformSection(section, page.Page, null, -1);
+                    DeduplicateId(transformed, seenIds);
                     result.Sections.Add(transformed);
                     UpdateDiagnostics(diagnostics, transformed.Pattern);
                 }
@@ -53,8 +58,11 @@ public class ContentTransformService : IContentTransformService
         // Preserve include/exclude state from previous transform
         if (previous != null)
         {
-            var previousInclusion = previous.Sections
-                .ToDictionary(s => s.Id, s => s.Included);
+            var previousInclusion = new Dictionary<string, bool>();
+            foreach (var s in previous.Sections)
+            {
+                previousInclusion.TryAdd(s.Id, s.Included);
+            }
 
             foreach (var section in result.Sections)
             {
@@ -305,6 +313,24 @@ public class ContentTransformService : IContentTransformService
         var lower = text.ToLower(CultureInfo.InvariantCulture).Trim();
         var kebab = Regex.Replace(lower, @"[^a-z0-9]+", "-");
         return kebab.Trim('-');
+    }
+
+    /// <summary>
+    /// Ensures section IDs are unique by appending a numeric suffix for duplicates.
+    /// "features" stays "features", second occurrence becomes "features-2", etc.
+    /// </summary>
+    private static void DeduplicateId(TransformedSection section, Dictionary<string, int> seenIds)
+    {
+        var baseId = section.Id;
+        if (seenIds.TryGetValue(baseId, out var count))
+        {
+            seenIds[baseId] = count + 1;
+            section.Id = $"{baseId}-{count + 1}";
+        }
+        else
+        {
+            seenIds[baseId] = 1;
+        }
     }
 
     private static void UpdateDiagnostics(TransformDiagnostics diagnostics, string pattern)

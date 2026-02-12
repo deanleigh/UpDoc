@@ -1,6 +1,7 @@
 import type { RichExtractionResult, DocumentTypeConfig, MappingDestination, ZoneDetectionResult, DetectedZone, DetectedSection, ZoneElement, TransformResult, TransformedSection } from './workflow.types.js';
-import { fetchSampleExtraction, triggerSampleExtraction, fetchWorkflowByName, fetchZoneDetection, triggerTransform, fetchTransformResult, updateSectionInclusion } from './workflow.service.js';
+import { fetchSampleExtraction, triggerSampleExtraction, fetchWorkflowByName, fetchZoneDetection, triggerTransform, fetchTransformResult, updateSectionInclusion, saveMapConfig } from './workflow.service.js';
 import { markdownToHtml, normalizeToKebabCase } from './transforms.js';
+import { UMB_DESTINATION_PICKER_MODAL } from './destination-picker-modal.token.js';
 import { html, css, state, nothing } from '@umbraco-cms/backoffice/external/lit';
 import { customElement } from '@umbraco-cms/backoffice/external/lit';
 import { UmbLitElement } from '@umbraco-cms/backoffice/lit-element';
@@ -164,6 +165,30 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		if (result) {
 			this._transformResult = result;
 		}
+	}
+
+	async #onMapSection(sourceKey: string) {
+		if (!this._config?.destination || !this._workflowName) return;
+		const modalManager = await this.getContext(UMB_MODAL_MANAGER_CONTEXT);
+		const modal = modalManager.open(this, UMB_DESTINATION_PICKER_MODAL, {
+			data: { destination: this._config.destination },
+		});
+		const result = await modal.onSubmit().catch(() => null);
+		if (!result?.selectedTargets?.length) return;
+
+		const mappings = [...(this._config.map?.mappings ?? [])];
+		const existingIdx = mappings.findIndex((m) => m.source === sourceKey);
+		const newMapping = {
+			source: sourceKey,
+			destinations: result.selectedTargets.map((t: { target: string; blockKey?: string }) => ({ target: t.target, blockKey: t.blockKey })),
+			enabled: true,
+		};
+		if (existingIdx >= 0) mappings[existingIdx] = newMapping;
+		else mappings.push(newMapping);
+
+		const updatedMap = { ...this._config.map, version: this._config.map?.version ?? '1.0', mappings };
+		const saved = await saveMapConfig(this._workflowName, updatedMap, this.#token);
+		if (saved) this._config = { ...this._config, map: updatedMap };
 	}
 
 	#getMappedTargets(elementId: string): MappingDestination[] {
@@ -413,6 +438,20 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		`;
 	}
 
+	#renderMappingBadges(sourceKey: string) {
+		const targets = this.#getMappedTargets(sourceKey);
+		if (targets.length === 0) {
+			return html`<uui-button look="secondary" compact label="Map" @click=${() => this.#onMapSection(sourceKey)}>
+				<uui-icon name="icon-link"></uui-icon> Map
+			</uui-button>`;
+		}
+		return html`${targets.map(
+			(dest) => html`<span class="meta-badge mapped-target" @click=${() => this.#onMapSection(sourceKey)} style="cursor:pointer;" title="Click to re-map">
+				<uui-icon name="icon-check" style="font-size:10px;"></uui-icon> ${this.#resolveTargetLabel(dest)}
+			</span>`,
+		)}`;
+	}
+
 	#renderTransformedSection(section: TransformedSection) {
 		const patternLabels: Record<string, string> = {
 			bulletList: 'Bullet List',
@@ -422,16 +461,27 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 			mixed: 'Mixed',
 		};
 
+		const headingKey = `${section.id}.heading`;
+		const contentKey = `${section.id}.content`;
+		const hasHeadingMapping = this.#getMappedTargets(headingKey).length > 0;
+		const hasContentMapping = this.#getMappedTargets(contentKey).length > 0;
+		const isMapped = hasHeadingMapping || hasContentMapping;
+
 		const headline = section.heading ?? 'Preamble';
 		return html`
-			<uui-box headline=${headline} class="transformed-section">
+			<uui-box headline=${headline} class="transformed-section ${isMapped ? 'section-mapped' : ''}">
 				<div slot="header-actions" class="transformed-header-badges">
 					<span class="pattern-badge ${section.pattern}">${patternLabels[section.pattern] ?? section.pattern}</span>
 					<span class="meta-badge">p${section.page}</span>
 					${section.zoneColor ? html`<span class="area-color-swatch" style="background: ${section.zoneColor};"></span>` : nothing}
 					<span class="meta-badge">${section.childCount} item${section.childCount !== 1 ? 's' : ''}</span>
+					${section.heading ? this.#renderMappingBadges(headingKey) : nothing}
 				</div>
 				<div class="transformed-content" .innerHTML=${markdownToHtml(section.content)}></div>
+				<div class="section-mapping-actions">
+					<span class="mapping-label">Content:</span>
+					${this.#renderMappingBadges(contentKey)}
+				</div>
 			</uui-box>
 		`;
 	}
@@ -760,6 +810,24 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 			/* Transformed sections */
 			.transformed-section {
 				margin: var(--uui-size-space-4);
+			}
+
+			.transformed-section.section-mapped {
+				border-left: 3px solid var(--uui-color-positive);
+			}
+
+			.section-mapping-actions {
+				display: flex;
+				align-items: center;
+				gap: var(--uui-size-space-2);
+				padding: var(--uui-size-space-2) var(--uui-size-space-4);
+				border-top: 1px solid var(--uui-color-border);
+			}
+
+			.mapping-label {
+				font-size: var(--uui-type-small-size);
+				font-weight: 600;
+				color: var(--uui-color-text-alt);
 			}
 
 			.transformed-header-badges {

@@ -136,7 +136,21 @@ async function y(n, e, o) {
   }
   return t.json();
 }
-async function g(n, e, o, t) {
+async function g(n, e, o) {
+  const t = await fetch(
+    `/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(n)}/transform-adhoc`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${o}`
+      },
+      body: JSON.stringify({ mediaKey: e })
+    }
+  );
+  return t.ok ? t.json() : null;
+}
+async function C(n, e, o, t) {
   const a = await fetch(
     `/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(n)}/transform/sections/${encodeURIComponent(e)}/included`,
     {
@@ -150,7 +164,7 @@ async function g(n, e, o, t) {
   );
   return a.ok ? a.json() : null;
 }
-async function C(n, e, o) {
+async function T(n, e, o) {
   const t = await fetch(
     `/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(n)}/map`,
     {
@@ -179,10 +193,11 @@ export {
   d as e,
   u as f,
   w as g,
-  y as h,
-  i,
-  C as s,
-  m as t,
-  g as u
+  m as h,
+  y as i,
+  i as j,
+  T as s,
+  g as t,
+  C as u
 };
-//# sourceMappingURL=workflow.service-C9FepPiJ.js.map
+//# sourceMappingURL=workflow.service-CD2_oFgA.js.map

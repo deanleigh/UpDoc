@@ -1,31 +1,31 @@
-var J = (l) => {
+var L = (l) => {
   throw TypeError(l);
 };
-var L = (l, u, t) => u.has(l) || J("Cannot " + t);
-var I = (l, u, t) => (L(l, u, "read from private field"), t ? t.call(l) : u.get(l)), C = (l, u, t) => u.has(l) ? J("Cannot add the same private member more than once") : u instanceof WeakSet ? u.add(l) : u.set(l, t);
-var R = (l, u, t) => (L(l, u, "access private method"), t);
-import { U as W } from "./up-doc-modal.token-CsTR3cxa.js";
-import { U as X } from "./blueprint-picker-modal.token-mXZoRNwG.js";
-import { f as H } from "./workflow.service-C9FepPiJ.js";
-import { UmbEntityActionBase as Q } from "@umbraco-cms/backoffice/entity-action";
-import { umbOpenModal as P } from "@umbraco-cms/backoffice/modal";
-import { UMB_NOTIFICATION_CONTEXT as Y } from "@umbraco-cms/backoffice/notification";
-import { UMB_AUTH_CONTEXT as Z } from "@umbraco-cms/backoffice/auth";
-import { UmbDocumentTypeStructureRepository as ee } from "@umbraco-cms/backoffice/document-type";
-import { UmbDocumentBlueprintItemRepository as te } from "@umbraco-cms/backoffice/document-blueprint";
-import { UmbDocumentItemRepository as oe } from "@umbraco-cms/backoffice/document";
-var j, x, A, N, z, K;
-class me extends Q {
+var P = (l, u, t) => u.has(l) || L("Cannot " + t);
+var I = (l, u, t) => (P(l, u, "read from private field"), t ? t.call(l) : u.get(l)), C = (l, u, t) => u.has(l) ? L("Cannot add the same private member more than once") : u instanceof WeakSet ? u.add(l) : u.set(l, t);
+var R = (l, u, t) => (P(l, u, "access private method"), t);
+import { U as X } from "./up-doc-modal.token-CsTR3cxa.js";
+import { U as H } from "./blueprint-picker-modal.token-mXZoRNwG.js";
+import { f as Q } from "./workflow.service-CD2_oFgA.js";
+import { UmbEntityActionBase as Y } from "@umbraco-cms/backoffice/entity-action";
+import { umbOpenModal as z } from "@umbraco-cms/backoffice/modal";
+import { UMB_NOTIFICATION_CONTEXT as Z } from "@umbraco-cms/backoffice/notification";
+import { UMB_AUTH_CONTEXT as ee } from "@umbraco-cms/backoffice/auth";
+import { UmbDocumentTypeStructureRepository as te } from "@umbraco-cms/backoffice/document-type";
+import { UmbDocumentBlueprintItemRepository as oe } from "@umbraco-cms/backoffice/document-blueprint";
+import { UmbDocumentItemRepository as ne } from "@umbraco-cms/backoffice/document";
+var j, x, A, N, F, G;
+class ge extends Y {
   constructor(t, n) {
     super(t, n);
     C(this, N);
-    C(this, j, new ee(this));
-    C(this, x, new te(this));
-    C(this, A, new oe(this));
+    C(this, j, new te(this));
+    C(this, x, new oe(this));
+    C(this, A, new ne(this));
   }
   async execute() {
     var y, w;
-    const t = await this.getContext(Y), n = this.args.unique ?? null;
+    const t = await this.getContext(Z), n = this.args.unique ?? null;
     try {
       let p = null;
       if (n) {
@@ -42,7 +42,7 @@ class me extends Q {
         });
         return;
       }
-      const d = await (await this.getContext(Z)).getLatestToken(), T = await H(d), m = new Set(T.blueprintIds), g = [];
+      const d = await (await this.getContext(ee)).getLatestToken(), T = await Q(d), m = new Set(T.blueprintIds), g = [];
       for (const e of h.items) {
         const { data: c } = await I(this, x).requestItemsByDocumentType(e.unique);
         if (c != null && c.length) {
@@ -66,7 +66,7 @@ class me extends Q {
       }
       let a;
       try {
-        a = await P(this, X, {
+        a = await z(this, H, {
           data: { documentTypes: g }
         });
       } catch {
@@ -76,7 +76,7 @@ class me extends Q {
       console.log("Selected blueprint:", o, "Document type:", s);
       let v;
       try {
-        v = await P(this, W, {
+        v = await z(this, X, {
           data: {
             unique: n,
             documentTypeName: (i == null ? void 0 : i.documentTypeName) ?? "",
@@ -87,11 +87,11 @@ class me extends Q {
       } catch {
         return;
       }
-      const { name: $, mediaUnique: D, extractedSections: b, config: O } = v;
+      const { name: $, mediaUnique: D, extractedSections: b, sectionLookup: M, config: O } = v;
       if (!D || !$ || !O)
         return;
       console.log("Creating document with:", { name: $, sections: Object.keys(b) });
-      const M = await fetch(
+      const E = await fetch(
         `/umbraco/management/api/v1/document-blueprint/${o}/scaffold`,
         {
           method: "GET",
@@ -101,42 +101,42 @@ class me extends Q {
           }
         }
       );
-      if (!M.ok) {
-        const e = await M.json();
+      if (!E.ok) {
+        const e = await E.json();
         console.error("Scaffold failed:", e), t.peek("danger", {
           data: { message: `Failed to scaffold from blueprint: ${e.title || "Unknown error"}` }
         });
         return;
       }
-      const q = await M.json();
+      const q = await E.json();
       console.log("Scaffold response:", q), console.log("Scaffold values aliases:", (w = q.values) == null ? void 0 : w.map((e) => e.alias));
-      const E = q.values ? JSON.parse(JSON.stringify(q.values)) : [];
+      const V = q.values ? JSON.parse(JSON.stringify(q.values)) : [];
       console.log("Extracted sections available:", Object.keys(b).length, "elements"), console.log("Mappings to apply:", O.map.mappings.map((e) => `${e.source} -> ${e.destinations.map((c) => c.target).join(", ")}`));
-      const F = /* @__PURE__ */ new Set();
+      const W = /* @__PURE__ */ new Set();
       for (const e of O.map.mappings) {
         if (e.enabled === !1) {
           console.log(`Skipping disabled mapping for source: ${e.source}`);
           continue;
         }
-        const c = b[e.source];
+        const c = (M == null ? void 0 : M[e.source]) ?? b[e.source];
         if (!c) {
           console.log(`No extracted value for source: "${e.source}"`);
           continue;
         }
         console.log(`Applying mapping for "${e.source}" (${c.length} chars)`);
         for (const U of e.destinations)
-          R(this, N, z).call(this, E, U, c, O, F);
+          R(this, N, F).call(this, V, U, c, O, W);
       }
       console.log("Values after all mappings applied:");
-      for (const e of E) {
+      for (const e of V) {
         const c = typeof e.value == "string" ? e.value.substring(0, 60) : typeof e.value == "object" ? "[object]" : e.value;
         console.log(`  ${e.alias}: ${c}`);
       }
-      const G = {
+      const J = {
         parent: n ? { id: n } : null,
         documentType: { id: s },
         template: q.template ? { id: q.template.id } : null,
-        values: E,
+        values: V,
         variants: [
           {
             name: $,
@@ -145,23 +145,23 @@ class me extends Q {
           }
         ]
       };
-      console.log("Create request:", JSON.stringify(G, null, 2));
-      const V = await fetch("/umbraco/management/api/v1/document", {
+      console.log("Create request:", JSON.stringify(J, null, 2));
+      const _ = await fetch("/umbraco/management/api/v1/document", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${d}`
         },
-        body: JSON.stringify(G)
+        body: JSON.stringify(J)
       });
-      if (!V.ok) {
-        const e = await V.json();
+      if (!_.ok) {
+        const e = await _.json();
         console.error("Document creation failed:", e), t.peek("danger", {
           data: { message: `Failed to create document: ${e.title || e.detail || "Unknown error"}` }
         });
         return;
       }
-      const _ = V.headers.get("Location"), B = _ == null ? void 0 : _.split("/").pop();
+      const K = _.headers.get("Location"), B = K == null ? void 0 : K.split("/").pop();
       if (console.log("Document created successfully! ID:", B), B) {
         const e = await fetch(`/umbraco/management/api/v1/document/${B}`, {
           method: "GET",
@@ -206,7 +206,7 @@ j = new WeakMap(), x = new WeakMap(), A = new WeakMap(), N = new WeakSet(), /**
  * mappedFields tracks which fields have been written by our mappings —
  * first write replaces the blueprint default, subsequent writes concatenate.
  */
-z = function(t, n, y, w, p) {
+F = function(t, n, y, w, p) {
   var d, T, m, g;
   let k = y;
   const h = (d = n.transforms) == null ? void 0 : d.some((a) => a.type === "convertMarkdownToHtml");
@@ -214,7 +214,7 @@ z = function(t, n, y, w, p) {
     for (const a of w.destination.blockGrids ?? []) {
       const o = a.blocks.find((s) => s.key === n.blockKey);
       if (o != null && o.identifyBy) {
-        R(this, N, K).call(this, t, a.alias, o.identifyBy, n.target, k, h, p);
+        R(this, N, G).call(this, t, a.alias, o.identifyBy, n.target, k, h, p);
         return;
       }
     }
@@ -244,14 +244,14 @@ z = function(t, n, y, w, p) {
       console.log(`No identifyBy for block ${o}`);
       return;
     }
-    R(this, N, K).call(this, t, v, D, $, k, h, p);
+    R(this, N, G).call(this, t, v, D, $, k, h, p);
   }
 }, /**
  * Applies a value to a property within a block grid.
  * Finds the block by searching for a property value match.
  * mappedFields tracks writes — first replaces blueprint default, subsequent concatenate.
  */
-K = function(t, n, y, w, p, k, h) {
+G = function(t, n, y, w, p, k, h) {
   var d, T;
   const f = t.find((m) => m.alias === n);
   if (!f || !f.value) {
@@ -289,7 +289,7 @@ ${p}`;
   }
 };
 export {
-  me as UpDocEntityAction,
-  me as default
+  ge as UpDocEntityAction,
+  ge as default
 };
-//# sourceMappingURL=up-doc-action-930JKBac.js.map
+//# sourceMappingURL=up-doc-action-Dd1LxqiQ.js.map

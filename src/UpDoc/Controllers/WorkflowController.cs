@@ -360,6 +360,29 @@ public class WorkflowController : ControllerBase
         return Ok(result);
     }
 
+    [HttpPost("{name}/transform-adhoc")]
+    public IActionResult TransformAdhoc(string name, [FromBody] SampleExtractionRequest request)
+    {
+        var absolutePath = ResolveMediaFilePath(request.MediaKey);
+        if (absolutePath == null)
+        {
+            return NotFound(new { error = "Media item not found or file not on disk" });
+        }
+
+        try
+        {
+            var zoneResult = _pdfPagePropertiesService.DetectZones(absolutePath);
+            var previousTransform = _workflowService.GetTransformResult(name);
+            var result = _contentTransformService.Transform(zoneResult, previousTransform);
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Transform-adhoc failed for workflow '{Name}' with media {MediaKey}", name, request.MediaKey);
+            return StatusCode(500, new { error = ex.Message, stackTrace = ex.StackTrace });
+        }
+    }
+
     [HttpPatch("{name}/transform/sections/{sectionId}/included")]
     public IActionResult UpdateSectionInclusion(string name, string sectionId, [FromBody] SectionInclusionRequest request)
     {
