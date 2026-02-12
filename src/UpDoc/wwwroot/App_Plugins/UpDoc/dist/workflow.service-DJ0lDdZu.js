@@ -1,7 +1,7 @@
 const i = /* @__PURE__ */ new Map();
-let a = null, c = null;
+let r = null, c = null;
 async function u(e) {
-  return a || (c || (c = (async () => {
+  return r || (c || (c = (async () => {
     try {
       const n = await fetch("/umbraco/management/api/v1/updoc/workflows/active", {
         method: "GET",
@@ -10,11 +10,11 @@ async function u(e) {
           Authorization: `Bearer ${e}`
         }
       });
-      n.ok ? a = await n.json() : a = { documentTypeAliases: [], blueprintIds: [] };
+      n.ok ? r = await n.json() : r = { documentTypeAliases: [], blueprintIds: [] };
     } catch {
-      a = { documentTypeAliases: [], blueprintIds: [] };
+      r = { documentTypeAliases: [], blueprintIds: [] };
     }
-    return c = null, a;
+    return c = null, r;
   })()), c);
 }
 async function p(e, n) {
@@ -32,8 +32,8 @@ async function p(e, n) {
   );
   if (!t.ok)
     return console.warn(`No config found for blueprint ${e}`), null;
-  const r = await t.json();
-  return i.set(e, r), r;
+  const a = await t.json();
+  return i.set(e, a), a;
 }
 async function l(e, n) {
   const o = await fetch(
@@ -74,8 +74,8 @@ async function m(e, n, o) {
     }
   );
   if (!t.ok) {
-    const r = await t.json();
-    return console.error("Sample extraction failed:", r), null;
+    const a = await t.json();
+    return console.error("Sample extraction failed:", a), null;
   }
   return t.json();
 }
@@ -92,7 +92,38 @@ async function h(e, n) {
   );
   return o.ok ? o.json() : null;
 }
-async function d(e, n, o) {
+async function d(e, n) {
+  const o = await fetch(
+    `/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(e)}/zone-detection`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${n}`
+      }
+    }
+  );
+  return o.ok ? o.json() : null;
+}
+async function w(e, n, o) {
+  const t = await fetch(
+    `/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(e)}/zone-detection`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${o}`
+      },
+      body: JSON.stringify({ mediaKey: n })
+    }
+  );
+  if (!t.ok) {
+    const a = await t.json();
+    return console.error("Zone detection failed:", a), null;
+  }
+  return t.json();
+}
+async function y(e, n, o) {
   const t = await fetch(
     `/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(e)}/map`,
     {
@@ -105,22 +136,24 @@ async function d(e, n, o) {
     }
   );
   if (!t.ok) {
-    const r = await t.json();
-    return console.error("Save map config failed:", r), null;
+    const a = await t.json();
+    return console.error("Save map config failed:", a), null;
   }
   return s(), t.json();
 }
 function s() {
-  i.clear(), a = null, c = null;
+  i.clear(), r = null, c = null;
 }
 export {
   p as a,
   l as b,
   f as c,
-  s as d,
+  d,
   h as e,
   u as f,
-  d as s,
+  w as g,
+  s as h,
+  y as s,
   m as t
 };
-//# sourceMappingURL=workflow.service-Cy8WOA0g.js.map
+//# sourceMappingURL=workflow.service-DJ0lDdZu.js.map

@@ -31,6 +31,14 @@ public interface IPdfPagePropertiesService
     /// the destination-driven mapping workflow.
     /// </summary>
     RichExtractionResult ExtractRichDump(string filePath);
+
+    /// <summary>
+    /// Detects spatial zones from filled rectangles in the PDF and groups text elements
+    /// into a hierarchy: Page → Zone → Section → Elements.
+    /// Zone detection is destination-agnostic — it produces a complete structural
+    /// representation of the source PDF.
+    /// </summary>
+    ZoneDetectionResult DetectZones(string filePath);
 }
 
 /// <summary>
@@ -226,6 +234,276 @@ public class PdfPagePropertiesService : IPdfPagePropertiesService
         }
     }
 
+    public ZoneDetectionResult DetectZones(string filePath)
+    {
+        try
+        {
+            using var document = PdfDocument.Open(filePath);
+            return DetectZonesFromDocument(document);
+        }
+        catch (Exception)
+        {
+            return new ZoneDetectionResult
+            {
+                Diagnostics = new ZoneDiagnosticInfo
+                {
+                    TotalPathsFound = -1 // signals error
+                }
+            };
+        }
+    }
+
+    private static ZoneDetectionResult DetectZonesFromDocument(PdfDocument document)
+    {
+        var result = new ZoneDetectionResult();
+        var diagnostics = new ZoneDiagnosticInfo();
+        var totalElementIndex = 0;
+
+        for (int pageNum = 1; pageNum <= document.NumberOfPages; pageNum++)
+        {
+            var page = document.GetPage(pageNum);
+
+            // Step 1: Detect filled rectangles (zones)
+            var zones = DetectPageFilledRects(page, pageNum, diagnostics);
+
+            // Step 2: Extract text lines (reuse existing method)
+            var lines = ExtractRichTextLines(page);
+
+            // Step 3: Build ZoneElements from lines, assigning element IDs
+            var pageElements = new List<(ZoneElement Element, double CenterX, double CenterY)>();
+            foreach (var line in lines)
+            {
+                totalElementIndex++;
+                var element = new ZoneElement
+                {
+                    Id = $"p{pageNum}-e{totalElementIndex}",
+                    Text = line.Text,
+                    FontSize = Math.Round(line.FontSize, 1),
+                    FontName = line.FontName,
+                    Color = line.Color,
+                    BoundingBox = new ElementBoundingBox
+                    {
+                        Left = Math.Round(line.BoundingBoxLeft, 1),
+                        Top = Math.Round(line.BoundingBoxTop, 1),
+                        Width = Math.Round(line.BoundingBoxWidth, 1),
+                        Height = Math.Round(line.BoundingBoxHeight, 1)
+                    }
+                };
+
+                // Center point for containment check
+                var centerX = line.BoundingBoxLeft + line.BoundingBoxWidth / 2;
+                var centerY = line.BoundingBoxTop - line.BoundingBoxHeight / 2;
+                pageElements.Add((element, centerX, centerY));
+            }
+
+            // Step 4: Assign elements to zones using center-point containment
+            var zonedElements = new Dictionary<int, List<ZoneElement>>(); // zone index → elements
+            var unzonedElements = new List<ZoneElement>();
+
+            for (int i = 0; i < zones.Count; i++)
+                zonedElements[i] = new List<ZoneElement>();
+
+            foreach (var (element, cx, cy) in pageElements)
+            {
+                var assigned = false;
+                for (int i = 0; i < zones.Count; i++)
+                {
+                    var zb = zones[i].BoundingBox;
+                    // PdfPig coordinates: origin bottom-left, Y increases upward
+                    // BoundingBox.Top is the highest Y, Left is leftmost X
+                    var zoneLeft = zb.Left;
+                    var zoneRight = zb.Left + zb.Width;
+                    var zoneBottom = zb.Top - zb.Height;
+                    var zoneTop = zb.Top;
+
+                    if (cx >= zoneLeft && cx <= zoneRight && cy >= zoneBottom && cy <= zoneTop)
+                    {
+                        zonedElements[i].Add(element);
+                        assigned = true;
+                        break; // first matching zone wins
+                    }
+                }
+
+                if (!assigned)
+                    unzonedElements.Add(element);
+            }
+
+            // Step 5: Group elements into sections within each zone
+            for (int i = 0; i < zones.Count; i++)
+            {
+                var zoneElems = zonedElements[i];
+                zones[i].TotalElements = zoneElems.Count;
+                zones[i].Sections = GroupIntoSections(zoneElems);
+                diagnostics.ElementsZoned += zoneElems.Count;
+            }
+
+            // Step 5b: Discard empty zones — zones with 0 text elements are purely decorative.
+            // Move their (non-existent) elements back to unzoned so nothing is lost.
+            var populatedZones = new List<DetectedZone>();
+            foreach (var zone in zones)
+            {
+                if (zone.TotalElements > 0)
+                {
+                    populatedZones.Add(zone);
+                }
+                else
+                {
+                    // Empty zone discarded — no elements to reassign
+                    diagnostics.ElementsZoned -= 0; // no-op, just for clarity
+                }
+            }
+            zones = populatedZones;
+
+            // Step 6: Build unzoned content (also grouped into sections)
+            DetectedZone? unzoned = null;
+            if (unzonedElements.Count > 0)
+            {
+                unzoned = new DetectedZone
+                {
+                    Color = string.Empty,
+                    Page = pageNum,
+                    TotalElements = unzonedElements.Count,
+                    Sections = GroupIntoSections(unzonedElements)
+                };
+                diagnostics.ElementsUnzoned += unzonedElements.Count;
+            }
+
+            result.Pages.Add(new PageZones
+            {
+                Page = pageNum,
+                Zones = zones,
+                UnzonedContent = unzoned
+            });
+
+            diagnostics.ZonesDetected += zones.Count;
+        }
+
+        result.Diagnostics = diagnostics;
+        return result;
+    }
+
+    /// <summary>
+    /// Detects significant filled rectangles on a page using PdfPig's ExperimentalAccess.Paths.
+    /// Filters out page-covering backgrounds and small decorative shapes.
+    /// </summary>
+    private static List<DetectedZone> DetectPageFilledRects(Page page, int pageNum, ZoneDiagnosticInfo diagnostics)
+    {
+        var zones = new List<DetectedZone>();
+
+        var paths = page.ExperimentalAccess.Paths;
+        diagnostics.TotalPathsFound += paths.Count;
+
+        var pageWidth = page.Width;
+        var pageHeight = page.Height;
+        var pageArea = pageWidth * pageHeight;
+
+        foreach (var path in paths)
+        {
+            // Only interested in filled paths (not strokes)
+            if (path.FillColor == null)
+                continue;
+
+            var rect = path.GetBoundingRectangle();
+            if (!rect.HasValue)
+                continue;
+
+            var r = rect.Value;
+            var rectWidth = r.Width;
+            var rectHeight = r.Height;
+
+            // Rule 3: Zone noise filtering — stricter thresholds to reduce
+            // decorative rectangles being detected as content zones.
+            var rectArea = rectWidth * rectHeight;
+
+            // Filter: too small — must be at least 2% of page area
+            // (previously 80x80 which let through many decorative shapes)
+            if (rectArea < pageArea * 0.02)
+                continue;
+
+            // Filter: too narrow or too short to contain meaningful content
+            if (rectWidth < 80 || rectHeight < 40)
+                continue;
+
+            // Filter: covers >90% of page (page background)
+            if (rectArea > pageArea * 0.9)
+                continue;
+
+            zones.Add(new DetectedZone
+            {
+                Color = ConvertColorToHex(path.FillColor),
+                Page = pageNum,
+                BoundingBox = new ElementBoundingBox
+                {
+                    Left = Math.Round(r.Left, 1),
+                    Top = Math.Round(r.Top, 1),
+                    Width = Math.Round(r.Width, 1),
+                    Height = Math.Round(r.Height, 1)
+                }
+            });
+        }
+
+        diagnostics.PathsAfterFiltering += zones.Count;
+        return zones;
+    }
+
+    /// <summary>
+    /// Groups elements into sections using heading detection (same algorithm as visual-grouping.ts).
+    /// Mode font size = body text. Anything with fontSize > mode = heading starts new section.
+    /// </summary>
+    private static List<DetectedSection> GroupIntoSections(List<ZoneElement> elements)
+    {
+        if (elements.Count == 0)
+            return new List<DetectedSection>();
+
+        // Compute mode font size (most frequent, rounded to 1 decimal)
+        var fontSizeCounts = new Dictionary<double, int>();
+        foreach (var el in elements)
+        {
+            var size = Math.Round(el.FontSize, 1);
+            fontSizeCounts[size] = fontSizeCounts.GetValueOrDefault(size) + 1;
+        }
+
+        var bodySize = fontSizeCounts.OrderByDescending(kvp => kvp.Value).First().Key;
+
+        // Check if all elements are the same font size
+        var allSameSize = elements.All(el => Math.Round(el.FontSize, 1) == bodySize);
+        if (allSameSize)
+        {
+            // No headings — everything is one section with no heading
+            return new List<DetectedSection>
+            {
+                new DetectedSection { Heading = null, Children = new List<ZoneElement>(elements) }
+            };
+        }
+
+        // Walk elements: headings (fontSize > bodySize) start new sections
+        var sections = new List<DetectedSection>();
+        var current = new DetectedSection();
+
+        foreach (var el in elements)
+        {
+            var size = Math.Round(el.FontSize, 1);
+            if (size > bodySize)
+            {
+                // This element is a heading — push current and start new section
+                if (current.Heading != null || current.Children.Count > 0)
+                    sections.Add(current);
+
+                current = new DetectedSection { Heading = el, Children = new List<ZoneElement>() };
+            }
+            else
+            {
+                current.Children.Add(el);
+            }
+        }
+
+        // Push final section
+        if (current.Heading != null || current.Children.Count > 0)
+            sections.Add(current);
+
+        return sections;
+    }
+
     private static RichExtractionResult ExtractRichDumpFromDocument(PdfDocument document)
     {
         if (document.NumberOfPages == 0)
@@ -318,10 +596,45 @@ public class PdfPagePropertiesService : IPdfPagePropertiesService
             }
         }
 
-        // Process each line: sort words left-to-right, extract metadata from letters
+        // Rule 1: Column-aware line splitting — split lines with large X-gaps
+        // into separate lines. Prevents cross-column merging (e.g., description
+        // text on the left and a bullet on the right sidebar being one element).
+        const double columnGapThreshold = 40.0; // pts — gap indicating separate columns
+        var splitLines = new List<RichTextLine>();
         foreach (var line in lines)
         {
             line.Words = line.Words.OrderBy(w => w.BoundingBox.Left).ToList();
+
+            // Check for large X-gaps between consecutive words
+            var currentWords = new List<Word> { line.Words[0] };
+            for (int i = 1; i < line.Words.Count; i++)
+            {
+                var gap = line.Words[i].BoundingBox.Left - line.Words[i - 1].BoundingBox.Right;
+                if (gap > columnGapThreshold)
+                {
+                    // Large gap — flush current words as a line, start new one
+                    splitLines.Add(new RichTextLine
+                    {
+                        Y = line.Y,
+                        Words = new List<Word>(currentWords)
+                    });
+                    currentWords = new List<Word> { line.Words[i] };
+                }
+                else
+                {
+                    currentWords.Add(line.Words[i]);
+                }
+            }
+            splitLines.Add(new RichTextLine
+            {
+                Y = line.Y,
+                Words = currentWords
+            });
+        }
+
+        // Process each line: compute text, bounding box, and font metadata
+        foreach (var line in splitLines)
+        {
             line.Text = string.Join(" ", line.Words.Select(w => w.Text));
 
             // Bounding box enclosing all words
@@ -348,8 +661,63 @@ public class PdfPagePropertiesService : IPdfPagePropertiesService
             }
         }
 
+        // Rule 2: Continuation line merging — merge consecutive lines that are
+        // part of the same logical element (wrapped bullets, paragraph text).
+        // Lines merge when they have matching font metadata and the continuation
+        // line doesn't start with a bullet character.
+        var bulletChars = new HashSet<char> { '•', '●', '○', '■', '□', '▪', '▫', '◆', '◇', '►', '▸', '\u2022' };
+        const double fontSizeTolerance = 0.5;
+        const double xAlignmentTolerance = 10.0; // pts — continuation lines may indent slightly
+
+        // Sort by Y descending (top to bottom) before merging
+        splitLines = splitLines.OrderByDescending(l => l.Y).ToList();
+
+        var mergedLines = new List<RichTextLine>();
+        for (int i = 0; i < splitLines.Count; i++)
+        {
+            var current = splitLines[i];
+
+            // Try to merge subsequent lines into current
+            while (i + 1 < splitLines.Count)
+            {
+                var next = splitLines[i + 1];
+                var nextText = next.Text.TrimStart();
+
+                // Don't merge if next line starts with a bullet character
+                if (nextText.Length > 0 && bulletChars.Contains(nextText[0]))
+                    break;
+
+                // Don't merge if font metadata doesn't match
+                if (Math.Abs(current.FontSize - next.FontSize) > fontSizeTolerance)
+                    break;
+                if (current.FontName != next.FontName)
+                    break;
+                if (current.Color != next.Color)
+                    break;
+
+                // Don't merge if X positions are too far apart (different columns/indents)
+                if (Math.Abs(current.BoundingBoxLeft - next.BoundingBoxLeft) > xAlignmentTolerance)
+                    break;
+
+                // Merge: append text and extend bounding box
+                current.Text = current.Text + " " + next.Text;
+                current.Words.AddRange(next.Words);
+                current.BoundingBoxWidth = Math.Max(
+                    current.BoundingBoxLeft + current.BoundingBoxWidth,
+                    next.BoundingBoxLeft + next.BoundingBoxWidth) - current.BoundingBoxLeft;
+                var newBottom = Math.Min(
+                    current.BoundingBoxTop - current.BoundingBoxHeight,
+                    next.BoundingBoxTop - next.BoundingBoxHeight);
+                current.BoundingBoxHeight = current.BoundingBoxTop - newBottom;
+
+                i++; // skip the merged line
+            }
+
+            mergedLines.Add(current);
+        }
+
         // Sort lines top to bottom (higher Y = top in PDF coordinates)
-        return lines.OrderByDescending(l => l.Y).ToList();
+        return mergedLines.OrderByDescending(l => l.Y).ToList();
     }
 
     /// <summary>

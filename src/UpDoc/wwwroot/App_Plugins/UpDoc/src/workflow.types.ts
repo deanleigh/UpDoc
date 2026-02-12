@@ -261,6 +261,51 @@ export interface VisualGroup {
 }
 
 // ============================================================================
+// Zone Detection Types (zone-detection.json — area-based hierarchical extraction)
+// ============================================================================
+
+export interface ZoneDetectionResult {
+	pages: PageZones[];
+	diagnostics: ZoneDiagnosticInfo;
+}
+
+export interface PageZones {
+	page: number;
+	zones: DetectedZone[];
+	unzonedContent: DetectedZone | null;
+}
+
+export interface DetectedZone {
+	color: string;
+	boundingBox: { left: number; top: number; width: number; height: number };
+	page: number;
+	sections: DetectedSection[];
+	totalElements: number;
+}
+
+export interface DetectedSection {
+	heading: ZoneElement | null;
+	children: ZoneElement[];
+}
+
+export interface ZoneElement {
+	id: string;
+	text: string;
+	fontSize: number;
+	fontName: string;
+	color: string;
+	boundingBox: { left: number; top: number; width: number; height: number };
+}
+
+export interface ZoneDiagnosticInfo {
+	totalPathsFound: number;
+	pathsAfterFiltering: number;
+	zonesDetected: number;
+	elementsZoned: number;
+	elementsUnzoned: number;
+}
+
+// ============================================================================
 // API Response Types
 // ============================================================================
 

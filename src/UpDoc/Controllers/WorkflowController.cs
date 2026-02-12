@@ -250,6 +250,64 @@ public class WorkflowController : ControllerBase
         return Ok(result);
     }
 
+    [HttpPost("detect-zones")]
+    public IActionResult DetectZones([FromBody] SampleExtractionRequest request)
+    {
+        var absolutePath = ResolveMediaFilePath(request.MediaKey);
+        if (absolutePath == null)
+        {
+            return NotFound(new { error = "Media item not found or file not on disk" });
+        }
+
+        var result = _pdfPagePropertiesService.DetectZones(absolutePath);
+
+        _logger.LogInformation(
+            "Zone detection complete: {Zones} zones detected, {Zoned} elements in zones, {Unzoned} unzoned",
+            result.Diagnostics.ZonesDetected,
+            result.Diagnostics.ElementsZoned,
+            result.Diagnostics.ElementsUnzoned);
+
+        return Ok(result);
+    }
+
+    [HttpPost("{name}/zone-detection")]
+    public IActionResult ExtractZoneDetection(string name, [FromBody] SampleExtractionRequest request)
+    {
+        var absolutePath = ResolveMediaFilePath(request.MediaKey);
+        if (absolutePath == null)
+        {
+            return NotFound(new { error = "Media item not found or file not on disk" });
+        }
+
+        var result = _pdfPagePropertiesService.DetectZones(absolutePath);
+
+        try
+        {
+            _workflowService.SaveZoneDetection(name, result);
+        }
+        catch (DirectoryNotFoundException)
+        {
+            return NotFound(new { error = $"Workflow '{name}' not found." });
+        }
+
+        _logger.LogInformation("Zone detection saved for workflow '{Name}': {Zones} zones, {Zoned} zoned, {Unzoned} unzoned",
+            name, result.Diagnostics.ZonesDetected, result.Diagnostics.ElementsZoned, result.Diagnostics.ElementsUnzoned);
+
+        return Ok(result);
+    }
+
+    [HttpGet("{name}/zone-detection")]
+    public IActionResult GetZoneDetection(string name)
+    {
+        var result = _workflowService.GetZoneDetection(name);
+        if (result == null)
+        {
+            return NotFound(new { error = $"No zone detection found for workflow '{name}'." });
+        }
+
+        return Ok(result);
+    }
+
     private string? ResolveMediaFilePath(Guid mediaKey)
     {
         var media = _mediaService.GetById(mediaKey);

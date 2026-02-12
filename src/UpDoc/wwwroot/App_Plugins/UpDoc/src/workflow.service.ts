@@ -1,4 +1,4 @@
-import type { DocumentTypeConfig, ExtractSectionsResponse, MapConfig, RichExtractionResult } from './workflow.types.js';
+import type { DocumentTypeConfig, ExtractSectionsResponse, MapConfig, RichExtractionResult, ZoneDetectionResult } from './workflow.types.js';
 
 const configCache = new Map<string, DocumentTypeConfig>();
 
@@ -200,6 +200,58 @@ export async function extractRich(
 	);
 
 	if (!response.ok) return null;
+	return response.json();
+}
+
+/**
+ * Fetches the zone detection result for a workflow, if it exists.
+ */
+export async function fetchZoneDetection(
+	workflowName: string,
+	token: string
+): Promise<ZoneDetectionResult | null> {
+	const response = await fetch(
+		`/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(workflowName)}/zone-detection`,
+		{
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${token}`,
+			},
+		}
+	);
+
+	if (!response.ok) return null;
+	return response.json();
+}
+
+/**
+ * Triggers zone detection for a workflow from a media item (PDF).
+ * The result is saved to zone-detection.json in the workflow folder.
+ */
+export async function triggerZoneDetection(
+	workflowName: string,
+	mediaKey: string,
+	token: string
+): Promise<ZoneDetectionResult | null> {
+	const response = await fetch(
+		`/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(workflowName)}/zone-detection`,
+		{
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${token}`,
+			},
+			body: JSON.stringify({ mediaKey }),
+		}
+	);
+
+	if (!response.ok) {
+		const error = await response.json();
+		console.error('Zone detection failed:', error);
+		return null;
+	}
+
 	return response.json();
 }
 

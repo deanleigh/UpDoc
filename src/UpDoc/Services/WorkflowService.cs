@@ -74,6 +74,16 @@ public interface IWorkflowService
     /// Saves a MapConfig as map.json in the workflow folder, replacing the existing file.
     /// </summary>
     void SaveMapConfig(string workflowName, MapConfig config);
+
+    /// <summary>
+    /// Saves a zone detection result as zone-detection.json in the workflow folder.
+    /// </summary>
+    void SaveZoneDetection(string workflowName, ZoneDetectionResult result);
+
+    /// <summary>
+    /// Loads the stored zone-detection.json from a workflow folder, if it exists.
+    /// </summary>
+    ZoneDetectionResult? GetZoneDetection(string workflowName);
 }
 
 /// <summary>
@@ -505,6 +515,35 @@ public class WorkflowService : IWorkflowService
 
         var json = File.ReadAllText(filePath);
         return JsonSerializer.Deserialize<RichExtractionResult>(json, JsonOptions);
+    }
+
+    public void SaveZoneDetection(string workflowName, ZoneDetectionResult result)
+    {
+        var folderPath = GetWorkflowFolderPath(workflowName);
+        if (!Directory.Exists(folderPath))
+        {
+            throw new DirectoryNotFoundException($"Workflow folder '{workflowName}' does not exist.");
+        }
+
+        var filePath = Path.Combine(folderPath, "zone-detection.json");
+        var writeOptions = new JsonSerializerOptions { WriteIndented = true };
+        var json = JsonSerializer.Serialize(result, writeOptions);
+        File.WriteAllText(filePath, json);
+
+        _logger.LogInformation("Saved zone detection to {Path} ({Zones} zones, {Elements} elements)",
+            filePath, result.Diagnostics.ZonesDetected, result.Diagnostics.ElementsZoned + result.Diagnostics.ElementsUnzoned);
+    }
+
+    public ZoneDetectionResult? GetZoneDetection(string workflowName)
+    {
+        var folderPath = GetWorkflowFolderPath(workflowName);
+        var filePath = Path.Combine(folderPath, "zone-detection.json");
+
+        if (!File.Exists(filePath))
+            return null;
+
+        var json = File.ReadAllText(filePath);
+        return JsonSerializer.Deserialize<ZoneDetectionResult>(json, JsonOptions);
     }
 
     private string GetWorkflowFolderPath(string workflowName)

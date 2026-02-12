@@ -1,6 +1,5 @@
-import type { ExtractionElement, RichExtractionResult, DocumentTypeConfig, VisualGroup, MappingDestination } from './workflow.types.js';
-import { groupElementsByHeading } from './visual-grouping.js';
-import { fetchSampleExtraction, triggerSampleExtraction, fetchWorkflowByName, saveMapConfig } from './workflow.service.js';
+import type { RichExtractionResult, DocumentTypeConfig, MappingDestination, ZoneDetectionResult, DetectedZone, DetectedSection, ZoneElement } from './workflow.types.js';
+import { fetchSampleExtraction, triggerSampleExtraction, fetchWorkflowByName, saveMapConfig, fetchZoneDetection, triggerZoneDetection } from './workflow.service.js';
 import { html, css, state, nothing } from '@umbraco-cms/backoffice/external/lit';
 import { customElement } from '@umbraco-cms/backoffice/external/lit';
 import { UmbLitElement } from '@umbraco-cms/backoffice/lit-element';
@@ -14,6 +13,7 @@ import { UMB_DESTINATION_PICKER_MODAL } from './destination-picker-modal.token.j
 @customElement('up-doc-workflow-source-view')
 export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 	@state() private _extraction: RichExtractionResult | null = null;
+	@state() private _zoneDetection: ZoneDetectionResult | null = null;
 	@state() private _config: DocumentTypeConfig | null = null;
 	@state() private _workflowName: string | null = null;
 	@state() private _loading = true;
@@ -21,6 +21,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 	@state() private _error: string | null = null;
 	@state() private _successMessage: string | null = null;
 	@state() private _selectedElements = new Set<string>();
+	@state() private _collapsedSections = new Set<string>();
 	#token = '';
 
 	override connectedCallback() {
@@ -45,15 +46,17 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		try {
 			const authContext = await this.getContext(UMB_AUTH_CONTEXT);
 			this.#token = await authContext.getLatestToken();
-			const [extraction, config] = await Promise.all([
+			const [extraction, zoneDetection, config] = await Promise.all([
 				fetchSampleExtraction(this._workflowName, this.#token),
+				fetchZoneDetection(this._workflowName, this.#token),
 				fetchWorkflowByName(this._workflowName, this.#token),
 			]);
 			this._extraction = extraction;
+			this._zoneDetection = zoneDetection;
 			this._config = config;
 		} catch (err) {
-			this._error = err instanceof Error ? err.message : 'Failed to load sample extraction';
-			console.error('Failed to load sample extraction:', err);
+			this._error = err instanceof Error ? err.message : 'Failed to load data';
+			console.error('Failed to load source data:', err);
 		} finally {
 			this._loading = false;
 		}
@@ -81,34 +84,33 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		try {
 			const authContext = await this.getContext(UMB_AUTH_CONTEXT);
 			const token = await authContext.getLatestToken();
-			const extraction = await triggerSampleExtraction(this._workflowName, mediaKey, token);
+
+			// Trigger both sample extraction and zone detection
+			const [extraction, zoneDetection] = await Promise.all([
+				triggerSampleExtraction(this._workflowName, mediaKey, token),
+				triggerZoneDetection(this._workflowName, mediaKey, token),
+			]);
 
 			if (extraction) {
 				this._extraction = extraction;
-				this._successMessage = `Content extracted successfully — ${extraction.elements.length} elements from ${extraction.source.totalPages} pages`;
+			}
+			if (zoneDetection) {
+				this._zoneDetection = zoneDetection;
+				const totalElements = zoneDetection.diagnostics.elementsZoned + zoneDetection.diagnostics.elementsUnzoned;
+				this._successMessage = `Content extracted — ${zoneDetection.diagnostics.zonesDetected} areas, ${totalElements} elements`;
+				setTimeout(() => { this._successMessage = null; }, 5000);
+			} else if (extraction) {
+				this._successMessage = `Content extracted — ${extraction.elements.length} elements (zone detection unavailable)`;
 				setTimeout(() => { this._successMessage = null; }, 5000);
 			} else {
 				this._error = 'Extraction failed. Check that the selected media item is a PDF.';
 			}
 		} catch (err) {
 			this._error = err instanceof Error ? err.message : 'Extraction failed';
-			console.error('Sample extraction failed:', err);
+			console.error('Extraction failed:', err);
 		} finally {
 			this._extracting = false;
 		}
-	}
-
-	#groupByPage(elements: ExtractionElement[]): Map<number, ExtractionElement[]> {
-		const groups = new Map<number, ExtractionElement[]>();
-		for (const el of elements) {
-			const existing = groups.get(el.page);
-			if (existing) {
-				existing.push(el);
-			} else {
-				groups.set(el.page, [el]);
-			}
-		}
-		return groups;
 	}
 
 	#toggleSelection(id: string) {
@@ -125,6 +127,16 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		this._selectedElements = new Set();
 	}
 
+	#toggleSectionCollapse(sectionKey: string) {
+		const next = new Set(this._collapsedSections);
+		if (next.has(sectionKey)) {
+			next.delete(sectionKey);
+		} else {
+			next.add(sectionKey);
+		}
+		this._collapsedSections = next;
+	}
+
 	async #onMapTo() {
 		if (!this._config || this._selectedElements.size === 0) return;
 
@@ -138,7 +150,6 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		const result = await modal.onSubmit().catch(() => null);
 		if (!result?.selectedTargets?.length || !this._workflowName) return;
 
-		// Create a mapping for each selected source element
 		const existingMappings = this._config.map.mappings ?? [];
 		const newMappings = [...existingMappings];
 		const addedCount = this._selectedElements.size;
@@ -197,7 +208,6 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 	#resolveTargetLabel(dest: MappingDestination): string {
 		if (!this._config?.destination) return dest.target;
 
-		// If blockKey present, find the specific block
 		if (dest.blockKey && this._config.destination.blockGrids) {
 			for (const grid of this._config.destination.blockGrids) {
 				const block = grid.blocks.find((b) => b.key === dest.blockKey);
@@ -208,11 +218,9 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 			}
 		}
 
-		// Top-level field
 		const field = this._config.destination.fields.find((f) => f.alias === dest.target);
 		if (field) return field.label;
 
-		// Fall back: first block match (backwards compat for old mappings without blockKey)
 		if (this._config.destination.blockGrids) {
 			for (const grid of this._config.destination.blockGrids) {
 				for (const block of grid.blocks) {
@@ -225,8 +233,9 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		return dest.target;
 	}
 
-	#renderElement(element: ExtractionElement) {
-		const meta = element.metadata;
+	// --- Zone-based rendering ---
+
+	#renderZoneElement(element: ZoneElement) {
 		const checked = this._selectedElements.has(element.id);
 		const mappedTargets = this.#getMappedTargets(element.id);
 		const isMapped = mappedTargets.length > 0;
@@ -241,10 +250,9 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				<div class="element-content" @click=${() => this.#toggleSelection(element.id)}>
 					<div class="element-text">${element.text}</div>
 					<div class="element-meta">
-						<span class="meta-badge font-size">${meta.fontSize}pt</span>
-						<span class="meta-badge font-name">${meta.fontName}</span>
-						<span class="meta-badge color" style="border-left: 3px solid ${meta.color};">${meta.color}</span>
-						<span class="meta-badge position">x:${meta.position.x} y:${meta.position.y}</span>
+						<span class="meta-badge font-size">${element.fontSize}pt</span>
+						<span class="meta-badge font-name">${element.fontName}</span>
+						<span class="meta-badge color" style="border-left: 3px solid ${element.color};">${element.color}</span>
 						${mappedTargets.map((t) => html`<span class="meta-badge mapped-target"><uui-icon name="icon-arrow-right" style="font-size: 10px;"></uui-icon> ${this.#resolveTargetLabel(t)}</span>`)}
 					</div>
 				</div>
@@ -252,75 +260,146 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		`;
 	}
 
-	#renderGroupHeading(heading: ExtractionElement, children: ExtractionElement[]) {
-		const meta = heading.metadata;
+	#renderSection(section: DetectedSection, sectionKey: string) {
+		const isCollapsed = this._collapsedSections.has(sectionKey);
+
+		if (!section.heading) {
+			// Preamble section (no heading) — render children directly
+			return html`
+				<div class="zone-section">
+					${section.children.map((el) => this.#renderZoneElement(el))}
+				</div>
+			`;
+		}
+
+		const heading = section.heading;
 		const checked = this._selectedElements.has(heading.id);
 		const mappedTargets = this.#getMappedTargets(heading.id);
 		const isMapped = mappedTargets.length > 0;
 
 		return html`
-			<div class="group-heading ${checked ? 'element-selected' : ''} ${isMapped ? 'element-mapped' : ''}">
-				<uui-checkbox
-					label="Select ${heading.text}"
-					?checked=${checked}
-					@change=${() => this.#toggleSelection(heading.id)}
-					class="element-checkbox">
-				</uui-checkbox>
-				<div class="heading-content" @click=${() => this.#toggleSelection(heading.id)}>
-					<div class="heading-text">${heading.text}</div>
-					<div class="element-meta">
-						<span class="meta-badge font-size">${meta.fontSize}pt</span>
-						<span class="meta-badge font-name">${meta.fontName}</span>
-						<span class="meta-badge color" style="border-left: 3px solid ${meta.color};">${meta.color}</span>
-						${mappedTargets.map((t) => html`<span class="meta-badge mapped-target"><uui-icon name="icon-arrow-right" style="font-size: 10px;"></uui-icon> ${this.#resolveTargetLabel(t)}</span>`)}
+			<div class="zone-section">
+				<div class="section-heading ${checked ? 'element-selected' : ''} ${isMapped ? 'element-mapped' : ''}">
+					<uui-checkbox
+						label="Select ${heading.text}"
+						?checked=${checked}
+						@change=${() => this.#toggleSelection(heading.id)}
+						class="element-checkbox">
+					</uui-checkbox>
+					<div class="heading-content" @click=${() => this.#toggleSectionCollapse(sectionKey)}>
+						<div class="heading-text">${heading.text}</div>
+						<div class="element-meta">
+							<span class="meta-badge font-size">${heading.fontSize}pt</span>
+							<span class="meta-badge font-name">${heading.fontName}</span>
+							${mappedTargets.map((t) => html`<span class="meta-badge mapped-target"><uui-icon name="icon-arrow-right" style="font-size: 10px;"></uui-icon> ${this.#resolveTargetLabel(t)}</span>`)}
+						</div>
 					</div>
+					<button class="collapse-toggle" @click=${() => this.#toggleSectionCollapse(sectionKey)} title="${isCollapsed ? 'Expand' : 'Collapse'}">
+						<uui-icon name="${isCollapsed ? 'icon-navigation-right' : 'icon-navigation-down'}"></uui-icon>
+					</button>
+					<span class="group-count">${section.children.length} item${section.children.length !== 1 ? 's' : ''}</span>
 				</div>
-				<span class="group-count">${children.length} item${children.length !== 1 ? 's' : ''}</span>
+				${!isCollapsed ? html`
+					<div class="section-children">
+						${section.children.map((el) => this.#renderZoneElement(el))}
+					</div>
+				` : nothing}
 			</div>
 		`;
 	}
 
-	#renderVisualGroup(group: VisualGroup) {
+	#renderArea(zone: DetectedZone, pageNum: number, areaIndex: number) {
+		const elementCount = zone.totalElements;
 		return html`
-			<div class="visual-group">
-				${group.heading ? this.#renderGroupHeading(group.heading, group.children) : nothing}
-				<div class="group-children ${group.heading ? 'indented' : ''}">
-					${group.children.map((el) => this.#renderElement(el))}
+			<div class="zone-area" style="border-left-color: ${zone.color};">
+				<div class="area-header">
+					<span class="area-color-swatch" style="background: ${zone.color};"></span>
+					<span class="area-element-count">${elementCount} element${elementCount !== 1 ? 's' : ''}</span>
 				</div>
+				${zone.sections.map((section, sIdx) =>
+					this.#renderSection(section, `p${pageNum}-a${areaIndex}-s${sIdx}`)
+				)}
 			</div>
 		`;
 	}
 
-	#renderPageGroup(pageNum: number, elements: ExtractionElement[]) {
-		const groups = groupElementsByHeading(elements);
+	#renderUnzonedContent(zone: DetectedZone, pageNum: number) {
+		if (zone.totalElements === 0) return nothing;
+		return html`
+			<div class="zone-area unzoned" style="border-left-color: var(--uui-color-border-standalone);">
+				<div class="area-header">
+					<span class="area-color-swatch unzoned-swatch"></span>
+					<span class="area-element-count">Unzoned — ${zone.totalElements} element${zone.totalElements !== 1 ? 's' : ''}</span>
+				</div>
+				${zone.sections.map((section, sIdx) =>
+					this.#renderSection(section, `p${pageNum}-unzoned-s${sIdx}`)
+				)}
+			</div>
+		`;
+	}
+
+	#renderZonePage(pageNum: number, zones: DetectedZone[], unzonedContent: DetectedZone | null) {
 		return html`
 			<uui-box headline="Page ${pageNum}" class="page-box">
-				${groups.map((group) => this.#renderVisualGroup(group))}
-				<div class="page-summary">${elements.length} element${elements.length !== 1 ? 's' : ''}</div>
+				${zones.map((zone, idx) => this.#renderArea(zone, pageNum, idx))}
+				${unzonedContent ? this.#renderUnzonedContent(unzonedContent, pageNum) : nothing}
 			</uui-box>
 		`;
 	}
 
-	#renderExtraction() {
-		if (!this._extraction) return nothing;
+	#renderZoneDetection() {
+		if (!this._zoneDetection) return nothing;
 
-		const grouped = this.#groupByPage(this._extraction.elements);
-		const pages = Array.from(grouped.entries()).sort(([a], [b]) => a - b);
+		return html`
+			${this._zoneDetection.pages.map((page) =>
+				this.#renderZonePage(page.page, page.zones, page.unzonedContent)
+			)}
+			<div class="diagnostics">
+				<span class="meta-badge">${this._zoneDetection.diagnostics.zonesDetected} areas</span>
+				<span class="meta-badge">${this._zoneDetection.diagnostics.elementsZoned} zoned</span>
+				<span class="meta-badge">${this._zoneDetection.diagnostics.elementsUnzoned} unzoned</span>
+			</div>
+		`;
+	}
+
+	#renderExtraction() {
+		const hasZones = this._zoneDetection !== null;
+		const hasExtraction = this._extraction !== null;
+
+		if (!hasZones && !hasExtraction) return nothing;
+
+		// Use extraction for header info, zone detection for content
+		const totalElements = hasZones
+			? this._zoneDetection!.diagnostics.elementsZoned + this._zoneDetection!.diagnostics.elementsUnzoned
+			: this._extraction!.elements.length;
 
 		return html`
 			<div class="extraction-header">
-				<div class="extraction-info">
-					<span class="info-label">Source:</span>
-					<span>${this._extraction.source.fileName}</span>
-				</div>
-				<div class="extraction-info">
-					<span class="info-label">Pages:</span>
-					<span>${this._extraction.source.totalPages}</span>
-					<span class="info-label" style="margin-left: var(--uui-size-space-4);">Elements:</span>
-					<span>${this._extraction.elements.length}</span>
-					<span class="info-label" style="margin-left: var(--uui-size-space-4);">Extracted:</span>
-					<span>${new Date(this._extraction.source.extractedDate).toLocaleString()}</span>
-				</div>
+				${hasExtraction ? html`
+					<div class="extraction-info">
+						<span class="info-label">Source:</span>
+						<span>${this._extraction!.source.fileName}</span>
+					</div>
+					<div class="extraction-info">
+						<span class="info-label">Pages:</span>
+						<span>${this._extraction!.source.totalPages}</span>
+						<span class="info-label" style="margin-left: var(--uui-size-space-4);">Elements:</span>
+						<span>${totalElements}</span>
+						${hasZones ? html`
+							<span class="info-label" style="margin-left: var(--uui-size-space-4);">Areas:</span>
+							<span>${this._zoneDetection!.diagnostics.zonesDetected}</span>
+						` : nothing}
+						<span class="info-label" style="margin-left: var(--uui-size-space-4);">Extracted:</span>
+						<span>${new Date(this._extraction!.source.extractedDate).toLocaleString()}</span>
+					</div>
+				` : html`
+					<div class="extraction-info">
+						<span class="info-label">Elements:</span>
+						<span>${totalElements}</span>
+						<span class="info-label" style="margin-left: var(--uui-size-space-4);">Areas:</span>
+						<span>${this._zoneDetection!.diagnostics.zonesDetected}</span>
+					</div>
+				`}
 				<uui-button look="secondary" label="Re-extract" @click=${this.#onPickMedia} ?disabled=${this._extracting}>
 					<uui-icon name="icon-refresh"></uui-icon>
 					Re-extract
@@ -328,7 +407,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 			</div>
 
 			${this.#renderToolbar()}
-			${pages.map(([pageNum, elements]) => this.#renderPageGroup(pageNum, elements))}
+			${hasZones ? this.#renderZoneDetection() : nothing}
 		`;
 	}
 
@@ -357,10 +436,12 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				</umb-body-layout>`;
 		}
 
+		const hasContent = this._zoneDetection !== null || this._extraction !== null;
+
 		return html`
 			<umb-body-layout header-fit-height>
 				${this._successMessage ? html`<div class="success-banner"><uui-icon name="icon-check"></uui-icon> ${this._successMessage}</div>` : nothing}
-				${this._extraction ? this.#renderExtraction() : this.#renderEmpty()}
+				${hasContent ? this.#renderExtraction() : this.#renderEmpty()}
 			</umb-body-layout>
 		`;
 	}
@@ -436,11 +517,6 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				margin: var(--uui-size-space-4);
 			}
 
-			.element-list {
-				display: flex;
-				flex-direction: column;
-			}
-
 			/* Selection toolbar */
 			.selection-toolbar {
 				display: flex;
@@ -459,6 +535,107 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				font-weight: 600;
 			}
 
+			/* Zone areas */
+			.zone-area {
+				border-left: 4px solid var(--uui-color-border);
+				margin: var(--uui-size-space-3) 0;
+				margin-left: var(--uui-size-space-2);
+			}
+
+			.zone-area.unzoned {
+				opacity: 0.75;
+			}
+
+			.area-header {
+				display: flex;
+				align-items: center;
+				gap: var(--uui-size-space-2);
+				padding: var(--uui-size-space-2) var(--uui-size-space-3);
+				font-size: var(--uui-type-small-size);
+				color: var(--uui-color-text-alt);
+			}
+
+			.area-color-swatch {
+				display: inline-block;
+				width: 12px;
+				height: 12px;
+				border-radius: 2px;
+				border: 1px solid var(--uui-color-border);
+			}
+
+			.area-color-swatch.unzoned-swatch {
+				background: var(--uui-color-border-standalone);
+			}
+
+			.area-element-count {
+				font-weight: 500;
+			}
+
+			/* Sections within areas */
+			.zone-section + .zone-section {
+				border-top: 1px solid var(--uui-color-border);
+			}
+
+			.section-heading {
+				display: flex;
+				align-items: center;
+				gap: var(--uui-size-space-3);
+				padding: var(--uui-size-space-3) var(--uui-size-space-4);
+				background: var(--uui-color-surface-alt);
+				border-bottom: 1px solid var(--uui-color-border);
+				cursor: pointer;
+			}
+
+			.section-heading:hover {
+				background: var(--uui-color-surface-emphasis);
+			}
+
+			.section-heading.element-selected {
+				background: var(--uui-color-selected);
+			}
+
+			.section-heading.element-mapped {
+				border-left: 3px solid var(--uui-color-positive-standalone);
+			}
+
+			.heading-content {
+				flex: 1;
+				min-width: 0;
+			}
+
+			.heading-text {
+				font-weight: 700;
+				font-size: var(--uui-type-default-size);
+				margin-bottom: var(--uui-size-space-1);
+			}
+
+			.collapse-toggle {
+				background: none;
+				border: none;
+				cursor: pointer;
+				padding: var(--uui-size-space-1);
+				color: var(--uui-color-text-alt);
+				display: flex;
+				align-items: center;
+			}
+
+			.collapse-toggle:hover {
+				color: var(--uui-color-text);
+			}
+
+			.group-count {
+				font-size: var(--uui-type-small-size);
+				color: var(--uui-color-text-alt);
+				white-space: nowrap;
+			}
+
+			.section-children {
+				padding-left: var(--uui-size-space-5);
+				border-left: 2px solid var(--uui-color-border);
+				margin-left: var(--uui-size-space-4);
+			}
+
+			/* Element items */
 			.element-item {
 				display: flex;
 				align-items: flex-start;
@@ -478,6 +655,10 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 
 			.element-item:last-child {
 				border-bottom: none;
+			}
+
+			.element-item.element-mapped {
+				border-left: 3px solid var(--uui-color-positive-standalone);
 			}
 
 			.element-checkbox {
@@ -525,66 +706,11 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				gap: 3px;
 			}
 
-			.element-item.element-mapped {
-				border-left: 3px solid var(--uui-color-positive-standalone);
-			}
-
-			.page-summary {
-				padding: var(--uui-size-space-2) var(--uui-size-space-4);
-				font-size: var(--uui-type-small-size);
-				color: var(--uui-color-text-alt);
-				text-align: right;
-			}
-
-			/* Visual grouping */
-			.visual-group + .visual-group {
-				border-top: 2px solid var(--uui-color-border);
-				margin-top: var(--uui-size-space-2);
-			}
-
-			.group-heading {
+			.diagnostics {
 				display: flex;
-				align-items: center;
 				gap: var(--uui-size-space-3);
 				padding: var(--uui-size-space-3) var(--uui-size-space-4);
-				background: var(--uui-color-surface-alt);
-				border-bottom: 1px solid var(--uui-color-border);
-				cursor: pointer;
-			}
-
-			.group-heading:hover {
-				background: var(--uui-color-surface-emphasis);
-			}
-
-			.group-heading.element-selected {
-				background: var(--uui-color-selected);
-			}
-
-			.group-heading.element-mapped {
-				border-left: 3px solid var(--uui-color-positive-standalone);
-			}
-
-			.heading-content {
-				flex: 1;
-				min-width: 0;
-			}
-
-			.heading-text {
-				font-weight: 700;
-				font-size: var(--uui-type-default-size);
-				margin-bottom: var(--uui-size-space-1);
-			}
-
-			.group-count {
-				font-size: var(--uui-type-small-size);
-				color: var(--uui-color-text-alt);
-				white-space: nowrap;
-			}
-
-			.group-children.indented {
-				padding-left: var(--uui-size-space-5);
-				border-left: 2px solid var(--uui-color-border);
-				margin-left: var(--uui-size-space-4);
+				justify-content: flex-end;
 			}
 		`,
 	];
