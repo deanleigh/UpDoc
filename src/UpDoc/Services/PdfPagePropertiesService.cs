@@ -596,23 +596,45 @@ public class PdfPagePropertiesService : IPdfPagePropertiesService
             }
         }
 
-        // Rule 1: Column-aware line splitting — split lines with large X-gaps
-        // into separate lines. Prevents cross-column merging (e.g., description
-        // text on the left and a bullet on the right sidebar being one element).
-        const double columnGapThreshold = 40.0; // pts — gap indicating separate columns
+        // Rule 1: Column-aware line splitting — detect column boundaries from word
+        // positions across the entire page, then split lines at those boundaries.
+        // Uses a projection profile: for each X position, count how many words cover it.
+        // The widest uncovered gap (away from margins) is the column boundary.
+        // This replaces the previous fixed 40pt threshold with data-driven detection
+        // that works even for narrow column gaps (e.g., 15-20pt on page 2 of Dresden PDF).
+        var columnBoundaries = DetectColumnBoundaries(words);
+        const double fallbackGapThreshold = 40.0; // pts — fallback for gaps not caught by column detection
+
         var splitLines = new List<RichTextLine>();
         foreach (var line in lines)
         {
             line.Words = line.Words.OrderBy(w => w.BoundingBox.Left).ToList();
 
-            // Check for large X-gaps between consecutive words
             var currentWords = new List<Word> { line.Words[0] };
             for (int i = 1; i < line.Words.Count; i++)
             {
-                var gap = line.Words[i].BoundingBox.Left - line.Words[i - 1].BoundingBox.Right;
-                if (gap > columnGapThreshold)
+                var prevRight = line.Words[i - 1].BoundingBox.Right;
+                var nextLeft = line.Words[i].BoundingBox.Left;
+                var gap = nextLeft - prevRight;
+
+                bool shouldSplit = false;
+
+                // Split if a detected column boundary falls between these words
+                foreach (var boundary in columnBoundaries)
                 {
-                    // Large gap — flush current words as a line, start new one
+                    if (prevRight < boundary && nextLeft > boundary)
+                    {
+                        shouldSplit = true;
+                        break;
+                    }
+                }
+
+                // Fallback: also split at large gaps (original Rule 1 behaviour)
+                if (!shouldSplit && gap > fallbackGapThreshold)
+                    shouldSplit = true;
+
+                if (shouldSplit)
+                {
                     splitLines.Add(new RichTextLine
                     {
                         Y = line.Y,
@@ -718,6 +740,93 @@ public class PdfPagePropertiesService : IPdfPagePropertiesService
 
         // Sort lines top to bottom (higher Y = top in PDF coordinates)
         return mergedLines.OrderByDescending(l => l.Y).ToList();
+    }
+
+    /// <summary>
+    /// Detects column boundaries on a page by analysing word X-positions.
+    /// Uses a projection profile: for each X position across the page, count how
+    /// many words cover it. Gaps in coverage (where no words exist) that exceed a
+    /// minimum width indicate column boundaries.
+    /// Returns the midpoint X of each detected gap, sorted left to right.
+    /// </summary>
+    private static List<double> DetectColumnBoundaries(List<Word> words)
+    {
+        if (words.Count < 2)
+            return new List<double>();
+
+        // Get page extent from word positions
+        var minX = words.Min(w => w.BoundingBox.Left);
+        var maxX = words.Max(w => w.BoundingBox.Right);
+        var pageWidth = maxX - minX;
+
+        if (pageWidth < 50) // too narrow to have columns
+            return new List<double>();
+
+        // Build a 1D projection profile at 1pt resolution
+        // Each bucket counts how many words span that X position
+        var resolution = 1.0; // 1 point per bucket
+        var bucketCount = (int)Math.Ceiling(pageWidth / resolution) + 1;
+        var profile = new int[bucketCount];
+
+        foreach (var word in words)
+        {
+            var left = (int)Math.Floor((word.BoundingBox.Left - minX) / resolution);
+            var right = (int)Math.Ceiling((word.BoundingBox.Right - minX) / resolution);
+            left = Math.Max(0, Math.Min(left, bucketCount - 1));
+            right = Math.Max(0, Math.Min(right, bucketCount - 1));
+
+            for (int i = left; i <= right; i++)
+                profile[i]++;
+        }
+
+        // Find gaps (runs of zero coverage) that could be column boundaries
+        // Exclude margins: skip the first and last 5% of the page
+        var marginBuckets = (int)(bucketCount * 0.05);
+        var startBucket = marginBuckets;
+        var endBucket = bucketCount - marginBuckets;
+
+        const double minGapWidth = 8.0; // pts — minimum gap to qualify as a column boundary
+
+        var gaps = new List<(int start, int end, double width)>();
+        int gapStart = -1;
+
+        for (int i = startBucket; i < endBucket; i++)
+        {
+            if (profile[i] == 0)
+            {
+                if (gapStart < 0)
+                    gapStart = i;
+            }
+            else
+            {
+                if (gapStart >= 0)
+                {
+                    var gapWidth = (i - gapStart) * resolution;
+                    if (gapWidth >= minGapWidth)
+                        gaps.Add((gapStart, i, gapWidth));
+                    gapStart = -1;
+                }
+            }
+        }
+
+        // Handle gap running to the end of the scan range
+        if (gapStart >= 0)
+        {
+            var gapWidth = (endBucket - gapStart) * resolution;
+            if (gapWidth >= minGapWidth)
+                gaps.Add((gapStart, endBucket, gapWidth));
+        }
+
+        if (gaps.Count == 0)
+            return new List<double>();
+
+        // Return midpoints of detected gaps, converted back to page coordinates
+        return gaps
+            .OrderByDescending(g => g.width) // widest gaps first (most likely real column boundaries)
+            .Take(3) // max 3 column boundaries (4 columns — very unlikely to need more)
+            .Select(g => minX + ((g.start + g.end) / 2.0) * resolution)
+            .OrderBy(x => x) // left to right
+            .ToList();
     }
 
     /// <summary>
