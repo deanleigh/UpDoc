@@ -306,6 +306,35 @@ export interface ZoneDiagnosticInfo {
 }
 
 // ============================================================================
+// Transform Result Types (transform.json — assembled Markdown per section)
+// ============================================================================
+
+export interface TransformResult {
+	version: string;
+	sections: TransformedSection[];
+	diagnostics: TransformDiagnostics;
+}
+
+export interface TransformedSection {
+	id: string;
+	originalHeading: string | null;
+	heading: string | null;
+	content: string;
+	pattern: 'bulletList' | 'paragraph' | 'subHeaded' | 'preamble' | 'mixed';
+	page: number;
+	zoneColor: string | null;
+	childCount: number;
+}
+
+export interface TransformDiagnostics {
+	totalSections: number;
+	bulletListSections: number;
+	paragraphSections: number;
+	subHeadedSections: number;
+	preambleSections: number;
+}
+
+// ============================================================================
 // API Response Types
 // ============================================================================
 

@@ -1,4 +1,4 @@
-import { b as z } from "./workflow.service-DJ0lDdZu.js";
+import { b as z } from "./workflow.service-DYhRHB0r.js";
 import { html as s, nothing as r, css as x, state as d, customElement as $ } from "@umbraco-cms/backoffice/external/lit";
 import { UmbLitElement as w } from "@umbraco-cms/backoffice/lit-element";
 import { UmbTextStyles as C } from "@umbraco-cms/backoffice/style";
@@ -342,4 +342,4 @@ export {
   c as UpDocWorkflowDestinationViewElement,
   S as default
 };
-//# sourceMappingURL=up-doc-workflow-destination-view.element-ILgFlD4z.js.map
+//# sourceMappingURL=up-doc-workflow-destination-view.element-BEaGRsLs.js.map

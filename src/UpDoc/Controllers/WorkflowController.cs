@@ -23,6 +23,7 @@ public class WorkflowController : ControllerBase
     private readonly IWorkflowService _workflowService;
     private readonly IDestinationStructureService _destinationStructureService;
     private readonly IPdfPagePropertiesService _pdfPagePropertiesService;
+    private readonly IContentTransformService _contentTransformService;
     private readonly IMediaService _mediaService;
     private readonly IWebHostEnvironment _webHostEnvironment;
     private readonly ILogger<WorkflowController> _logger;
@@ -31,6 +32,7 @@ public class WorkflowController : ControllerBase
         IWorkflowService workflowService,
         IDestinationStructureService destinationStructureService,
         IPdfPagePropertiesService pdfPagePropertiesService,
+        IContentTransformService contentTransformService,
         IMediaService mediaService,
         IWebHostEnvironment webHostEnvironment,
         ILogger<WorkflowController> logger)
@@ -38,6 +40,7 @@ public class WorkflowController : ControllerBase
         _workflowService = workflowService;
         _destinationStructureService = destinationStructureService;
         _pdfPagePropertiesService = pdfPagePropertiesService;
+        _contentTransformService = contentTransformService;
         _mediaService = mediaService;
         _webHostEnvironment = webHostEnvironment;
         _logger = logger;
@@ -303,6 +306,54 @@ public class WorkflowController : ControllerBase
         if (result == null)
         {
             return NotFound(new { error = $"No zone detection found for workflow '{name}'." });
+        }
+
+        return Ok(result);
+    }
+
+    [HttpPost("{name}/transform")]
+    public IActionResult ExtractTransform(string name, [FromBody] SampleExtractionRequest request)
+    {
+        var absolutePath = ResolveMediaFilePath(request.MediaKey);
+        if (absolutePath == null)
+        {
+            return NotFound(new { error = "Media item not found or file not on disk" });
+        }
+
+        // Step 1: Run zone detection
+        var zoneResult = _pdfPagePropertiesService.DetectZones(absolutePath);
+
+        try
+        {
+            _workflowService.SaveZoneDetection(name, zoneResult);
+        }
+        catch (DirectoryNotFoundException)
+        {
+            return NotFound(new { error = $"Workflow '{name}' not found." });
+        }
+
+        // Step 2: Run transform on zone detection output
+        var transformResult = _contentTransformService.Transform(zoneResult);
+        _workflowService.SaveTransformResult(name, transformResult);
+
+        _logger.LogInformation(
+            "Transform saved for workflow '{Name}': {Sections} sections ({Bullets} bullet, {Paragraphs} paragraph, {SubHeaded} sub-headed, {Preambles} preamble)",
+            name, transformResult.Diagnostics.TotalSections,
+            transformResult.Diagnostics.BulletListSections,
+            transformResult.Diagnostics.ParagraphSections,
+            transformResult.Diagnostics.SubHeadedSections,
+            transformResult.Diagnostics.PreambleSections);
+
+        return Ok(transformResult);
+    }
+
+    [HttpGet("{name}/transform")]
+    public IActionResult GetTransform(string name)
+    {
+        var result = _workflowService.GetTransformResult(name);
+        if (result == null)
+        {
+            return NotFound(new { error = $"No transform result found for workflow '{name}'." });
         }
 
         return Ok(result);

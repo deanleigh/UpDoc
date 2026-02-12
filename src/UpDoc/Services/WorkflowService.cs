@@ -84,6 +84,16 @@ public interface IWorkflowService
     /// Loads the stored zone-detection.json from a workflow folder, if it exists.
     /// </summary>
     ZoneDetectionResult? GetZoneDetection(string workflowName);
+
+    /// <summary>
+    /// Saves a transform result as transform.json in the workflow folder.
+    /// </summary>
+    void SaveTransformResult(string workflowName, TransformResult result);
+
+    /// <summary>
+    /// Loads the stored transform.json from a workflow folder, if it exists.
+    /// </summary>
+    TransformResult? GetTransformResult(string workflowName);
 }
 
 /// <summary>
@@ -544,6 +554,35 @@ public class WorkflowService : IWorkflowService
 
         var json = File.ReadAllText(filePath);
         return JsonSerializer.Deserialize<ZoneDetectionResult>(json, JsonOptions);
+    }
+
+    public void SaveTransformResult(string workflowName, TransformResult result)
+    {
+        var folderPath = GetWorkflowFolderPath(workflowName);
+        if (!Directory.Exists(folderPath))
+        {
+            throw new DirectoryNotFoundException($"Workflow folder '{workflowName}' does not exist.");
+        }
+
+        var filePath = Path.Combine(folderPath, "transform.json");
+        var writeOptions = new JsonSerializerOptions { WriteIndented = true };
+        var json = JsonSerializer.Serialize(result, writeOptions);
+        File.WriteAllText(filePath, json);
+
+        _logger.LogInformation("Saved transform result to {Path} ({Sections} sections)",
+            filePath, result.Sections.Count);
+    }
+
+    public TransformResult? GetTransformResult(string workflowName)
+    {
+        var folderPath = GetWorkflowFolderPath(workflowName);
+        var filePath = Path.Combine(folderPath, "transform.json");
+
+        if (!File.Exists(filePath))
+            return null;
+
+        var json = File.ReadAllText(filePath);
+        return JsonSerializer.Deserialize<TransformResult>(json, JsonOptions);
     }
 
     private string GetWorkflowFolderPath(string workflowName)

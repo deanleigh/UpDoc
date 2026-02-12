@@ -9,7 +9,7 @@ import { UMB_ENTITY_CONTEXT as g } from "@umbraco-cms/backoffice/entity";
 import { UmbDocumentTypeStructureRepository as x } from "@umbraco-cms/backoffice/document-type";
 import { UmbDocumentBlueprintItemRepository as E } from "@umbraco-cms/backoffice/document-blueprint";
 import { UmbDocumentItemRepository as _ } from "@umbraco-cms/backoffice/document";
-import { f as A } from "./workflow.service-DJ0lDdZu.js";
+import { f as A } from "./workflow.service-DYhRHB0r.js";
 var l, f, d, a, c, u, v, C;
 class j extends R {
   // undefined = not yet received
@@ -70,4 +70,4 @@ export {
   j as UpDocHasWorkflowsCondition,
   j as default
 };
-//# sourceMappingURL=up-doc-has-workflows.condition-C_zxhvVG.js.map
+//# sourceMappingURL=up-doc-has-workflows.condition-Dii1S83b.js.map

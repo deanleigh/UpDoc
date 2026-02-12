@@ -1,4 +1,4 @@
-import type { DocumentTypeConfig, ExtractSectionsResponse, MapConfig, RichExtractionResult, ZoneDetectionResult } from './workflow.types.js';
+import type { DocumentTypeConfig, ExtractSectionsResponse, MapConfig, RichExtractionResult, TransformResult, ZoneDetectionResult } from './workflow.types.js';
 
 const configCache = new Map<string, DocumentTypeConfig>();
 
@@ -249,6 +249,58 @@ export async function triggerZoneDetection(
 	if (!response.ok) {
 		const error = await response.json();
 		console.error('Zone detection failed:', error);
+		return null;
+	}
+
+	return response.json();
+}
+
+/**
+ * Fetches the transform result for a workflow, if it exists.
+ */
+export async function fetchTransformResult(
+	workflowName: string,
+	token: string
+): Promise<TransformResult | null> {
+	const response = await fetch(
+		`/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(workflowName)}/transform`,
+		{
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${token}`,
+			},
+		}
+	);
+
+	if (!response.ok) return null;
+	return response.json();
+}
+
+/**
+ * Triggers zone detection + transform for a workflow from a media item (PDF).
+ * The result is saved to transform.json (and zone-detection.json) in the workflow folder.
+ */
+export async function triggerTransform(
+	workflowName: string,
+	mediaKey: string,
+	token: string
+): Promise<TransformResult | null> {
+	const response = await fetch(
+		`/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(workflowName)}/transform`,
+		{
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${token}`,
+			},
+			body: JSON.stringify({ mediaKey }),
+		}
+	);
+
+	if (!response.ok) {
+		const error = await response.json();
+		console.error('Transform failed:', error);
 		return null;
 	}
 
