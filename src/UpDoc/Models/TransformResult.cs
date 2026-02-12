@@ -45,6 +45,13 @@ public class TransformedSection
 
     /// <summary>Number of children that were assembled.</summary>
     public int ChildCount { get; set; }
+
+    /// <summary>
+    /// Whether this section is included in the shaped output. Default: true.
+    /// Author can exclude sections (preamble noise, footers, supplements)
+    /// so they never reach the mapping or destination.
+    /// </summary>
+    public bool Included { get; set; } = true;
 }
 
 /// <summary>

@@ -1,6 +1,6 @@
 import type { RichExtractionResult, DocumentTypeConfig, MappingDestination, ZoneDetectionResult, DetectedZone, DetectedSection, ZoneElement, TransformResult, TransformedSection } from './workflow.types.js';
-import { fetchSampleExtraction, triggerSampleExtraction, fetchWorkflowByName, saveMapConfig, fetchZoneDetection, triggerTransform, fetchTransformResult } from './workflow.service.js';
-import { markdownToHtml } from './transforms.js';
+import { fetchSampleExtraction, triggerSampleExtraction, fetchWorkflowByName, fetchZoneDetection, triggerTransform, fetchTransformResult, updateSectionInclusion } from './workflow.service.js';
+import { markdownToHtml, normalizeToKebabCase } from './transforms.js';
 import { html, css, state, nothing } from '@umbraco-cms/backoffice/external/lit';
 import { customElement } from '@umbraco-cms/backoffice/external/lit';
 import { UmbLitElement } from '@umbraco-cms/backoffice/lit-element';
@@ -9,7 +9,6 @@ import { UMB_AUTH_CONTEXT } from '@umbraco-cms/backoffice/auth';
 import { UMB_WORKSPACE_CONTEXT } from '@umbraco-cms/backoffice/workspace';
 import { UMB_MODAL_MANAGER_CONTEXT } from '@umbraco-cms/backoffice/modal';
 import { UMB_MEDIA_PICKER_MODAL } from '@umbraco-cms/backoffice/media';
-import { UMB_DESTINATION_PICKER_MODAL } from './destination-picker-modal.token.js';
 
 @customElement('up-doc-workflow-source-view')
 export class UpDocWorkflowSourceViewElement extends UmbLitElement {
@@ -21,7 +20,6 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 	@state() private _extracting = false;
 	@state() private _error: string | null = null;
 	@state() private _successMessage: string | null = null;
-	@state() private _selectedElements = new Set<string>();
 	@state() private _collapsedSections = new Set<string>();
 	@state() private _transformResult: TransformResult | null = null;
 	@state() private _viewMode: 'elements' | 'transformed' = 'elements';
@@ -121,20 +119,6 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		}
 	}
 
-	#toggleSelection(id: string) {
-		const next = new Set(this._selectedElements);
-		if (next.has(id)) {
-			next.delete(id);
-		} else {
-			next.add(id);
-		}
-		this._selectedElements = next;
-	}
-
-	#clearSelection() {
-		this._selectedElements = new Set();
-	}
-
 	#toggleSectionCollapse(sectionKey: string) {
 		const next = new Set(this._collapsedSections);
 		if (next.has(sectionKey)) {
@@ -145,59 +129,41 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		this._collapsedSections = next;
 	}
 
-	async #onMapTo() {
-		if (!this._config || this._selectedElements.size === 0) return;
-
-		const modalManager = await this.getContext(UMB_MODAL_MANAGER_CONTEXT);
-		const modal = modalManager.open(this, UMB_DESTINATION_PICKER_MODAL, {
-			data: {
-				destination: this._config.destination,
-			},
-		});
-
-		const result = await modal.onSubmit().catch(() => null);
-		if (!result?.selectedTargets?.length || !this._workflowName) return;
-
-		const existingMappings = this._config.map.mappings ?? [];
-		const newMappings = [...existingMappings];
-		const addedCount = this._selectedElements.size;
-		for (const sourceId of this._selectedElements) {
-			newMappings.push({
-				source: sourceId,
-				destinations: result.selectedTargets.map((t: { target: string; blockKey?: string }) => ({
-					target: t.target,
-					...(t.blockKey ? { blockKey: t.blockKey } : {}),
-				})),
-				enabled: true,
-			});
+	#getAreaSectionKeys(pageNum: number, areaPrefix: string, sectionCount: number): string[] {
+		const keys: string[] = [];
+		for (let sIdx = 0; sIdx < sectionCount; sIdx++) {
+			keys.push(`p${pageNum}-${areaPrefix}-s${sIdx}`);
 		}
-
-		const updatedMap = { ...this._config.map, mappings: newMappings };
-		const saved = await saveMapConfig(this._workflowName, updatedMap, this.#token);
-		if (saved) {
-			this._config = { ...this._config, map: updatedMap };
-			this._selectedElements = new Set();
-			this._successMessage = `${addedCount} mapping${addedCount !== 1 ? 's' : ''} created`;
-			setTimeout(() => { this._successMessage = null; }, 3000);
-		}
+		return keys;
 	}
 
-	#renderToolbar() {
-		const count = this._selectedElements.size;
-		if (count === 0) return nothing;
+	#isAreaAllCollapsed(keys: string[]): boolean {
+		return keys.length > 0 && keys.every((k) => this._collapsedSections.has(k));
+	}
 
-		return html`
-			<div class="selection-toolbar">
-				<span class="selection-count">${count} selected</span>
-				<uui-button look="primary" compact label="Map to..." @click=${this.#onMapTo}>
-					<uui-icon name="icon-nodes"></uui-icon>
-					Map to...
-				</uui-button>
-				<uui-button look="secondary" compact label="Clear" @click=${this.#clearSelection}>
-					Clear
-				</uui-button>
-			</div>
-		`;
+	#toggleAreaCollapse(keys: string[]) {
+		const next = new Set(this._collapsedSections);
+		const allCollapsed = keys.every((k) => next.has(k));
+		if (allCollapsed) {
+			for (const k of keys) next.delete(k);
+		} else {
+			for (const k of keys) next.add(k);
+		}
+		this._collapsedSections = next;
+	}
+
+	#isSectionIncluded(sectionId: string): boolean {
+		if (!this._transformResult) return true;
+		const section = this._transformResult.sections.find((s) => s.id === sectionId);
+		return section?.included ?? true;
+	}
+
+	async #onToggleInclusion(sectionId: string, included: boolean) {
+		if (!this._workflowName) return;
+		const result = await updateSectionInclusion(this._workflowName, sectionId, included, this.#token);
+		if (result) {
+			this._transformResult = result;
+		}
 	}
 
 	#getMappedTargets(elementId: string): MappingDestination[] {
@@ -244,62 +210,64 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 	// --- Zone-based rendering ---
 
 	#renderZoneElement(element: ZoneElement) {
-		const checked = this._selectedElements.has(element.id);
-		const mappedTargets = this.#getMappedTargets(element.id);
-		const isMapped = mappedTargets.length > 0;
 		return html`
-			<div class="element-item ${checked ? 'element-selected' : ''} ${isMapped ? 'element-mapped' : ''}">
-				<uui-checkbox
-					label="Select for mapping"
-					?checked=${checked}
-					@change=${() => this.#toggleSelection(element.id)}
-					class="element-checkbox">
-				</uui-checkbox>
-				<div class="element-content" @click=${() => this.#toggleSelection(element.id)}>
+			<div class="element-item">
+				<div class="element-content">
 					<div class="element-text">${element.text}</div>
 					<div class="element-meta">
 						<span class="meta-badge font-size">${element.fontSize}pt</span>
 						<span class="meta-badge font-name">${element.fontName}</span>
 						<span class="meta-badge color" style="border-left: 3px solid ${element.color};">${element.color}</span>
-						${mappedTargets.map((t) => html`<span class="meta-badge mapped-target"><uui-icon name="icon-arrow-right" style="font-size: 10px;"></uui-icon> ${this.#resolveTargetLabel(t)}</span>`)}
 					</div>
 				</div>
 			</div>
 		`;
 	}
 
-	#renderSection(section: DetectedSection, sectionKey: string) {
+	#renderSection(section: DetectedSection, sectionKey: string, pageNum: number, zoneIndex: number) {
 		const isCollapsed = this._collapsedSections.has(sectionKey);
 
+		// Compute the section ID matching transform.json
+		const sectionId = section.heading
+			? normalizeToKebabCase(section.heading.text)
+			: (zoneIndex >= 0 ? `preamble-p${pageNum}-z${zoneIndex}` : `preamble-p${pageNum}-unzoned`);
+		const isIncluded = this.#isSectionIncluded(sectionId);
+
 		if (!section.heading) {
-			// Preamble section (no heading) — render children directly
+			// Preamble section (no heading) — render with toggle
 			return html`
-				<div class="zone-section">
-					${section.children.map((el) => this.#renderZoneElement(el))}
+				<div class="zone-section ${!isIncluded ? 'excluded' : ''}">
+					<div class="section-heading preamble">
+						<uui-toggle
+							label="${isIncluded ? 'Included' : 'Excluded'}"
+							?checked=${isIncluded}
+							@change=${(e: Event) => this.#onToggleInclusion(sectionId, (e.target as any).checked)}>
+						</uui-toggle>
+						<span class="heading-text preamble-label">Preamble</span>
+						<span class="group-count">${section.children.length} item${section.children.length !== 1 ? 's' : ''}</span>
+					</div>
+					${isIncluded ? html`
+						${section.children.map((el) => this.#renderZoneElement(el))}
+					` : nothing}
 				</div>
 			`;
 		}
 
 		const heading = section.heading;
-		const checked = this._selectedElements.has(heading.id);
-		const mappedTargets = this.#getMappedTargets(heading.id);
-		const isMapped = mappedTargets.length > 0;
 
 		return html`
-			<div class="zone-section">
-				<div class="section-heading ${checked ? 'element-selected' : ''} ${isMapped ? 'element-mapped' : ''}">
-					<uui-checkbox
-						label="Select ${heading.text}"
-						?checked=${checked}
-						@change=${() => this.#toggleSelection(heading.id)}
-						class="element-checkbox">
-					</uui-checkbox>
+			<div class="zone-section ${!isIncluded ? 'excluded' : ''}">
+				<div class="section-heading">
+					<uui-toggle
+						label="${isIncluded ? 'Included' : 'Excluded'}"
+						?checked=${isIncluded}
+						@change=${(e: Event) => this.#onToggleInclusion(sectionId, (e.target as any).checked)}>
+					</uui-toggle>
 					<div class="heading-content" @click=${() => this.#toggleSectionCollapse(sectionKey)}>
 						<div class="heading-text">${heading.text}</div>
 						<div class="element-meta">
 							<span class="meta-badge font-size">${heading.fontSize}pt</span>
 							<span class="meta-badge font-name">${heading.fontName}</span>
-							${mappedTargets.map((t) => html`<span class="meta-badge mapped-target"><uui-icon name="icon-arrow-right" style="font-size: 10px;"></uui-icon> ${this.#resolveTargetLabel(t)}</span>`)}
 						</div>
 					</div>
 					<button class="collapse-toggle" @click=${() => this.#toggleSectionCollapse(sectionKey)} title="${isCollapsed ? 'Expand' : 'Collapse'}">
@@ -307,7 +275,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 					</button>
 					<span class="group-count">${section.children.length} item${section.children.length !== 1 ? 's' : ''}</span>
 				</div>
-				${!isCollapsed ? html`
+				${!isCollapsed && isIncluded ? html`
 					<div class="section-children">
 						${section.children.map((el) => this.#renderZoneElement(el))}
 					</div>
@@ -318,14 +286,23 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 
 	#renderArea(zone: DetectedZone, pageNum: number, areaIndex: number) {
 		const elementCount = zone.totalElements;
+		const areaKeys = this.#getAreaSectionKeys(pageNum, `a${areaIndex}`, zone.sections.length);
+		const allCollapsed = this.#isAreaAllCollapsed(areaKeys);
 		return html`
 			<div class="zone-area" style="border-left-color: ${zone.color};">
 				<div class="area-header">
 					<span class="area-color-swatch" style="background: ${zone.color};"></span>
 					<span class="area-element-count">${elementCount} element${elementCount !== 1 ? 's' : ''}</span>
+					${zone.sections.length > 1 ? html`
+						<button class="area-collapse-toggle" @click=${() => this.#toggleAreaCollapse(areaKeys)}
+							title="${allCollapsed ? 'Expand all sections' : 'Collapse all sections'}">
+							<uui-icon name="${allCollapsed ? 'icon-navigation-right' : 'icon-navigation-down'}"></uui-icon>
+							${allCollapsed ? 'Expand' : 'Collapse'}
+						</button>
+					` : nothing}
 				</div>
 				${zone.sections.map((section, sIdx) =>
-					this.#renderSection(section, `p${pageNum}-a${areaIndex}-s${sIdx}`)
+					this.#renderSection(section, `p${pageNum}-a${areaIndex}-s${sIdx}`, pageNum, areaIndex)
 				)}
 			</div>
 		`;
@@ -333,14 +310,23 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 
 	#renderUnzonedContent(zone: DetectedZone, pageNum: number) {
 		if (zone.totalElements === 0) return nothing;
+		const areaKeys = this.#getAreaSectionKeys(pageNum, 'unzoned', zone.sections.length);
+		const allCollapsed = this.#isAreaAllCollapsed(areaKeys);
 		return html`
 			<div class="zone-area unzoned" style="border-left-color: var(--uui-color-border-standalone);">
 				<div class="area-header">
 					<span class="area-color-swatch unzoned-swatch"></span>
 					<span class="area-element-count">Unzoned — ${zone.totalElements} element${zone.totalElements !== 1 ? 's' : ''}</span>
+					${zone.sections.length > 1 ? html`
+						<button class="area-collapse-toggle" @click=${() => this.#toggleAreaCollapse(areaKeys)}
+							title="${allCollapsed ? 'Expand all sections' : 'Collapse all sections'}">
+							<uui-icon name="${allCollapsed ? 'icon-navigation-right' : 'icon-navigation-down'}"></uui-icon>
+							${allCollapsed ? 'Expand' : 'Collapse'}
+						</button>
+					` : nothing}
 				</div>
 				${zone.sections.map((section, sIdx) =>
-					this.#renderSection(section, `p${pageNum}-unzoned-s${sIdx}`)
+					this.#renderSection(section, `p${pageNum}-unzoned-s${sIdx}`, pageNum, -1)
 				)}
 			</div>
 		`;
@@ -414,11 +400,9 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				</uui-button>
 			</div>
 
-			${this._viewMode === 'elements' ? this.#renderToolbar() : nothing}
-
 			<div class="view-tabs">
 				<uui-tab-group>
-					<uui-tab label="Elements" ?active=${this._viewMode === 'elements'} @click=${() => { this._viewMode = 'elements'; }}>Elements</uui-tab>
+					<uui-tab label="Extracted" ?active=${this._viewMode === 'elements'} @click=${() => { this._viewMode = 'elements'; }}>Extracted</uui-tab>
 					<uui-tab label="Transformed" ?active=${this._viewMode === 'transformed'} @click=${() => { this._viewMode = 'transformed'; }} ?disabled=${!this._transformResult}>Transformed</uui-tab>
 				</uui-tab-group>
 			</div>
@@ -438,19 +422,17 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 			mixed: 'Mixed',
 		};
 
+		const headline = section.heading ?? 'Preamble';
 		return html`
-			<div class="transformed-section">
-				<div class="transformed-header">
-					${section.heading
-						? html`<span class="transformed-heading">${section.heading}</span>`
-						: html`<span class="transformed-heading preamble-heading">Preamble</span>`}
+			<uui-box headline=${headline} class="transformed-section">
+				<div slot="header-actions" class="transformed-header-badges">
 					<span class="pattern-badge ${section.pattern}">${patternLabels[section.pattern] ?? section.pattern}</span>
 					<span class="meta-badge">p${section.page}</span>
 					${section.zoneColor ? html`<span class="area-color-swatch" style="background: ${section.zoneColor};"></span>` : nothing}
 					<span class="meta-badge">${section.childCount} item${section.childCount !== 1 ? 's' : ''}</span>
 				</div>
 				<div class="transformed-content" .innerHTML=${markdownToHtml(section.content)}></div>
-			</div>
+			</uui-box>
 		`;
 	}
 
@@ -465,10 +447,13 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 			`;
 		}
 
+		const includedSections = this._transformResult.sections.filter((s) => s.included);
+		const totalSections = this._transformResult.sections.length;
+
 		return html`
-			${this._transformResult.sections.map((section) => this.#renderTransformedSection(section))}
+			${includedSections.map((section) => this.#renderTransformedSection(section))}
 			<div class="diagnostics">
-				<span class="meta-badge">${this._transformResult.diagnostics.totalSections} sections</span>
+				<span class="meta-badge">${includedSections.length}/${totalSections} sections included</span>
 				<span class="meta-badge">${this._transformResult.diagnostics.bulletListSections} bullet</span>
 				<span class="meta-badge">${this._transformResult.diagnostics.paragraphSections} paragraph</span>
 				<span class="meta-badge">${this._transformResult.diagnostics.subHeadedSections} sub-headed</span>
@@ -585,24 +570,6 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				margin: var(--uui-size-space-4);
 			}
 
-			/* Selection toolbar */
-			.selection-toolbar {
-				display: flex;
-				align-items: center;
-				gap: var(--uui-size-space-3);
-				padding: var(--uui-size-space-3) var(--uui-size-space-4);
-				background: var(--uui-color-selected);
-				border-bottom: 1px solid var(--uui-color-border);
-				position: sticky;
-				top: 0;
-				z-index: 1;
-			}
-
-			.selection-count {
-				font-size: var(--uui-type-small-size);
-				font-weight: 600;
-			}
-
 			/* Zone areas */
 			.zone-area {
 				border-left: 4px solid var(--uui-color-border);
@@ -639,6 +606,25 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				font-weight: 500;
 			}
 
+			.area-collapse-toggle {
+				margin-left: auto;
+				background: none;
+				border: 1px solid var(--uui-color-border);
+				border-radius: var(--uui-border-radius);
+				cursor: pointer;
+				padding: 2px 8px;
+				color: var(--uui-color-text-alt);
+				font-size: var(--uui-type-small-size);
+				display: flex;
+				align-items: center;
+				gap: var(--uui-size-space-1);
+			}
+
+			.area-collapse-toggle:hover {
+				color: var(--uui-color-text);
+				background: var(--uui-color-surface-emphasis);
+			}
+
 			/* Sections within areas */
 			.zone-section + .zone-section {
 				border-top: 1px solid var(--uui-color-border);
@@ -656,14 +642,6 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 
 			.section-heading:hover {
 				background: var(--uui-color-surface-emphasis);
-			}
-
-			.section-heading.element-selected {
-				background: var(--uui-color-selected);
-			}
-
-			.section-heading.element-mapped {
-				border-left: 3px solid var(--uui-color-positive-standalone);
 			}
 
 			.heading-content {
@@ -703,6 +681,16 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				margin-left: var(--uui-size-space-4);
 			}
 
+			/* Excluded sections */
+			.zone-section.excluded {
+				opacity: 0.4;
+			}
+
+			.preamble-label {
+				color: var(--uui-color-text-alt);
+				font-style: italic;
+			}
+
 			/* Element items */
 			.element-item {
 				display: flex;
@@ -710,28 +698,10 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				gap: var(--uui-size-space-3);
 				padding: var(--uui-size-space-3) var(--uui-size-space-4);
 				border-bottom: 1px solid var(--uui-color-border);
-				cursor: pointer;
-			}
-
-			.element-item:hover {
-				background: var(--uui-color-surface-emphasis);
-			}
-
-			.element-item.element-selected {
-				background: var(--uui-color-selected);
 			}
 
 			.element-item:last-child {
 				border-bottom: none;
-			}
-
-			.element-item.element-mapped {
-				border-left: 3px solid var(--uui-color-positive-standalone);
-			}
-
-			.element-checkbox {
-				flex-shrink: 0;
-				margin-top: 2px;
 			}
 
 			.element-content {
@@ -790,29 +760,12 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 			/* Transformed sections */
 			.transformed-section {
 				margin: var(--uui-size-space-4);
-				border: 1px solid var(--uui-color-border);
-				border-radius: var(--uui-border-radius);
-				overflow: hidden;
 			}
 
-			.transformed-header {
+			.transformed-header-badges {
 				display: flex;
 				align-items: center;
 				gap: var(--uui-size-space-2);
-				padding: var(--uui-size-space-3) var(--uui-size-space-4);
-				background: var(--uui-color-surface-alt);
-				border-bottom: 1px solid var(--uui-color-border);
-			}
-
-			.transformed-heading {
-				font-weight: 700;
-				font-size: var(--uui-type-default-size);
-				flex: 1;
-			}
-
-			.transformed-heading.preamble-heading {
-				color: var(--uui-color-text-alt);
-				font-style: italic;
 			}
 
 			.pattern-badge {

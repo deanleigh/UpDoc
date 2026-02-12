@@ -26,6 +26,15 @@ export function markdownToHtml(markdown: string): string {
 }
 
 /**
+ * Normalizes text to kebab-case for use as a section ID.
+ * Mirrors the C# NormalizeToKebabCase in ContentTransformService.
+ * "FEATURES" → "features", "WHAT WE WILL SEE" → "what-we-will-see"
+ */
+export function normalizeToKebabCase(text: string): string {
+	return text.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+}
+
+/**
  * Builds an Umbraco RTE (Rich Text Editor) value object from HTML markup.
  */
 export function buildRteValue(htmlContent: string) {

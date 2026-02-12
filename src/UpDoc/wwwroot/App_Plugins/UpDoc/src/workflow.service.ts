@@ -308,6 +308,31 @@ export async function triggerTransform(
 }
 
 /**
+ * Updates the include/exclude state for a single section in transform.json.
+ */
+export async function updateSectionInclusion(
+	workflowName: string,
+	sectionId: string,
+	included: boolean,
+	token: string
+): Promise<TransformResult | null> {
+	const response = await fetch(
+		`/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(workflowName)}/transform/sections/${encodeURIComponent(sectionId)}/included`,
+		{
+			method: 'PATCH',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${token}`,
+			},
+			body: JSON.stringify({ included }),
+		}
+	);
+
+	if (!response.ok) return null;
+	return response.json();
+}
+
+/**
  * Saves the map config for a workflow.
  */
 export async function saveMapConfig(

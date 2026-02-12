@@ -332,8 +332,9 @@ public class WorkflowController : ControllerBase
             return NotFound(new { error = $"Workflow '{name}' not found." });
         }
 
-        // Step 2: Run transform on zone detection output
-        var transformResult = _contentTransformService.Transform(zoneResult);
+        // Step 2: Run transform on zone detection output, preserving existing include/exclude state
+        var previousTransform = _workflowService.GetTransformResult(name);
+        var transformResult = _contentTransformService.Transform(zoneResult, previousTransform);
         _workflowService.SaveTransformResult(name, transformResult);
 
         _logger.LogInformation(
@@ -354,6 +355,18 @@ public class WorkflowController : ControllerBase
         if (result == null)
         {
             return NotFound(new { error = $"No transform result found for workflow '{name}'." });
+        }
+
+        return Ok(result);
+    }
+
+    [HttpPatch("{name}/transform/sections/{sectionId}/included")]
+    public IActionResult UpdateSectionInclusion(string name, string sectionId, [FromBody] SectionInclusionRequest request)
+    {
+        var result = _workflowService.UpdateSectionInclusion(name, sectionId, request.Included);
+        if (result == null)
+        {
+            return NotFound(new { error = $"Workflow '{name}' or section '{sectionId}' not found." });
         }
 
         return Ok(result);
@@ -397,4 +410,9 @@ public class CreateWorkflowRequest
     public string SourceType { get; set; } = string.Empty;
     public string? BlueprintId { get; set; }
     public string? BlueprintName { get; set; }
+}
+
+public class SectionInclusionRequest
+{
+    public bool Included { get; set; }
 }

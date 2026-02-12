@@ -1,13 +1,13 @@
 const c = /* @__PURE__ */ new Map();
 let r = null, s = null;
-async function u(o) {
+async function u(n) {
   return r || (s || (s = (async () => {
     try {
       const e = await fetch("/umbraco/management/api/v1/updoc/workflows/active", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${o}`
+          Authorization: `Bearer ${n}`
         }
       });
       e.ok ? r = await e.json() : r = { documentTypeAliases: [], blueprintIds: [] };
@@ -17,11 +17,11 @@ async function u(o) {
     return s = null, r;
   })()), s);
 }
-async function p(o, e) {
-  const n = c.get(o);
-  if (n) return n;
+async function p(n, e) {
+  const o = c.get(n);
+  if (o) return o;
   const t = await fetch(
-    `/umbraco/management/api/v1/updoc/config/${o}`,
+    `/umbraco/management/api/v1/updoc/config/${n}`,
     {
       method: "GET",
       headers: {
@@ -31,13 +31,13 @@ async function p(o, e) {
     }
   );
   if (!t.ok)
-    return console.warn(`No config found for blueprint ${o}`), null;
+    return console.warn(`No config found for blueprint ${n}`), null;
   const a = await t.json();
-  return c.set(o, a), a;
+  return c.set(n, a), a;
 }
-async function f(o, e) {
-  const n = await fetch(
-    `/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(o)}`,
+async function f(n, e) {
+  const o = await fetch(
+    `/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(n)}`,
     {
       method: "GET",
       headers: {
@@ -46,11 +46,11 @@ async function f(o, e) {
       }
     }
   );
-  return n.ok ? n.json() : (console.warn(`No workflow found with name "${o}"`), null);
+  return o.ok ? o.json() : (console.warn(`No workflow found with name "${n}"`), null);
 }
-async function l(o, e) {
-  const n = await fetch(
-    `/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(o)}/sample-extraction`,
+async function l(n, e) {
+  const o = await fetch(
+    `/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(n)}/sample-extraction`,
     {
       method: "GET",
       headers: {
@@ -59,16 +59,16 @@ async function l(o, e) {
       }
     }
   );
-  return n.ok ? n.json() : null;
+  return o.ok ? o.json() : null;
 }
-async function m(o, e, n) {
+async function m(n, e, o) {
   const t = await fetch(
-    `/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(o)}/sample-extraction`,
+    `/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(n)}/sample-extraction`,
     {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${n}`
+        Authorization: `Bearer ${o}`
       },
       body: JSON.stringify({ mediaKey: e })
     }
@@ -79,9 +79,9 @@ async function m(o, e, n) {
   }
   return t.json();
 }
-async function h(o, e) {
-  const n = await fetch(
-    `/umbraco/management/api/v1/updoc/extract-rich?mediaKey=${o}`,
+async function d(n, e) {
+  const o = await fetch(
+    `/umbraco/management/api/v1/updoc/extract-rich?mediaKey=${n}`,
     {
       method: "GET",
       headers: {
@@ -90,11 +90,11 @@ async function h(o, e) {
       }
     }
   );
-  return n.ok ? n.json() : null;
+  return o.ok ? o.json() : null;
 }
-async function d(o, e) {
-  const n = await fetch(
-    `/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(o)}/zone-detection`,
+async function h(n, e) {
+  const o = await fetch(
+    `/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(n)}/zone-detection`,
     {
       method: "GET",
       headers: {
@@ -103,11 +103,11 @@ async function d(o, e) {
       }
     }
   );
-  return n.ok ? n.json() : null;
+  return o.ok ? o.json() : null;
 }
-async function w(o, e) {
-  const n = await fetch(
-    `/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(o)}/transform`,
+async function w(n, e) {
+  const o = await fetch(
+    `/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(n)}/transform`,
     {
       method: "GET",
       headers: {
@@ -116,16 +116,16 @@ async function w(o, e) {
       }
     }
   );
-  return n.ok ? n.json() : null;
+  return o.ok ? o.json() : null;
 }
-async function y(o, e, n) {
+async function y(n, e, o) {
   const t = await fetch(
-    `/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(o)}/transform`,
+    `/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(n)}/transform`,
     {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${n}`
+        Authorization: `Bearer ${o}`
       },
       body: JSON.stringify({ mediaKey: e })
     }
@@ -136,14 +136,28 @@ async function y(o, e, n) {
   }
   return t.json();
 }
-async function g(o, e, n) {
+async function g(n, e, o, t) {
+  const a = await fetch(
+    `/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(n)}/transform/sections/${encodeURIComponent(e)}/included`,
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${t}`
+      },
+      body: JSON.stringify({ included: o })
+    }
+  );
+  return a.ok ? a.json() : null;
+}
+async function C(n, e, o) {
   const t = await fetch(
-    `/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(o)}/map`,
+    `/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(n)}/map`,
     {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${n}`
+        Authorization: `Bearer ${o}`
       },
       body: JSON.stringify(e)
     }
@@ -161,13 +175,14 @@ export {
   p as a,
   f as b,
   l as c,
-  d,
-  h as e,
+  h as d,
+  d as e,
   u as f,
   w as g,
   y as h,
   i,
-  g as s,
-  m as t
+  C as s,
+  m as t,
+  g as u
 };
-//# sourceMappingURL=workflow.service-DYhRHB0r.js.map
+//# sourceMappingURL=workflow.service-C9FepPiJ.js.map

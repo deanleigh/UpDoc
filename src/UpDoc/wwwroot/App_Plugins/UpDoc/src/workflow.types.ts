@@ -324,6 +324,7 @@ export interface TransformedSection {
 	page: number;
 	zoneColor: string | null;
 	childCount: number;
+	included: boolean;
 }
 
 export interface TransformDiagnostics {

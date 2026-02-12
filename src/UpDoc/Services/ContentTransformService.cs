@@ -11,7 +11,7 @@ namespace UpDoc.Services;
 /// </summary>
 public interface IContentTransformService
 {
-    TransformResult Transform(ZoneDetectionResult zoneDetection);
+    TransformResult Transform(ZoneDetectionResult zoneDetection, TransformResult? previous = null);
 }
 
 public class ContentTransformService : IContentTransformService
@@ -21,7 +21,7 @@ public class ContentTransformService : IContentTransformService
         '•', '●', '○', '■', '□', '▪', '▫', '◆', '◇', '►', '▸', '\u2022'
     };
 
-    public TransformResult Transform(ZoneDetectionResult zoneDetection)
+    public TransformResult Transform(ZoneDetectionResult zoneDetection, TransformResult? previous = null)
     {
         var result = new TransformResult();
         var diagnostics = new TransformDiagnostics();
@@ -46,6 +46,21 @@ public class ContentTransformService : IContentTransformService
                     var transformed = TransformSection(section, page.Page, null, -1);
                     result.Sections.Add(transformed);
                     UpdateDiagnostics(diagnostics, transformed.Pattern);
+                }
+            }
+        }
+
+        // Preserve include/exclude state from previous transform
+        if (previous != null)
+        {
+            var previousInclusion = previous.Sections
+                .ToDictionary(s => s.Id, s => s.Included);
+
+            foreach (var section in result.Sections)
+            {
+                if (previousInclusion.TryGetValue(section.Id, out var included))
+                {
+                    section.Included = included;
                 }
             }
         }

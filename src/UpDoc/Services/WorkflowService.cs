@@ -94,6 +94,12 @@ public interface IWorkflowService
     /// Loads the stored transform.json from a workflow folder, if it exists.
     /// </summary>
     TransformResult? GetTransformResult(string workflowName);
+
+    /// <summary>
+    /// Updates the Included flag for a single section in transform.json.
+    /// Returns the updated TransformResult, or null if the workflow or section was not found.
+    /// </summary>
+    TransformResult? UpdateSectionInclusion(string workflowName, string sectionId, bool included);
 }
 
 /// <summary>
@@ -583,6 +589,24 @@ public class WorkflowService : IWorkflowService
 
         var json = File.ReadAllText(filePath);
         return JsonSerializer.Deserialize<TransformResult>(json, JsonOptions);
+    }
+
+    public TransformResult? UpdateSectionInclusion(string workflowName, string sectionId, bool included)
+    {
+        var result = GetTransformResult(workflowName);
+        if (result == null) return null;
+
+        var section = result.Sections.FirstOrDefault(s =>
+            string.Equals(s.Id, sectionId, StringComparison.OrdinalIgnoreCase));
+        if (section == null) return null;
+
+        section.Included = included;
+        SaveTransformResult(workflowName, result);
+
+        _logger.LogInformation("Updated section '{SectionId}' in workflow '{Name}' to Included={Included}",
+            sectionId, workflowName, included);
+
+        return result;
     }
 
     private string GetWorkflowFolderPath(string workflowName)
