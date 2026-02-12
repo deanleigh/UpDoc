@@ -187,21 +187,31 @@ export class UpDocModalElement extends UmbModalBaseElement<
 	}
 
 	/**
-	 * Pre-fills the document name by finding elements mapped to the first destination field.
+	 * Pre-fills the document name by finding elements mapped to a top-level field
+	 * (no blockKey — i.e., a document property like pageTitle, not a block property).
 	 * Concatenates multiple elements with a space (e.g., title split across two lines).
 	 */
 	#prefillDocumentName(elementLookup: Record<string, string>) {
 		if (!this._config?.map?.mappings?.length) return;
 
-		// Find the first destination field that has mappings (usually pageTitle)
-		const firstTarget = this._config.map.mappings[0]?.destinations?.[0]?.target;
-		if (!firstTarget) return;
+		// Find the first mapping that targets a top-level field (no blockKey)
+		let titleTarget: string | null = null;
+		for (const mapping of this._config.map.mappings) {
+			if (mapping.enabled === false) continue;
+			const topLevelDest = mapping.destinations.find((d) => !d.blockKey);
+			if (topLevelDest) {
+				titleTarget = topLevelDest.target;
+				break;
+			}
+		}
 
-		// Collect text from all elements mapped to this target
+		if (!titleTarget) return;
+
+		// Collect text from all elements mapped to this top-level target
 		const parts: string[] = [];
 		for (const mapping of this._config.map.mappings) {
 			if (mapping.enabled === false) continue;
-			const mapsToTarget = mapping.destinations.some((d) => d.target === firstTarget);
+			const mapsToTarget = mapping.destinations.some((d) => d.target === titleTarget && !d.blockKey);
 			if (mapsToTarget && elementLookup[mapping.source]) {
 				parts.push(elementLookup[mapping.source]);
 			}
@@ -438,43 +448,62 @@ export class UpDocModalElement extends UmbModalBaseElement<
 
 	/**
 	 * Builds a preview of what the mapped values will look like.
-	 * Groups extracted elements by their destination field and concatenates.
+	 * Groups by compound key (blockKey:alias) so block properties with the same
+	 * alias across different blocks are kept separate.
 	 */
 	#buildMappedPreview(): Array<{ label: string; value: string }> {
 		if (!this._config?.map?.mappings?.length) return [];
 
 		const preview = new Map<string, string[]>();
+		const keyMeta = new Map<string, { alias: string; blockKey?: string }>();
+
 		for (const mapping of this._config.map.mappings) {
 			if (mapping.enabled === false) continue;
 			const text = this._sectionLookup[mapping.source] ?? this._extractedSections[mapping.source];
 			if (!text) continue;
 			for (const dest of mapping.destinations) {
-				const existing = preview.get(dest.target) ?? [];
+				const compoundKey = dest.blockKey ? `${dest.blockKey}:${dest.target}` : dest.target;
+				const existing = preview.get(compoundKey) ?? [];
 				existing.push(text);
-				preview.set(dest.target, existing);
+				preview.set(compoundKey, existing);
+				if (!keyMeta.has(compoundKey)) {
+					keyMeta.set(compoundKey, { alias: dest.target, blockKey: dest.blockKey });
+				}
 			}
 		}
 
-		// Resolve labels from destination config
-		return Array.from(preview.entries()).map(([alias, parts]) => ({
-			label: this.#resolveDestinationLabel(alias),
-			value: parts.join(' '),
-		}));
+		return Array.from(preview.entries()).map(([compoundKey, parts]) => {
+			const meta = keyMeta.get(compoundKey);
+			return {
+				label: this.#resolveDestinationLabel(meta?.alias ?? compoundKey, meta?.blockKey),
+				value: parts.join(' '),
+			};
+		});
 	}
 
-	#resolveDestinationLabel(alias: string): string {
+	#resolveDestinationLabel(alias: string, blockKey?: string): string {
 		if (!this._config?.destination) return alias;
-		const field = this._config.destination.fields.find((f) => f.alias === alias);
-		if (field) return field.label;
+
+		// Check top-level fields first (only when no blockKey)
+		if (!blockKey) {
+			const field = this._config.destination.fields.find((f) => f.alias === alias);
+			if (field) return field.label;
+		}
+
+		// Check block properties — use blockKey to find the specific block
 		if (this._config.destination.blockGrids) {
 			for (const grid of this._config.destination.blockGrids) {
 				for (const block of grid.blocks) {
+					if (blockKey && block.key !== blockKey) continue;
 					const prop = block.properties?.find((p) => p.alias === alias);
 					if (prop) return `${block.label} > ${prop.label || prop.alias}`;
 				}
 			}
 		}
-		return alias;
+
+		// Fallback: check top-level fields even with blockKey (shouldn't happen but safe)
+		const field = this._config.destination.fields.find((f) => f.alias === alias);
+		return field?.label ?? alias;
 	}
 
 	#renderContentTab() {
