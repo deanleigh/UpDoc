@@ -20,9 +20,11 @@ ASP.NET Core API controller for UpDoc workflow CRUD operations.
 | POST | `/{name}/regenerate-destination` | Regenerates destination.json from the blueprint |
 | PUT | `/{name}/map` | Saves updated map.json |
 
-### GET /{name} — Direct config loading
+### GET /{name} — Direct config loading with auto-regeneration
 
 Uses `GetConfigByName(name)` which loads the workflow config directly from disk without running validation. This is important because validation rejects workflows with partially-complete mappings (e.g., mappings referencing aliases that haven't been fully wired yet). The workspace editor needs to load these in-progress configs.
+
+After loading, the endpoint always regenerates `destination.json` from the current blueprint content. This ensures the Destination tab reflects the latest blueprint state (block ordering, property changes, etc.) without requiring manual regeneration. If regeneration fails, the cached file on disk is used as a fallback.
 
 ## Dependencies
 
