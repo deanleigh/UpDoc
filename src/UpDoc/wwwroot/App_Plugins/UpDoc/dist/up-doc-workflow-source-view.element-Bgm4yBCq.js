@@ -1,17 +1,17 @@
-import { d as mt, g as Ie, b as xt, h as bt, i as wt, j as _t, s as vt, k as $t, l as yt, m as zt, n as St, u as Rt } from "./workflow.service-T0TEyrPt.js";
-import { UmbModalToken as Ee, UMB_MODAL_MANAGER_CONTEXT as oe } from "@umbraco-cms/backoffice/modal";
-import { html as d, nothing as w, css as Tt, state as $, customElement as Ct } from "@umbraco-cms/backoffice/external/lit";
-import { UmbLitElement as At } from "@umbraco-cms/backoffice/lit-element";
-import { UmbTextStyles as Pt } from "@umbraco-cms/backoffice/style";
-import { UMB_AUTH_CONTEXT as De } from "@umbraco-cms/backoffice/auth";
-import { UMB_WORKSPACE_CONTEXT as Mt } from "@umbraco-cms/backoffice/workspace";
-import { UMB_MEDIA_PICKER_MODAL as It } from "@umbraco-cms/backoffice/media";
-function ce() {
+import { d as _t, g as Le, b as vt, h as $t, i as yt, j as zt, s as St, k as Rt, l as Tt, m as Ct, n as Pt, u as At } from "./workflow.service-T0TEyrPt.js";
+import { UmbModalToken as Be, UMB_MODAL_MANAGER_CONTEXT as ue } from "@umbraco-cms/backoffice/modal";
+import { html as d, nothing as w, css as Et, state as $, customElement as Mt } from "@umbraco-cms/backoffice/external/lit";
+import { UmbLitElement as It } from "@umbraco-cms/backoffice/lit-element";
+import { UmbTextStyles as Dt } from "@umbraco-cms/backoffice/style";
+import { UMB_AUTH_CONTEXT as Ne } from "@umbraco-cms/backoffice/auth";
+import { UMB_WORKSPACE_CONTEXT as Lt } from "@umbraco-cms/backoffice/workspace";
+import { UMB_MEDIA_PICKER_MODAL as Bt } from "@umbraco-cms/backoffice/media";
+function pe() {
   return { async: !1, breaks: !1, extensions: null, gfm: !0, hooks: null, pedantic: !1, renderer: null, silent: !1, tokenizer: null, walkTokens: null };
 }
-var M = ce();
-function Le(t) {
-  M = t;
+var E = pe();
+function Ze(t) {
+  E = t;
 }
 var q = { exec: () => null };
 function g(t, e = "") {
@@ -21,21 +21,21 @@ function g(t, e = "") {
   }, getRegex: () => new RegExp(s, e) };
   return n;
 }
-var Et = (() => {
+var Nt = (() => {
   try {
     return !!new RegExp("(?<=1)(?<!1)");
   } catch {
     return !1;
   }
-})(), y = { codeRemoveIndent: /^(?: {1,4}| {0,3}\t)/gm, outputLinkReplace: /\\([\[\]])/g, indentCodeCompensation: /^(\s+)(?:```)/, beginningSpace: /^\s+/, endingHash: /#$/, startingSpaceChar: /^ /, endingSpaceChar: / $/, nonSpaceChar: /[^ ]/, newLineCharGlobal: /\n/g, tabCharGlobal: /\t/g, multipleSpaceGlobal: /\s+/g, blankLine: /^[ \t]*$/, doubleBlankLine: /\n[ \t]*\n[ \t]*$/, blockquoteStart: /^ {0,3}>/, blockquoteSetextReplace: /\n {0,3}((?:=+|-+) *)(?=\n|$)/g, blockquoteSetextReplace2: /^ {0,3}>[ \t]?/gm, listReplaceTabs: /^\t+/, listReplaceNesting: /^ {1,4}(?=( {4})*[^ ])/g, listIsTask: /^\[[ xX]\] +\S/, listReplaceTask: /^\[[ xX]\] +/, listTaskCheckbox: /\[[ xX]\]/, anyLine: /\n.*\n/, hrefBrackets: /^<(.*)>$/, tableDelimiter: /[:|]/, tableAlignChars: /^\||\| *$/g, tableRowBlankLine: /\n[ \t]*$/, tableAlignRight: /^ *-+: *$/, tableAlignCenter: /^ *:-+: *$/, tableAlignLeft: /^ *:-+ *$/, startATag: /^<a /i, endATag: /^<\/a>/i, startPreScriptTag: /^<(pre|code|kbd|script)(\s|>)/i, endPreScriptTag: /^<\/(pre|code|kbd|script)(\s|>)/i, startAngleBracket: /^</, endAngleBracket: />$/, pedanticHrefTitle: /^([^'"]*[^\s])\s+(['"])(.*)\2/, unicodeAlphaNumeric: /[\p{L}\p{N}]/u, escapeTest: /[&<>"']/, escapeReplace: /[&<>"']/g, escapeTestNoEncode: /[<>"']|&(?!(#\d{1,7}|#[Xx][a-fA-F0-9]{1,6}|\w+);)/, escapeReplaceNoEncode: /[<>"']|&(?!(#\d{1,7}|#[Xx][a-fA-F0-9]{1,6}|\w+);)/g, unescapeTest: /&(#(?:\d+)|(?:#x[0-9A-Fa-f]+)|(?:\w+));?/ig, caret: /(^|[^\[])\^/g, percentDecode: /%25/g, findPipe: /\|/g, splitPipe: / \|/, slashPipe: /\\\|/g, carriageReturn: /\r\n|\r/g, spaceLine: /^ +$/gm, notSpaceStart: /^\S*/, endingNewline: /\n$/, listItemRegex: (t) => new RegExp(`^( {0,3}${t})((?:[	 ][^\\n]*)?(?:\\n|$))`), nextBulletRegex: (t) => new RegExp(`^ {0,${Math.min(3, t - 1)}}(?:[*+-]|\\d{1,9}[.)])((?:[ 	][^\\n]*)?(?:\\n|$))`), hrRegex: (t) => new RegExp(`^ {0,${Math.min(3, t - 1)}}((?:- *){3,}|(?:_ *){3,}|(?:\\* *){3,})(?:\\n+|$)`), fencesBeginRegex: (t) => new RegExp(`^ {0,${Math.min(3, t - 1)}}(?:\`\`\`|~~~)`), headingBeginRegex: (t) => new RegExp(`^ {0,${Math.min(3, t - 1)}}#`), htmlBeginRegex: (t) => new RegExp(`^ {0,${Math.min(3, t - 1)}}<(?:[a-z].*>|!--)`, "i") }, Dt = /^(?:[ \t]*(?:\n|$))+/, Lt = /^((?: {4}| {0,3}\t)[^\n]+(?:\n(?:[ \t]*(?:\n|$))*)?)+/, Bt = /^ {0,3}(`{3,}(?=[^`\n]*(?:\n|$))|~{3,})([^\n]*)(?:\n|$)(?:|([\s\S]*?)(?:\n|$))(?: {0,3}\1[~`]* *(?=\n|$)|$)/, O = /^ {0,3}((?:-[\t ]*){3,}|(?:_[ \t]*){3,}|(?:\*[ \t]*){3,})(?:\n+|$)/, Nt = /^ {0,3}(#{1,6})(?=\s|$)(.*)(?:\n+|$)/, ue = /(?:[*+-]|\d{1,9}[.)])/, Be = /^(?!bull |blockCode|fences|blockquote|heading|html|table)((?:.|\n(?!\s*?\n|bull |blockCode|fences|blockquote|heading|html|table))+?)\n {0,3}(=+|-+) *(?:\n+|$)/, Ne = g(Be).replace(/bull/g, ue).replace(/blockCode/g, /(?: {4}| {0,3}\t)/).replace(/fences/g, / {0,3}(?:`{3,}|~{3,})/).replace(/blockquote/g, / {0,3}>/).replace(/heading/g, / {0,3}#{1,6}/).replace(/html/g, / {0,3}<[^\n>]+>\n/).replace(/\|table/g, "").getRegex(), Zt = g(Be).replace(/bull/g, ue).replace(/blockCode/g, /(?: {4}| {0,3}\t)/).replace(/fences/g, / {0,3}(?:`{3,}|~{3,})/).replace(/blockquote/g, / {0,3}>/).replace(/heading/g, / {0,3}#{1,6}/).replace(/html/g, / {0,3}<[^\n>]+>\n/).replace(/table/g, / {0,3}\|?(?:[:\- ]*\|)+[\:\- ]*\n/).getRegex(), pe = /^([^\n]+(?:\n(?!hr|heading|lheading|blockquote|fences|list|html|table| +\n)[^\n]+)*)/, qt = /^[^\n]+/, he = /(?!\s*\])(?:\\[\s\S]|[^\[\]\\])+/, Ot = g(/^ {0,3}\[(label)\]: *(?:\n[ \t]*)?([^<\s][^\s]*|<.*?>)(?:(?: +(?:\n[ \t]*)?| *\n[ \t]*)(title))? *(?:\n+|$)/).replace("label", he).replace("title", /(?:"(?:\\"?|[^"\\])*"|'[^'\n]*(?:\n[^'\n]+)*\n?'|\([^()]*\))/).getRegex(), Ht = g(/^( {0,3}bull)([ \t][^\n]+?)?(?:\n|$)/).replace(/bull/g, ue).getRegex(), W = "address|article|aside|base|basefont|blockquote|body|caption|center|col|colgroup|dd|details|dialog|dir|div|dl|dt|fieldset|figcaption|figure|footer|form|frame|frameset|h[1-6]|head|header|hr|html|iframe|legend|li|link|main|menu|menuitem|meta|nav|noframes|ol|optgroup|option|p|param|search|section|summary|table|tbody|td|tfoot|th|thead|title|tr|track|ul", de = /<!--(?:-?>|[\s\S]*?(?:-->|$))/, Ut = g("^ {0,3}(?:<(script|pre|style|textarea)[\\s>][\\s\\S]*?(?:</\\1>[^\\n]*\\n+|$)|comment[^\\n]*(\\n+|$)|<\\?[\\s\\S]*?(?:\\?>\\n*|$)|<![A-Z][\\s\\S]*?(?:>\\n*|$)|<!\\[CDATA\\[[\\s\\S]*?(?:\\]\\]>\\n*|$)|</?(tag)(?: +|\\n|/?>)[\\s\\S]*?(?:(?:\\n[ 	]*)+\\n|$)|<(?!script|pre|style|textarea)([a-z][\\w-]*)(?:attribute)*? */?>(?=[ \\t]*(?:\\n|$))[\\s\\S]*?(?:(?:\\n[ 	]*)+\\n|$)|</(?!script|pre|style|textarea)[a-z][\\w-]*\\s*>(?=[ \\t]*(?:\\n|$))[\\s\\S]*?(?:(?:\\n[ 	]*)+\\n|$))", "i").replace("comment", de).replace("tag", W).replace("attribute", / +[a-zA-Z:_][\w.:-]*(?: *= *"[^"\n]*"| *= *'[^'\n]*'| *= *[^\s"'=<>`]+)?/).getRegex(), Ze = g(pe).replace("hr", O).replace("heading", " {0,3}#{1,6}(?:\\s|$)").replace("|lheading", "").replace("|table", "").replace("blockquote", " {0,3}>").replace("fences", " {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n").replace("list", " {0,3}(?:[*+-]|1[.)]) ").replace("html", "</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)").replace("tag", W).getRegex(), Vt = g(/^( {0,3}> ?(paragraph|[^\n]*)(?:\n|$))+/).replace("paragraph", Ze).getRegex(), ge = { blockquote: Vt, code: Lt, def: Ot, fences: Bt, heading: Nt, hr: O, html: Ut, lheading: Ne, list: Ht, newline: Dt, paragraph: Ze, table: q, text: qt }, Se = g("^ *([^\\n ].*)\\n {0,3}((?:\\| *)?:?-+:? *(?:\\| *:?-+:? *)*(?:\\| *)?)(?:\\n((?:(?! *\\n|hr|heading|blockquote|code|fences|list|html).*(?:\\n|$))*)\\n*|$)").replace("hr", O).replace("heading", " {0,3}#{1,6}(?:\\s|$)").replace("blockquote", " {0,3}>").replace("code", "(?: {4}| {0,3}	)[^\\n]").replace("fences", " {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n").replace("list", " {0,3}(?:[*+-]|1[.)]) ").replace("html", "</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)").replace("tag", W).getRegex(), Qt = { ...ge, lheading: Zt, table: Se, paragraph: g(pe).replace("hr", O).replace("heading", " {0,3}#{1,6}(?:\\s|$)").replace("|lheading", "").replace("table", Se).replace("blockquote", " {0,3}>").replace("fences", " {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n").replace("list", " {0,3}(?:[*+-]|1[.)]) ").replace("html", "</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)").replace("tag", W).getRegex() }, Gt = { ...ge, html: g(`^ *(?:comment *(?:\\n|\\s*$)|<(tag)[\\s\\S]+?</\\1> *(?:\\n{2,}|\\s*$)|<tag(?:"[^"]*"|'[^']*'|\\s[^'"/>\\s]*)*?/?> *(?:\\n{2,}|\\s*$))`).replace("comment", de).replace(/tag/g, "(?!(?:a|em|strong|small|s|cite|q|dfn|abbr|data|time|code|var|samp|kbd|sub|sup|i|b|u|mark|ruby|rt|rp|bdi|bdo|span|br|wbr|ins|del|img)\\b)\\w+(?!:|[^\\w\\s@]*@)\\b").getRegex(), def: /^ *\[([^\]]+)\]: *<?([^\s>]+)>?(?: +(["(][^\n]+[")]))? *(?:\n+|$)/, heading: /^(#{1,6})(.*)(?:\n+|$)/, fences: q, lheading: /^(.+?)\n {0,3}(=+|-+) *(?:\n+|$)/, paragraph: g(pe).replace("hr", O).replace("heading", ` *#{1,6} *[^
-]`).replace("lheading", Ne).replace("|table", "").replace("blockquote", " {0,3}>").replace("|fences", "").replace("|list", "").replace("|html", "").replace("|tag", "").getRegex() }, Ft = /^\\([!"#$%&'()*+,\-./:;<=>?@\[\]\\^_`{|}~])/, jt = /^(`+)([^`]|[^`][\s\S]*?[^`])\1(?!`)/, qe = /^( {2,}|\\)\n(?!\s*$)/, Wt = /^(`+|[^`])(?:(?= {2,}\n)|[\s\S]*?(?:(?=[\\<!\[`*_]|\b_|$)|[^ ](?= {2,}\n)))/, K = /[\p{P}\p{S}]/u, fe = /[\s\p{P}\p{S}]/u, Oe = /[^\s\p{P}\p{S}]/u, Kt = g(/^((?![*_])punctSpace)/, "u").replace(/punctSpace/g, fe).getRegex(), He = /(?!~)[\p{P}\p{S}]/u, Xt = /(?!~)[\s\p{P}\p{S}]/u, Jt = /(?:[^\s\p{P}\p{S}]|~)/u, Yt = g(/link|precode-code|html/, "g").replace("link", /\[(?:[^\[\]`]|(?<a>`+)[^`]+\k<a>(?!`))*?\]\((?:\\[\s\S]|[^\\\(\)]|\((?:\\[\s\S]|[^\\\(\)])*\))*\)/).replace("precode-", Et ? "(?<!`)()" : "(^^|[^`])").replace("code", /(?<b>`+)[^`]+\k<b>(?!`)/).replace("html", /<(?! )[^<>]*?>/).getRegex(), Ue = /^(?:\*+(?:((?!\*)punct)|[^\s*]))|^_+(?:((?!_)punct)|([^\s_]))/, es = g(Ue, "u").replace(/punct/g, K).getRegex(), ts = g(Ue, "u").replace(/punct/g, He).getRegex(), Ve = "^[^_*]*?__[^_*]*?\\*[^_*]*?(?=__)|[^*]+(?=[^*])|(?!\\*)punct(\\*+)(?=[\\s]|$)|notPunctSpace(\\*+)(?!\\*)(?=punctSpace|$)|(?!\\*)punctSpace(\\*+)(?=notPunctSpace)|[\\s](\\*+)(?!\\*)(?=punct)|(?!\\*)punct(\\*+)(?!\\*)(?=punct)|notPunctSpace(\\*+)(?=notPunctSpace)", ss = g(Ve, "gu").replace(/notPunctSpace/g, Oe).replace(/punctSpace/g, fe).replace(/punct/g, K).getRegex(), is = g(Ve, "gu").replace(/notPunctSpace/g, Jt).replace(/punctSpace/g, Xt).replace(/punct/g, He).getRegex(), ns = g("^[^_*]*?\\*\\*[^_*]*?_[^_*]*?(?=\\*\\*)|[^_]+(?=[^_])|(?!_)punct(_+)(?=[\\s]|$)|notPunctSpace(_+)(?!_)(?=punctSpace|$)|(?!_)punctSpace(_+)(?=notPunctSpace)|[\\s](_+)(?!_)(?=punct)|(?!_)punct(_+)(?!_)(?=punct)", "gu").replace(/notPunctSpace/g, Oe).replace(/punctSpace/g, fe).replace(/punct/g, K).getRegex(), as = g(/\\(punct)/, "gu").replace(/punct/g, K).getRegex(), rs = g(/^<(scheme:[^\s\x00-\x1f<>]*|email)>/).replace("scheme", /[a-zA-Z][a-zA-Z0-9+.-]{1,31}/).replace("email", /[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+(@)[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+(?![-_])/).getRegex(), ls = g(de).replace("(?:-->|$)", "-->").getRegex(), os = g("^comment|^</[a-zA-Z][\\w:-]*\\s*>|^<[a-zA-Z][\\w-]*(?:attribute)*?\\s*/?>|^<\\?[\\s\\S]*?\\?>|^<![a-zA-Z]+\\s[\\s\\S]*?>|^<!\\[CDATA\\[[\\s\\S]*?\\]\\]>").replace("comment", ls).replace("attribute", /\s+[a-zA-Z:_][\w.:-]*(?:\s*=\s*"[^"]*"|\s*=\s*'[^']*'|\s*=\s*[^\s"'=<>`]+)?/).getRegex(), Q = /(?:\[(?:\\[\s\S]|[^\[\]\\])*\]|\\[\s\S]|`+[^`]*?`+(?!`)|[^\[\]\\`])*?/, cs = g(/^!?\[(label)\]\(\s*(href)(?:(?:[ \t]*(?:\n[ \t]*)?)(title))?\s*\)/).replace("label", Q).replace("href", /<(?:\\.|[^\n<>\\])+>|[^ \t\n\x00-\x1f]*/).replace("title", /"(?:\\"?|[^"\\])*"|'(?:\\'?|[^'\\])*'|\((?:\\\)?|[^)\\])*\)/).getRegex(), Qe = g(/^!?\[(label)\]\[(ref)\]/).replace("label", Q).replace("ref", he).getRegex(), Ge = g(/^!?\[(ref)\](?:\[\])?/).replace("ref", he).getRegex(), us = g("reflink|nolink(?!\\()", "g").replace("reflink", Qe).replace("nolink", Ge).getRegex(), Re = /[hH][tT][tT][pP][sS]?|[fF][tT][pP]/, ke = { _backpedal: q, anyPunctuation: as, autolink: rs, blockSkip: Yt, br: qe, code: jt, del: q, emStrongLDelim: es, emStrongRDelimAst: ss, emStrongRDelimUnd: ns, escape: Ft, link: cs, nolink: Ge, punctuation: Kt, reflink: Qe, reflinkSearch: us, tag: os, text: Wt, url: q }, ps = { ...ke, link: g(/^!?\[(label)\]\((.*?)\)/).replace("label", Q).getRegex(), reflink: g(/^!?\[(label)\]\s*\[([^\]]*)\]/).replace("label", Q).getRegex() }, ee = { ...ke, emStrongRDelimAst: is, emStrongLDelim: ts, url: g(/^((?:protocol):\/\/|www\.)(?:[a-zA-Z0-9\-]+\.?)+[^\s<]*|^email/).replace("protocol", Re).replace("email", /[A-Za-z0-9._+-]+(@)[a-zA-Z0-9-_]+(?:\.[a-zA-Z0-9-_]*[a-zA-Z0-9])+(?![-_])/).getRegex(), _backpedal: /(?:[^?!.,:;*_'"~()&]+|\([^)]*\)|&(?![a-zA-Z0-9]+;$)|[?!.,:;*_'"~)]+(?!$))+/, del: /^(~~?)(?=[^\s~])((?:\\[\s\S]|[^\\])*?(?:\\[\s\S]|[^\s~\\]))\1(?=[^~]|$)/, text: g(/^([`~]+|[^`~])(?:(?= {2,}\n)|(?=[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@)|[\s\S]*?(?:(?=[\\<!\[`*~_]|\b_|protocol:\/\/|www\.|$)|[^ ](?= {2,}\n)|[^a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-](?=[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@)))/).replace("protocol", Re).getRegex() }, hs = { ...ee, br: g(qe).replace("{2,}", "*").getRegex(), text: g(ee.text).replace("\\b_", "\\b_| {2,}\\n").replace(/\{2,\}/g, "*").getRegex() }, U = { normal: ge, gfm: Qt, pedantic: Gt }, B = { normal: ke, gfm: ee, breaks: hs, pedantic: ps }, ds = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }, Te = (t) => ds[t];
-function A(t, e) {
+})(), y = { codeRemoveIndent: /^(?: {1,4}| {0,3}\t)/gm, outputLinkReplace: /\\([\[\]])/g, indentCodeCompensation: /^(\s+)(?:```)/, beginningSpace: /^\s+/, endingHash: /#$/, startingSpaceChar: /^ /, endingSpaceChar: / $/, nonSpaceChar: /[^ ]/, newLineCharGlobal: /\n/g, tabCharGlobal: /\t/g, multipleSpaceGlobal: /\s+/g, blankLine: /^[ \t]*$/, doubleBlankLine: /\n[ \t]*\n[ \t]*$/, blockquoteStart: /^ {0,3}>/, blockquoteSetextReplace: /\n {0,3}((?:=+|-+) *)(?=\n|$)/g, blockquoteSetextReplace2: /^ {0,3}>[ \t]?/gm, listReplaceTabs: /^\t+/, listReplaceNesting: /^ {1,4}(?=( {4})*[^ ])/g, listIsTask: /^\[[ xX]\] +\S/, listReplaceTask: /^\[[ xX]\] +/, listTaskCheckbox: /\[[ xX]\]/, anyLine: /\n.*\n/, hrefBrackets: /^<(.*)>$/, tableDelimiter: /[:|]/, tableAlignChars: /^\||\| *$/g, tableRowBlankLine: /\n[ \t]*$/, tableAlignRight: /^ *-+: *$/, tableAlignCenter: /^ *:-+: *$/, tableAlignLeft: /^ *:-+ *$/, startATag: /^<a /i, endATag: /^<\/a>/i, startPreScriptTag: /^<(pre|code|kbd|script)(\s|>)/i, endPreScriptTag: /^<\/(pre|code|kbd|script)(\s|>)/i, startAngleBracket: /^</, endAngleBracket: />$/, pedanticHrefTitle: /^([^'"]*[^\s])\s+(['"])(.*)\2/, unicodeAlphaNumeric: /[\p{L}\p{N}]/u, escapeTest: /[&<>"']/, escapeReplace: /[&<>"']/g, escapeTestNoEncode: /[<>"']|&(?!(#\d{1,7}|#[Xx][a-fA-F0-9]{1,6}|\w+);)/, escapeReplaceNoEncode: /[<>"']|&(?!(#\d{1,7}|#[Xx][a-fA-F0-9]{1,6}|\w+);)/g, unescapeTest: /&(#(?:\d+)|(?:#x[0-9A-Fa-f]+)|(?:\w+));?/ig, caret: /(^|[^\[])\^/g, percentDecode: /%25/g, findPipe: /\|/g, splitPipe: / \|/, slashPipe: /\\\|/g, carriageReturn: /\r\n|\r/g, spaceLine: /^ +$/gm, notSpaceStart: /^\S*/, endingNewline: /\n$/, listItemRegex: (t) => new RegExp(`^( {0,3}${t})((?:[	 ][^\\n]*)?(?:\\n|$))`), nextBulletRegex: (t) => new RegExp(`^ {0,${Math.min(3, t - 1)}}(?:[*+-]|\\d{1,9}[.)])((?:[ 	][^\\n]*)?(?:\\n|$))`), hrRegex: (t) => new RegExp(`^ {0,${Math.min(3, t - 1)}}((?:- *){3,}|(?:_ *){3,}|(?:\\* *){3,})(?:\\n+|$)`), fencesBeginRegex: (t) => new RegExp(`^ {0,${Math.min(3, t - 1)}}(?:\`\`\`|~~~)`), headingBeginRegex: (t) => new RegExp(`^ {0,${Math.min(3, t - 1)}}#`), htmlBeginRegex: (t) => new RegExp(`^ {0,${Math.min(3, t - 1)}}<(?:[a-z].*>|!--)`, "i") }, Zt = /^(?:[ \t]*(?:\n|$))+/, qt = /^((?: {4}| {0,3}\t)[^\n]+(?:\n(?:[ \t]*(?:\n|$))*)?)+/, Ot = /^ {0,3}(`{3,}(?=[^`\n]*(?:\n|$))|~{3,})([^\n]*)(?:\n|$)(?:|([\s\S]*?)(?:\n|$))(?: {0,3}\1[~`]* *(?=\n|$)|$)/, H = /^ {0,3}((?:-[\t ]*){3,}|(?:_[ \t]*){3,}|(?:\*[ \t]*){3,})(?:\n+|$)/, Ht = /^ {0,3}(#{1,6})(?=\s|$)(.*)(?:\n+|$)/, he = /(?:[*+-]|\d{1,9}[.)])/, qe = /^(?!bull |blockCode|fences|blockquote|heading|html|table)((?:.|\n(?!\s*?\n|bull |blockCode|fences|blockquote|heading|html|table))+?)\n {0,3}(=+|-+) *(?:\n+|$)/, Oe = g(qe).replace(/bull/g, he).replace(/blockCode/g, /(?: {4}| {0,3}\t)/).replace(/fences/g, / {0,3}(?:`{3,}|~{3,})/).replace(/blockquote/g, / {0,3}>/).replace(/heading/g, / {0,3}#{1,6}/).replace(/html/g, / {0,3}<[^\n>]+>\n/).replace(/\|table/g, "").getRegex(), Ut = g(qe).replace(/bull/g, he).replace(/blockCode/g, /(?: {4}| {0,3}\t)/).replace(/fences/g, / {0,3}(?:`{3,}|~{3,})/).replace(/blockquote/g, / {0,3}>/).replace(/heading/g, / {0,3}#{1,6}/).replace(/html/g, / {0,3}<[^\n>]+>\n/).replace(/table/g, / {0,3}\|?(?:[:\- ]*\|)+[\:\- ]*\n/).getRegex(), de = /^([^\n]+(?:\n(?!hr|heading|lheading|blockquote|fences|list|html|table| +\n)[^\n]+)*)/, Vt = /^[^\n]+/, ge = /(?!\s*\])(?:\\[\s\S]|[^\[\]\\])+/, Qt = g(/^ {0,3}\[(label)\]: *(?:\n[ \t]*)?([^<\s][^\s]*|<.*?>)(?:(?: +(?:\n[ \t]*)?| *\n[ \t]*)(title))? *(?:\n+|$)/).replace("label", ge).replace("title", /(?:"(?:\\"?|[^"\\])*"|'[^'\n]*(?:\n[^'\n]+)*\n?'|\([^()]*\))/).getRegex(), Ft = g(/^( {0,3}bull)([ \t][^\n]+?)?(?:\n|$)/).replace(/bull/g, he).getRegex(), X = "address|article|aside|base|basefont|blockquote|body|caption|center|col|colgroup|dd|details|dialog|dir|div|dl|dt|fieldset|figcaption|figure|footer|form|frame|frameset|h[1-6]|head|header|hr|html|iframe|legend|li|link|main|menu|menuitem|meta|nav|noframes|ol|optgroup|option|p|param|search|section|summary|table|tbody|td|tfoot|th|thead|title|tr|track|ul", fe = /<!--(?:-?>|[\s\S]*?(?:-->|$))/, Gt = g("^ {0,3}(?:<(script|pre|style|textarea)[\\s>][\\s\\S]*?(?:</\\1>[^\\n]*\\n+|$)|comment[^\\n]*(\\n+|$)|<\\?[\\s\\S]*?(?:\\?>\\n*|$)|<![A-Z][\\s\\S]*?(?:>\\n*|$)|<!\\[CDATA\\[[\\s\\S]*?(?:\\]\\]>\\n*|$)|</?(tag)(?: +|\\n|/?>)[\\s\\S]*?(?:(?:\\n[ 	]*)+\\n|$)|<(?!script|pre|style|textarea)([a-z][\\w-]*)(?:attribute)*? */?>(?=[ \\t]*(?:\\n|$))[\\s\\S]*?(?:(?:\\n[ 	]*)+\\n|$)|</(?!script|pre|style|textarea)[a-z][\\w-]*\\s*>(?=[ \\t]*(?:\\n|$))[\\s\\S]*?(?:(?:\\n[ 	]*)+\\n|$))", "i").replace("comment", fe).replace("tag", X).replace("attribute", / +[a-zA-Z:_][\w.:-]*(?: *= *"[^"\n]*"| *= *'[^'\n]*'| *= *[^\s"'=<>`]+)?/).getRegex(), He = g(de).replace("hr", H).replace("heading", " {0,3}#{1,6}(?:\\s|$)").replace("|lheading", "").replace("|table", "").replace("blockquote", " {0,3}>").replace("fences", " {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n").replace("list", " {0,3}(?:[*+-]|1[.)]) ").replace("html", "</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)").replace("tag", X).getRegex(), jt = g(/^( {0,3}> ?(paragraph|[^\n]*)(?:\n|$))+/).replace("paragraph", He).getRegex(), me = { blockquote: jt, code: qt, def: Qt, fences: Ot, heading: Ht, hr: H, html: Gt, lheading: Oe, list: Ft, newline: Zt, paragraph: He, table: q, text: Vt }, Ce = g("^ *([^\\n ].*)\\n {0,3}((?:\\| *)?:?-+:? *(?:\\| *:?-+:? *)*(?:\\| *)?)(?:\\n((?:(?! *\\n|hr|heading|blockquote|code|fences|list|html).*(?:\\n|$))*)\\n*|$)").replace("hr", H).replace("heading", " {0,3}#{1,6}(?:\\s|$)").replace("blockquote", " {0,3}>").replace("code", "(?: {4}| {0,3}	)[^\\n]").replace("fences", " {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n").replace("list", " {0,3}(?:[*+-]|1[.)]) ").replace("html", "</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)").replace("tag", X).getRegex(), Wt = { ...me, lheading: Ut, table: Ce, paragraph: g(de).replace("hr", H).replace("heading", " {0,3}#{1,6}(?:\\s|$)").replace("|lheading", "").replace("table", Ce).replace("blockquote", " {0,3}>").replace("fences", " {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n").replace("list", " {0,3}(?:[*+-]|1[.)]) ").replace("html", "</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)").replace("tag", X).getRegex() }, Kt = { ...me, html: g(`^ *(?:comment *(?:\\n|\\s*$)|<(tag)[\\s\\S]+?</\\1> *(?:\\n{2,}|\\s*$)|<tag(?:"[^"]*"|'[^']*'|\\s[^'"/>\\s]*)*?/?> *(?:\\n{2,}|\\s*$))`).replace("comment", fe).replace(/tag/g, "(?!(?:a|em|strong|small|s|cite|q|dfn|abbr|data|time|code|var|samp|kbd|sub|sup|i|b|u|mark|ruby|rt|rp|bdi|bdo|span|br|wbr|ins|del|img)\\b)\\w+(?!:|[^\\w\\s@]*@)\\b").getRegex(), def: /^ *\[([^\]]+)\]: *<?([^\s>]+)>?(?: +(["(][^\n]+[")]))? *(?:\n+|$)/, heading: /^(#{1,6})(.*)(?:\n+|$)/, fences: q, lheading: /^(.+?)\n {0,3}(=+|-+) *(?:\n+|$)/, paragraph: g(de).replace("hr", H).replace("heading", ` *#{1,6} *[^
+]`).replace("lheading", Oe).replace("|table", "").replace("blockquote", " {0,3}>").replace("|fences", "").replace("|list", "").replace("|html", "").replace("|tag", "").getRegex() }, Xt = /^\\([!"#$%&'()*+,\-./:;<=>?@\[\]\\^_`{|}~])/, Jt = /^(`+)([^`]|[^`][\s\S]*?[^`])\1(?!`)/, Ue = /^( {2,}|\\)\n(?!\s*$)/, Yt = /^(`+|[^`])(?:(?= {2,}\n)|[\s\S]*?(?:(?=[\\<!\[`*_]|\b_|$)|[^ ](?= {2,}\n)))/, J = /[\p{P}\p{S}]/u, ke = /[\s\p{P}\p{S}]/u, Ve = /[^\s\p{P}\p{S}]/u, es = g(/^((?![*_])punctSpace)/, "u").replace(/punctSpace/g, ke).getRegex(), Qe = /(?!~)[\p{P}\p{S}]/u, ts = /(?!~)[\s\p{P}\p{S}]/u, ss = /(?:[^\s\p{P}\p{S}]|~)/u, is = g(/link|precode-code|html/, "g").replace("link", /\[(?:[^\[\]`]|(?<a>`+)[^`]+\k<a>(?!`))*?\]\((?:\\[\s\S]|[^\\\(\)]|\((?:\\[\s\S]|[^\\\(\)])*\))*\)/).replace("precode-", Nt ? "(?<!`)()" : "(^^|[^`])").replace("code", /(?<b>`+)[^`]+\k<b>(?!`)/).replace("html", /<(?! )[^<>]*?>/).getRegex(), Fe = /^(?:\*+(?:((?!\*)punct)|[^\s*]))|^_+(?:((?!_)punct)|([^\s_]))/, ns = g(Fe, "u").replace(/punct/g, J).getRegex(), as = g(Fe, "u").replace(/punct/g, Qe).getRegex(), Ge = "^[^_*]*?__[^_*]*?\\*[^_*]*?(?=__)|[^*]+(?=[^*])|(?!\\*)punct(\\*+)(?=[\\s]|$)|notPunctSpace(\\*+)(?!\\*)(?=punctSpace|$)|(?!\\*)punctSpace(\\*+)(?=notPunctSpace)|[\\s](\\*+)(?!\\*)(?=punct)|(?!\\*)punct(\\*+)(?!\\*)(?=punct)|notPunctSpace(\\*+)(?=notPunctSpace)", rs = g(Ge, "gu").replace(/notPunctSpace/g, Ve).replace(/punctSpace/g, ke).replace(/punct/g, J).getRegex(), ls = g(Ge, "gu").replace(/notPunctSpace/g, ss).replace(/punctSpace/g, ts).replace(/punct/g, Qe).getRegex(), os = g("^[^_*]*?\\*\\*[^_*]*?_[^_*]*?(?=\\*\\*)|[^_]+(?=[^_])|(?!_)punct(_+)(?=[\\s]|$)|notPunctSpace(_+)(?!_)(?=punctSpace|$)|(?!_)punctSpace(_+)(?=notPunctSpace)|[\\s](_+)(?!_)(?=punct)|(?!_)punct(_+)(?!_)(?=punct)", "gu").replace(/notPunctSpace/g, Ve).replace(/punctSpace/g, ke).replace(/punct/g, J).getRegex(), cs = g(/\\(punct)/, "gu").replace(/punct/g, J).getRegex(), us = g(/^<(scheme:[^\s\x00-\x1f<>]*|email)>/).replace("scheme", /[a-zA-Z][a-zA-Z0-9+.-]{1,31}/).replace("email", /[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+(@)[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+(?![-_])/).getRegex(), ps = g(fe).replace("(?:-->|$)", "-->").getRegex(), hs = g("^comment|^</[a-zA-Z][\\w:-]*\\s*>|^<[a-zA-Z][\\w-]*(?:attribute)*?\\s*/?>|^<\\?[\\s\\S]*?\\?>|^<![a-zA-Z]+\\s[\\s\\S]*?>|^<!\\[CDATA\\[[\\s\\S]*?\\]\\]>").replace("comment", ps).replace("attribute", /\s+[a-zA-Z:_][\w.:-]*(?:\s*=\s*"[^"]*"|\s*=\s*'[^']*'|\s*=\s*[^\s"'=<>`]+)?/).getRegex(), G = /(?:\[(?:\\[\s\S]|[^\[\]\\])*\]|\\[\s\S]|`+[^`]*?`+(?!`)|[^\[\]\\`])*?/, ds = g(/^!?\[(label)\]\(\s*(href)(?:(?:[ \t]*(?:\n[ \t]*)?)(title))?\s*\)/).replace("label", G).replace("href", /<(?:\\.|[^\n<>\\])+>|[^ \t\n\x00-\x1f]*/).replace("title", /"(?:\\"?|[^"\\])*"|'(?:\\'?|[^'\\])*'|\((?:\\\)?|[^)\\])*\)/).getRegex(), je = g(/^!?\[(label)\]\[(ref)\]/).replace("label", G).replace("ref", ge).getRegex(), We = g(/^!?\[(ref)\](?:\[\])?/).replace("ref", ge).getRegex(), gs = g("reflink|nolink(?!\\()", "g").replace("reflink", je).replace("nolink", We).getRegex(), Pe = /[hH][tT][tT][pP][sS]?|[fF][tT][pP]/, xe = { _backpedal: q, anyPunctuation: cs, autolink: us, blockSkip: is, br: Ue, code: Jt, del: q, emStrongLDelim: ns, emStrongRDelimAst: rs, emStrongRDelimUnd: os, escape: Xt, link: ds, nolink: We, punctuation: es, reflink: je, reflinkSearch: gs, tag: hs, text: Yt, url: q }, fs = { ...xe, link: g(/^!?\[(label)\]\((.*?)\)/).replace("label", G).getRegex(), reflink: g(/^!?\[(label)\]\s*\[([^\]]*)\]/).replace("label", G).getRegex() }, se = { ...xe, emStrongRDelimAst: ls, emStrongLDelim: as, url: g(/^((?:protocol):\/\/|www\.)(?:[a-zA-Z0-9\-]+\.?)+[^\s<]*|^email/).replace("protocol", Pe).replace("email", /[A-Za-z0-9._+-]+(@)[a-zA-Z0-9-_]+(?:\.[a-zA-Z0-9-_]*[a-zA-Z0-9])+(?![-_])/).getRegex(), _backpedal: /(?:[^?!.,:;*_'"~()&]+|\([^)]*\)|&(?![a-zA-Z0-9]+;$)|[?!.,:;*_'"~)]+(?!$))+/, del: /^(~~?)(?=[^\s~])((?:\\[\s\S]|[^\\])*?(?:\\[\s\S]|[^\s~\\]))\1(?=[^~]|$)/, text: g(/^([`~]+|[^`~])(?:(?= {2,}\n)|(?=[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@)|[\s\S]*?(?:(?=[\\<!\[`*~_]|\b_|protocol:\/\/|www\.|$)|[^ ](?= {2,}\n)|[^a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-](?=[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@)))/).replace("protocol", Pe).getRegex() }, ms = { ...se, br: g(Ue).replace("{2,}", "*").getRegex(), text: g(se.text).replace("\\b_", "\\b_| {2,}\\n").replace(/\{2,\}/g, "*").getRegex() }, V = { normal: me, gfm: Wt, pedantic: Kt }, B = { normal: xe, gfm: se, breaks: ms, pedantic: fs }, ks = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }, Ae = (t) => ks[t];
+function P(t, e) {
   if (e) {
-    if (y.escapeTest.test(t)) return t.replace(y.escapeReplace, Te);
-  } else if (y.escapeTestNoEncode.test(t)) return t.replace(y.escapeReplaceNoEncode, Te);
+    if (y.escapeTest.test(t)) return t.replace(y.escapeReplace, Ae);
+  } else if (y.escapeTestNoEncode.test(t)) return t.replace(y.escapeReplaceNoEncode, Ae);
   return t;
 }
-function Ce(t) {
+function Ee(t) {
   try {
     t = encodeURI(t).replace(y.percentDecode, "%");
   } catch {
@@ -43,7 +43,7 @@ function Ce(t) {
   }
   return t;
 }
-function Ae(t, e) {
+function Me(t, e) {
   let s = t.replace(y.findPipe, (a, r, o) => {
     let l = !1, h = r;
     for (; --h >= 0 && o[h] === "\\"; ) l = !l;
@@ -62,7 +62,7 @@ function N(t, e, s) {
     i++;
   return t.slice(0, n - i);
 }
-function gs(t, e) {
+function xs(t, e) {
   if (t.indexOf(e[1]) === -1) return -1;
   let s = 0;
   for (let n = 0; n < t.length; n++) if (t[n] === "\\") n++;
@@ -70,13 +70,13 @@ function gs(t, e) {
   else if (t[n] === e[1] && (s--, s < 0)) return n;
   return s > 0 ? -2 : -1;
 }
-function Pe(t, e, s, n, i) {
+function Ie(t, e, s, n, i) {
   let a = e.href, r = e.title || null, o = t[1].replace(i.other.outputLinkReplace, "$1");
   n.state.inLink = !0;
   let l = { type: t[0].charAt(0) === "!" ? "image" : "link", raw: s, href: a, title: r, text: o, tokens: n.inlineTokens(o) };
   return n.state.inLink = !1, l;
 }
-function fs(t, e, s) {
+function bs(t, e, s) {
   let n = t.match(s.other.indentCodeCompensation);
   if (n === null) return e;
   let i = n[1];
@@ -89,12 +89,12 @@ function fs(t, e, s) {
   }).join(`
 `);
 }
-var G = class {
+var j = class {
   options;
   rules;
   lexer;
   constructor(t) {
-    this.options = t || M;
+    this.options = t || E;
   }
   space(t) {
     let e = this.rules.block.newline.exec(t);
@@ -111,7 +111,7 @@ var G = class {
   fences(t) {
     let e = this.rules.block.fences.exec(t);
     if (e) {
-      let s = e[0], n = fs(s, e[3] || "", this.rules);
+      let s = e[0], n = bs(s, e[3] || "", this.rules);
       return { type: "code", raw: s, lang: e[2] ? e[2].trim().replace(this.rules.inline.anyPunctuation, "$1") : e[2], text: n };
     }
   }
@@ -149,8 +149,8 @@ var G = class {
         n = n ? `${n}
 ${h}` : h, i = i ? `${i}
 ${p}` : p;
-        let m = this.lexer.state.top;
-        if (this.lexer.state.top = !0, this.lexer.blockTokens(p, a, !0), this.lexer.state.top = m, s.length === 0) break;
+        let k = this.lexer.state.top;
+        if (this.lexer.state.top = !0, this.lexer.blockTokens(p, a, !0), this.lexer.state.top = k, s.length === 0) break;
         let f = a.at(-1);
         if (f?.type === "code") break;
         if (f?.type === "blockquote") {
@@ -181,25 +181,25 @@ ${p}` : p;
         let l = !1, h = "", p = "";
         if (!(e = a.exec(t)) || this.rules.block.hr.test(t)) break;
         h = e[0], t = t.substring(h.length);
-        let m = e[2].split(`
+        let k = e[2].split(`
 `, 1)[0].replace(this.rules.other.listReplaceTabs, (S) => " ".repeat(3 * S.length)), f = t.split(`
-`, 1)[0], v = !m.trim(), x = 0;
-        if (this.options.pedantic ? (x = 2, p = m.trimStart()) : v ? x = e[1].length + 1 : (x = e[2].search(this.rules.other.nonSpaceChar), x = x > 4 ? 1 : x, p = m.slice(x), x += e[1].length), v && this.rules.other.blankLine.test(f) && (h += f + `
+`, 1)[0], v = !k.trim(), x = 0;
+        if (this.options.pedantic ? (x = 2, p = k.trimStart()) : v ? x = e[1].length + 1 : (x = e[2].search(this.rules.other.nonSpaceChar), x = x > 4 ? 1 : x, p = k.slice(x), x += e[1].length), v && this.rules.other.blankLine.test(f) && (h += f + `
 `, t = t.substring(f.length + 1), l = !0), !l) {
-          let S = this.rules.other.nextBulletRegex(x), $e = this.rules.other.hrRegex(x), ye = this.rules.other.fencesBeginRegex(x), ze = this.rules.other.headingBeginRegex(x), kt = this.rules.other.htmlBeginRegex(x);
+          let S = this.rules.other.nextBulletRegex(x), Se = this.rules.other.hrRegex(x), Re = this.rules.other.fencesBeginRegex(x), Te = this.rules.other.headingBeginRegex(x), wt = this.rules.other.htmlBeginRegex(x);
           for (; t; ) {
-            let Y = t.split(`
+            let te = t.split(`
 `, 1)[0], L;
-            if (f = Y, this.options.pedantic ? (f = f.replace(this.rules.other.listReplaceNesting, "  "), L = f) : L = f.replace(this.rules.other.tabCharGlobal, "    "), ye.test(f) || ze.test(f) || kt.test(f) || S.test(f) || $e.test(f)) break;
+            if (f = te, this.options.pedantic ? (f = f.replace(this.rules.other.listReplaceNesting, "  "), L = f) : L = f.replace(this.rules.other.tabCharGlobal, "    "), Re.test(f) || Te.test(f) || wt.test(f) || S.test(f) || Se.test(f)) break;
             if (L.search(this.rules.other.nonSpaceChar) >= x || !f.trim()) p += `
 ` + L.slice(x);
             else {
-              if (v || m.replace(this.rules.other.tabCharGlobal, "    ").search(this.rules.other.nonSpaceChar) >= 4 || ye.test(m) || ze.test(m) || $e.test(m)) break;
+              if (v || k.replace(this.rules.other.tabCharGlobal, "    ").search(this.rules.other.nonSpaceChar) >= 4 || Re.test(k) || Te.test(k) || Se.test(k)) break;
               p += `
 ` + f;
             }
-            !v && !f.trim() && (v = !0), h += Y + `
-`, t = t.substring(Y.length + 1), m = L.slice(x);
+            !v && !f.trim() && (v = !0), h += te + `
+`, t = t.substring(te.length + 1), k = L.slice(x);
           }
         }
         i.loose || (r ? i.loose = !0 : this.rules.other.doubleBlankLine.test(h) && (r = !0)), i.items.push({ type: "list_item", raw: h, task: !!this.options.gfm && this.rules.other.listIsTask.test(p), loose: !1, text: p, tokens: [] }), i.raw += h;
@@ -224,7 +224,7 @@ ${p}` : p;
           }
         }
         if (!i.loose) {
-          let h = l.tokens.filter((m) => m.type === "space"), p = h.length > 0 && h.some((m) => this.rules.other.anyLine.test(m.raw));
+          let h = l.tokens.filter((k) => k.type === "space"), p = h.length > 0 && h.some((k) => this.rules.other.anyLine.test(k.raw));
           i.loose = p;
         }
       }
@@ -249,12 +249,12 @@ ${p}` : p;
   table(t) {
     let e = this.rules.block.table.exec(t);
     if (!e || !this.rules.other.tableDelimiter.test(e[2])) return;
-    let s = Ae(e[1]), n = e[2].replace(this.rules.other.tableAlignChars, "").split("|"), i = e[3]?.trim() ? e[3].replace(this.rules.other.tableRowBlankLine, "").split(`
+    let s = Me(e[1]), n = e[2].replace(this.rules.other.tableAlignChars, "").split("|"), i = e[3]?.trim() ? e[3].replace(this.rules.other.tableRowBlankLine, "").split(`
 `) : [], a = { type: "table", raw: e[0], header: [], align: [], rows: [] };
     if (s.length === n.length) {
       for (let r of n) this.rules.other.tableAlignRight.test(r) ? a.align.push("right") : this.rules.other.tableAlignCenter.test(r) ? a.align.push("center") : this.rules.other.tableAlignLeft.test(r) ? a.align.push("left") : a.align.push(null);
       for (let r = 0; r < s.length; r++) a.header.push({ text: s[r], tokens: this.lexer.inline(s[r]), header: !0, align: a.align[r] });
-      for (let r of i) a.rows.push(Ae(r, a.header.length).map((o, l) => ({ text: o, tokens: this.lexer.inline(o), header: !1, align: a.align[l] })));
+      for (let r of i) a.rows.push(Me(r, a.header.length).map((o, l) => ({ text: o, tokens: this.lexer.inline(o), header: !1, align: a.align[l] })));
       return a;
     }
   }
@@ -291,7 +291,7 @@ ${p}` : p;
         let a = N(s.slice(0, -1), "\\");
         if ((s.length - a.length) % 2 === 0) return;
       } else {
-        let a = gs(e[2], "()");
+        let a = xs(e[2], "()");
         if (a === -2) return;
         if (a > -1) {
           let r = (e[0].indexOf("!") === 0 ? 5 : 4) + e[1].length + a;
@@ -303,7 +303,7 @@ ${p}` : p;
         let a = this.rules.other.pedanticHrefTitle.exec(n);
         a && (n = a[1], i = a[3]);
       } else i = e[3] ? e[3].slice(1, -1) : "";
-      return n = n.trim(), this.rules.other.startAngleBracket.test(n) && (this.options.pedantic && !this.rules.other.endAngleBracket.test(s) ? n = n.slice(1) : n = n.slice(1, -1)), Pe(e, { href: n && n.replace(this.rules.inline.anyPunctuation, "$1"), title: i && i.replace(this.rules.inline.anyPunctuation, "$1") }, e[0], this.lexer, this.rules);
+      return n = n.trim(), this.rules.other.startAngleBracket.test(n) && (this.options.pedantic && !this.rules.other.endAngleBracket.test(s) ? n = n.slice(1) : n = n.slice(1, -1)), Ie(e, { href: n && n.replace(this.rules.inline.anyPunctuation, "$1"), title: i && i.replace(this.rules.inline.anyPunctuation, "$1") }, e[0], this.lexer, this.rules);
     }
   }
   reflink(t, e) {
@@ -314,7 +314,7 @@ ${p}` : p;
         let a = s[0].charAt(0);
         return { type: "text", raw: a, text: a };
       }
-      return Pe(s, i, s[0], this.lexer, this.rules);
+      return Ie(s, i, s[0], this.lexer, this.rules);
     }
   }
   emStrong(t, e, s = "") {
@@ -332,13 +332,13 @@ ${p}` : p;
         }
         if (o -= r, o > 0) continue;
         r = Math.min(r, r + o + l);
-        let p = [...n[0]][0].length, m = t.slice(0, i + n.index + p + r);
+        let p = [...n[0]][0].length, k = t.slice(0, i + n.index + p + r);
         if (Math.min(i, r) % 2) {
-          let v = m.slice(1, -1);
-          return { type: "em", raw: m, text: v, tokens: this.lexer.inlineTokens(v) };
+          let v = k.slice(1, -1);
+          return { type: "em", raw: k, text: v, tokens: this.lexer.inlineTokens(v) };
         }
-        let f = m.slice(2, -2);
-        return { type: "strong", raw: m, text: f, tokens: this.lexer.inlineTokens(f) };
+        let f = k.slice(2, -2);
+        return { type: "strong", raw: k, text: f, tokens: this.lexer.inlineTokens(f) };
       }
     }
   }
@@ -386,25 +386,25 @@ ${p}` : p;
       return { type: "text", raw: e[0], text: e[0], escaped: s };
     }
   }
-}, R = class te {
+}, R = class ie {
   tokens;
   options;
   state;
   inlineQueue;
   tokenizer;
   constructor(e) {
-    this.tokens = [], this.tokens.links = /* @__PURE__ */ Object.create(null), this.options = e || M, this.options.tokenizer = this.options.tokenizer || new G(), this.tokenizer = this.options.tokenizer, this.tokenizer.options = this.options, this.tokenizer.lexer = this, this.inlineQueue = [], this.state = { inLink: !1, inRawBlock: !1, top: !0 };
-    let s = { other: y, block: U.normal, inline: B.normal };
-    this.options.pedantic ? (s.block = U.pedantic, s.inline = B.pedantic) : this.options.gfm && (s.block = U.gfm, this.options.breaks ? s.inline = B.breaks : s.inline = B.gfm), this.tokenizer.rules = s;
+    this.tokens = [], this.tokens.links = /* @__PURE__ */ Object.create(null), this.options = e || E, this.options.tokenizer = this.options.tokenizer || new j(), this.tokenizer = this.options.tokenizer, this.tokenizer.options = this.options, this.tokenizer.lexer = this, this.inlineQueue = [], this.state = { inLink: !1, inRawBlock: !1, top: !0 };
+    let s = { other: y, block: V.normal, inline: B.normal };
+    this.options.pedantic ? (s.block = V.pedantic, s.inline = B.pedantic) : this.options.gfm && (s.block = V.gfm, this.options.breaks ? s.inline = B.breaks : s.inline = B.gfm), this.tokenizer.rules = s;
   }
   static get rules() {
-    return { block: U, inline: B };
+    return { block: V, inline: B };
   }
   static lex(e, s) {
-    return new te(s).lex(e);
+    return new ie(s).lex(e);
   }
   static lexInline(e, s) {
-    return new te(s).inlineTokens(e);
+    return new ie(s).inlineTokens(e);
   }
   lex(e) {
     e = e.replace(y.carriageReturn, `
@@ -572,9 +572,9 @@ ${p}` : p;
       }
       let h = e;
       if (this.options.extensions?.startInline) {
-        let p = 1 / 0, m = e.slice(1), f;
+        let p = 1 / 0, k = e.slice(1), f;
         this.options.extensions.startInline.forEach((v) => {
-          f = v.call({ lexer: this }, m), typeof f == "number" && f >= 0 && (p = Math.min(p, f));
+          f = v.call({ lexer: this }, k), typeof f == "number" && f >= 0 && (p = Math.min(p, f));
         }), p < 1 / 0 && p >= 0 && (h = e.substring(0, p + 1));
       }
       if (l = this.tokenizer.inlineText(h)) {
@@ -593,11 +593,11 @@ ${p}` : p;
     }
     return s;
   }
-}, F = class {
+}, W = class {
   options;
   parser;
   constructor(t) {
-    this.options = t || M;
+    this.options = t || E;
   }
   space(t) {
     return "";
@@ -605,8 +605,8 @@ ${p}` : p;
   code({ text: t, lang: e, escaped: s }) {
     let n = (e || "").match(y.notSpaceStart)?.[0], i = t.replace(y.endingNewline, "") + `
 `;
-    return n ? '<pre><code class="language-' + A(n) + '">' + (s ? i : A(i, !0)) + `</code></pre>
-` : "<pre><code>" + (s ? i : A(i, !0)) + `</code></pre>
+    return n ? '<pre><code class="language-' + P(n) + '">' + (s ? i : P(i, !0)) + `</code></pre>
+` : "<pre><code>" + (s ? i : P(i, !0)) + `</code></pre>
 `;
   }
   blockquote({ tokens: t }) {
@@ -684,7 +684,7 @@ ${t}</tr>
     return `<em>${this.parser.parseInline(t)}</em>`;
   }
   codespan({ text: t }) {
-    return `<code>${A(t, !0)}</code>`;
+    return `<code>${P(t, !0)}</code>`;
   }
   br(t) {
     return "<br>";
@@ -693,24 +693,24 @@ ${t}</tr>
     return `<del>${this.parser.parseInline(t)}</del>`;
   }
   link({ href: t, title: e, tokens: s }) {
-    let n = this.parser.parseInline(s), i = Ce(t);
+    let n = this.parser.parseInline(s), i = Ee(t);
     if (i === null) return n;
     t = i;
     let a = '<a href="' + t + '"';
-    return e && (a += ' title="' + A(e) + '"'), a += ">" + n + "</a>", a;
+    return e && (a += ' title="' + P(e) + '"'), a += ">" + n + "</a>", a;
   }
   image({ href: t, title: e, text: s, tokens: n }) {
     n && (s = this.parser.parseInline(n, this.parser.textRenderer));
-    let i = Ce(t);
-    if (i === null) return A(s);
+    let i = Ee(t);
+    if (i === null) return P(s);
     t = i;
     let a = `<img src="${t}" alt="${s}"`;
-    return e && (a += ` title="${A(e)}"`), a += ">", a;
+    return e && (a += ` title="${P(e)}"`), a += ">", a;
   }
   text(t) {
-    return "tokens" in t && t.tokens ? this.parser.parseInline(t.tokens) : "escaped" in t && t.escaped ? t.text : A(t.text);
+    return "tokens" in t && t.tokens ? this.parser.parseInline(t.tokens) : "escaped" in t && t.escaped ? t.text : P(t.text);
   }
-}, me = class {
+}, be = class {
   strong({ text: t }) {
     return t;
   }
@@ -741,18 +741,18 @@ ${t}</tr>
   checkbox({ raw: t }) {
     return t;
   }
-}, T = class se {
+}, T = class ne {
   options;
   renderer;
   textRenderer;
   constructor(e) {
-    this.options = e || M, this.options.renderer = this.options.renderer || new F(), this.renderer = this.options.renderer, this.renderer.options = this.options, this.renderer.parser = this, this.textRenderer = new me();
+    this.options = e || E, this.options.renderer = this.options.renderer || new W(), this.renderer = this.options.renderer, this.renderer.options = this.options, this.renderer.parser = this, this.textRenderer = new be();
   }
   static parse(e, s) {
-    return new se(s).parse(e);
+    return new ne(s).parse(e);
   }
   static parseInline(e, s) {
-    return new se(s).parseInline(e);
+    return new ne(s).parseInline(e);
   }
   parse(e) {
     let s = "";
@@ -894,7 +894,7 @@ ${t}</tr>
   options;
   block;
   constructor(t) {
-    this.options = t || M;
+    this.options = t || E;
   }
   static passThroughHooks = /* @__PURE__ */ new Set(["preprocess", "postprocess", "processAllTokens", "emStrongMask"]);
   static passThroughHooksRespectAsync = /* @__PURE__ */ new Set(["preprocess", "postprocess", "processAllTokens"]);
@@ -916,16 +916,16 @@ ${t}</tr>
   provideParser() {
     return this.block ? T.parse : T.parseInline;
   }
-}, ks = class {
-  defaults = ce();
+}, ws = class {
+  defaults = pe();
   options = this.setOptions;
   parse = this.parseMarkdown(!0);
   parseInline = this.parseMarkdown(!1);
   Parser = T;
-  Renderer = F;
-  TextRenderer = me;
+  Renderer = W;
+  TextRenderer = be;
   Lexer = R;
-  Tokenizer = G;
+  Tokenizer = j;
   Hooks = Z;
   constructor(...t) {
     this.use(...t);
@@ -974,7 +974,7 @@ ${t}</tr>
         }
         "childTokens" in i && i.childTokens && (e.childTokens[i.name] = i.childTokens);
       }), n.extensions = e), s.renderer) {
-        let i = this.defaults.renderer || new F(this.defaults);
+        let i = this.defaults.renderer || new W(this.defaults);
         for (let a in s.renderer) {
           if (!(a in i)) throw new Error(`renderer '${a}' does not exist`);
           if (["options", "parser"].includes(a)) continue;
@@ -987,7 +987,7 @@ ${t}</tr>
         n.renderer = i;
       }
       if (s.tokenizer) {
-        let i = this.defaults.tokenizer || new G(this.defaults);
+        let i = this.defaults.tokenizer || new j(this.defaults);
         for (let a in s.tokenizer) {
           if (!(a in i)) throw new Error(`tokenizer '${a}' does not exist`);
           if (["options", "rules", "lexer"].includes(a)) continue;
@@ -1007,15 +1007,15 @@ ${t}</tr>
           let r = a, o = s.hooks[r], l = i[r];
           Z.passThroughHooks.has(a) ? i[r] = (h) => {
             if (this.defaults.async && Z.passThroughHooksRespectAsync.has(a)) return (async () => {
-              let m = await o.call(i, h);
-              return l.call(i, m);
+              let k = await o.call(i, h);
+              return l.call(i, k);
             })();
             let p = o.call(i, h);
             return l.call(i, p);
           } : i[r] = (...h) => {
             if (this.defaults.async) return (async () => {
-              let m = await o.apply(i, h);
-              return m === !1 && (m = await l.apply(i, h)), m;
+              let k = await o.apply(i, h);
+              return k === !1 && (k = await l.apply(i, h)), k;
             })();
             let p = o.apply(i, h);
             return p === !1 && (p = l.apply(i, h)), p;
@@ -1069,49 +1069,49 @@ ${t}</tr>
     return (s) => {
       if (s.message += `
 Please report this to https://github.com/markedjs/marked.`, t) {
-        let n = "<p>An error occurred:</p><pre>" + A(s.message + "", !0) + "</pre>";
+        let n = "<p>An error occurred:</p><pre>" + P(s.message + "", !0) + "</pre>";
         return e ? Promise.resolve(n) : n;
       }
       if (e) return Promise.reject(s);
       throw s;
     };
   }
-}, P = new ks();
-function k(t, e) {
-  return P.parse(t, e);
+}, A = new ws();
+function m(t, e) {
+  return A.parse(t, e);
 }
-k.options = k.setOptions = function(t) {
-  return P.setOptions(t), k.defaults = P.defaults, Le(k.defaults), k;
+m.options = m.setOptions = function(t) {
+  return A.setOptions(t), m.defaults = A.defaults, Ze(m.defaults), m;
 };
-k.getDefaults = ce;
-k.defaults = M;
-k.use = function(...t) {
-  return P.use(...t), k.defaults = P.defaults, Le(k.defaults), k;
+m.getDefaults = pe;
+m.defaults = E;
+m.use = function(...t) {
+  return A.use(...t), m.defaults = A.defaults, Ze(m.defaults), m;
 };
-k.walkTokens = function(t, e) {
-  return P.walkTokens(t, e);
+m.walkTokens = function(t, e) {
+  return A.walkTokens(t, e);
 };
-k.parseInline = P.parseInline;
-k.Parser = T;
-k.parser = T.parse;
-k.Renderer = F;
-k.TextRenderer = me;
-k.Lexer = R;
-k.lexer = R.lex;
-k.Tokenizer = G;
-k.Hooks = Z;
-k.parse = k;
-k.options;
-k.setOptions;
-k.use;
-k.walkTokens;
-k.parseInline;
+m.parseInline = A.parseInline;
+m.Parser = T;
+m.parser = T.parse;
+m.Renderer = W;
+m.TextRenderer = be;
+m.Lexer = R;
+m.lexer = R.lex;
+m.Tokenizer = j;
+m.Hooks = Z;
+m.parse = m;
+m.options;
+m.setOptions;
+m.use;
+m.walkTokens;
+m.parseInline;
 T.parse;
 R.lex;
-function ms(t) {
+function _s(t) {
   if (!t) return "";
   try {
-    const e = k.parse(t, {
+    const e = m.parse(t, {
       gfm: !0,
       breaks: !1
     });
@@ -1120,15 +1120,15 @@ function ms(t) {
     return console.error("Markdown conversion failed:", e), `<p>${t.replace(/\n\n/g, "</p><p>").replace(/\n/g, "<br>")}</p>`;
   }
 }
-function xs(t) {
+function vs(t) {
   return t.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 }
-const bs = new Ee("UpDoc.DestinationPickerModal", {
+const $s = new Be("UpDoc.DestinationPickerModal", {
   modal: {
     type: "sidebar",
     size: "small"
   }
-}), ws = new Ee(
+}), ys = new Be(
   "UpDoc.ZoneEditorModal",
   {
     modal: {
@@ -1137,21 +1137,21 @@ const bs = new Ee("UpDoc.DestinationPickerModal", {
     }
   }
 );
-var _s = Object.defineProperty, vs = Object.getOwnPropertyDescriptor, Fe = (t) => {
+var zs = Object.defineProperty, Ss = Object.getOwnPropertyDescriptor, Ke = (t) => {
   throw TypeError(t);
 }, _ = (t, e, s, n) => {
-  for (var i = n > 1 ? void 0 : n ? vs(e, s) : e, a = t.length - 1, r; a >= 0; a--)
+  for (var i = n > 1 ? void 0 : n ? Ss(e, s) : e, a = t.length - 1, r; a >= 0; a--)
     (r = t[a]) && (i = (n ? r(e, s, i) : r(i)) || i);
-  return n && i && _s(e, s, i), i;
-}, xe = (t, e, s) => e.has(t) || Fe("Cannot " + s), C = (t, e, s) => (xe(t, e, "read from private field"), s ? s.call(t) : e.get(t)), Me = (t, e, s) => e.has(t) ? Fe("Cannot add the same private member more than once") : e instanceof WeakSet ? e.add(t) : e.set(t, s), $s = (t, e, s, n) => (xe(t, e, "write to private field"), e.set(t, s), s), u = (t, e, s) => (xe(t, e, "access private method"), s), z, c, je, E, I, We, Ke, Xe, V, Je, Ye, X, et, J, ie, be, we, H, D, tt, ne, ae, j, st, it, re, _e, ve, nt, at, rt, lt, ot, ct, ut, pt, ht, le, dt, gt, ft;
-let b = class extends At {
+  return n && i && zs(e, s, i), i;
+}, we = (t, e, s) => e.has(t) || Ke("Cannot " + s), C = (t, e, s) => (we(t, e, "read from private field"), s ? s.call(t) : e.get(t)), De = (t, e, s) => e.has(t) ? Ke("Cannot add the same private member more than once") : e instanceof WeakSet ? e.add(t) : e.set(t, s), Rs = (t, e, s, n) => (we(t, e, "write to private field"), e.set(t, s), s), u = (t, e, s) => (we(t, e, "access private method"), s), z, c, Xe, I, M, Je, Ye, et, Q, tt, st, Y, _e, O, F, it, nt, ee, ae, ve, $e, U, D, at, re, le, K, rt, lt, oe, ye, ze, ot, ct, ut, pt, ht, dt, gt, ft, mt, ce, kt, xt, bt;
+let b = class extends It {
   constructor() {
-    super(...arguments), Me(this, c), this._extraction = null, this._zoneDetection = null, this._config = null, this._workflowName = null, this._loading = !0, this._extracting = !1, this._error = null, this._successMessage = null, this._collapsed = /* @__PURE__ */ new Set(), this._transformResult = null, this._viewMode = "elements", this._sourceConfig = null, this._pageMode = "all", this._pageInputValue = "", this._allCollapsed = !1, this._excludedAreas = /* @__PURE__ */ new Set(), this._zoneTemplate = null, Me(this, z, "");
+    super(...arguments), De(this, c), this._extraction = null, this._zoneDetection = null, this._config = null, this._workflowName = null, this._loading = !0, this._extracting = !1, this._error = null, this._successMessage = null, this._collapsed = /* @__PURE__ */ new Set(), this._transformResult = null, this._viewMode = "elements", this._sourceConfig = null, this._pageMode = "all", this._pageInputValue = "", this._collapsePopoverOpen = !1, this._excludedAreas = /* @__PURE__ */ new Set(), this._zoneTemplate = null, De(this, z, "");
   }
   connectedCallback() {
-    super.connectedCallback(), this.consumeContext(Mt, (t) => {
+    super.connectedCallback(), this.consumeContext(Lt, (t) => {
       t && this.observe(t.unique, (e) => {
-        e && (this._workflowName = decodeURIComponent(e), u(this, c, je).call(this));
+        e && (this._workflowName = decodeURIComponent(e), u(this, c, Xe).call(this));
       });
     });
   }
@@ -1166,31 +1166,31 @@ let b = class extends At {
     const t = this._zoneDetection !== null || this._extraction !== null;
     return d`
 			<umb-body-layout header-fit-height>
-				${t ? u(this, c, ut).call(this) : w}
-				${t && this._viewMode === "elements" ? u(this, c, pt).call(this) : w}
+				${t ? u(this, c, gt).call(this) : w}
+				${t && this._viewMode === "elements" ? u(this, c, ft).call(this) : w}
 				${this._successMessage ? d`<div class="success-banner"><uui-icon name="icon-check"></uui-icon> ${this._successMessage}</div>` : w}
-				${t ? u(this, c, ht).call(this) : u(this, c, ft).call(this)}
+				${t ? u(this, c, mt).call(this) : u(this, c, bt).call(this)}
 			</umb-body-layout>
 		`;
   }
 };
 z = /* @__PURE__ */ new WeakMap();
 c = /* @__PURE__ */ new WeakSet();
-je = async function() {
+Xe = async function() {
   if (this._workflowName) {
     this._loading = !0, this._error = null;
     try {
-      const t = await this.getContext(De);
-      $s(this, z, await t.getLatestToken());
+      const t = await this.getContext(Ne);
+      Rs(this, z, await t.getLatestToken());
       const [e, s, n, i, a, r] = await Promise.all([
-        mt(this._workflowName, C(this, z)),
-        Ie(this._workflowName, C(this, z)),
-        xt(this._workflowName, C(this, z)),
-        bt(this._workflowName, C(this, z)),
-        wt(this._workflowName, C(this, z)),
-        _t(this._workflowName, C(this, z))
+        _t(this._workflowName, C(this, z)),
+        Le(this._workflowName, C(this, z)),
+        vt(this._workflowName, C(this, z)),
+        $t(this._workflowName, C(this, z)),
+        yt(this._workflowName, C(this, z)),
+        zt(this._workflowName, C(this, z))
       ]);
-      this._extraction = e, this._zoneDetection = s, this._config = n, this._transformResult = i, this._sourceConfig = a, this._zoneTemplate = r, a?.pages && Array.isArray(a.pages) && a.pages.length > 0 ? (this._pageMode = "custom", this._pageInputValue = u(this, c, I).call(this, a.pages)) : (this._pageMode = "all", this._pageInputValue = "");
+      this._extraction = e, this._zoneDetection = s, this._config = n, this._transformResult = i, this._sourceConfig = a, this._zoneTemplate = r, a?.pages && Array.isArray(a.pages) && a.pages.length > 0 ? (this._pageMode = "custom", this._pageInputValue = u(this, c, M).call(this, a.pages)) : (this._pageMode = "all", this._pageInputValue = "");
     } catch (t) {
       this._error = t instanceof Error ? t.message : "Failed to load data", console.error("Failed to load source data:", t);
     } finally {
@@ -1198,7 +1198,7 @@ je = async function() {
     }
   }
 };
-E = function(t) {
+I = function(t) {
   const e = /* @__PURE__ */ new Set();
   for (const s of t.split(",")) {
     const n = s.trim();
@@ -1212,7 +1212,7 @@ E = function(t) {
   }
   return [...e].sort((s, n) => s - n);
 };
-I = function(t) {
+M = function(t) {
   if (!t.length) return "";
   const e = [...t].sort((a, r) => a - r), s = [];
   let n = e[0], i = e[0];
@@ -1220,75 +1220,93 @@ I = function(t) {
     e[a] === i + 1 || (s.push(n === i ? `${n}` : `${n}-${i}`), n = e[a]), i = e[a];
   return s.push(n === i ? `${n}` : `${n}-${i}`), s.join(", ");
 };
-We = function() {
+Je = function() {
   if (this._pageMode === "all") return null;
-  const t = u(this, c, E).call(this, this._pageInputValue);
+  const t = u(this, c, I).call(this, this._pageInputValue);
   return t.length > 0 ? t : null;
 };
-Ke = function(t) {
+Ye = function(t) {
   if (this._pageMode === "all") return !0;
-  const e = u(this, c, E).call(this, this._pageInputValue);
+  const e = u(this, c, I).call(this, this._pageInputValue);
   return e.length === 0 || e.includes(t);
 };
-Xe = function(t) {
+et = function(t) {
   const e = this._zoneDetection?.totalPages ?? this._extraction?.source.totalPages ?? 0;
   if (e !== 0) {
     if (this._pageMode === "all") {
       const n = Array.from({ length: e }, (i, a) => a + 1).filter((i) => i !== t);
-      this._pageMode = "custom", this._pageInputValue = u(this, c, I).call(this, n);
+      this._pageMode = "custom", this._pageInputValue = u(this, c, M).call(this, n);
     } else {
-      const s = u(this, c, E).call(this, this._pageInputValue);
+      const s = u(this, c, I).call(this, this._pageInputValue);
       if (s.includes(t)) {
         const n = s.filter((i) => i !== t);
-        this._pageInputValue = u(this, c, I).call(this, n), n.length === 0 && (this._pageMode = "all", this._pageInputValue = "");
+        this._pageInputValue = u(this, c, M).call(this, n), n.length === 0 && (this._pageMode = "all", this._pageInputValue = "");
       } else {
         const n = [...s, t].sort((i, a) => i - a);
-        this._pageInputValue = u(this, c, I).call(this, n);
+        this._pageInputValue = u(this, c, M).call(this, n);
       }
-      u(this, c, E).call(this, this._pageInputValue).length === e && (this._pageMode = "all", this._pageInputValue = "");
+      u(this, c, I).call(this, this._pageInputValue).length === e && (this._pageMode = "all", this._pageInputValue = "");
     }
-    u(this, c, X).call(this);
+    u(this, c, Y).call(this);
   }
 };
-V = async function(t) {
-  this._pageMode = t, t === "all" && (this._pageInputValue = ""), await u(this, c, X).call(this);
+Q = async function(t) {
+  this._pageMode = t, t === "all" && (this._pageInputValue = ""), await u(this, c, Y).call(this);
 };
-Je = async function(t) {
+tt = async function(t) {
   const e = t.target;
   this._pageInputValue = e.value;
 };
-Ye = async function() {
-  const t = u(this, c, E).call(this, this._pageInputValue);
-  t.length > 0 ? (this._pageInputValue = u(this, c, I).call(this, t), this._pageMode = "custom") : (this._pageMode = "all", this._pageInputValue = ""), await u(this, c, X).call(this);
+st = async function() {
+  const t = u(this, c, I).call(this, this._pageInputValue);
+  t.length > 0 ? (this._pageInputValue = u(this, c, M).call(this, t), this._pageMode = "custom") : (this._pageMode = "all", this._pageInputValue = ""), await u(this, c, Y).call(this);
 };
-X = async function() {
+Y = async function() {
   if (!this._workflowName) return;
-  const t = u(this, c, We).call(this);
-  await zt(this._workflowName, t, C(this, z));
+  const t = u(this, c, Je).call(this);
+  await Ct(this._workflowName, t, C(this, z));
 };
-et = function() {
-  if (!this._zoneDetection) return;
-  this._allCollapsed = !this._allCollapsed;
-  const t = /* @__PURE__ */ new Set();
-  if (this._allCollapsed)
-    for (const e of this._zoneDetection.pages)
-      t.add(`page-${e.page}`);
-  this._collapsed = t;
+_e = function(t) {
+  if (!this._zoneDetection) return [];
+  const e = [];
+  for (const s of this._zoneDetection.pages) {
+    const n = s.page;
+    t === "pages" && e.push(`page-${n}`), t === "areas" && (s.zones.forEach((i, a) => e.push(`area-p${n}-a${a}`)), s.unzonedContent && e.push(`area-p${n}-undefined`)), t === "sections" && (s.zones.forEach((i, a) => {
+      i.sections.forEach((r, o) => e.push(`p${n}-a${a}-s${o}`));
+    }), s.unzonedContent && s.unzonedContent.sections.forEach((i, a) => e.push(`p${n}-undefined-s${a}`)));
+  }
+  return e;
 };
-J = async function() {
+O = function(t) {
+  const e = u(this, c, _e).call(this, t);
+  return e.length > 0 && e.every((s) => this._collapsed.has(s));
+};
+F = function(t) {
+  const e = u(this, c, _e).call(this, t), s = u(this, c, O).call(this, t), n = new Set(this._collapsed);
+  for (const i of e)
+    s ? n.delete(i) : n.add(i);
+  this._collapsed = n;
+};
+it = function() {
+  this._collapsed = /* @__PURE__ */ new Set();
+};
+nt = function(t) {
+  this._collapsePopoverOpen = t.newState === "open";
+};
+ee = async function() {
   if (!this._workflowName) return;
-  const s = await (await this.getContext(oe)).open(this, It, {
+  const s = await (await this.getContext(ue)).open(this, Bt, {
     data: {
       multiple: !1
     }
   }).onSubmit().catch(() => null);
   if (!s?.selection?.length) return;
   const n = s.selection[0];
-  n && await u(this, c, we).call(this, n);
+  n && await u(this, c, $e).call(this, n);
 };
-ie = async function() {
+ae = async function() {
   if (!this._workflowName) return;
-  const e = (await this.getContext(oe)).open(this, ws, {
+  const e = (await this.getContext(ue)).open(this, ys, {
     data: {
       workflowName: this._workflowName,
       existingTemplate: this._zoneTemplate,
@@ -1298,29 +1316,29 @@ ie = async function() {
   try {
     const s = await e.onSubmit();
     if (s?.template) {
-      const n = await vt(this._workflowName, s.template, C(this, z));
-      n && (this._zoneTemplate = n, await u(this, c, be).call(this));
+      const n = await St(this._workflowName, s.template, C(this, z));
+      n && (this._zoneTemplate = n, await u(this, c, ve).call(this));
     }
   } catch {
   }
 };
-be = async function() {
+ve = async function() {
   const t = this._extraction?.source.mediaKey;
   if (!t)
-    return u(this, c, J).call(this);
-  await u(this, c, we).call(this, t);
+    return u(this, c, ee).call(this);
+  await u(this, c, $e).call(this, t);
 };
-we = async function(t) {
+$e = async function(t) {
   if (this._workflowName) {
     this._extracting = !0, this._error = null;
     try {
-      const s = await (await this.getContext(De)).getLatestToken(), [n, i] = await Promise.all([
-        $t(this._workflowName, t, s),
-        yt(this._workflowName, t, s)
+      const s = await (await this.getContext(Ne)).getLatestToken(), [n, i] = await Promise.all([
+        Rt(this._workflowName, t, s),
+        Tt(this._workflowName, t, s)
       ]);
       if (n && (this._extraction = n), i) {
         this._transformResult = i;
-        const a = await Ie(this._workflowName, s);
+        const a = await Le(this._workflowName, s);
         this._zoneDetection = a;
         const r = i.diagnostics;
         this._successMessage = `Content extracted — ${r.totalSections} sections (${r.bulletListSections} bullet, ${r.paragraphSections} paragraph, ${r.subHeadedSections} sub-headed)`, setTimeout(() => {
@@ -1336,24 +1354,24 @@ we = async function(t) {
     }
   }
 };
-H = function(t) {
+U = function(t) {
   return this._collapsed.has(t);
 };
 D = function(t) {
   const e = new Set(this._collapsed);
   e.has(t) ? e.delete(t) : e.add(t), this._collapsed = e;
 };
-tt = function(t) {
+at = function(t) {
   return this._transformResult ? this._transformResult.sections.find((s) => s.id === t)?.included ?? !0 : !0;
 };
-ne = async function(t, e) {
+re = async function(t, e) {
   if (!this._workflowName) return;
-  const s = await Rt(this._workflowName, t, e, C(this, z));
+  const s = await At(this._workflowName, t, e, C(this, z));
   s && (this._transformResult = s);
 };
-ae = async function(t) {
+le = async function(t) {
   if (!this._config?.destination || !this._workflowName) return;
-  const n = await (await this.getContext(oe)).open(this, bs, {
+  const n = await (await this.getContext(ue)).open(this, $s, {
     data: { destination: this._config.destination }
   }).onSubmit().catch(() => null);
   if (!n?.selectedTargets?.length) return;
@@ -1364,9 +1382,9 @@ ae = async function(t) {
   };
   a >= 0 ? i[a] = r : i.push(r);
   const o = { ...this._config.map, version: this._config.map?.version ?? "1.0", mappings: i };
-  await St(this._workflowName, o, C(this, z)) && (this._config = { ...this._config, map: o });
+  await Pt(this._workflowName, o, C(this, z)) && (this._config = { ...this._config, map: o });
 };
-j = function(t) {
+K = function(t) {
   if (!this._config?.map?.mappings) return [];
   const e = [];
   for (const s of this._config.map.mappings)
@@ -1375,7 +1393,7 @@ j = function(t) {
         e.push(n);
   return e;
 };
-st = function(t) {
+rt = function(t) {
   if (!this._config?.destination) return t.target;
   if (t.blockKey && this._config.destination.blockGrids)
     for (const s of this._config.destination.blockGrids) {
@@ -1395,12 +1413,12 @@ st = function(t) {
       }
   return t.target;
 };
-it = function(t) {
+lt = function(t) {
   const e = t.trimStart();
   return /^[•\-\*▪▸▶►●○◦‣⁃]/.test(e) || /^\d+[\.\)]\s/.test(e) ? "list" : "paragraph";
 };
-re = function(t) {
-  const e = u(this, c, it).call(this, t.text);
+oe = function(t) {
+  const e = u(this, c, lt).call(this, t.text);
   return d`
 			<div class="element-item">
 				<div class="element-content">
@@ -1415,8 +1433,8 @@ re = function(t) {
 			</div>
 		`;
 };
-_e = function(t, e, s, n) {
-  const i = u(this, c, H).call(this, e), a = t.heading ? xs(t.heading.text) : n >= 0 ? `preamble-p${s}-z${n}` : `preamble-p${s}-unzoned`, r = u(this, c, tt).call(this, a);
+ye = function(t, e, s, n) {
+  const i = u(this, c, U).call(this, e), a = t.heading ? vs(t.heading.text) : n >= 0 ? `preamble-p${s}-z${n}` : `preamble-p${s}-unzoned`, r = u(this, c, at).call(this, a);
   if (!t.heading)
     return d`
 				<div class="zone-section ${r ? "" : "excluded"}">
@@ -1428,12 +1446,12 @@ _e = function(t, e, s, n) {
 							label="${r ? "Included" : "Excluded"}"
 							?checked=${r}
 							@click=${(l) => l.stopPropagation()}
-							@change=${(l) => u(this, c, ne).call(this, a, l.target.checked)}>
+							@change=${(l) => u(this, c, re).call(this, a, l.target.checked)}>
 						</uui-toggle>
 						<uui-icon class="collapse-chevron" name="${i ? "icon-navigation-right" : "icon-navigation-down"}"></uui-icon>
 					</div>
 					${r && !i ? d`
-						${t.children.map((l) => u(this, c, re).call(this, l))}
+						${t.children.map((l) => u(this, c, oe).call(this, l))}
 					` : w}
 				</div>
 			`;
@@ -1453,24 +1471,24 @@ _e = function(t, e, s, n) {
 						label="${r ? "Included" : "Excluded"}"
 						?checked=${r}
 						@click=${(l) => l.stopPropagation()}
-						@change=${(l) => u(this, c, ne).call(this, a, l.target.checked)}>
+						@change=${(l) => u(this, c, re).call(this, a, l.target.checked)}>
 					</uui-toggle>
 					<uui-icon class="collapse-chevron" name="${i ? "icon-navigation-right" : "icon-navigation-down"}"></uui-icon>
 				</div>
 				${!i && r ? d`
 					<div class="section-children">
-						${t.children.map((l) => u(this, c, re).call(this, l))}
+						${t.children.map((l) => u(this, c, oe).call(this, l))}
 					</div>
 				` : w}
 			</div>
 		`;
 };
-ve = function(t) {
+ze = function(t) {
   const e = new Set(this._excludedAreas);
   e.has(t) ? e.delete(t) : e.add(t), this._excludedAreas = e;
 };
-nt = function(t, e, s) {
-  const n = `area-p${e}-a${s}`, i = u(this, c, H).call(this, n), a = !this._excludedAreas.has(n), r = t.sections.length;
+ot = function(t, e, s) {
+  const n = `area-p${e}-a${s}`, i = u(this, c, U).call(this, n), a = !this._excludedAreas.has(n), r = t.sections.length;
   return d`
 			<div class="zone-area ${a ? "" : "area-excluded"}" style="border-left-color: ${t.color};">
 				<div class="area-header" @click=${() => u(this, c, D).call(this, n)}>
@@ -1481,21 +1499,21 @@ nt = function(t, e, s) {
 						label="${a ? "Included" : "Excluded"}"
 						?checked=${a}
 						@click=${(o) => o.stopPropagation()}
-						@change=${() => u(this, c, ve).call(this, n)}>
+						@change=${() => u(this, c, ze).call(this, n)}>
 					</uui-toggle>
 					<uui-icon class="collapse-chevron" name="${i ? "icon-navigation-right" : "icon-navigation-down"}"></uui-icon>
 				</div>
 				${i ? w : d`
 					${t.sections.map(
-    (o, l) => u(this, c, _e).call(this, o, `p${e}-a${s}-s${l}`, e, s)
+    (o, l) => u(this, c, ye).call(this, o, `p${e}-a${s}-s${l}`, e, s)
   )}
 				`}
 			</div>
 		`;
 };
-at = function(t, e) {
+ct = function(t, e) {
   if (t.totalElements === 0) return w;
-  const s = `area-p${e}-undefined`, n = u(this, c, H).call(this, s), i = !this._excludedAreas.has(s), a = t.sections.length;
+  const s = `area-p${e}-undefined`, n = u(this, c, U).call(this, s), i = !this._excludedAreas.has(s), a = t.sections.length;
   return d`
 			<div class="zone-area undefined ${i ? "" : "area-excluded"}" style="border-left-color: var(--uui-color-border-standalone);">
 				<div class="area-header" @click=${() => u(this, c, D).call(this, s)}>
@@ -1506,20 +1524,20 @@ at = function(t, e) {
 						label="${i ? "Included" : "Excluded"}"
 						?checked=${i}
 						@click=${(r) => r.stopPropagation()}
-						@change=${() => u(this, c, ve).call(this, s)}>
+						@change=${() => u(this, c, ze).call(this, s)}>
 					</uui-toggle>
 					<uui-icon class="collapse-chevron" name="${n ? "icon-navigation-right" : "icon-navigation-down"}"></uui-icon>
 				</div>
 				${n ? w : d`
 					${t.sections.map(
-    (r, o) => u(this, c, _e).call(this, r, `p${e}-undefined-s${o}`, e, -1)
+    (r, o) => u(this, c, ye).call(this, r, `p${e}-undefined-s${o}`, e, -1)
   )}
 				`}
 			</div>
 		`;
 };
-rt = function(t, e, s) {
-  const n = `page-${t}`, i = u(this, c, H).call(this, n), a = s && s.totalElements > 0, r = e.length + (a ? 1 : 0), o = e.reduce((h, p) => h + p.sections.length, 0) + (s?.sections.length ?? 0), l = u(this, c, Ke).call(this, t);
+ut = function(t, e, s) {
+  const n = `page-${t}`, i = u(this, c, U).call(this, n), a = s && s.totalElements > 0, r = e.length + (a ? 1 : 0), o = e.reduce((h, p) => h + p.sections.length, 0) + (s?.sections.length ?? 0), l = u(this, c, Ye).call(this, t);
   return d`
 			<uui-box headline="Page ${t}" class="page-box ${l ? "" : "page-excluded"}">
 				<div slot="header-actions" class="page-header-actions">
@@ -1528,55 +1546,55 @@ rt = function(t, e, s) {
 						label="${l ? "Included in extraction" : "Excluded from extraction"}"
 						?checked=${l}
 						@click=${(h) => h.stopPropagation()}
-						@change=${() => u(this, c, Xe).call(this, t)}>
+						@change=${() => u(this, c, et).call(this, t)}>
 					</uui-toggle>
 					<div class="collapse-trigger" @click=${() => u(this, c, D).call(this, n)}>
 						<uui-icon class="collapse-chevron" name="${i ? "icon-navigation-right" : "icon-navigation-down"}"></uui-icon>
 					</div>
 				</div>
 				${i ? w : d`
-					${e.map((h, p) => u(this, c, nt).call(this, h, t, p))}
-					${a ? u(this, c, at).call(this, s, t) : w}
+					${e.map((h, p) => u(this, c, ot).call(this, h, t, p))}
+					${a ? u(this, c, ct).call(this, s, t) : w}
 				`}
 			</uui-box>
 		`;
 };
-lt = function() {
+pt = function() {
   return this._zoneDetection ? d`
 			${this._zoneDetection.pages.map(
-    (t) => u(this, c, rt).call(this, t.page, t.zones, t.unzonedContent)
+    (t) => u(this, c, ut).call(this, t.page, t.zones, t.unzonedContent)
   )}
 		` : w;
 };
-ot = function() {
+ht = function() {
   return this._zoneDetection ? this._zoneDetection.pages.reduce((t, e) => t + e.zones.reduce((s, n) => s + n.sections.length, 0) + (e.unzonedContent?.sections.length ?? 0), 0) : 0;
 };
-ct = function() {
+dt = function() {
   return (this._zoneDetection?.totalPages ?? this._extraction?.source.totalPages ?? 0) === 0 ? w : d`
 			<label class="page-radio">
 				<input type="radio" name="page-mode" value="all"
 					.checked=${this._pageMode === "all"}
-					@change=${() => u(this, c, V).call(this, "all")} />
+					@change=${() => u(this, c, Q).call(this, "all")} />
 				All
 			</label>
 			<label class="page-radio">
 				<input type="radio" name="page-mode" value="custom"
 					.checked=${this._pageMode === "custom"}
-					@change=${() => u(this, c, V).call(this, "custom")} />
+					@change=${() => u(this, c, Q).call(this, "custom")} />
 				Choose
 			</label>
 			<input type="text" class="page-input"
 				placeholder="e.g. 1-2, 5"
 				.value=${this._pageInputValue}
-				@input=${u(this, c, Je)}
-				@blur=${u(this, c, Ye)}
+				@input=${u(this, c, tt)}
+				@blur=${u(this, c, st)}
 				@focus=${() => {
-    this._pageMode === "all" && u(this, c, V).call(this, "custom");
+    this._pageMode === "all" && u(this, c, Q).call(this, "custom");
   }}
 				?disabled=${this._pageMode === "all"} />
 		`;
 };
-ut = function() {
+gt = function() {
   return d`
 			<div slot="header" class="source-header">
 				<uui-tab-group dropdown-content-direction="vertical">
@@ -1590,10 +1608,10 @@ ut = function() {
 			</div>
 		`;
 };
-pt = function() {
+ft = function() {
   const t = this._zoneDetection !== null, e = this._extraction !== null;
   if (!t && !e) return w;
-  const s = this._zoneDetection?.totalPages ?? (e ? this._extraction.source.totalPages : 0), n = t ? this._zoneDetection.pages.length : s, a = n < s ? `${n} of ${s}` : `${s}`, r = t ? this._zoneDetection.diagnostics.zonesDetected : 0, o = t ? u(this, c, ot).call(this) : 0, l = e ? this._extraction.source.fileName : "", h = e ? new Date(this._extraction.source.extractedDate).toLocaleString() : "";
+  const s = this._zoneDetection?.totalPages ?? (e ? this._extraction.source.totalPages : 0), n = t ? this._zoneDetection.pages.length : s, a = n < s ? `${n} of ${s}` : `${s}`, r = t ? this._zoneDetection.diagnostics.zonesDetected : 0, o = t ? u(this, c, ht).call(this) : 0, l = e ? this._extraction.source.fileName : "", h = e ? new Date(this._extraction.source.extractedDate).toLocaleString() : "";
   return d`
 			<div class="info-boxes">
 				<uui-box headline="Source" class="info-box-item">
@@ -1602,11 +1620,11 @@ pt = function() {
 						<uui-icon name="icon-document" class="box-icon"></uui-icon>
 						<span class="box-subtitle">${h}</span>
 						<div class="box-buttons">
-							<uui-button look="primary" color="positive" label="Re-extract" @click=${u(this, c, be)} ?disabled=${this._extracting}>
+							<uui-button look="primary" color="positive" label="Re-extract" @click=${u(this, c, ve)} ?disabled=${this._extracting}>
 								<uui-icon name="icon-refresh"></uui-icon>
 								Re-extract
 							</uui-button>
-							<uui-button look="primary" color="default" label="Change PDF" @click=${u(this, c, J)} ?disabled=${this._extracting}>
+							<uui-button look="primary" color="default" label="Change PDF" @click=${u(this, c, ee)} ?disabled=${this._extracting}>
 								<uui-icon name="icon-page-add"></uui-icon>
 								Change PDF
 							</uui-button>
@@ -1618,7 +1636,7 @@ pt = function() {
 					<div class="box-content">
 						<span class="box-stat">${a}</span>
 						<div class="page-selection">
-							${u(this, c, ct).call(this)}
+							${u(this, c, dt).call(this)}
 						</div>
 					</div>
 				</uui-box>
@@ -1627,10 +1645,10 @@ pt = function() {
 					<div class="box-content">
 						<span class="box-stat">${this._zoneTemplate ? this._zoneTemplate.zones.length : r}</span>
 						<div class="box-buttons">
-							${this._zoneTemplate ? d`<uui-button look="outline" compact label="Edit Areas" @click=${u(this, c, ie)}>
+							${this._zoneTemplate ? d`<uui-button look="primary" color="positive" label="Edit Areas" @click=${u(this, c, ae)}>
 									<uui-icon name="icon-edit"></uui-icon>
 									Edit Areas
-								</uui-button>` : d`<uui-button look="primary" color="positive" compact label="Define Areas" @click=${u(this, c, ie)}>
+								</uui-button>` : d`<uui-button look="primary" color="positive" label="Define Areas" @click=${u(this, c, ae)}>
 									<uui-icon name="icon-grid"></uui-icon>
 									Define Areas
 								</uui-button>`}
@@ -1647,36 +1665,67 @@ pt = function() {
 
 			${t ? d`
 				<div class="collapse-row">
-					<uui-button look="outline" compact label="${this._allCollapsed ? "Expand All" : "Collapse All"}" @click=${u(this, c, et)}>
-						<uui-icon name="${this._allCollapsed ? "icon-navigation-down" : "icon-navigation-right"}"></uui-icon>
-						${this._allCollapsed ? "Expand All" : "Collapse All"}
+					<uui-button
+						look="outline"
+						compact
+						label="Collapse"
+						popovertarget="collapse-level-popover">
+						Collapse
+						<uui-symbol-expand .open=${this._collapsePopoverOpen}></uui-symbol-expand>
 					</uui-button>
+					<uui-popover-container
+						id="collapse-level-popover"
+						placement="bottom-start"
+						@toggle=${u(this, c, nt)}>
+						<umb-popover-layout>
+							<uui-menu-item
+								label="Expand All"
+								@click=${() => u(this, c, it).call(this)}>
+								<uui-icon slot="icon" name="icon-navigation-down"></uui-icon>
+							</uui-menu-item>
+							<uui-menu-item
+								label="${u(this, c, O).call(this, "pages") ? "Expand" : "Collapse"} Pages"
+								@click=${() => u(this, c, F).call(this, "pages")}>
+								<uui-icon slot="icon" name="icon-document"></uui-icon>
+							</uui-menu-item>
+							<uui-menu-item
+								label="${u(this, c, O).call(this, "areas") ? "Expand" : "Collapse"} Areas"
+								@click=${() => u(this, c, F).call(this, "areas")}>
+								<uui-icon slot="icon" name="icon-grid"></uui-icon>
+							</uui-menu-item>
+							<uui-menu-item
+								label="${u(this, c, O).call(this, "sections") ? "Expand" : "Collapse"} Sections"
+								@click=${() => u(this, c, F).call(this, "sections")}>
+								<uui-icon slot="icon" name="icon-thumbnail-list"></uui-icon>
+							</uui-menu-item>
+						</umb-popover-layout>
+					</uui-popover-container>
 				</div>
 			` : w}
 		`;
 };
-ht = function() {
+mt = function() {
   const t = this._zoneDetection !== null;
-  return this._viewMode === "elements" ? t ? u(this, c, lt).call(this) : w : u(this, c, gt).call(this);
+  return this._viewMode === "elements" ? t ? u(this, c, pt).call(this) : w : u(this, c, xt).call(this);
 };
-le = function(t) {
-  const e = u(this, c, j).call(this, t);
-  return e.length === 0 ? d`<uui-button look="secondary" compact label="Map" @click=${() => u(this, c, ae).call(this, t)}>
+ce = function(t) {
+  const e = u(this, c, K).call(this, t);
+  return e.length === 0 ? d`<uui-button look="secondary" compact label="Map" @click=${() => u(this, c, le).call(this, t)}>
 				<uui-icon name="icon-link"></uui-icon> Map
 			</uui-button>` : d`${e.map(
-    (s) => d`<span class="meta-badge mapped-target" @click=${() => u(this, c, ae).call(this, t)} style="cursor:pointer;" title="Click to re-map">
-				<uui-icon name="icon-check" style="font-size:10px;"></uui-icon> ${u(this, c, st).call(this, s)}
+    (s) => d`<span class="meta-badge mapped-target" @click=${() => u(this, c, le).call(this, t)} style="cursor:pointer;" title="Click to re-map">
+				<uui-icon name="icon-check" style="font-size:10px;"></uui-icon> ${u(this, c, rt).call(this, s)}
 			</span>`
   )}`;
 };
-dt = function(t) {
+kt = function(t) {
   const e = {
     bulletList: "Bullet List",
     paragraph: "Paragraph",
     subHeaded: "Sub-Headed",
     preamble: "Preamble",
     mixed: "Mixed"
-  }, s = `${t.id}.heading`, n = `${t.id}.content`, i = u(this, c, j).call(this, s).length > 0, a = u(this, c, j).call(this, n).length > 0, r = i || a, o = t.heading ?? "Preamble";
+  }, s = `${t.id}.heading`, n = `${t.id}.content`, i = u(this, c, K).call(this, s).length > 0, a = u(this, c, K).call(this, n).length > 0, r = i || a, o = t.heading ?? "Preamble";
   return d`
 			<uui-box headline=${o} class="transformed-section ${r ? "section-mapped" : ""}">
 				<div slot="header-actions" class="transformed-header-badges">
@@ -1684,17 +1733,17 @@ dt = function(t) {
 					<span class="meta-badge">p${t.page}</span>
 					${t.zoneColor ? d`<span class="area-color-swatch" style="background: ${t.zoneColor};"></span>` : w}
 					<span class="meta-badge">${t.childCount} item${t.childCount !== 1 ? "s" : ""}</span>
-					${t.heading ? u(this, c, le).call(this, s) : w}
+					${t.heading ? u(this, c, ce).call(this, s) : w}
 				</div>
-				<div class="transformed-content" .innerHTML=${ms(t.content)}></div>
+				<div class="transformed-content" .innerHTML=${_s(t.content)}></div>
 				<div class="section-mapping-actions">
 					<span class="mapping-label">Content:</span>
-					${u(this, c, le).call(this, n)}
+					${u(this, c, ce).call(this, n)}
 				</div>
 			</uui-box>
 		`;
 };
-gt = function() {
+xt = function() {
   if (!this._transformResult)
     return d`
 				<div class="empty-state">
@@ -1705,7 +1754,7 @@ gt = function() {
 			`;
   const t = this._transformResult.sections.filter((s) => s.included), e = this._transformResult.sections.length;
   return d`
-			${t.map((s) => u(this, c, dt).call(this, s))}
+			${t.map((s) => u(this, c, kt).call(this, s))}
 			<div class="diagnostics">
 				<span class="meta-badge">${t.length}/${e} sections included</span>
 				<span class="meta-badge">${this._transformResult.diagnostics.bulletListSections} bullet</span>
@@ -1715,21 +1764,21 @@ gt = function() {
 			</div>
 		`;
 };
-ft = function() {
+bt = function() {
   return d`
 			<div class="empty-state">
 				<uui-icon name="icon-document" style="font-size: 48px; color: var(--uui-color-text-alt);"></uui-icon>
 				<h3>No sample extraction</h3>
 				<p>Choose a PDF from the media library to extract text elements with their metadata.</p>
-				<uui-button look="primary" label="Choose PDF" @click=${u(this, c, J)} ?disabled=${this._extracting}>
+				<uui-button look="primary" label="Choose PDF" @click=${u(this, c, ee)} ?disabled=${this._extracting}>
 					${this._extracting ? d`<uui-loader-bar></uui-loader-bar>` : "Choose PDF..."}
 				</uui-button>
 			</div>
 		`;
 };
 b.styles = [
-  Pt,
-  Tt`
+  Dt,
+  Et`
 			:host {
 				display: block;
 				height: 100%;
@@ -2233,7 +2282,7 @@ _([
 ], b.prototype, "_pageInputValue", 2);
 _([
   $()
-], b.prototype, "_allCollapsed", 2);
+], b.prototype, "_collapsePopoverOpen", 2);
 _([
   $()
 ], b.prototype, "_excludedAreas", 2);
@@ -2241,11 +2290,11 @@ _([
   $()
 ], b.prototype, "_zoneTemplate", 2);
 b = _([
-  Ct("up-doc-workflow-source-view")
+  Mt("up-doc-workflow-source-view")
 ], b);
-const Ms = b;
+const Ls = b;
 export {
   b as UpDocWorkflowSourceViewElement,
-  Ms as default
+  Ls as default
 };
-//# sourceMappingURL=up-doc-workflow-source-view.element-hOD42mEB.js.map
+//# sourceMappingURL=up-doc-workflow-source-view.element-Bgm4yBCq.js.map

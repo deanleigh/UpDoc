@@ -2,14 +2,14 @@
   "Version": "1.0",
   "Sections": [
     {
-      "Id": "the-arts-society-kingston-presents",
-      "OriginalHeading": "The Arts Society Kingston presents",
-      "Heading": "The Arts Society Kingston presents",
-      "Content": "",
-      "Pattern": "preamble",
+      "Id": "preamble-p1-z0",
+      "OriginalHeading": null,
+      "Heading": null,
+      "Content": "The Arts Society Kingston presents",
+      "Pattern": "paragraph",
       "Page": 1,
-      "ZoneColor": "#FFFFFF",
-      "ChildCount": 0,
+      "ZoneColor": "#e84855",
+      "ChildCount": 1,
       "Included": true
     },
     {
@@ -19,7 +19,7 @@
       "Content": "",
       "Pattern": "preamble",
       "Page": 1,
-      "ZoneColor": "#FFFFFF",
+      "ZoneColor": "#e84855",
       "ChildCount": 0,
       "Included": true
     },
@@ -27,66 +27,22 @@
       "Id": "5-days-from-814-departing-5th-october-2026",
       "OriginalHeading": "5 days from \u00A3814 Departing 5th October 2026",
       "Heading": "5 days from \u00A3814 Departing 5th October 2026",
-      "Content": "g\n\nn\n\nd i l i\n\nu B\n\ne r\n\nv\n\ni L e\n\nh T\n\nFor more information on this tour contact your Group Organiser",
+      "Content": "",
+      "Pattern": "preamble",
+      "Page": 1,
+      "ZoneColor": "#e84855",
+      "ChildCount": 0,
+      "Included": true
+    },
+    {
+      "Id": "preamble-p1-z1",
+      "OriginalHeading": null,
+      "Heading": null,
+      "Content": "For more information on this tour contact your Group Organiser\n\nRobin Linnecar\n\nTel: 020 8942 1558\n\nEmail: linnecar@btinternet.com\n\n.................................................................... Tailored Travel\u2019s ATOL\n\n81 Alric Avenue, New Malden KT3 4JP",
       "Pattern": "paragraph",
       "Page": 1,
-      "ZoneColor": "#FFFFFF",
-      "ChildCount": 9,
-      "Included": true
-    },
-    {
-      "Id": "robin-linnecar",
-      "OriginalHeading": "Robin Linnecar",
-      "Heading": "Robin Linnecar",
-      "Content": "",
-      "Pattern": "preamble",
-      "Page": 1,
-      "ZoneColor": "#FFFFFF",
-      "ChildCount": 0,
-      "Included": true
-    },
-    {
-      "Id": "tel-020-8942-1558",
-      "OriginalHeading": "Tel: 020 8942 1558",
-      "Heading": "Tel: 020 8942 1558",
-      "Content": "",
-      "Pattern": "preamble",
-      "Page": 1,
-      "ZoneColor": "#FFFFFF",
-      "ChildCount": 0,
-      "Included": true
-    },
-    {
-      "Id": "email-linnecar-btinternet-com",
-      "OriginalHeading": "Email: linnecar@btinternet.com",
-      "Heading": "Email: linnecar@btinternet.com",
-      "Content": "",
-      "Pattern": "preamble",
-      "Page": 1,
-      "ZoneColor": "#FFFFFF",
-      "ChildCount": 0,
-      "Included": true
-    },
-    {
-      "Id": "tailored-travel-s-atol",
-      "OriginalHeading": ".................................................................... Tailored Travel\u2019s ATOL",
-      "Heading": ".................................................................... Tailored Travel\u2019s ATOL",
-      "Content": "number is 5605",
-      "Pattern": "paragraph",
-      "Page": 1,
-      "ZoneColor": "#FFFFFF",
-      "ChildCount": 1,
-      "Included": true
-    },
-    {
-      "Id": "81-alric-avenue-new-malden-kt3-4jp",
-      "OriginalHeading": "81 Alric Avenue, New Malden KT3 4JP",
-      "Heading": "81 Alric Avenue, New Malden KT3 4JP",
-      "Content": "",
-      "Pattern": "preamble",
-      "Page": 1,
-      "ZoneColor": "#FFFFFF",
-      "ChildCount": 0,
+      "ZoneColor": "#f9dc5c",
+      "ChildCount": 6,
       "Included": true
     },
     {
@@ -96,7 +52,7 @@
       "Content": "- 4* central Liverpool hotel\r\n- Three dinners included\r\n- All excursion travel \u0026 guided tours included\r\n- Entrance fees to non-National Trust properties included\r\n- Included River Mersey cruise on Day 3\r\n- Blue Badge guide on Days 2 to 4\r\n- Executive coach throughout",
       "Pattern": "bulletList",
       "Page": 1,
-      "ZoneColor": "#C6EAFA",
+      "ZoneColor": "#3185fc",
       "ChildCount": 7,
       "Included": true
     },
@@ -107,7 +63,7 @@
       "Content": "- Little Moreton Hall\r\n- Liverpool \u2013 guided tour\r\n- Metropolitan Roman Catholic Cathedral\r\n- Liverpool Cathedral\r\n- Walker Art Gallery \u2013 guided tour\r\n- Antony Gormley\u2019s \u2018Another Place\u2019 at Crosby Beach\r\n- Museum of Liverpool\r\n- Cruise on the River Mersey\r\n- Albert Dock\r\n- Liverpool\r\n- Princes Road Synagogue \u2013 guided tour\r\n- Speke Hall\r\n- Tate Liverpool at Riba North, Mann Island\r\n- Quarry Bank Mill \u0026 Styal Estate",
       "Pattern": "bulletList",
       "Page": 1,
-      "ZoneColor": "#C6EAFA",
+      "ZoneColor": "#3185fc",
       "ChildCount": 14,
       "Included": true
     },
@@ -118,7 +74,7 @@
       "Content": "We stay four nights at the centrally located 4* Marriott Hotel (www.marriott.com) at Liverpool. Overlooking Queen Square, facilities at the hotel include a restaurant, bar, and a gymnasium. All rooms are en suite and feature television, telephone, hairdryer, an in-room safe, and tea \u0026 coffee making facilities. A set 3 course dinner will be served on the first evening, and a choice 3 course dinner will be served on Days 2 and 4. Day 3 is on a bed and breakfast basis.",
       "Pattern": "paragraph",
       "Page": 1,
-      "ZoneColor": "#C6EAFA",
+      "ZoneColor": "#3185fc",
       "ChildCount": 1,
       "Included": true
     },
@@ -129,38 +85,38 @@
       "Content": "- Insurance (including Covid cover) \u00A338\r\n- Single room supplement \u00A3119\r\n- Entrance fees to National Trust properties\r\n- (free to NT members)\r\n- Gratuities\r\n- Lunches\r\n- Dinner on Day 3\r\n- Price based on twin share. Minimum numbers\r\n- required. Normal booking conditions apply.",
       "Pattern": "bulletList",
       "Page": 1,
-      "ZoneColor": "#C6EAFA",
+      "ZoneColor": "#3185fc",
       "ChildCount": 9,
-      "Included": true
-    },
-    {
-      "Id": "speke-hall",
-      "OriginalHeading": "Speke Hall",
-      "Heading": "Speke Hall",
-      "Content": "",
-      "Pattern": "preamble",
-      "Page": 1,
-      "ZoneColor": "#C6EAFA",
-      "ChildCount": 0,
       "Included": true
     },
     {
       "Id": "preamble-p1-unzoned",
       "OriginalHeading": null,
       "Heading": null,
-      "Content": "Vie w a nd sha r e this to u r o nlin e - click o n Vie w Yo u r To u r at w w w.tailo r ed-tr a v el. c o . uk a nd qu ote kngd261",
+      "Content": "g\n\nn\n\nd i l i\n\nu B\n\ne r\n\nv\n\ni L e\n\nh T\n\nnumber is 5605\n\nSpeke Hall",
       "Pattern": "paragraph",
       "Page": 1,
       "ZoneColor": null,
-      "ChildCount": 1,
+      "ChildCount": 10,
+      "Included": true
+    },
+    {
+      "Id": "vie-w-a-nd-sha-r-e-this-to-u-r-o-nlin-e-click-o-n-vie-w-yo-u-r-to-u-r-at-w-w-w-tailo-r-ed-tr-a-v-el-c-o-uk-a-nd-qu-ote-kngd261",
+      "OriginalHeading": "Vie w a nd sha r e this to u r o nlin e - click o n Vie w Yo u r To u r at w w w.tailo r ed-tr a v el. c o . uk a nd qu ote kngd261",
+      "Heading": "Vie w a nd sha r e this to u r o nlin e - click o n Vie w Yo u r To u r at w w w.tailo r ed-tr a v el. c o . uk a nd qu ote kngd261",
+      "Content": "",
+      "Pattern": "preamble",
+      "Page": 1,
+      "ZoneColor": null,
+      "ChildCount": 0,
       "Included": true
     }
   ],
   "Diagnostics": {
-    "TotalSections": 14,
+    "TotalSections": 10,
     "BulletListSections": 3,
     "ParagraphSections": 4,
     "SubHeadedSections": 0,
-    "PreambleSections": 7
+    "PreambleSections": 3
   }
 }

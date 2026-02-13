@@ -173,12 +173,34 @@ All are conditioned on `Umb.Condition.WorkspaceAlias` matching `UpDoc.WorkflowWo
 
 A sidebar modal for selecting destination fields when creating mappings from the Source tab.
 
+## Zone Editor Modal
+
+```typescript
+{
+    type: 'modal',
+    alias: 'UpDoc.ZoneEditorModal',
+    name: 'Zone Editor Modal',
+    element: () => import('./pdf-zone-editor-modal.element.js'),
+}
+```
+
+Full-screen modal for drawing and naming rectangular zones on a PDF. Uses PDF.js for rendering and canvas overlay for zone drawing. Zones define extraction areas — only content within defined zones is extracted.
+
 ## Settings Sidebar, Tree, and Workspace
 
-The remaining manifests register the UpDoc dashboard in the Settings section:
+The remaining manifests register the UpDoc dashboard in the Settings section.
 
-- **`sectionSidebarApp`** - Adds "UpDoc" menu to the Settings sidebar
-- **`menu`** + **`menuItem`** - Tree-based menu with `hideTreeRoot: true`
+### Sidebar integration (uSync-aware)
+
+UpDoc appears under the "Synchronisation" group in the Settings sidebar. When uSync is installed, UpDoc registers as a `menuItem` inside uSync's existing `usync.menu`. When uSync is NOT installed, a fallback `sectionSidebarApp` creates its own "Synchronisation" group.
+
+- **`condition`** (`UpDoc.Condition.UsyncNotInstalled`) — checks if `usync.menu` is NOT in the extension registry. Permits when uSync is absent.
+- **`menuItem`** — targets both `usync.menu` and `UpDoc.Menu` (whichever is rendered). Uses `hideTreeRoot: true` for flat display.
+- **`sectionSidebarApp`** (fallback) — creates "Synchronisation" group, conditioned on uSync NOT being installed.
+- **`menu`** (`UpDoc.Menu`) — fallback menu container, only rendered by the fallback sectionSidebarApp.
+
+### Other Settings manifests
+
 - **`repository`** + **`tree`** + **`treeItem`** - Data source for workflow tree items
 - **`workspace`** (`kind: 'routable'`) - Right panel with tabs for editing workflows
 - **`workspaceView`** (x3) - Tabs: Workflows, Configuration, About

@@ -60,6 +60,7 @@ nav:
     - visual-grouping.ts: source-files/visual-grouping.md
     - transforms.ts: source-files/transforms.md
     - up-doc-collection-action.element.ts: source-files/up-doc-collection-action-element.md
+    - up-doc-usync-fallback.condition.ts: source-files/up-doc-usync-fallback-condition.md
   - Backend (C#):
     - backend/index.md
     - PdfExtractionService.cs: source-files/pdf-extraction-service.md

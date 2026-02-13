@@ -76,7 +76,14 @@ State is managed by a single `_collapsed` Set with key prefixes:
 - Areas: `area-p${pageNum}-a${areaIndex}` or `area-p${pageNum}-undefined`
 - Sections: `p${pageNum}-a${areaIndex}-s${sIdx}`
 
-A global Collapse All / Expand All button toggles all pages at once. The include/exclude toggle uses `@click stopPropagation` to prevent also triggering collapse.
+A **Collapse dropdown** (using `uui-button` + `uui-popover-container` + `uui-menu-item`, matching Umbraco's "Create" dropdown pattern) provides per-level toggle controls:
+
+- **Expand All** — opens everything
+- **Collapse/Expand Pages** — toggles all page-level items
+- **Collapse/Expand Areas** — toggles all area-level items
+- **Collapse/Expand Sections** — toggles all section-level items
+
+Each label dynamically flips based on current state (e.g., "Collapse Areas" → "Expand Areas" when all areas are collapsed). The include/exclude toggle uses `@click stopPropagation` to prevent also triggering collapse.
 
 ### Transformed mode
 
@@ -108,7 +115,11 @@ When no sample extraction exists, shows a centered prompt with "Choose PDF" butt
 | `#onPickMedia()` | Opens media picker, runs extraction on selected PDF |
 | `#isCollapsed(key)` | Checks if a page/area/section is collapsed |
 | `#toggleCollapse(key)` | Toggles collapse state for any level |
-| `#toggleCollapseAll()` | Collapses or expands all pages at once |
+| `#getKeysForLevel(level)` | Returns all collapse keys for a given level (pages/areas/sections) |
+| `#isLevelCollapsed(level)` | Checks if all items at a level are currently collapsed |
+| `#toggleLevel(level)` | Toggles all items at a given level (collapse ↔ expand) |
+| `#expandAll()` | Expands everything (clears collapsed set) |
+| `#onEditAreas()` | Opens zone editor modal for defining/editing extraction areas |
 | `#renderExtractionHeader()` | Tab group slotted into header |
 | `#renderInfoBoxes()` | Four equal-width uui-box cards (Source, Pages, Areas, Sections) |
 | `#renderPageSelection()` | Radio buttons (All/Choose) + range text input |

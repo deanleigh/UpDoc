@@ -126,7 +126,7 @@ const o = [
     type: "workspaceView",
     alias: "UpDoc.WorkflowWorkspaceView.Source",
     name: "UpDoc Workflow Source View",
-    element: () => import("./up-doc-workflow-source-view.element-hOD42mEB.js"),
+    element: () => import("./up-doc-workflow-source-view.element-Bgm4yBCq.js"),
     weight: 200,
     meta: {
       label: "Source",
@@ -159,29 +159,14 @@ const o = [
     ]
   },
   // =====================================================================
-  // Settings sidebar — UpDoc appears in Settings section
+  // Settings sidebar — UpDoc under uSync's "Synchronisation" group,
+  // with fallback to its own group when uSync is not installed
   // =====================================================================
   {
-    type: "sectionSidebarApp",
-    kind: "menu",
-    alias: "UpDoc.SidebarApp",
-    name: "UpDoc Sidebar",
-    weight: 15,
-    meta: {
-      label: "UpDoc",
-      menu: "UpDoc.Menu"
-    },
-    conditions: [
-      {
-        alias: "Umb.Condition.SectionAlias",
-        match: "Umb.Section.Settings"
-      }
-    ]
-  },
-  {
-    type: "menu",
-    alias: "UpDoc.Menu",
-    name: "UpDoc Menu"
+    type: "condition",
+    alias: "UpDoc.Condition.UsyncNotInstalled",
+    name: "uSync Not Installed",
+    api: () => import("./up-doc-usync-fallback.condition-CRxSTHGz.js")
   },
   {
     type: "menuItem",
@@ -190,9 +175,35 @@ const o = [
     name: "UpDoc Menu Item",
     meta: {
       treeAlias: "UpDoc.Tree",
-      menus: ["UpDoc.Menu"],
+      menus: ["usync.menu", "UpDoc.Menu"],
       hideTreeRoot: !0
     }
+  },
+  // Fallback: own sidebar group when uSync is not installed
+  {
+    type: "sectionSidebarApp",
+    kind: "menu",
+    alias: "UpDoc.SidebarApp",
+    name: "UpDoc Sidebar",
+    weight: 15,
+    meta: {
+      label: "Synchronisation",
+      menu: "UpDoc.Menu"
+    },
+    conditions: [
+      {
+        alias: "Umb.Condition.SectionAlias",
+        match: "Umb.Section.Settings"
+      },
+      {
+        alias: "UpDoc.Condition.UsyncNotInstalled"
+      }
+    ]
+  },
+  {
+    type: "menu",
+    alias: "UpDoc.Menu",
+    name: "UpDoc Menu"
   },
   // =====================================================================
   // Tree — data source for sidebar items

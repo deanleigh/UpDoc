@@ -28,7 +28,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 	@state() private _sourceConfig: SourceConfig | null = null;
 	@state() private _pageMode: 'all' | 'custom' = 'all';
 	@state() private _pageInputValue = '';
-	@state() private _allCollapsed = false;
+	@state() private _collapsePopoverOpen = false;
 	@state() private _excludedAreas = new Set<string>();
 	@state() private _zoneTemplate: ZoneTemplate | null = null;
 	#token = '';
@@ -204,16 +204,59 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		await savePageSelection(this._workflowName, pages, this.#token);
 	}
 
-	#toggleCollapseAll() {
-		if (!this._zoneDetection) return;
-		this._allCollapsed = !this._allCollapsed;
-		const next = new Set<string>();
-		if (this._allCollapsed) {
-			for (const page of this._zoneDetection.pages) {
-				next.add(`page-${page.page}`);
+	/** Get all collapse keys for a given level. */
+	#getKeysForLevel(level: 'pages' | 'areas' | 'sections'): string[] {
+		if (!this._zoneDetection) return [];
+		const keys: string[] = [];
+		for (const page of this._zoneDetection.pages) {
+			const pageNum = page.page;
+			if (level === 'pages') {
+				keys.push(`page-${pageNum}`);
+			}
+			if (level === 'areas') {
+				page.zones.forEach((_z, aIdx) => keys.push(`area-p${pageNum}-a${aIdx}`));
+				if (page.unzonedContent) keys.push(`area-p${pageNum}-undefined`);
+			}
+			if (level === 'sections') {
+				page.zones.forEach((_z, aIdx) => {
+					_z.sections.forEach((_s, sIdx) => keys.push(`p${pageNum}-a${aIdx}-s${sIdx}`));
+				});
+				if (page.unzonedContent) {
+					page.unzonedContent.sections.forEach((_s, sIdx) => keys.push(`p${pageNum}-undefined-s${sIdx}`));
+				}
+			}
+		}
+		return keys;
+	}
+
+	/** Check if all items at a level are currently collapsed. */
+	#isLevelCollapsed(level: 'pages' | 'areas' | 'sections'): boolean {
+		const keys = this.#getKeysForLevel(level);
+		return keys.length > 0 && keys.every((k) => this._collapsed.has(k));
+	}
+
+	/** Toggle all items at a given level. */
+	#toggleLevel(level: 'pages' | 'areas' | 'sections') {
+		const keys = this.#getKeysForLevel(level);
+		const allCollapsed = this.#isLevelCollapsed(level);
+		const next = new Set(this._collapsed);
+		for (const key of keys) {
+			if (allCollapsed) {
+				next.delete(key);
+			} else {
+				next.add(key);
 			}
 		}
 		this._collapsed = next;
+	}
+
+	/** Expand everything. */
+	#expandAll() {
+		this._collapsed = new Set<string>();
+	}
+
+	#onCollapsePopoverToggle(event: ToggleEvent) {
+		this._collapsePopoverOpen = event.newState === 'open';
 	}
 
 	async #onPickMedia() {
@@ -700,11 +743,11 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 						<span class="box-stat">${this._zoneTemplate ? this._zoneTemplate.zones.length : areas}</span>
 						<div class="box-buttons">
 							${this._zoneTemplate
-								? html`<uui-button look="outline" compact label="Edit Areas" @click=${this.#onEditAreas}>
+								? html`<uui-button look="primary" color="positive" label="Edit Areas" @click=${this.#onEditAreas}>
 									<uui-icon name="icon-edit"></uui-icon>
 									Edit Areas
 								</uui-button>`
-								: html`<uui-button look="primary" color="positive" compact label="Define Areas" @click=${this.#onEditAreas}>
+								: html`<uui-button look="primary" color="positive" label="Define Areas" @click=${this.#onEditAreas}>
 									<uui-icon name="icon-grid"></uui-icon>
 									Define Areas
 								</uui-button>`}
@@ -721,10 +764,41 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 
 			${hasZones ? html`
 				<div class="collapse-row">
-					<uui-button look="outline" compact label="${this._allCollapsed ? 'Expand All' : 'Collapse All'}" @click=${this.#toggleCollapseAll}>
-						<uui-icon name="${this._allCollapsed ? 'icon-navigation-down' : 'icon-navigation-right'}"></uui-icon>
-						${this._allCollapsed ? 'Expand All' : 'Collapse All'}
+					<uui-button
+						look="outline"
+						compact
+						label="Collapse"
+						popovertarget="collapse-level-popover">
+						Collapse
+						<uui-symbol-expand .open=${this._collapsePopoverOpen}></uui-symbol-expand>
 					</uui-button>
+					<uui-popover-container
+						id="collapse-level-popover"
+						placement="bottom-start"
+						@toggle=${this.#onCollapsePopoverToggle}>
+						<umb-popover-layout>
+							<uui-menu-item
+								label="Expand All"
+								@click=${() => this.#expandAll()}>
+								<uui-icon slot="icon" name="icon-navigation-down"></uui-icon>
+							</uui-menu-item>
+							<uui-menu-item
+								label="${this.#isLevelCollapsed('pages') ? 'Expand' : 'Collapse'} Pages"
+								@click=${() => this.#toggleLevel('pages')}>
+								<uui-icon slot="icon" name="icon-document"></uui-icon>
+							</uui-menu-item>
+							<uui-menu-item
+								label="${this.#isLevelCollapsed('areas') ? 'Expand' : 'Collapse'} Areas"
+								@click=${() => this.#toggleLevel('areas')}>
+								<uui-icon slot="icon" name="icon-grid"></uui-icon>
+							</uui-menu-item>
+							<uui-menu-item
+								label="${this.#isLevelCollapsed('sections') ? 'Expand' : 'Collapse'} Sections"
+								@click=${() => this.#toggleLevel('sections')}>
+								<uui-icon slot="icon" name="icon-thumbnail-list"></uui-icon>
+							</uui-menu-item>
+						</umb-popover-layout>
+					</uui-popover-container>
 				</div>
 			` : nothing}
 		`;

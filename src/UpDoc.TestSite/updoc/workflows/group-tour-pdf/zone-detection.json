@@ -5,30 +5,33 @@
       "page": 1,
       "zones": [
         {
-          "color": "#FFFFFF",
+          "name": "Page Header",
+          "color": "#e84855",
           "boundingBox": {
-            "left": 14.2,
-            "top": 827.7,
-            "width": 380.6,
-            "height": 800.5
+            "left": 11,
+            "top": 832.9,
+            "width": 383,
+            "height": 139
           },
           "page": 1,
           "sections": [
             {
-              "heading": {
-                "id": "p1-e1",
-                "text": "The Arts Society Kingston presents",
-                "fontSize": 10.8,
-                "fontName": "GHEALM\u002BHelveticaNeue-Medium",
-                "color": "#FFD200",
-                "boundingBox": {
-                  "left": 31.7,
-                  "top": 816.5,
-                  "width": 193.2,
-                  "height": 7.9
+              "heading": null,
+              "children": [
+                {
+                  "id": "p1-e1",
+                  "text": "The Arts Society Kingston presents",
+                  "fontSize": 10.8,
+                  "fontName": "GHEALM\u002BHelveticaNeue-Medium",
+                  "color": "#FFD200",
+                  "boundingBox": {
+                    "left": 31.7,
+                    "top": 816.5,
+                    "width": 193.2,
+                    "height": 7.9
+                  }
                 }
-              },
-              "children": []
+              ]
             },
             {
               "heading": {
@@ -60,111 +63,25 @@
                   "height": 10.5
                 }
               },
+              "children": []
+            }
+          ],
+          "totalElements": 3
+        },
+        {
+          "name": "Organiser Info",
+          "color": "#f9dc5c",
+          "boundingBox": {
+            "left": 18,
+            "top": 154.9,
+            "width": 281,
+            "height": 125
+          },
+          "page": 1,
+          "sections": [
+            {
+              "heading": null,
               "children": [
-                {
-                  "id": "p1-e31",
-                  "text": "g",
-                  "fontSize": 9,
-                  "fontName": "GHEALM\u002BHelveticaNeue-Medium",
-                  "color": "#FFFFFF",
-                  "boundingBox": {
-                    "left": 19.3,
-                    "top": 235.5,
-                    "width": 6.6,
-                    "height": -4.8
-                  }
-                },
-                {
-                  "id": "p1-e33",
-                  "text": "n",
-                  "fontSize": 9,
-                  "fontName": "GHEALM\u002BHelveticaNeue-Medium",
-                  "color": "#FFFFFF",
-                  "boundingBox": {
-                    "left": 21.2,
-                    "top": 230.2,
-                    "width": 4.8,
-                    "height": -4.6
-                  }
-                },
-                {
-                  "id": "p1-e35",
-                  "text": "d i l i",
-                  "fontSize": 9,
-                  "fontName": "GHEALM\u002BHelveticaNeue-Medium",
-                  "color": "#FFFFFF",
-                  "boundingBox": {
-                    "left": 19.4,
-                    "top": 227.9,
-                    "width": 6.6,
-                    "height": 8.6
-                  }
-                },
-                {
-                  "id": "p1-e37",
-                  "text": "u B",
-                  "fontSize": 9,
-                  "fontName": "GHEALM\u002BHelveticaNeue-Medium",
-                  "color": "#FFFFFF",
-                  "boundingBox": {
-                    "left": 21.2,
-                    "top": 212.4,
-                    "width": 4.8,
-                    "height": 0.5
-                  }
-                },
-                {
-                  "id": "p1-e39",
-                  "text": "e r",
-                  "fontSize": 9,
-                  "fontName": "GHEALM\u002BHelveticaNeue-Medium",
-                  "color": "#FFFFFF",
-                  "boundingBox": {
-                    "left": 21,
-                    "top": 200,
-                    "width": 4.9,
-                    "height": 0.4
-                  }
-                },
-                {
-                  "id": "p1-e41",
-                  "text": "v",
-                  "fontSize": 9,
-                  "fontName": "GHEALM\u002BHelveticaNeue-Medium",
-                  "color": "#FFFFFF",
-                  "boundingBox": {
-                    "left": 21.3,
-                    "top": 190,
-                    "width": 4.7,
-                    "height": -4.6
-                  }
-                },
-                {
-                  "id": "p1-e43",
-                  "text": "i L e",
-                  "fontSize": 9,
-                  "fontName": "GHEALM\u002BHelveticaNeue-Medium",
-                  "color": "#FFFFFF",
-                  "boundingBox": {
-                    "left": 19.5,
-                    "top": 187.7,
-                    "width": 6.4,
-                    "height": 8.3
-                  }
-                },
-                {
-                  "id": "p1-e45",
-                  "text": "h T",
-                  "fontSize": 9,
-                  "fontName": "GHEALM\u002BHelveticaNeue-Medium",
-                  "color": "#FFFFFF",
-                  "boundingBox": {
-                    "left": 19.5,
-                    "top": 169.4,
-                    "width": 6.4,
-                    "height": 0.2
-                  }
-                },
                 {
                   "id": "p1-e47",
                   "text": "For more information on this tour contact your Group Organiser",
@@ -177,113 +94,85 @@
                     "width": 254.3,
                     "height": 6.6
                   }
-                }
-              ]
-            },
-            {
-              "heading": {
-                "id": "p1-e48",
-                "text": "Robin Linnecar",
-                "fontSize": 20,
-                "fontName": "GHEALP\u002BClarendon",
-                "color": "#FFD200",
-                "boundingBox": {
-                  "left": 26.7,
-                  "top": 127.6,
-                  "width": 150.4,
-                  "height": 13.5
-                }
-              },
-              "children": []
-            },
-            {
-              "heading": {
-                "id": "p1-e49",
-                "text": "Tel: 020 8942 1558",
-                "fontSize": 20,
-                "fontName": "GHEALP\u002BClarendon",
-                "color": "#FFFFFF",
-                "boundingBox": {
-                  "left": 26.7,
-                  "top": 108.3,
-                  "width": 185.6,
-                  "height": 13.3
-                }
-              },
-              "children": []
-            },
-            {
-              "heading": {
-                "id": "p1-e50",
-                "text": "Email: linnecar@btinternet.com",
-                "fontSize": 15,
-                "fontName": "GHEALP\u002BClarendon",
-                "color": "#FFD200",
-                "boundingBox": {
-                  "left": 26.7,
-                  "top": 88.3,
-                  "width": 231.1,
-                  "height": 10.2
-                }
-              },
-              "children": []
-            },
-            {
-              "heading": {
-                "id": "p1-e51",
-                "text": ".................................................................... Tailored Travel\u2019s ATOL",
-                "fontSize": 13,
-                "fontName": "GHEALP\u002BClarendon",
-                "color": "#FFD200",
-                "boundingBox": {
-                  "left": 26.7,
-                  "top": 76.8,
-                  "width": 350.3,
-                  "height": 9.7
-                }
-              },
-              "children": [
+                },
                 {
-                  "id": "p1-e52",
-                  "text": "number is 5605",
-                  "fontSize": 7,
-                  "fontName": "GHEALO\u002BHelveticaNeue",
+                  "id": "p1-e48",
+                  "text": "Robin Linnecar",
+                  "fontSize": 20,
+                  "fontName": "GHEALP\u002BClarendon",
+                  "color": "#FFD200",
+                  "boundingBox": {
+                    "left": 26.7,
+                    "top": 127.6,
+                    "width": 150.4,
+                    "height": 13.5
+                  }
+                },
+                {
+                  "id": "p1-e49",
+                  "text": "Tel: 020 8942 1558",
+                  "fontSize": 20,
+                  "fontName": "GHEALP\u002BClarendon",
                   "color": "#FFFFFF",
                   "boundingBox": {
-                    "left": 326,
-                    "top": 68.6,
-                    "width": 42.4,
-                    "height": 5
+                    "left": 26.7,
+                    "top": 108.3,
+                    "width": 185.6,
+                    "height": 13.3
+                  }
+                },
+                {
+                  "id": "p1-e50",
+                  "text": "Email: linnecar@btinternet.com",
+                  "fontSize": 15,
+                  "fontName": "GHEALP\u002BClarendon",
+                  "color": "#FFD200",
+                  "boundingBox": {
+                    "left": 26.7,
+                    "top": 88.3,
+                    "width": 231.1,
+                    "height": 10.2
+                  }
+                },
+                {
+                  "id": "p1-e51",
+                  "text": ".................................................................... Tailored Travel\u2019s ATOL",
+                  "fontSize": 13,
+                  "fontName": "GHEALP\u002BClarendon",
+                  "color": "#FFD200",
+                  "boundingBox": {
+                    "left": 26.7,
+                    "top": 76.8,
+                    "width": 350.3,
+                    "height": 9.7
+                  }
+                },
+                {
+                  "id": "p1-e53",
+                  "text": "81 Alric Avenue, New Malden KT3 4JP",
+                  "fontSize": 11,
+                  "fontName": "GHEALP\u002BClarendon",
+                  "color": "#FFFFFF",
+                  "boundingBox": {
+                    "left": 26.7,
+                    "top": 60.5,
+                    "width": 208.4,
+                    "height": 7.4
                   }
                 }
               ]
-            },
-            {
-              "heading": {
-                "id": "p1-e53",
-                "text": "81 Alric Avenue, New Malden KT3 4JP",
-                "fontSize": 11,
-                "fontName": "GHEALP\u002BClarendon",
-                "color": "#FFFFFF",
-                "boundingBox": {
-                  "left": 26.7,
-                  "top": 60.5,
-                  "width": 208.4,
-                  "height": 7.4
-                }
-              },
-              "children": []
             }
           ],
-          "totalElements": 18
+          "totalElements": 6
         },
         {
-          "color": "#C6EAFA",
+          "name": "Tour details",
+          "color": "#3185fc",
           "boundingBox": {
-            "left": 394.7,
-            "top": 827.7,
-            "width": 186.4,
-            "height": 800.5
+            "left": 398,
+            "top": 719.9,
+            "width": 182,
+            "height": 558
           },
           "page": 1,
           "sections": [
@@ -757,28 +646,13 @@
                   }
                 }
               ]
-            },
-            {
-              "heading": {
-                "id": "p1-e54",
-                "text": "Speke Hall",
-                "fontSize": 9,
-                "fontName": "GHEALM\u002BHelveticaNeue-Medium",
-                "color": "#FFFFFF",
-                "boundingBox": {
-                  "left": 530.4,
-                  "top": 40.8,
-                  "width": 45.7,
-                  "height": 6.6
-                }
-              },
-              "children": []
             }
           ],
-          "totalElements": 36
+          "totalElements": 35
         }
       ],
       "unzonedContent": {
+        "name": null,
         "color": "",
         "boundingBox": {
           "left": 0,
@@ -792,30 +666,163 @@
             "heading": null,
             "children": [
               {
-                "id": "p1-e55",
-                "text": "Vie w a nd sha r e this to u r o nlin e - click o n Vie w Yo u r To u r at w w w.tailo r ed-tr a v el. c o . uk a nd qu ote kngd261",
-                "fontSize": 9.5,
-                "fontName": "GHEELJ\u002BSwiss721BT-Bold",
-                "color": "#CC161E",
+                "id": "p1-e31",
+                "text": "g",
+                "fontSize": 9,
+                "fontName": "GHEALM\u002BHelveticaNeue-Medium",
+                "color": "#FFFFFF",
+                "boundingBox": {
+                  "left": 19.3,
+                  "top": 235.5,
+                  "width": 6.6,
+                  "height": -4.8
+                }
+              },
+              {
+                "id": "p1-e33",
+                "text": "n",
+                "fontSize": 9,
+                "fontName": "GHEALM\u002BHelveticaNeue-Medium",
+                "color": "#FFFFFF",
+                "boundingBox": {
+                  "left": 21.2,
+                  "top": 230.2,
+                  "width": 4.8,
+                  "height": -4.6
+                }
+              },
+              {
+                "id": "p1-e35",
+                "text": "d i l i",
+                "fontSize": 9,
+                "fontName": "GHEALM\u002BHelveticaNeue-Medium",
+                "color": "#FFFFFF",
+                "boundingBox": {
+                  "left": 19.4,
+                  "top": 227.9,
+                  "width": 6.6,
+                  "height": 8.6
+                }
+              },
+              {
+                "id": "p1-e37",
+                "text": "u B",
+                "fontSize": 9,
+                "fontName": "GHEALM\u002BHelveticaNeue-Medium",
+                "color": "#FFFFFF",
+                "boundingBox": {
+                  "left": 21.2,
+                  "top": 212.4,
+                  "width": 4.8,
+                  "height": 0.5
+                }
+              },
+              {
+                "id": "p1-e39",
+                "text": "e r",
+                "fontSize": 9,
+                "fontName": "GHEALM\u002BHelveticaNeue-Medium",
+                "color": "#FFFFFF",
                 "boundingBox": {
                   "left": 21,
-                  "top": 22,
-                  "width": 553.4,
-                  "height": 6.8
+                  "top": 200,
+                  "width": 4.9,
+                  "height": 0.4
+                }
+              },
+              {
+                "id": "p1-e41",
+                "text": "v",
+                "fontSize": 9,
+                "fontName": "GHEALM\u002BHelveticaNeue-Medium",
+                "color": "#FFFFFF",
+                "boundingBox": {
+                  "left": 21.3,
+                  "top": 190,
+                  "width": 4.7,
+                  "height": -4.6
+                }
+              },
+              {
+                "id": "p1-e43",
+                "text": "i L e",
+                "fontSize": 9,
+                "fontName": "GHEALM\u002BHelveticaNeue-Medium",
+                "color": "#FFFFFF",
+                "boundingBox": {
+                  "left": 19.5,
+                  "top": 187.7,
+                  "width": 6.4,
+                  "height": 8.3
+                }
+              },
+              {
+                "id": "p1-e45",
+                "text": "h T",
+                "fontSize": 9,
+                "fontName": "GHEALM\u002BHelveticaNeue-Medium",
+                "color": "#FFFFFF",
+                "boundingBox": {
+                  "left": 19.5,
+                  "top": 169.4,
+                  "width": 6.4,
+                  "height": 0.2
+                }
+              },
+              {
+                "id": "p1-e52",
+                "text": "number is 5605",
+                "fontSize": 7,
+                "fontName": "GHEALO\u002BHelveticaNeue",
+                "color": "#FFFFFF",
+                "boundingBox": {
+                  "left": 326,
+                  "top": 68.6,
+                  "width": 42.4,
+                  "height": 5
+                }
+              },
+              {
+                "id": "p1-e54",
+                "text": "Speke Hall",
+                "fontSize": 9,
+                "fontName": "GHEALM\u002BHelveticaNeue-Medium",
+                "color": "#FFFFFF",
+                "boundingBox": {
+                  "left": 530.4,
+                  "top": 40.8,
+                  "width": 45.7,
+                  "height": 6.6
                 }
               }
             ]
+          },
+          {
+            "heading": {
+              "id": "p1-e55",
+              "text": "Vie w a nd sha r e this to u r o nlin e - click o n Vie w Yo u r To u r at w w w.tailo r ed-tr a v el. c o . uk a nd qu ote kngd261",
+              "fontSize": 9.5,
+              "fontName": "GHEELJ\u002BSwiss721BT-Bold",
+              "color": "#CC161E",
+              "boundingBox": {
+                "left": 21,
+                "top": 22,
+                "width": 553.4,
+                "height": 6.8
+              }
+            },
+            "children": []
           }
         ],
-        "totalElements": 1
+        "totalElements": 11
       }
     }
   ],
   "diagnostics": {
-    "totalPathsFound": 76,
-    "pathsAfterFiltering": 5,
-    "zonesDetected": 2,
-    "elementsZoned": 54,
-    "elementsUnzoned": 1
+    "totalPathsFound": 0,
+    "pathsAfterFiltering": 0,
+    "zonesDetected": 3,
+    "elementsZoned": 44,
+    "elementsUnzoned": 11
   }
 }
