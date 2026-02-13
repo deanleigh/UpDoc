@@ -1,5 +1,5 @@
-import type { RichExtractionResult, DocumentTypeConfig, MappingDestination, ZoneDetectionResult, DetectedZone, DetectedSection, ZoneElement, TransformResult, TransformedSection } from './workflow.types.js';
-import { fetchSampleExtraction, triggerSampleExtraction, fetchWorkflowByName, fetchZoneDetection, triggerTransform, fetchTransformResult, updateSectionInclusion, saveMapConfig } from './workflow.service.js';
+import type { RichExtractionResult, DocumentTypeConfig, MappingDestination, ZoneDetectionResult, DetectedZone, DetectedSection, ZoneElement, TransformResult, TransformedSection, SourceConfig } from './workflow.types.js';
+import { fetchSampleExtraction, triggerSampleExtraction, fetchWorkflowByName, fetchZoneDetection, triggerTransform, fetchTransformResult, updateSectionInclusion, saveMapConfig, savePageSelection, fetchSourceConfig } from './workflow.service.js';
 import { markdownToHtml, normalizeToKebabCase } from './transforms.js';
 import { UMB_DESTINATION_PICKER_MODAL } from './destination-picker-modal.token.js';
 import { html, css, state, nothing } from '@umbraco-cms/backoffice/external/lit';
@@ -24,6 +24,10 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 	@state() private _collapsed = new Set<string>();
 	@state() private _transformResult: TransformResult | null = null;
 	@state() private _viewMode: 'elements' | 'transformed' = 'elements';
+	@state() private _sourceConfig: SourceConfig | null = null;
+	@state() private _pageMode: 'all' | 'custom' = 'all';
+	@state() private _pageInputValue = '';
+	@state() private _allCollapsed = false;
 	#token = '';
 
 	override connectedCallback() {
@@ -48,22 +52,163 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		try {
 			const authContext = await this.getContext(UMB_AUTH_CONTEXT);
 			this.#token = await authContext.getLatestToken();
-			const [extraction, zoneDetection, config, transformResult] = await Promise.all([
+			const [extraction, zoneDetection, config, transformResult, sourceConfig] = await Promise.all([
 				fetchSampleExtraction(this._workflowName, this.#token),
 				fetchZoneDetection(this._workflowName, this.#token),
 				fetchWorkflowByName(this._workflowName, this.#token),
 				fetchTransformResult(this._workflowName, this.#token),
+				fetchSourceConfig(this._workflowName, this.#token),
 			]);
 			this._extraction = extraction;
 			this._zoneDetection = zoneDetection;
 			this._config = config;
 			this._transformResult = transformResult;
+			this._sourceConfig = sourceConfig;
+
+			// Initialize page selection state from source config
+			if (sourceConfig?.pages && Array.isArray(sourceConfig.pages) && sourceConfig.pages.length > 0) {
+				this._pageMode = 'custom';
+				this._pageInputValue = this.#pagesToRangeString(sourceConfig.pages);
+			} else {
+				this._pageMode = 'all';
+				this._pageInputValue = '';
+			}
 		} catch (err) {
 			this._error = err instanceof Error ? err.message : 'Failed to load data';
 			console.error('Failed to load source data:', err);
 		} finally {
 			this._loading = false;
 		}
+	}
+
+	/** Convert "1-3, 5, 7-9" → [1, 2, 3, 5, 7, 8, 9] */
+	#parsePageRange(input: string): number[] {
+		const pages = new Set<number>();
+		for (const part of input.split(',')) {
+			const trimmed = part.trim();
+			if (!trimmed) continue;
+			const rangeParts = trimmed.split('-').map((s) => parseInt(s.trim(), 10));
+			if (rangeParts.length === 1 && !isNaN(rangeParts[0])) {
+				pages.add(rangeParts[0]);
+			} else if (rangeParts.length === 2 && !isNaN(rangeParts[0]) && !isNaN(rangeParts[1])) {
+				for (let i = rangeParts[0]; i <= rangeParts[1]; i++) {
+					pages.add(i);
+				}
+			}
+		}
+		return [...pages].sort((a, b) => a - b);
+	}
+
+	/** Convert [1, 2, 3, 5, 7, 8, 9] → "1-3, 5, 7-9" */
+	#pagesToRangeString(pages: number[]): string {
+		if (!pages.length) return '';
+		const sorted = [...pages].sort((a, b) => a - b);
+		const ranges: string[] = [];
+		let start = sorted[0];
+		let end = sorted[0];
+		for (let i = 1; i < sorted.length; i++) {
+			if (sorted[i] === end + 1) {
+				end = sorted[i];
+			} else {
+				ranges.push(start === end ? `${start}` : `${start}-${end}`);
+				start = sorted[i];
+				end = sorted[i];
+			}
+		}
+		ranges.push(start === end ? `${start}` : `${start}-${end}`);
+		return ranges.join(', ');
+	}
+
+	/** Get the currently selected page numbers, or null for "all". */
+	#getSelectedPages(): number[] | null {
+		if (this._pageMode === 'all') return null;
+		const pages = this.#parsePageRange(this._pageInputValue);
+		return pages.length > 0 ? pages : null;
+	}
+
+	/** Check whether a specific page number is included in the current selection. */
+	#isPageIncluded(pageNum: number): boolean {
+		if (this._pageMode === 'all') return true;
+		const pages = this.#parsePageRange(this._pageInputValue);
+		return pages.length === 0 || pages.includes(pageNum);
+	}
+
+	/** Toggle a page on/off and update the text input. */
+	#togglePage(pageNum: number) {
+		const totalPages = this._zoneDetection?.totalPages ?? this._extraction?.source.totalPages ?? 0;
+		if (totalPages === 0) return;
+
+		if (this._pageMode === 'all') {
+			// Switching from "all" to "custom" by toggling one page off
+			const allPages = Array.from({ length: totalPages }, (_, i) => i + 1);
+			const remaining = allPages.filter((p) => p !== pageNum);
+			this._pageMode = 'custom';
+			this._pageInputValue = this.#pagesToRangeString(remaining);
+		} else {
+			const current = this.#parsePageRange(this._pageInputValue);
+			if (current.includes(pageNum)) {
+				const remaining = current.filter((p) => p !== pageNum);
+				this._pageInputValue = this.#pagesToRangeString(remaining);
+				// If all removed, switch back to "all" mode
+				if (remaining.length === 0) {
+					this._pageMode = 'all';
+					this._pageInputValue = '';
+				}
+			} else {
+				const updated = [...current, pageNum].sort((a, b) => a - b);
+				this._pageInputValue = this.#pagesToRangeString(updated);
+			}
+			// If all pages are now selected, switch back to "all"
+			if (this.#parsePageRange(this._pageInputValue).length === totalPages) {
+				this._pageMode = 'all';
+				this._pageInputValue = '';
+			}
+		}
+		this.#savePageSelection();
+	}
+
+	async #onPageModeChange(mode: 'all' | 'custom') {
+		this._pageMode = mode;
+		if (mode === 'all') {
+			this._pageInputValue = '';
+		}
+		await this.#savePageSelection();
+	}
+
+	async #onPageInputChange(e: Event) {
+		const input = e.target as HTMLInputElement;
+		this._pageInputValue = input.value;
+	}
+
+	async #onPageInputBlur() {
+		// Normalize the input and save
+		const pages = this.#parsePageRange(this._pageInputValue);
+		if (pages.length > 0) {
+			this._pageInputValue = this.#pagesToRangeString(pages);
+			this._pageMode = 'custom';
+		} else {
+			this._pageMode = 'all';
+			this._pageInputValue = '';
+		}
+		await this.#savePageSelection();
+	}
+
+	async #savePageSelection() {
+		if (!this._workflowName) return;
+		const pages = this.#getSelectedPages();
+		await savePageSelection(this._workflowName, pages, this.#token);
+	}
+
+	#toggleCollapseAll() {
+		if (!this._zoneDetection) return;
+		this._allCollapsed = !this._allCollapsed;
+		const next = new Set<string>();
+		if (this._allCollapsed) {
+			for (const page of this._zoneDetection.pages) {
+				next.add(`page-${page.page}`);
+			}
+		}
+		this._collapsed = next;
 	}
 
 	async #onPickMedia() {
@@ -81,6 +226,22 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 
 		const mediaKey = result.selection[0];
 		if (!mediaKey) return;
+
+		await this.#runExtraction(mediaKey);
+	}
+
+	/** Re-extract using the previously stored media key (after page selection change). */
+	async #onReExtract() {
+		const mediaKey = this._extraction?.source.mediaKey;
+		if (!mediaKey) {
+			// No prior extraction — fall back to media picker
+			return this.#onPickMedia();
+		}
+		await this.#runExtraction(mediaKey);
+	}
+
+	async #runExtraction(mediaKey: string) {
+		if (!this._workflowName) return;
 
 		this._extracting = true;
 		this._error = null;
@@ -348,11 +509,21 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		const isCollapsed = this.#isCollapsed(pageKey);
 		const hasUnzoned = unzonedContent && unzonedContent.totalElements > 0;
 		const areaCount = zones.length + (hasUnzoned ? 1 : 0);
+		const sectionCount = zones.reduce((sum, z) => sum + z.sections.length, 0) + (unzonedContent?.sections.length ?? 0);
+		const isIncluded = this.#isPageIncluded(pageNum);
 		return html`
-			<uui-box headline="Page ${pageNum}" class="page-box">
-				<div slot="header-actions" class="collapse-trigger" @click=${() => this.#toggleCollapse(pageKey)}>
-					<span class="group-count">${areaCount} area${areaCount !== 1 ? 's' : ''}</span>
-					<uui-icon class="collapse-chevron" name="${isCollapsed ? 'icon-navigation-right' : 'icon-navigation-down'}"></uui-icon>
+			<uui-box headline="Page ${pageNum}" class="page-box ${!isIncluded ? 'page-excluded' : ''}">
+				<div slot="header-actions" class="page-header-actions">
+					<span class="group-count">${sectionCount} section${sectionCount !== 1 ? 's' : ''}, ${areaCount} area${areaCount !== 1 ? 's' : ''}</span>
+					<uui-toggle
+						label="${isIncluded ? 'Included in extraction' : 'Excluded from extraction'}"
+						?checked=${isIncluded}
+						@click=${(e: Event) => e.stopPropagation()}
+						@change=${() => this.#togglePage(pageNum)}>
+					</uui-toggle>
+					<div class="collapse-trigger" @click=${() => this.#toggleCollapse(pageKey)}>
+						<uui-icon class="collapse-chevron" name="${isCollapsed ? 'icon-navigation-right' : 'icon-navigation-down'}"></uui-icon>
+					</div>
 				</div>
 				${!isCollapsed ? html`
 					${zones.map((zone, idx) => this.#renderArea(zone, pageNum, idx))}
@@ -379,6 +550,36 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 			+ (page.unzonedContent?.sections.length ?? 0), 0);
 	}
 
+	#renderPageSelection() {
+		const totalPages = this._zoneDetection?.totalPages ?? this._extraction?.source.totalPages ?? 0;
+		if (totalPages === 0) return nothing;
+
+		return html`
+			<div class="page-selection">
+				<span class="page-selection-label">Pages</span>
+				<label class="page-radio">
+					<input type="radio" name="page-mode" value="all"
+						.checked=${this._pageMode === 'all'}
+						@change=${() => this.#onPageModeChange('all')} />
+					All
+				</label>
+				<label class="page-radio">
+					<input type="radio" name="page-mode" value="custom"
+						.checked=${this._pageMode === 'custom'}
+						@change=${() => this.#onPageModeChange('custom')} />
+					Choose
+				</label>
+				<input type="text" class="page-input"
+					placeholder="e.g. 1-2, 5, 7-9"
+					.value=${this._pageInputValue}
+					@input=${this.#onPageInputChange}
+					@blur=${this.#onPageInputBlur}
+					@focus=${() => { if (this._pageMode === 'all') this.#onPageModeChange('custom'); }}
+					?disabled=${this._pageMode === 'all'} />
+			</div>
+		`;
+	}
+
 	#renderExtractionHeader() {
 		return html`
 			<div slot="header" class="source-header">
@@ -387,9 +588,13 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 					<uui-tab label="Transformed" ?active=${this._viewMode === 'transformed'} @click=${() => { this._viewMode = 'transformed'; }} ?disabled=${!this._transformResult}>Transformed</uui-tab>
 				</uui-tab-group>
 				<div class="header-actions">
-					<uui-button look="outline" label="Re-extract" @click=${this.#onPickMedia} ?disabled=${this._extracting}>
+					${this.#renderPageSelection()}
+					<uui-button look="outline" label="Re-extract" @click=${this.#onReExtract} ?disabled=${this._extracting}>
 						<uui-icon name="icon-refresh"></uui-icon>
 						Re-extract
+					</uui-button>
+					<uui-button look="default" compact label="Change PDF" @click=${this.#onPickMedia} ?disabled=${this._extracting}>
+						<uui-icon name="icon-document"></uui-icon>
 					</uui-button>
 				</div>
 			</div>
@@ -402,7 +607,10 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 
 		if (!hasZones && !hasExtraction) return nothing;
 
-		const pages = hasExtraction ? this._extraction!.source.totalPages : 0;
+		const totalPages = this._zoneDetection?.totalPages ?? (hasExtraction ? this._extraction!.source.totalPages : 0);
+		const extractedPageCount = hasZones ? this._zoneDetection!.pages.length : totalPages;
+		const isFiltered = extractedPageCount < totalPages;
+		const pagesLabel = isFiltered ? `${extractedPageCount} of ${totalPages}` : `${totalPages}`;
 		const zones = hasZones ? this._zoneDetection!.diagnostics.zonesDetected : 0;
 		const sections = hasZones ? this.#computeSectionCount() : 0;
 		const fileName = hasExtraction ? this._extraction!.source.fileName : '';
@@ -412,8 +620,8 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 
 		return html`
 			<div class="stat-boxes">
-				<div class="stat-box">
-					<span class="stat-number">${pages}</span>
+				<div class="stat-box ${isFiltered ? 'stat-box-filtered' : ''}">
+					<span class="stat-number">${pagesLabel}</span>
 					<span class="stat-label">Pages</span>
 				</div>
 				<div class="stat-box">
@@ -428,6 +636,12 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 					<span class="stat-source-name">${fileName}</span>
 					<span class="stat-label">${extractedDate}</span>
 				</div>
+				${hasZones && this._viewMode === 'elements' ? html`
+					<uui-button look="outline" compact label="${this._allCollapsed ? 'Expand All' : 'Collapse All'}" @click=${this.#toggleCollapseAll}>
+						<uui-icon name="${this._allCollapsed ? 'icon-navigation-down' : 'icon-navigation-right'}"></uui-icon>
+						${this._allCollapsed ? 'Expand All' : 'Collapse All'}
+					</uui-button>
+				` : nothing}
 			</div>
 		`;
 	}
@@ -612,8 +826,72 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 			.header-actions {
 				display: flex;
 				align-items: center;
-				gap: var(--uui-size-space-2);
+				gap: var(--uui-size-space-3);
 				padding-right: var(--uui-size-space-2);
+			}
+
+			/* Page selection (browser print dialog pattern) */
+			.page-selection {
+				display: flex;
+				align-items: center;
+				gap: var(--uui-size-space-3);
+				font-size: var(--uui-type-small-size);
+			}
+
+			.page-selection-label {
+				font-weight: 600;
+				color: var(--uui-color-text);
+				white-space: nowrap;
+			}
+
+			.page-radio {
+				display: flex;
+				align-items: center;
+				gap: var(--uui-size-space-1);
+				cursor: pointer;
+				white-space: nowrap;
+				color: var(--uui-color-text);
+			}
+
+			.page-radio input[type="radio"] {
+				margin: 0;
+				cursor: pointer;
+			}
+
+			.page-input {
+				width: 140px;
+				padding: 2px 8px;
+				border: 1px solid var(--uui-color-border);
+				border-radius: var(--uui-border-radius);
+				font-size: var(--uui-type-small-size);
+				font-family: inherit;
+				background: var(--uui-color-surface);
+				color: var(--uui-color-text);
+			}
+
+			.page-input:focus {
+				outline: none;
+				border-color: var(--uui-color-focus);
+			}
+
+			.page-input:disabled {
+				opacity: 0.4;
+				cursor: not-allowed;
+			}
+
+			/* Page box include toggle */
+			.page-header-actions {
+				display: flex;
+				align-items: center;
+				gap: var(--uui-size-space-3);
+			}
+
+			.page-box.page-excluded {
+				opacity: 0.4;
+			}
+
+			.stat-box-filtered .stat-number {
+				color: var(--uui-color-warning);
 			}
 
 			/* Stat boxes in content area */

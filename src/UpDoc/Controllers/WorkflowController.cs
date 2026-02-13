@@ -193,7 +193,11 @@ public class WorkflowController : ControllerBase
         var media = _mediaService.GetById(request.MediaKey);
         var fileName = media?.Name ?? Path.GetFileName(absolutePath);
 
-        var result = _pdfPagePropertiesService.ExtractRichDump(absolutePath);
+        // Read page selection from source.json
+        var sourceConfig = _workflowService.GetSourceConfig(name);
+        var includePages = ResolveIncludePages(absolutePath, sourceConfig);
+
+        var result = _pdfPagePropertiesService.ExtractRichDump(absolutePath, includePages);
 
         if (!string.IsNullOrEmpty(result.Error))
         {
@@ -302,7 +306,11 @@ public class WorkflowController : ControllerBase
             return NotFound(new { error = "Media item not found or file not on disk" });
         }
 
-        var result = _pdfPagePropertiesService.DetectZones(absolutePath);
+        // Read page selection from source.json
+        var sourceConfig = _workflowService.GetSourceConfig(name);
+        var includePages = ResolveIncludePages(absolutePath, sourceConfig);
+
+        var result = _pdfPagePropertiesService.DetectZones(absolutePath, includePages);
 
         try
         {
@@ -340,8 +348,12 @@ public class WorkflowController : ControllerBase
             return NotFound(new { error = "Media item not found or file not on disk" });
         }
 
-        // Step 1: Run zone detection
-        var zoneResult = _pdfPagePropertiesService.DetectZones(absolutePath);
+        // Read page selection from source.json
+        var sourceConfig = _workflowService.GetSourceConfig(name);
+        var includePages = ResolveIncludePages(absolutePath, sourceConfig);
+
+        // Step 1: Run zone detection (with page filtering)
+        var zoneResult = _pdfPagePropertiesService.DetectZones(absolutePath, includePages);
 
         try
         {
@@ -391,7 +403,11 @@ public class WorkflowController : ControllerBase
 
         try
         {
-            var zoneResult = _pdfPagePropertiesService.DetectZones(absolutePath);
+            // Read page selection from source.json
+            var sourceConfig = _workflowService.GetSourceConfig(name);
+            var includePages = ResolveIncludePages(absolutePath, sourceConfig);
+
+            var zoneResult = _pdfPagePropertiesService.DetectZones(absolutePath, includePages);
             var previousTransform = _workflowService.GetTransformResult(name);
             var result = _contentTransformService.Transform(zoneResult, previousTransform);
             return Ok(result);
@@ -413,6 +429,64 @@ public class WorkflowController : ControllerBase
         }
 
         return Ok(result);
+    }
+
+    [HttpPut("{name}/pages")]
+    public IActionResult UpdatePageSelection(string name, [FromBody] PageSelectionRequest request)
+    {
+        var sourceConfig = _workflowService.GetSourceConfig(name);
+        if (sourceConfig == null)
+        {
+            return NotFound(new { error = $"Workflow '{name}' not found or has no source.json." });
+        }
+
+        // Update just the pages property
+        if (request.Pages == null || request.Pages.Count == 0)
+        {
+            sourceConfig.Pages = new Pages { IsAll = true };
+        }
+        else
+        {
+            sourceConfig.Pages = new Pages { PageNumbers = request.Pages.OrderBy(p => p).ToList() };
+        }
+
+        _workflowService.SaveSourceConfig(name, sourceConfig);
+
+        _logger.LogInformation("Updated page selection for workflow '{Name}': {Pages}",
+            name, sourceConfig.Pages.IsAll ? "all" : string.Join(", ", sourceConfig.Pages.PageNumbers!));
+
+        return Ok(new { pages = sourceConfig.Pages });
+    }
+
+    [HttpGet("{name}/source")]
+    public IActionResult GetSource(string name)
+    {
+        var sourceConfig = _workflowService.GetSourceConfig(name);
+        if (sourceConfig == null)
+        {
+            return NotFound(new { error = $"Workflow '{name}' not found or has no source.json." });
+        }
+
+        return Ok(sourceConfig);
+    }
+
+    /// <summary>
+    /// Resolves page selection from source.json into a list of page numbers.
+    /// Opens the PDF briefly to get the total page count for validation.
+    /// Returns null if all pages should be included.
+    /// </summary>
+    private static List<int>? ResolveIncludePages(string filePath, SourceConfig? sourceConfig)
+    {
+        if (sourceConfig?.Pages == null || sourceConfig.Pages.IsAll)
+            return null;
+
+        if (sourceConfig.Pages.PageNumbers == null || sourceConfig.Pages.PageNumbers.Count == 0)
+            return null;
+
+        // We need the total page count to validate page numbers.
+        // Open the PDF briefly just to get the count — PdfPig is fast for this.
+        using var document = UglyToad.PdfPig.PdfDocument.Open(filePath);
+        return sourceConfig.ResolveIncludedPages(document.NumberOfPages);
     }
 
     private string? ResolveMediaFilePath(Guid mediaKey)
@@ -458,4 +532,12 @@ public class CreateWorkflowRequest
 public class SectionInclusionRequest
 {
     public bool Included { get; set; }
+}
+
+public class PageSelectionRequest
+{
+    /// <summary>
+    /// List of page numbers to include in extraction. Null or empty = all pages.
+    /// </summary>
+    public List<int>? Pages { get; set; }
 }

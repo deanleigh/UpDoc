@@ -6,7 +6,7 @@ var I = (l, u, t) => (P(l, u, "read from private field"), t ? t.call(l) : u.get(
 var R = (l, u, t) => (P(l, u, "access private method"), t);
 import { U as X } from "./up-doc-modal.token-CsTR3cxa.js";
 import { U as H } from "./blueprint-picker-modal.token-mXZoRNwG.js";
-import { f as Q } from "./workflow.service-CD2_oFgA.js";
+import { f as Q } from "./workflow.service-C2GzEBYw.js";
 import { UmbEntityActionBase as Y } from "@umbraco-cms/backoffice/entity-action";
 import { umbOpenModal as z } from "@umbraco-cms/backoffice/modal";
 import { UMB_NOTIFICATION_CONTEXT as Z } from "@umbraco-cms/backoffice/notification";
@@ -292,4 +292,4 @@ export {
   ge as UpDocEntityAction,
   ge as default
 };
-//# sourceMappingURL=up-doc-action-Dd1LxqiQ.js.map
+//# sourceMappingURL=up-doc-action-BY_cbXmq.js.map

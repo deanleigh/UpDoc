@@ -164,7 +164,7 @@ async function C(n, e, o, t) {
   );
   return a.ok ? a.json() : null;
 }
-async function T(n, e, o) {
+async function k(n, e, o) {
   const t = await fetch(
     `/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(n)}/map`,
     {
@@ -182,6 +182,35 @@ async function T(n, e, o) {
   }
   return i(), t.json();
 }
+async function j(n, e, o) {
+  const t = await fetch(
+    `/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(n)}/pages`,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${o}`
+      },
+      body: JSON.stringify({ pages: e })
+    }
+  );
+  if (!t.ok) {
+    const a = await t.json();
+    return console.error("Save page selection failed:", a), !1;
+  }
+  return i(), !0;
+}
+async function T(n, e) {
+  const o = await fetch(
+    `/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(n)}/source`,
+    {
+      headers: {
+        Authorization: `Bearer ${e}`
+      }
+    }
+  );
+  return o.ok ? o.json() : null;
+}
 function i() {
   c.clear(), r = null, s = null;
 }
@@ -193,11 +222,13 @@ export {
   d as e,
   u as f,
   w as g,
-  m as h,
-  y as i,
-  i as j,
-  T as s,
+  T as h,
+  m as i,
+  y as j,
+  k,
+  i as l,
+  j as s,
   g as t,
   C as u
 };
-//# sourceMappingURL=workflow.service-CD2_oFgA.js.map
+//# sourceMappingURL=workflow.service-C2GzEBYw.js.map

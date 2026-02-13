@@ -100,6 +100,16 @@ public interface IWorkflowService
     /// Returns the updated TransformResult, or null if the workflow or section was not found.
     /// </summary>
     TransformResult? UpdateSectionInclusion(string workflowName, string sectionId, bool included);
+
+    /// <summary>
+    /// Loads the source.json from a workflow folder.
+    /// </summary>
+    SourceConfig? GetSourceConfig(string workflowName);
+
+    /// <summary>
+    /// Saves a SourceConfig as source.json in the workflow folder, replacing the existing file.
+    /// </summary>
+    void SaveSourceConfig(string workflowName, SourceConfig config);
 }
 
 /// <summary>
@@ -607,6 +617,36 @@ public class WorkflowService : IWorkflowService
             sectionId, workflowName, included);
 
         return result;
+    }
+
+    public SourceConfig? GetSourceConfig(string workflowName)
+    {
+        var folderPath = GetWorkflowFolderPath(workflowName);
+        var filePath = Path.Combine(folderPath, "source.json");
+
+        if (!File.Exists(filePath))
+            return null;
+
+        var json = File.ReadAllText(filePath);
+        return JsonSerializer.Deserialize<SourceConfig>(json, JsonOptions);
+    }
+
+    public void SaveSourceConfig(string workflowName, SourceConfig config)
+    {
+        var folderPath = GetWorkflowFolderPath(workflowName);
+        if (!Directory.Exists(folderPath))
+        {
+            throw new DirectoryNotFoundException($"Workflow folder '{workflowName}' does not exist.");
+        }
+
+        var filePath = Path.Combine(folderPath, "source.json");
+        var writeOptions = new JsonSerializerOptions { WriteIndented = true };
+        var json = JsonSerializer.Serialize(config, writeOptions);
+        File.WriteAllText(filePath, json);
+
+        _logger.LogInformation("Saved source config to {Path}", filePath);
+
+        ClearCache();
     }
 
     private string GetWorkflowFolderPath(string workflowName)

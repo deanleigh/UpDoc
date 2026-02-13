@@ -30,7 +30,9 @@ public interface IPdfPagePropertiesService
     /// color, font name, bounding box). This is the "full dump" extraction that powers
     /// the destination-driven mapping workflow.
     /// </summary>
-    RichExtractionResult ExtractRichDump(string filePath);
+    /// <param name="filePath">Path to the PDF file.</param>
+    /// <param name="includePages">Optional list of page numbers to extract. Null = all pages.</param>
+    RichExtractionResult ExtractRichDump(string filePath, List<int>? includePages = null);
 
     /// <summary>
     /// Detects spatial zones from filled rectangles in the PDF and groups text elements
@@ -38,7 +40,9 @@ public interface IPdfPagePropertiesService
     /// Zone detection is destination-agnostic — it produces a complete structural
     /// representation of the source PDF.
     /// </summary>
-    ZoneDetectionResult DetectZones(string filePath);
+    /// <param name="filePath">Path to the PDF file.</param>
+    /// <param name="includePages">Optional list of page numbers to extract. Null = all pages.</param>
+    ZoneDetectionResult DetectZones(string filePath, List<int>? includePages = null);
 }
 
 /// <summary>
@@ -218,12 +222,12 @@ public class PdfPagePropertiesService : IPdfPagePropertiesService
         }
     }
 
-    public RichExtractionResult ExtractRichDump(string filePath)
+    public RichExtractionResult ExtractRichDump(string filePath, List<int>? includePages = null)
     {
         try
         {
             using var document = PdfDocument.Open(filePath);
-            return ExtractRichDumpFromDocument(document);
+            return ExtractRichDumpFromDocument(document, includePages);
         }
         catch (Exception ex)
         {
@@ -234,12 +238,12 @@ public class PdfPagePropertiesService : IPdfPagePropertiesService
         }
     }
 
-    public ZoneDetectionResult DetectZones(string filePath)
+    public ZoneDetectionResult DetectZones(string filePath, List<int>? includePages = null)
     {
         try
         {
             using var document = PdfDocument.Open(filePath);
-            return DetectZonesFromDocument(document);
+            return DetectZonesFromDocument(document, includePages);
         }
         catch (Exception)
         {
@@ -253,14 +257,17 @@ public class PdfPagePropertiesService : IPdfPagePropertiesService
         }
     }
 
-    private static ZoneDetectionResult DetectZonesFromDocument(PdfDocument document)
+    private static ZoneDetectionResult DetectZonesFromDocument(PdfDocument document, List<int>? includePages = null)
     {
-        var result = new ZoneDetectionResult();
+        var result = new ZoneDetectionResult { TotalPages = document.NumberOfPages };
         var diagnostics = new ZoneDiagnosticInfo();
         var totalElementIndex = 0;
 
         for (int pageNum = 1; pageNum <= document.NumberOfPages; pageNum++)
         {
+            // Skip pages not in the include list (if specified)
+            if (includePages != null && !includePages.Contains(pageNum))
+                continue;
             var page = document.GetPage(pageNum);
 
             // Step 1: Detect filled rectangles (zones)
@@ -504,7 +511,7 @@ public class PdfPagePropertiesService : IPdfPagePropertiesService
         return sections;
     }
 
-    private static RichExtractionResult ExtractRichDumpFromDocument(PdfDocument document)
+    private static RichExtractionResult ExtractRichDumpFromDocument(PdfDocument document, List<int>? includePages = null)
     {
         if (document.NumberOfPages == 0)
         {
@@ -516,6 +523,9 @@ public class PdfPagePropertiesService : IPdfPagePropertiesService
 
         for (int pageNum = 1; pageNum <= document.NumberOfPages; pageNum++)
         {
+            // Skip pages not in the include list (if specified)
+            if (includePages != null && !includePages.Contains(pageNum))
+                continue;
             var page = document.GetPage(pageNum);
             var lines = ExtractRichTextLines(page);
 
@@ -555,6 +565,7 @@ public class PdfPagePropertiesService : IPdfPagePropertiesService
             Source = new ExtractionSource
             {
                 TotalPages = document.NumberOfPages,
+                ExtractedPages = includePages,
                 ExtractedDate = DateTime.UtcNow
             },
             Elements = elements

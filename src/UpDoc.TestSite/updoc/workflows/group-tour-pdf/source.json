@@ -1,7 +1,13 @@
 {
+  "$schema": null,
   "version": "1.0",
   "sourceTypes": [
     "pdf"
+  ],
+  "globals": null,
+  "pages": [
+    1,
+    2
   ],
   "sections": []
 }

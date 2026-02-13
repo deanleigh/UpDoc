@@ -20,8 +20,33 @@ public class SourceConfig
     [JsonPropertyName("globals")]
     public SourceGlobals? Globals { get; set; }
 
+    /// <summary>
+    /// Top-level page selection for extraction. Controls which PDF pages are processed.
+    /// "all" = all pages (default), [1, 2, 7] = only those pages.
+    /// </summary>
+    [JsonPropertyName("pages")]
+    [JsonConverter(typeof(PagesConverter))]
+    public Pages Pages { get; set; } = new Pages { IsAll = true };
+
     [JsonPropertyName("sections")]
     public List<SourceSection> Sections { get; set; } = new();
+
+    /// <summary>
+    /// Resolves the list of page numbers to process, given the total page count.
+    /// Returns null if all pages should be processed.
+    /// </summary>
+    public List<int>? ResolveIncludedPages(int totalPages)
+    {
+        if (Pages.IsAll || Pages.PageNumbers == null || Pages.PageNumbers.Count == 0)
+            return null; // all pages
+
+        // Filter to valid page numbers only
+        return Pages.PageNumbers
+            .Where(p => p >= 1 && p <= totalPages)
+            .Distinct()
+            .OrderBy(p => p)
+            .ToList();
+    }
 }
 
 /// <summary>

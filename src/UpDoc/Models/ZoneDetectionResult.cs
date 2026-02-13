@@ -10,6 +10,9 @@ namespace UpDoc.Models;
 /// </summary>
 public class ZoneDetectionResult
 {
+    [JsonPropertyName("totalPages")]
+    public int TotalPages { get; set; }
+
     [JsonPropertyName("pages")]
     public List<PageZones> Pages { get; set; } = new();
 

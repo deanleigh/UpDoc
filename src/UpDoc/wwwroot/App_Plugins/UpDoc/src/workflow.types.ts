@@ -6,6 +6,8 @@ export interface SourceConfig {
 	version: string;
 	sourceTypes: string[];
 	globals?: SourceGlobals;
+	/** Top-level page selection: "all" or array of page numbers. */
+	pages?: number[] | 'all';
 	sections: SourceSection[];
 }
 
@@ -234,6 +236,8 @@ export interface ExtractionSource {
 	mediaKey: string;
 	extractedDate: string;
 	totalPages: number;
+	/** Which pages were extracted. Null/undefined = all pages. */
+	extractedPages?: number[] | null;
 }
 
 export interface ExtractionElement {
@@ -265,6 +269,7 @@ export interface VisualGroup {
 // ============================================================================
 
 export interface ZoneDetectionResult {
+	totalPages: number;
 	pages: PageZones[];
 	diagnostics: ZoneDiagnosticInfo;
 }

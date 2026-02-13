@@ -42,6 +42,13 @@ public class ExtractionSource
 
     [JsonPropertyName("totalPages")]
     public int TotalPages { get; set; }
+
+    /// <summary>
+    /// Which pages were actually extracted. Null means all pages were included.
+    /// </summary>
+    [JsonPropertyName("extractedPages")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public List<int>? ExtractedPages { get; set; }
 }
 
 /// <summary>

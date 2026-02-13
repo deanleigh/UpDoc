@@ -388,6 +388,56 @@ export async function saveMapConfig(
 }
 
 /**
+ * Saves page selection for a workflow. Pass null or empty array for "all pages".
+ */
+export async function savePageSelection(
+	workflowName: string,
+	pages: number[] | null,
+	token: string
+): Promise<boolean> {
+	const response = await fetch(
+		`/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(workflowName)}/pages`,
+		{
+			method: 'PUT',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${token}`,
+			},
+			body: JSON.stringify({ pages }),
+		}
+	);
+
+	if (!response.ok) {
+		const error = await response.json();
+		console.error('Save page selection failed:', error);
+		return false;
+	}
+
+	clearConfigCache();
+	return true;
+}
+
+/**
+ * Fetches the source config for a workflow.
+ */
+export async function fetchSourceConfig(
+	workflowName: string,
+	token: string
+): Promise<import('./workflow.types.js').SourceConfig | null> {
+	const response = await fetch(
+		`/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(workflowName)}/source`,
+		{
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		}
+	);
+
+	if (!response.ok) return null;
+	return response.json();
+}
+
+/**
  * Clears all caches. Useful when configs have been modified.
  */
 export function clearConfigCache(): void {
