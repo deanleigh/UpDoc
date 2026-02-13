@@ -281,6 +281,7 @@ export interface PageZones {
 }
 
 export interface DetectedZone {
+	name?: string;
 	color: string;
 	boundingBox: { left: number; top: number; width: number; height: number };
 	page: number;

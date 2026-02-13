@@ -1474,7 +1474,7 @@ nt = function(t, e, s) {
   return d`
 			<div class="zone-area ${a ? "" : "area-excluded"}" style="border-left-color: ${t.color};">
 				<div class="area-header" @click=${() => u(this, c, D).call(this, n)}>
-					<span class="area-name">Area ${s + 1}</span>
+					<span class="area-name">${t.name || `Area ${s + 1}`}</span>
 					<span class="header-spacer"></span>
 					<span class="group-count">${r} section${r !== 1 ? "s" : ""}</span>
 					<uui-toggle
@@ -2248,4 +2248,4 @@ export {
   b as UpDocWorkflowSourceViewElement,
   Ms as default
 };
-//# sourceMappingURL=up-doc-workflow-source-view.element-Bi7-dKFm.js.map
+//# sourceMappingURL=up-doc-workflow-source-view.element-hOD42mEB.js.map

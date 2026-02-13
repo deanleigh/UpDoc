@@ -279,6 +279,7 @@ public class PdfPagePropertiesService : IPdfPagePropertiesService
                     .Where(z => z.Page == pageNum)
                     .Select(z => new DetectedZone
                     {
+                        Name = z.Name,
                         Color = z.Color,
                         Page = pageNum,
                         BoundingBox = new ElementBoundingBox

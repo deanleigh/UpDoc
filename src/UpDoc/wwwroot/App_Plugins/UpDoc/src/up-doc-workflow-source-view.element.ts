@@ -516,7 +516,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		return html`
 			<div class="zone-area ${!isIncluded ? 'area-excluded' : ''}" style="border-left-color: ${zone.color};">
 				<div class="area-header" @click=${() => this.#toggleCollapse(areaKey)}>
-					<span class="area-name">Area ${areaIndex + 1}</span>
+					<span class="area-name">${zone.name || `Area ${areaIndex + 1}`}</span>
 					<span class="header-spacer"></span>
 					<span class="group-count">${sectionCount} section${sectionCount !== 1 ? 's' : ''}</span>
 					<uui-toggle
