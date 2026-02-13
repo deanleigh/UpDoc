@@ -69,11 +69,11 @@ The extraction and transformation view. Two modes: Extracted (zone detection hie
 **Element:** `<up-doc-workflow-source-view>`
 **Source:** `up-doc-workflow-source-view.element.ts`
 
-**Layout:** `umb-body-layout header-fit-height` with extraction summary header, inner `uui-tab-group` tabs (Extracted, Transformed), and hierarchical content display.
+**Layout:** `umb-body-layout header-fit-height` with a single `slot="header"` div containing `uui-tab-group` (left) and Re-extract button (right), following the Document Type editor pattern. Stat boxes (Pages, Zones, Sections, Source) are in the scrollable content area above the page hierarchy.
 
-**Why custom:** The entire extraction hierarchy display (Page → Zone → Section → Text) is UpDoc-specific. No native Umbraco component displays this kind of nested content structure.
+**Hierarchy:** Four-level collapsible display: Page (`uui-box` with `header-actions` chevron) → Area ("Area 1", "Area 2", or "Undefined" for unclassified content) → Section (with include/exclude toggle) → Text (with type/metadata badges). All levels use a consistent `collapse-chevron` icon positioned rightmost in each row.
 
-**Planned improvements:** See `planning/SOURCE_VIEW_IMPROVEMENTS.md` for the task list.
+**Why custom:** The entire extraction hierarchy display (Page → Area → Section → Text) is UpDoc-specific. No native Umbraco component displays this kind of nested content structure.
 
 ### up-doc-workflow-map-view
 

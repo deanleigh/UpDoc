@@ -49,7 +49,7 @@ Toolbar container for grouping action buttons.
 Container for tab navigation. Used at two levels in UpDoc:
 
 1. **Workspace-level tabs** — Destination, Source, Map (top-level navigation with icons)
-2. **Content-area tabs** — Page Properties / Page Content (inner tabs within a view), Extracted / Transformed (inner tabs within Source view)
+2. **Content-area tabs** — Page Properties / Page Content (Destination view), Extracted / Transformed (Source view). Both use `slot="header"` on `umb-body-layout` for consistent positioning.
 
 **Attributes used:** `dropdown-content-direction="vertical"`
 

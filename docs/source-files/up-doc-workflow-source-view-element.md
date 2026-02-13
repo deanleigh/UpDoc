@@ -1,80 +1,108 @@
 # up-doc-workflow-source-view.element.ts
 
-Workspace view for the Source tab in the workflow workspace. Displays rich extraction results and supports source-to-destination mapping.
+Workspace view for the Source tab in the workflow workspace. Displays the four-level extraction hierarchy (Page > Area > Section > Text) and the transformed content view.
 
 ## What it does
 
-Displays the sample extraction for a workflow — all text elements extracted from a reference PDF with full metadata (font size, font name, color, position). Users can select elements and map them to destination fields, creating entries in `map.json`. Also shows mapping status on already-mapped elements.
+Displays the sample extraction for a workflow in two modes:
+
+- **Extracted** — zone detection hierarchy showing pages, areas (colour-coded), sections (with headings), and individual text elements with metadata
+- **Transformed** — assembled sections with pattern detection (bullet list, paragraph, sub-headed, preamble) and mapping controls
+
+Users can include/exclude sections (via toggle), map sections to destination fields, collapse/expand any level, and re-extract from a different source PDF.
 
 ## How it works
+
+### Layout pattern
+
+Uses `umb-body-layout header-fit-height` with a single `slot="header"` div containing `uui-tab-group` (left) and Re-extract button (right), following the Document Type editor pattern. Stat boxes are in the scrollable content area.
+
+```html
+<umb-body-layout header-fit-height>
+    <div slot="header" class="source-header">
+        <uui-tab-group><!-- Extracted / Transformed --></uui-tab-group>
+        <div class="header-actions"><!-- Re-extract button --></div>
+    </div>
+    <div class="stat-boxes"><!-- Pages, Zones, Sections, Source --></div>
+    <!-- scrollable content -->
+</umb-body-layout>
+```
 
 ### Data loading
 
 On load, the component:
 
 1. Consumes `UMB_WORKSPACE_CONTEXT` and observes the `unique` value (workflow name)
-2. Loads the full workflow config via `fetchWorkflowByName()` (includes destination + map data)
-3. Loads the sample extraction via `fetchSampleExtraction()` (rich extraction with metadata)
-4. Stores both in state for rendering
+2. Loads in parallel: sample extraction, zone detection, workflow config, transform result
+3. Stores all in state for rendering
 
-### Visual grouping by heading hierarchy
+### Extracted mode (zone detection hierarchy)
 
-Elements within each page are grouped by font size using `groupElementsByHeading()` from `visual-grouping.ts`. The algorithm:
+Elements are displayed in a four-level collapsible hierarchy:
 
-1. Computes the **mode** (most frequent) font size per page — this is the body text size
-2. Any element with a larger font size becomes a **heading** that starts a new visual group
-3. Subsequent body-sized elements are **children** of the current heading
-4. Elements before the first heading on a page form an ungrouped section
+1. **Page** — `uui-box` with "Page N" headline and area count in `header-actions` slot. Chevron toggles collapse.
+2. **Area** — colour-coded left border with "Area N" label, colour swatch, section count, and collapse chevron. Areas without a detected zone are labelled "Undefined" (italic, dimmed).
+3. **Section** — heading row with include/exclude toggle, heading text + meta badges, child count, and collapse chevron. Preamble sections (no heading) have the same collapse behaviour.
+4. **Text** — individual elements with text type badge (List/Paragraph), font size, font name, and colour badges.
 
-Headings render as bold rows with a subtle background and an "N items" count. Children are indented with a left border. If all elements on a page have the same font size, no grouping is applied and elements render flat (same as before).
+### Collapse behaviour
 
-### Sample extraction display
+All four levels are collapsible via a consistent chevron icon (`icon-navigation-right` when collapsed, `icon-navigation-down` when expanded). The chevron is always the rightmost element in each row.
 
-When a sample extraction exists, elements are displayed within their visual groups with:
+State is managed by a single `_collapsed` Set with key prefixes:
+- Pages: `page-${pageNum}`
+- Areas: `area-p${pageNum}-a${areaIndex}` or `area-p${pageNum}-undefined`
+- Sections: `p${pageNum}-a${areaIndex}-s${sIdx}`
 
-- **Text content** — the extracted text
-- **Metadata badges** — font size (pt), font name, color (with color swatch), position (x, y)
-- **Mapping indicators** — green badges showing destination field names for mapped elements, green left border
+The include/exclude toggle uses `@click stopPropagation` to prevent also triggering collapse.
 
-### Extraction header
+### Transformed mode
 
-Shows source file name, page count, element count, extraction timestamp, and a "Re-extract" button that opens the media picker.
+Shows assembled sections from the transform pipeline with:
 
-### Element selection and mapping
+- Pattern badges (Bullet List, Paragraph, Sub-Headed, Preamble)
+- Page and zone indicators
+- Mapping controls: "Map" button for unmapped sections, green badges for mapped ones
+- Markdown content rendered as HTML
 
-Users can:
+### Mapping
 
-1. Click checkboxes to select individual elements (headings and children are independently selectable)
-2. A sticky toolbar appears showing selection count with "Map to..." and "Clear" buttons
-4. "Map to..." opens the `UMB_DESTINATION_PICKER_MODAL` sidebar showing destination fields/blocks
-5. On confirm, new mappings are created in `map.json` via `saveMapConfig()` PUT endpoint
-6. The UI updates immediately to show the new mapping indicators
-
-### Mapped status indicators
-
-For each element, `#getMappedTargets(elementId)` checks `map.json` mappings. If the element is mapped:
-
-- A green badge with arrow icon and resolved destination label appears in the metadata row
-- The element gets a green left border (`element-mapped` class)
-
-Destination labels are resolved via `#resolveTargetLabel(dest)` — accepts a `MappingDestination` object. When `blockKey` is present, finds the specific block by key for an accurate label. Otherwise checks top-level fields first, then falls back to first block match (backwards compat). Block properties display as "Block Label > Property Label".
+From the Transformed view, users can map section headings and content to destination fields. `#onMapSection(sourceKey)` opens the `UMB_DESTINATION_PICKER_MODAL` and saves results to `map.json`. Mapped sections show green badges and a green left border.
 
 ### Empty state
 
-When no sample extraction exists, shows a centered prompt with "Upload PDF" button that opens the media picker and triggers extraction via `triggerSampleExtraction()`.
+When no sample extraction exists, shows a centered prompt with "Upload PDF" button.
+
+## Key methods
+
+| Method | Purpose |
+|--------|---------|
+| `#isCollapsed(key)` | Checks if a page/area/section is collapsed |
+| `#toggleCollapse(key)` | Toggles collapse state for any level |
+| `#renderExtractionHeader()` | Tab group + Re-extract button (slotted into header) |
+| `#renderStatBoxes()` | Pages, Zones, Sections, Source stat boxes |
+| `#renderExtractionContent()` | Dispatches to zone detection or transformed view |
+| `#renderZonePage()` | Renders a page with area count and collapse |
+| `#renderArea()` | Renders "Area N" with sections and collapse |
+| `#renderUnzonedContent()` | Renders "Undefined" area for unclassified content |
+| `#renderSection()` | Renders a section with toggle, heading, children, collapse |
+| `#renderZoneElement()` | Renders individual text element with type + metadata badges |
+| `#classifyText()` | Classifies text as 'list' or 'paragraph' by leading pattern |
+| `#renderTransformedSection()` | Renders an assembled section with pattern badge and mapping |
+| `#renderMappingBadges()` | Shows Map button or green mapped-target badges |
 
 ## Imports
 
 ```typescript
-import type { ExtractionElement, RichExtractionResult, DocumentTypeConfig, VisualGroup, MappingDestination } from './workflow.types.js';
-import { groupElementsByHeading } from './visual-grouping.js';
-import { fetchSampleExtraction, triggerSampleExtraction, fetchWorkflowByName, saveMapConfig } from './workflow.service.js';
+import type { RichExtractionResult, DocumentTypeConfig, MappingDestination, ZoneDetectionResult, DetectedZone, DetectedSection, ZoneElement, TransformResult, TransformedSection } from './workflow.types.js';
+import { fetchSampleExtraction, triggerSampleExtraction, fetchWorkflowByName, fetchZoneDetection, triggerTransform, fetchTransformResult, updateSectionInclusion, saveMapConfig } from './workflow.service.js';
+import { markdownToHtml, normalizeToKebabCase } from './transforms.js';
+import { UMB_DESTINATION_PICKER_MODAL } from './destination-picker-modal.token.js';
 import { UmbLitElement } from '@umbraco-cms/backoffice/lit-element';
 import { UMB_AUTH_CONTEXT } from '@umbraco-cms/backoffice/auth';
 import { UMB_WORKSPACE_CONTEXT } from '@umbraco-cms/backoffice/workspace';
 import { UMB_MODAL_MANAGER_CONTEXT } from '@umbraco-cms/backoffice/modal';
 import { UMB_MEDIA_PICKER_MODAL } from '@umbraco-cms/backoffice/media';
-import { UMB_DESTINATION_PICKER_MODAL } from './destination-picker-modal.token.js';
 ```
 
 ## Registered in

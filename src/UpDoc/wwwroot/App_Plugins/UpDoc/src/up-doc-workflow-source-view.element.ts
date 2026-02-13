@@ -21,7 +21,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 	@state() private _extracting = false;
 	@state() private _error: string | null = null;
 	@state() private _successMessage: string | null = null;
-	@state() private _collapsedSections = new Set<string>();
+	@state() private _collapsed = new Set<string>();
 	@state() private _transformResult: TransformResult | null = null;
 	@state() private _viewMode: 'elements' | 'transformed' = 'elements';
 	#token = '';
@@ -120,37 +120,18 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		}
 	}
 
-	#toggleSectionCollapse(sectionKey: string) {
-		const next = new Set(this._collapsedSections);
-		if (next.has(sectionKey)) {
-			next.delete(sectionKey);
+	#isCollapsed(key: string): boolean {
+		return this._collapsed.has(key);
+	}
+
+	#toggleCollapse(key: string) {
+		const next = new Set(this._collapsed);
+		if (next.has(key)) {
+			next.delete(key);
 		} else {
-			next.add(sectionKey);
+			next.add(key);
 		}
-		this._collapsedSections = next;
-	}
-
-	#getAreaSectionKeys(pageNum: number, areaPrefix: string, sectionCount: number): string[] {
-		const keys: string[] = [];
-		for (let sIdx = 0; sIdx < sectionCount; sIdx++) {
-			keys.push(`p${pageNum}-${areaPrefix}-s${sIdx}`);
-		}
-		return keys;
-	}
-
-	#isAreaAllCollapsed(keys: string[]): boolean {
-		return keys.length > 0 && keys.every((k) => this._collapsedSections.has(k));
-	}
-
-	#toggleAreaCollapse(keys: string[]) {
-		const next = new Set(this._collapsedSections);
-		const allCollapsed = keys.every((k) => next.has(k));
-		if (allCollapsed) {
-			for (const k of keys) next.delete(k);
-		} else {
-			for (const k of keys) next.add(k);
-		}
-		this._collapsedSections = next;
+		this._collapsed = next;
 	}
 
 	#isSectionIncluded(sectionId: string): boolean {
@@ -234,12 +215,21 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 
 	// --- Zone-based rendering ---
 
+	#classifyText(text: string): 'list' | 'paragraph' {
+		const trimmed = text.trimStart();
+		if (/^[•\-\*▪▸▶►●○◦‣⁃]/.test(trimmed)) return 'list';
+		if (/^\d+[\.\)]\s/.test(trimmed)) return 'list';
+		return 'paragraph';
+	}
+
 	#renderZoneElement(element: ZoneElement) {
+		const textType = this.#classifyText(element.text);
 		return html`
 			<div class="element-item">
 				<div class="element-content">
 					<div class="element-text">${element.text}</div>
 					<div class="element-meta">
+						<span class="meta-badge text-type ${textType}">${textType === 'list' ? 'List' : 'Paragraph'}</span>
 						<span class="meta-badge font-size">${element.fontSize}pt</span>
 						<span class="meta-badge font-name">${element.fontName}</span>
 						<span class="meta-badge color" style="border-left: 3px solid ${element.color};">${element.color}</span>
@@ -250,7 +240,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 	}
 
 	#renderSection(section: DetectedSection, sectionKey: string, pageNum: number, zoneIndex: number) {
-		const isCollapsed = this._collapsedSections.has(sectionKey);
+		const isCollapsed = this.#isCollapsed(sectionKey);
 
 		// Compute the section ID matching transform.json
 		const sectionId = section.heading
@@ -262,16 +252,18 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 			// Preamble section (no heading) — render with toggle
 			return html`
 				<div class="zone-section ${!isIncluded ? 'excluded' : ''}">
-					<div class="section-heading preamble">
+					<div class="section-heading preamble" @click=${() => this.#toggleCollapse(sectionKey)}>
 						<uui-toggle
 							label="${isIncluded ? 'Included' : 'Excluded'}"
 							?checked=${isIncluded}
+							@click=${(e: Event) => e.stopPropagation()}
 							@change=${(e: Event) => this.#onToggleInclusion(sectionId, (e.target as any).checked)}>
 						</uui-toggle>
 						<span class="heading-text preamble-label">Preamble</span>
-						<span class="group-count">${section.children.length} item${section.children.length !== 1 ? 's' : ''}</span>
+						<span class="group-count">${section.children.length} text${section.children.length !== 1 ? 's' : ''}</span>
+						<uui-icon class="collapse-chevron" name="${isCollapsed ? 'icon-navigation-right' : 'icon-navigation-down'}"></uui-icon>
 					</div>
-					${isIncluded ? html`
+					${isIncluded && !isCollapsed ? html`
 						${section.children.map((el) => this.#renderZoneElement(el))}
 					` : nothing}
 				</div>
@@ -282,23 +274,22 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 
 		return html`
 			<div class="zone-section ${!isIncluded ? 'excluded' : ''}">
-				<div class="section-heading">
+				<div class="section-heading" @click=${() => this.#toggleCollapse(sectionKey)}>
 					<uui-toggle
 						label="${isIncluded ? 'Included' : 'Excluded'}"
 						?checked=${isIncluded}
+						@click=${(e: Event) => e.stopPropagation()}
 						@change=${(e: Event) => this.#onToggleInclusion(sectionId, (e.target as any).checked)}>
 					</uui-toggle>
-					<div class="heading-content" @click=${() => this.#toggleSectionCollapse(sectionKey)}>
+					<div class="heading-content">
 						<div class="heading-text">${heading.text}</div>
 						<div class="element-meta">
 							<span class="meta-badge font-size">${heading.fontSize}pt</span>
 							<span class="meta-badge font-name">${heading.fontName}</span>
 						</div>
 					</div>
-					<button class="collapse-toggle" @click=${() => this.#toggleSectionCollapse(sectionKey)} title="${isCollapsed ? 'Expand' : 'Collapse'}">
-						<uui-icon name="${isCollapsed ? 'icon-navigation-right' : 'icon-navigation-down'}"></uui-icon>
-					</button>
-					<span class="group-count">${section.children.length} item${section.children.length !== 1 ? 's' : ''}</span>
+					<span class="group-count">${section.children.length} text${section.children.length !== 1 ? 's' : ''}</span>
+					<uui-icon class="collapse-chevron" name="${isCollapsed ? 'icon-navigation-right' : 'icon-navigation-down'}"></uui-icon>
 				</div>
 				${!isCollapsed && isIncluded ? html`
 					<div class="section-children">
@@ -310,58 +301,63 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 	}
 
 	#renderArea(zone: DetectedZone, pageNum: number, areaIndex: number) {
-		const elementCount = zone.totalElements;
-		const areaKeys = this.#getAreaSectionKeys(pageNum, `a${areaIndex}`, zone.sections.length);
-		const allCollapsed = this.#isAreaAllCollapsed(areaKeys);
+		const areaKey = `area-p${pageNum}-a${areaIndex}`;
+		const isCollapsed = this.#isCollapsed(areaKey);
+		const sectionCount = zone.sections.length;
 		return html`
 			<div class="zone-area" style="border-left-color: ${zone.color};">
-				<div class="area-header">
+				<div class="area-header" @click=${() => this.#toggleCollapse(areaKey)}>
 					<span class="area-color-swatch" style="background: ${zone.color};"></span>
-					<span class="area-element-count">${elementCount} element${elementCount !== 1 ? 's' : ''}</span>
-					${zone.sections.length > 1 ? html`
-						<button class="area-collapse-toggle" @click=${() => this.#toggleAreaCollapse(areaKeys)}
-							title="${allCollapsed ? 'Expand all sections' : 'Collapse all sections'}">
-							<uui-icon name="${allCollapsed ? 'icon-navigation-right' : 'icon-navigation-down'}"></uui-icon>
-							${allCollapsed ? 'Expand' : 'Collapse'}
-						</button>
-					` : nothing}
+					<span class="area-name">Area ${areaIndex + 1}</span>
+					<span class="group-count">${sectionCount} section${sectionCount !== 1 ? 's' : ''}</span>
+					<uui-icon class="collapse-chevron" name="${isCollapsed ? 'icon-navigation-right' : 'icon-navigation-down'}"></uui-icon>
 				</div>
-				${zone.sections.map((section, sIdx) =>
-					this.#renderSection(section, `p${pageNum}-a${areaIndex}-s${sIdx}`, pageNum, areaIndex)
-				)}
+				${!isCollapsed ? html`
+					${zone.sections.map((section, sIdx) =>
+						this.#renderSection(section, `p${pageNum}-a${areaIndex}-s${sIdx}`, pageNum, areaIndex)
+					)}
+				` : nothing}
 			</div>
 		`;
 	}
 
 	#renderUnzonedContent(zone: DetectedZone, pageNum: number) {
 		if (zone.totalElements === 0) return nothing;
-		const areaKeys = this.#getAreaSectionKeys(pageNum, 'unzoned', zone.sections.length);
-		const allCollapsed = this.#isAreaAllCollapsed(areaKeys);
+		const areaKey = `area-p${pageNum}-undefined`;
+		const isCollapsed = this.#isCollapsed(areaKey);
+		const sectionCount = zone.sections.length;
 		return html`
-			<div class="zone-area unzoned" style="border-left-color: var(--uui-color-border-standalone);">
-				<div class="area-header">
-					<span class="area-color-swatch unzoned-swatch"></span>
-					<span class="area-element-count">Unzoned — ${zone.totalElements} element${zone.totalElements !== 1 ? 's' : ''}</span>
-					${zone.sections.length > 1 ? html`
-						<button class="area-collapse-toggle" @click=${() => this.#toggleAreaCollapse(areaKeys)}
-							title="${allCollapsed ? 'Expand all sections' : 'Collapse all sections'}">
-							<uui-icon name="${allCollapsed ? 'icon-navigation-right' : 'icon-navigation-down'}"></uui-icon>
-							${allCollapsed ? 'Expand' : 'Collapse'}
-						</button>
-					` : nothing}
+			<div class="zone-area undefined" style="border-left-color: var(--uui-color-border-standalone);">
+				<div class="area-header" @click=${() => this.#toggleCollapse(areaKey)}>
+					<span class="area-color-swatch undefined-swatch"></span>
+					<span class="area-name undefined-name">Undefined</span>
+					<span class="group-count">${sectionCount} section${sectionCount !== 1 ? 's' : ''}</span>
+					<uui-icon class="collapse-chevron" name="${isCollapsed ? 'icon-navigation-right' : 'icon-navigation-down'}"></uui-icon>
 				</div>
-				${zone.sections.map((section, sIdx) =>
-					this.#renderSection(section, `p${pageNum}-unzoned-s${sIdx}`, pageNum, -1)
-				)}
+				${!isCollapsed ? html`
+					${zone.sections.map((section, sIdx) =>
+						this.#renderSection(section, `p${pageNum}-undefined-s${sIdx}`, pageNum, -1)
+					)}
+				` : nothing}
 			</div>
 		`;
 	}
 
 	#renderZonePage(pageNum: number, zones: DetectedZone[], unzonedContent: DetectedZone | null) {
+		const pageKey = `page-${pageNum}`;
+		const isCollapsed = this.#isCollapsed(pageKey);
+		const hasUnzoned = unzonedContent && unzonedContent.totalElements > 0;
+		const areaCount = zones.length + (hasUnzoned ? 1 : 0);
 		return html`
 			<uui-box headline="Page ${pageNum}" class="page-box">
-				${zones.map((zone, idx) => this.#renderArea(zone, pageNum, idx))}
-				${unzonedContent ? this.#renderUnzonedContent(unzonedContent, pageNum) : nothing}
+				<div slot="header-actions" class="collapse-trigger" @click=${() => this.#toggleCollapse(pageKey)}>
+					<span class="group-count">${areaCount} area${areaCount !== 1 ? 's' : ''}</span>
+					<uui-icon class="collapse-chevron" name="${isCollapsed ? 'icon-navigation-right' : 'icon-navigation-down'}"></uui-icon>
+				</div>
+				${!isCollapsed ? html`
+					${zones.map((zone, idx) => this.#renderArea(zone, pageNum, idx))}
+					${hasUnzoned ? this.#renderUnzonedContent(unzonedContent!, pageNum) : nothing}
+				` : nothing}
 			</uui-box>
 		`;
 	}
@@ -373,69 +369,74 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 			${this._zoneDetection.pages.map((page) =>
 				this.#renderZonePage(page.page, page.zones, page.unzonedContent)
 			)}
-			<div class="diagnostics">
-				<span class="meta-badge">${this._zoneDetection.diagnostics.zonesDetected} areas</span>
-				<span class="meta-badge">${this._zoneDetection.diagnostics.elementsZoned} zoned</span>
-				<span class="meta-badge">${this._zoneDetection.diagnostics.elementsUnzoned} unzoned</span>
+		`;
+	}
+
+	#computeSectionCount(): number {
+		if (!this._zoneDetection) return 0;
+		return this._zoneDetection.pages.reduce((sum, page) =>
+			sum + page.zones.reduce((zSum, zone) => zSum + zone.sections.length, 0)
+			+ (page.unzonedContent?.sections.length ?? 0), 0);
+	}
+
+	#renderExtractionHeader() {
+		return html`
+			<div slot="header" class="source-header">
+				<uui-tab-group dropdown-content-direction="vertical">
+					<uui-tab label="Extracted" ?active=${this._viewMode === 'elements'} @click=${() => { this._viewMode = 'elements'; }}>Extracted</uui-tab>
+					<uui-tab label="Transformed" ?active=${this._viewMode === 'transformed'} @click=${() => { this._viewMode = 'transformed'; }} ?disabled=${!this._transformResult}>Transformed</uui-tab>
+				</uui-tab-group>
+				<div class="header-actions">
+					<uui-button look="outline" label="Re-extract" @click=${this.#onPickMedia} ?disabled=${this._extracting}>
+						<uui-icon name="icon-refresh"></uui-icon>
+						Re-extract
+					</uui-button>
+				</div>
 			</div>
 		`;
 	}
 
-	#renderExtraction() {
+	#renderStatBoxes() {
 		const hasZones = this._zoneDetection !== null;
 		const hasExtraction = this._extraction !== null;
 
 		if (!hasZones && !hasExtraction) return nothing;
 
-		// Use extraction for header info, zone detection for content
-		const totalElements = hasZones
-			? this._zoneDetection!.diagnostics.elementsZoned + this._zoneDetection!.diagnostics.elementsUnzoned
-			: this._extraction!.elements.length;
+		const pages = hasExtraction ? this._extraction!.source.totalPages : 0;
+		const zones = hasZones ? this._zoneDetection!.diagnostics.zonesDetected : 0;
+		const sections = hasZones ? this.#computeSectionCount() : 0;
+		const fileName = hasExtraction ? this._extraction!.source.fileName : '';
+		const extractedDate = hasExtraction
+			? new Date(this._extraction!.source.extractedDate).toLocaleString()
+			: '';
 
 		return html`
-			<div class="extraction-header">
-				${hasExtraction ? html`
-					<div class="extraction-info">
-						<span class="info-label">Source:</span>
-						<span>${this._extraction!.source.fileName}</span>
-					</div>
-					<div class="extraction-info">
-						<span class="info-label">Pages:</span>
-						<span>${this._extraction!.source.totalPages}</span>
-						<span class="info-label" style="margin-left: var(--uui-size-space-4);">Elements:</span>
-						<span>${totalElements}</span>
-						${hasZones ? html`
-							<span class="info-label" style="margin-left: var(--uui-size-space-4);">Areas:</span>
-							<span>${this._zoneDetection!.diagnostics.zonesDetected}</span>
-						` : nothing}
-						<span class="info-label" style="margin-left: var(--uui-size-space-4);">Extracted:</span>
-						<span>${new Date(this._extraction!.source.extractedDate).toLocaleString()}</span>
-					</div>
-				` : html`
-					<div class="extraction-info">
-						<span class="info-label">Elements:</span>
-						<span>${totalElements}</span>
-						<span class="info-label" style="margin-left: var(--uui-size-space-4);">Areas:</span>
-						<span>${this._zoneDetection!.diagnostics.zonesDetected}</span>
-					</div>
-				`}
-				<uui-button look="secondary" label="Re-extract" @click=${this.#onPickMedia} ?disabled=${this._extracting}>
-					<uui-icon name="icon-refresh"></uui-icon>
-					Re-extract
-				</uui-button>
+			<div class="stat-boxes">
+				<div class="stat-box">
+					<span class="stat-number">${pages}</span>
+					<span class="stat-label">Pages</span>
+				</div>
+				<div class="stat-box">
+					<span class="stat-number">${zones}</span>
+					<span class="stat-label">Zones</span>
+				</div>
+				<div class="stat-box">
+					<span class="stat-number">${sections}</span>
+					<span class="stat-label">Sections</span>
+				</div>
+				<div class="stat-box stat-box-source">
+					<span class="stat-source-name">${fileName}</span>
+					<span class="stat-label">${extractedDate}</span>
+				</div>
 			</div>
-
-			<div class="view-tabs">
-				<uui-tab-group>
-					<uui-tab label="Extracted" ?active=${this._viewMode === 'elements'} @click=${() => { this._viewMode = 'elements'; }}>Extracted</uui-tab>
-					<uui-tab label="Transformed" ?active=${this._viewMode === 'transformed'} @click=${() => { this._viewMode = 'transformed'; }} ?disabled=${!this._transformResult}>Transformed</uui-tab>
-				</uui-tab-group>
-			</div>
-
-			${this._viewMode === 'elements'
-				? (hasZones ? this.#renderZoneDetection() : nothing)
-				: this.#renderTransformed()}
 		`;
+	}
+
+	#renderExtractionContent() {
+		const hasZones = this._zoneDetection !== null;
+		return this._viewMode === 'elements'
+			? (hasZones ? this.#renderZoneDetection() : nothing)
+			: this.#renderTransformed();
 	}
 
 	#renderMappingBadges(sourceKey: string) {
@@ -543,8 +544,10 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 
 		return html`
 			<umb-body-layout header-fit-height>
+				${hasContent ? this.#renderExtractionHeader() : nothing}
+				${hasContent ? this.#renderStatBoxes() : nothing}
 				${this._successMessage ? html`<div class="success-banner"><uui-icon name="icon-check"></uui-icon> ${this._successMessage}</div>` : nothing}
-				${hasContent ? this.#renderExtraction() : this.#renderEmpty()}
+				${hasContent ? this.#renderExtractionContent() : this.#renderEmpty()}
 			</umb-body-layout>
 		`;
 	}
@@ -555,6 +558,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 			:host {
 				display: block;
 				height: 100%;
+				--uui-tab-background: var(--uui-color-surface);
 			}
 
 			.loading {
@@ -594,25 +598,63 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				color: var(--uui-color-text-alt);
 			}
 
-			/* Extraction header */
-			.extraction-header {
-				padding: var(--uui-size-space-4);
-				border-bottom: 1px solid var(--uui-color-border);
+			/* Header: tabs left, actions right (Document Type editor pattern) */
+			.source-header {
 				display: flex;
-				flex-direction: column;
-				gap: var(--uui-size-space-2);
+				align-items: center;
+				width: 100%;
 			}
 
-			.extraction-info {
+			.source-header uui-tab-group {
+				flex: 1;
+			}
+
+			.header-actions {
 				display: flex;
 				align-items: center;
 				gap: var(--uui-size-space-2);
-				font-size: var(--uui-type-small-size);
+				padding-right: var(--uui-size-space-2);
 			}
 
-			.info-label {
-				font-weight: 600;
+			/* Stat boxes in content area */
+			.stat-boxes {
+				display: flex;
+				gap: var(--uui-size-space-3);
+				padding: var(--uui-size-space-4) var(--uui-size-space-4) 0;
+			}
+
+			.stat-box {
+				display: flex;
+				flex-direction: column;
+				padding: var(--uui-size-space-3) var(--uui-size-space-4);
+				border: 1px solid var(--uui-color-border);
+				border-radius: var(--uui-border-radius);
+				background: var(--uui-color-surface);
+				min-width: 80px;
+			}
+
+			.stat-number {
+				font-size: var(--uui-type-h5-size);
+				font-weight: 700;
+				color: var(--uui-color-text);
+			}
+
+			.stat-label {
+				font-size: var(--uui-type-small-size);
 				color: var(--uui-color-text-alt);
+			}
+
+			.stat-box-source {
+				flex: 1;
+			}
+
+			.stat-source-name {
+				font-size: var(--uui-type-default-size);
+				font-weight: 600;
+				color: var(--uui-color-text);
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;
 			}
 
 			/* Page groups */
@@ -620,14 +662,32 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				margin: var(--uui-size-space-4);
 			}
 
-			/* Zone areas */
-			.zone-area {
-				border-left: 4px solid var(--uui-color-border);
-				margin: var(--uui-size-space-3) 0;
-				margin-left: var(--uui-size-space-2);
+			/* Consistent collapse chevron across all levels */
+			.collapse-chevron {
+				color: var(--uui-color-text-alt);
+				flex-shrink: 0;
+				font-size: 12px;
 			}
 
-			.zone-area.unzoned {
+			.collapse-trigger {
+				display: flex;
+				align-items: center;
+				gap: var(--uui-size-space-2);
+				cursor: pointer;
+			}
+
+			.collapse-trigger:hover .collapse-chevron {
+				color: var(--uui-color-text);
+			}
+
+			/* Zone areas (Level 2) */
+			.zone-area {
+				border-left: 4px solid var(--uui-color-border);
+				margin: var(--uui-size-space-4) 0;
+				margin-left: var(--uui-size-space-3);
+			}
+
+			.zone-area.undefined {
 				opacity: 0.75;
 			}
 
@@ -638,6 +698,15 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				padding: var(--uui-size-space-2) var(--uui-size-space-3);
 				font-size: var(--uui-type-small-size);
 				color: var(--uui-color-text-alt);
+				cursor: pointer;
+			}
+
+			.area-header:hover {
+				background: var(--uui-color-surface-emphasis);
+			}
+
+			.area-header:hover .collapse-chevron {
+				color: var(--uui-color-text);
 			}
 
 			.area-color-swatch {
@@ -648,34 +717,25 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				border: 1px solid var(--uui-color-border);
 			}
 
-			.area-color-swatch.unzoned-swatch {
+			.area-color-swatch.undefined-swatch {
 				background: var(--uui-color-border-standalone);
 			}
 
-			.area-element-count {
-				font-weight: 500;
-			}
-
-			.area-collapse-toggle {
-				margin-left: auto;
-				background: none;
-				border: 1px solid var(--uui-color-border);
-				border-radius: var(--uui-border-radius);
-				cursor: pointer;
-				padding: 2px 8px;
-				color: var(--uui-color-text-alt);
-				font-size: var(--uui-type-small-size);
-				display: flex;
-				align-items: center;
-				gap: var(--uui-size-space-1);
-			}
-
-			.area-collapse-toggle:hover {
+			.area-name {
+				font-weight: 600;
 				color: var(--uui-color-text);
-				background: var(--uui-color-surface-emphasis);
 			}
 
-			/* Sections within areas */
+			.undefined-name {
+				color: var(--uui-color-text-alt);
+				font-style: italic;
+			}
+
+			/* Sections within areas (Level 3) */
+			.zone-section {
+				margin-left: var(--uui-size-space-3);
+			}
+
 			.zone-section + .zone-section {
 				border-top: 1px solid var(--uui-color-border);
 			}
@@ -694,6 +754,10 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				background: var(--uui-color-surface-emphasis);
 			}
 
+			.section-heading:hover .collapse-chevron {
+				color: var(--uui-color-text);
+			}
+
 			.heading-content {
 				flex: 1;
 				min-width: 0;
@@ -703,20 +767,6 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				font-weight: 700;
 				font-size: var(--uui-type-default-size);
 				margin-bottom: var(--uui-size-space-1);
-			}
-
-			.collapse-toggle {
-				background: none;
-				border: none;
-				cursor: pointer;
-				padding: var(--uui-size-space-1);
-				color: var(--uui-color-text-alt);
-				display: flex;
-				align-items: center;
-			}
-
-			.collapse-toggle:hover {
-				color: var(--uui-color-text);
 			}
 
 			.group-count {
@@ -781,6 +831,17 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				color: var(--uui-color-text-alt);
 			}
 
+			.meta-badge.text-type {
+				font-weight: 500;
+				text-transform: uppercase;
+				font-size: 10px;
+				letter-spacing: 0.5px;
+			}
+
+			.meta-badge.text-type.list {
+				color: var(--uui-color-positive);
+			}
+
 			.meta-badge.font-size {
 				font-weight: 600;
 				color: var(--uui-color-text);
@@ -799,12 +860,6 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				gap: var(--uui-size-space-3);
 				padding: var(--uui-size-space-3) var(--uui-size-space-4);
 				justify-content: flex-end;
-			}
-
-			/* View mode tabs */
-			.view-tabs {
-				padding: 0 var(--uui-size-space-4);
-				border-bottom: 1px solid var(--uui-color-border);
 			}
 
 			/* Transformed sections */

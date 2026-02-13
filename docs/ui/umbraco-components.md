@@ -23,8 +23,7 @@ The primary layout component for all workspace views and modal contents. Provide
 
 | Slot | Purpose |
 |------|---------|
-| `navigation` | Tab groups placed here appear as header-level navigation |
-| `header` | Additional header content |
+| `header` | Tab groups and summary content placed here stay fixed above scrolling content |
 | `actions` | Action buttons (Close, Create, Save) appear bottom-right |
 | default | Main content area |
 
@@ -32,17 +31,29 @@ The primary layout component for all workspace views and modal contents. Provide
 
 **Example:**
 ```html
+<!-- Destination view pattern: tabs only -->
 <umb-body-layout header-fit-height>
-    <uui-tab-group slot="navigation">
+    <uui-tab-group slot="header" dropdown-content-direction="vertical">
         <uui-tab label="Page Properties" ?active=${true}>Page Properties</uui-tab>
         <uui-tab label="Page Content">Page Content</uui-tab>
     </uui-tab-group>
+    <uui-box>...</uui-box>
+</umb-body-layout>
 
-    <!-- content area -->
-    <uui-box headline="Fields">...</uui-box>
-
-    <uui-button slot="actions" look="secondary" label="Close"
-        @click=${this.#onClose}>Close</uui-button>
+<!-- Source view pattern: tabs + action button in header, stat boxes in content -->
+<umb-body-layout header-fit-height>
+    <div slot="header" class="source-header">
+        <uui-tab-group dropdown-content-direction="vertical">
+            <uui-tab label="Extracted" ?active=${true}>Extracted</uui-tab>
+            <uui-tab label="Transformed">Transformed</uui-tab>
+        </uui-tab-group>
+        <div class="header-actions">
+            <uui-button look="outline" label="Re-extract">Re-extract</uui-button>
+        </div>
+    </div>
+    <!-- stat boxes in scrollable content area -->
+    <div class="stat-boxes"><!-- Pages, Zones, Sections, Source --></div>
+    <!-- page hierarchy content -->
 </umb-body-layout>
 ```
 
