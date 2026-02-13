@@ -54,3 +54,54 @@ A secondary entry point — available as a toolbar button when viewing a documen
 | Result | New document created under parent | New document created under parent |
 
 Both journeys lead to the same blueprint picker → source sidebar → document creation flow. The only difference is where the user starts.
+
+---
+
+## How Source Content is Extracted
+
+When a source document is imported, UpDoc analyses its structure and organises the extracted content into a four-level hierarchy:
+
+```
+Page
+└── Zone
+    └── Section
+        └── Text
+```
+
+### Page
+
+Each page of the source document is processed independently. Content is extracted page by page, preserving the original document order. For single-page sources (such as a web page), all content belongs to one page.
+
+### Zone
+
+Within each page, UpDoc detects visually distinct areas that group content together. In a PDF, these are colored filled rectangles — background colors used to separate content into columns, sidebars, or feature panels. Each colored area becomes a zone.
+
+Content that falls outside any detected zone is grouped as "unzoned" content.
+
+### Section
+
+Within each zone, UpDoc identifies sections by detecting headings. A section consists of a heading and all the content that follows it, up to the next heading or the end of the zone.
+
+Headings are identified by font size — text that is significantly larger than the surrounding body text is treated as a section heading.
+
+Sections are the primary unit of mapping. When creating mappings from source to destination, the workflow author works with sections.
+
+### Text
+
+Within each section, individual text items are classified by their content pattern:
+
+- **Headings** — The section's title text, identified by a larger font size relative to the body text within the section.
+- **Lists** — Ordered items (1, 2, 3) or unordered items (bullet points). Identified by leading bullet characters or numeric patterns.
+- **Paragraphs** — Free-form body text that does not match a heading or list pattern.
+
+### Summary Counts
+
+At each level of the hierarchy, UpDoc provides summary counts so the workflow author can quickly assess the structure of the extracted content:
+
+| Level | Shows |
+|-------|-------|
+| Page | Number of zones detected |
+| Zone | Number of sections identified |
+| Section | Number of text items within the section |
+
+These counts help the workflow author identify whether the extraction has correctly understood the document's structure before proceeding to map content to destination fields.
