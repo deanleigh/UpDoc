@@ -1,6 +1,6 @@
 # Plan: PDF Page Selection / Exclusion
 
-## Status: READY TO IMPLEMENT
+## Status: COMPLETE
 
 ## Problem
 
@@ -124,30 +124,29 @@ public class PageSelection
 
 Those are separate issues to address after page selection is working.
 
-## Implementation Steps
+## Implementation Steps — ALL COMPLETE
 
-### Step 1: Backend — Add page filtering to extraction
-- Add `PageSelection` to C# models
-- Read from `source.json` in WorkflowController
-- Pass page list to `PdfPagePropertiesService` methods
-- Filter pages at the start of extraction (before any text processing)
+### Step 1: Backend — Add page filtering to extraction ✅
+- Added `Pages` property to `SourceConfig` model (simple `List<int>?`)
+- `WorkflowController` reads page selection from `source.json` and passes to extraction
+- `PdfPagePropertiesService` filters pages at the earliest point (before text processing)
+- `PUT /updoc/workflows/{name}/pages` endpoint to save page selection
 
-### Step 2: Backend — Update source.json read/write
-- `MapFileService` or equivalent reads/writes `pages` from source.json
-- Add API endpoint to update source.json page selection (or use existing config save)
+### Step 2: Backend — Update source.json read/write ✅
+- `MapFileService` reads/writes `pages` array from source.json
+- Simplified from include/exclude design to a simple page number array (empty/null = all pages)
 
-### Step 3: Frontend — Page input on Source tab
-- Add page range input to Source tab header
-- Parse "1-2" or "1,2,4" format into page numbers
-- Save to source.json when changed
-- Pass to re-extract endpoint
+### Step 3: Frontend — Page input on Source tab ✅
+- Page selection controls in the Pages info box: All/Choose radio + range text input
+- Per-page toggles on each Page box in the hierarchy
+- Range string parsing ("1-3, 5" ↔ `[1, 2, 3, 5]`) with normalisation on blur
+- Immediate save on change, applied on next re-extract
+- Stats show "2 of 4" when filtered, with warning colour
 
-### Step 4: Test with updoc-test-02.pdf
-- Set pages to 1-2
-- Re-extract
-- Verify only ~17 sections appear
-- Verify Features, What We Will See, Accommodation, Itinerary all present
-- Verify no booking form garbage
+### Step 4: UI polish ✅
+- Info boxes refactored to uSync-inspired `<uui-box>` pattern with equal `flex-grow: 1`
+- Source box: h2 filename, icon, date, green Re-extract + blue Change PDF buttons
+- Collapse All moved to its own row below boxes, right-aligned
 
 ## Export to Markdown (secondary feature)
 

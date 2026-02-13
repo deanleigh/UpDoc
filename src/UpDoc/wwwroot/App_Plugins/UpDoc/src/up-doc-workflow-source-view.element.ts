@@ -555,28 +555,25 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		if (totalPages === 0) return nothing;
 
 		return html`
-			<div class="page-selection">
-				<span class="page-selection-label">Pages</span>
-				<label class="page-radio">
-					<input type="radio" name="page-mode" value="all"
-						.checked=${this._pageMode === 'all'}
-						@change=${() => this.#onPageModeChange('all')} />
-					All
-				</label>
-				<label class="page-radio">
-					<input type="radio" name="page-mode" value="custom"
-						.checked=${this._pageMode === 'custom'}
-						@change=${() => this.#onPageModeChange('custom')} />
-					Choose
-				</label>
-				<input type="text" class="page-input"
-					placeholder="e.g. 1-2, 5, 7-9"
-					.value=${this._pageInputValue}
-					@input=${this.#onPageInputChange}
-					@blur=${this.#onPageInputBlur}
-					@focus=${() => { if (this._pageMode === 'all') this.#onPageModeChange('custom'); }}
-					?disabled=${this._pageMode === 'all'} />
-			</div>
+			<label class="page-radio">
+				<input type="radio" name="page-mode" value="all"
+					.checked=${this._pageMode === 'all'}
+					@change=${() => this.#onPageModeChange('all')} />
+				All
+			</label>
+			<label class="page-radio">
+				<input type="radio" name="page-mode" value="custom"
+					.checked=${this._pageMode === 'custom'}
+					@change=${() => this.#onPageModeChange('custom')} />
+				Choose
+			</label>
+			<input type="text" class="page-input"
+				placeholder="e.g. 1-2, 5"
+				.value=${this._pageInputValue}
+				@input=${this.#onPageInputChange}
+				@blur=${this.#onPageInputBlur}
+				@focus=${() => { if (this._pageMode === 'all') this.#onPageModeChange('custom'); }}
+				?disabled=${this._pageMode === 'all'} />
 		`;
 	}
 
@@ -587,21 +584,11 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 					<uui-tab label="Extracted" ?active=${this._viewMode === 'elements'} @click=${() => { this._viewMode = 'elements'; }}>Extracted</uui-tab>
 					<uui-tab label="Transformed" ?active=${this._viewMode === 'transformed'} @click=${() => { this._viewMode = 'transformed'; }} ?disabled=${!this._transformResult}>Transformed</uui-tab>
 				</uui-tab-group>
-				<div class="header-actions">
-					${this.#renderPageSelection()}
-					<uui-button look="outline" label="Re-extract" @click=${this.#onReExtract} ?disabled=${this._extracting}>
-						<uui-icon name="icon-refresh"></uui-icon>
-						Re-extract
-					</uui-button>
-					<uui-button look="default" compact label="Change PDF" @click=${this.#onPickMedia} ?disabled=${this._extracting}>
-						<uui-icon name="icon-document"></uui-icon>
-					</uui-button>
-				</div>
 			</div>
 		`;
 	}
 
-	#renderStatBoxes() {
+	#renderInfoBoxes() {
 		const hasZones = this._zoneDetection !== null;
 		const hasExtraction = this._extraction !== null;
 
@@ -619,30 +606,58 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 			: '';
 
 		return html`
-			<div class="stat-boxes">
-				<div class="stat-box ${isFiltered ? 'stat-box-filtered' : ''}">
-					<span class="stat-number">${pagesLabel}</span>
-					<span class="stat-label">Pages</span>
-				</div>
-				<div class="stat-box">
-					<span class="stat-number">${zones}</span>
-					<span class="stat-label">Zones</span>
-				</div>
-				<div class="stat-box">
-					<span class="stat-number">${sections}</span>
-					<span class="stat-label">Sections</span>
-				</div>
-				<div class="stat-box stat-box-source">
-					<span class="stat-source-name">${fileName}</span>
-					<span class="stat-label">${extractedDate}</span>
-				</div>
-				${hasZones && this._viewMode === 'elements' ? html`
+			<div class="info-boxes">
+				<uui-box class="info-box-item">
+					<div class="box-content">
+						<h2 class="box-title">${fileName}</h2>
+						<uui-icon name="icon-document" class="box-icon"></uui-icon>
+						<span class="box-subtitle">${extractedDate}</span>
+						<div class="box-buttons">
+							<uui-button look="primary" color="positive" label="Re-extract" @click=${this.#onReExtract} ?disabled=${this._extracting}>
+								<uui-icon name="icon-refresh"></uui-icon>
+								Re-extract
+							</uui-button>
+							<uui-button look="primary" color="default" label="Change PDF" @click=${this.#onPickMedia} ?disabled=${this._extracting}>
+								<uui-icon name="icon-page-add"></uui-icon>
+								Change PDF
+							</uui-button>
+						</div>
+					</div>
+				</uui-box>
+
+				<uui-box class="info-box-item">
+					<div class="box-content">
+						<span class="box-stat ${isFiltered ? 'stat-filtered' : ''}">${pagesLabel}</span>
+						<span class="box-label">Pages</span>
+						<div class="page-selection">
+							${this.#renderPageSelection()}
+						</div>
+					</div>
+				</uui-box>
+
+				<uui-box class="info-box-item">
+					<div class="box-content">
+						<span class="box-stat">${zones}</span>
+						<span class="box-label">Zones</span>
+					</div>
+				</uui-box>
+
+				<uui-box class="info-box-item">
+					<div class="box-content">
+						<span class="box-stat">${sections}</span>
+						<span class="box-label">Sections</span>
+					</div>
+				</uui-box>
+			</div>
+
+			${hasZones ? html`
+				<div class="collapse-row">
 					<uui-button look="outline" compact label="${this._allCollapsed ? 'Expand All' : 'Collapse All'}" @click=${this.#toggleCollapseAll}>
 						<uui-icon name="${this._allCollapsed ? 'icon-navigation-down' : 'icon-navigation-right'}"></uui-icon>
 						${this._allCollapsed ? 'Expand All' : 'Collapse All'}
 					</uui-button>
-				` : nothing}
-			</div>
+				</div>
+			` : nothing}
 		`;
 	}
 
@@ -734,9 +749,9 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 			<div class="empty-state">
 				<uui-icon name="icon-document" style="font-size: 48px; color: var(--uui-color-text-alt);"></uui-icon>
 				<h3>No sample extraction</h3>
-				<p>Upload a PDF to extract all text elements with their metadata.</p>
-				<uui-button look="primary" label="Upload PDF" @click=${this.#onPickMedia} ?disabled=${this._extracting}>
-					${this._extracting ? html`<uui-loader-bar></uui-loader-bar>` : 'Upload PDF'}
+				<p>Choose a PDF from the media library to extract text elements with their metadata.</p>
+				<uui-button look="primary" label="Choose PDF" @click=${this.#onPickMedia} ?disabled=${this._extracting}>
+					${this._extracting ? html`<uui-loader-bar></uui-loader-bar>` : 'Choose PDF...'}
 				</uui-button>
 			</div>
 		`;
@@ -759,7 +774,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		return html`
 			<umb-body-layout header-fit-height>
 				${hasContent ? this.#renderExtractionHeader() : nothing}
-				${hasContent ? this.#renderStatBoxes() : nothing}
+				${hasContent && this._viewMode === 'elements' ? this.#renderInfoBoxes() : nothing}
 				${this._successMessage ? html`<div class="success-banner"><uui-icon name="icon-check"></uui-icon> ${this._successMessage}</div>` : nothing}
 				${hasContent ? this.#renderExtractionContent() : this.#renderEmpty()}
 			</umb-body-layout>
@@ -812,7 +827,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				color: var(--uui-color-text-alt);
 			}
 
-			/* Header: tabs left, actions right (Document Type editor pattern) */
+			/* Header: tabs only */
 			.source-header {
 				display: flex;
 				align-items: center;
@@ -823,25 +838,82 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				flex: 1;
 			}
 
-			.header-actions {
+			/* Info boxes row (uSync-inspired) */
+			.info-boxes {
 				display: flex;
-				align-items: center;
-				gap: var(--uui-size-space-3);
-				padding-right: var(--uui-size-space-2);
+				gap: var(--uui-size-space-4);
+				flex-wrap: wrap;
+				padding: var(--uui-size-space-4);
 			}
 
-			/* Page selection (browser print dialog pattern) */
+			.info-box-item {
+				flex-grow: 1;
+			}
+
+			.box-content {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				text-align: center;
+				gap: var(--uui-size-space-2);
+			}
+
+			.box-icon {
+				font-size: 32px;
+				color: var(--uui-color-text-alt);
+			}
+
+			.box-title {
+				font-size: var(--uui-type-default-size);
+				font-weight: 600;
+				margin: 0;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+				max-width: 100%;
+			}
+
+			.box-subtitle {
+				font-size: var(--uui-type-small-size);
+				color: var(--uui-color-text-alt);
+			}
+
+			.box-buttons {
+				display: flex;
+				gap: var(--uui-size-space-2);
+				margin-top: auto;
+				padding-top: var(--uui-size-space-2);
+			}
+
+			.box-stat {
+				font-size: var(--uui-type-h3-size);
+				font-weight: 700;
+				color: var(--uui-color-text);
+			}
+
+			.box-stat.stat-filtered {
+				color: var(--uui-color-warning);
+			}
+
+			.box-label {
+				font-size: var(--uui-type-small-size);
+				color: var(--uui-color-text-alt);
+			}
+
+			/* Collapse row below boxes */
+			.collapse-row {
+				display: flex;
+				justify-content: flex-end;
+				padding: 0 var(--uui-size-space-4) var(--uui-size-space-2);
+			}
+
+			/* Page selection (stacked inside box) */
 			.page-selection {
 				display: flex;
-				align-items: center;
-				gap: var(--uui-size-space-3);
+				flex-direction: column;
+				gap: var(--uui-size-space-1);
 				font-size: var(--uui-type-small-size);
-			}
-
-			.page-selection-label {
-				font-weight: 600;
-				color: var(--uui-color-text);
-				white-space: nowrap;
+				margin-top: var(--uui-size-space-1);
 			}
 
 			.page-radio {
@@ -859,7 +931,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 			}
 
 			.page-input {
-				width: 140px;
+				width: 100%;
 				padding: 2px 8px;
 				border: 1px solid var(--uui-color-border);
 				border-radius: var(--uui-border-radius);
@@ -888,51 +960,6 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 
 			.page-box.page-excluded {
 				opacity: 0.4;
-			}
-
-			.stat-box-filtered .stat-number {
-				color: var(--uui-color-warning);
-			}
-
-			/* Stat boxes in content area */
-			.stat-boxes {
-				display: flex;
-				gap: var(--uui-size-space-3);
-				padding: var(--uui-size-space-4) var(--uui-size-space-4) 0;
-			}
-
-			.stat-box {
-				display: flex;
-				flex-direction: column;
-				padding: var(--uui-size-space-3) var(--uui-size-space-4);
-				border: 1px solid var(--uui-color-border);
-				border-radius: var(--uui-border-radius);
-				background: var(--uui-color-surface);
-				min-width: 80px;
-			}
-
-			.stat-number {
-				font-size: var(--uui-type-h5-size);
-				font-weight: 700;
-				color: var(--uui-color-text);
-			}
-
-			.stat-label {
-				font-size: var(--uui-type-small-size);
-				color: var(--uui-color-text-alt);
-			}
-
-			.stat-box-source {
-				flex: 1;
-			}
-
-			.stat-source-name {
-				font-size: var(--uui-type-default-size);
-				font-weight: 600;
-				color: var(--uui-color-text);
-				overflow: hidden;
-				text-overflow: ellipsis;
-				white-space: nowrap;
 			}
 
 			/* Page groups */
