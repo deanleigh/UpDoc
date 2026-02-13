@@ -28,6 +28,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 	@state() private _pageMode: 'all' | 'custom' = 'all';
 	@state() private _pageInputValue = '';
 	@state() private _allCollapsed = false;
+	@state() private _excludedAreas = new Set<string>();
 	#token = '';
 
 	override connectedCallback() {
@@ -414,14 +415,15 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 			return html`
 				<div class="zone-section ${!isIncluded ? 'excluded' : ''}">
 					<div class="section-heading preamble" @click=${() => this.#toggleCollapse(sectionKey)}>
+						<span class="heading-text preamble-label">Preamble</span>
+						<span class="header-spacer"></span>
+						<span class="group-count">${section.children.length} text${section.children.length !== 1 ? 's' : ''}</span>
 						<uui-toggle
 							label="${isIncluded ? 'Included' : 'Excluded'}"
 							?checked=${isIncluded}
 							@click=${(e: Event) => e.stopPropagation()}
 							@change=${(e: Event) => this.#onToggleInclusion(sectionId, (e.target as any).checked)}>
 						</uui-toggle>
-						<span class="heading-text preamble-label">Preamble</span>
-						<span class="group-count">${section.children.length} text${section.children.length !== 1 ? 's' : ''}</span>
 						<uui-icon class="collapse-chevron" name="${isCollapsed ? 'icon-navigation-right' : 'icon-navigation-down'}"></uui-icon>
 					</div>
 					${isIncluded && !isCollapsed ? html`
@@ -436,12 +438,6 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		return html`
 			<div class="zone-section ${!isIncluded ? 'excluded' : ''}">
 				<div class="section-heading" @click=${() => this.#toggleCollapse(sectionKey)}>
-					<uui-toggle
-						label="${isIncluded ? 'Included' : 'Excluded'}"
-						?checked=${isIncluded}
-						@click=${(e: Event) => e.stopPropagation()}
-						@change=${(e: Event) => this.#onToggleInclusion(sectionId, (e.target as any).checked)}>
-					</uui-toggle>
 					<div class="heading-content">
 						<div class="heading-text">${heading.text}</div>
 						<div class="element-meta">
@@ -450,6 +446,12 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 						</div>
 					</div>
 					<span class="group-count">${section.children.length} text${section.children.length !== 1 ? 's' : ''}</span>
+					<uui-toggle
+						label="${isIncluded ? 'Included' : 'Excluded'}"
+						?checked=${isIncluded}
+						@click=${(e: Event) => e.stopPropagation()}
+						@change=${(e: Event) => this.#onToggleInclusion(sectionId, (e.target as any).checked)}>
+					</uui-toggle>
 					<uui-icon class="collapse-chevron" name="${isCollapsed ? 'icon-navigation-right' : 'icon-navigation-down'}"></uui-icon>
 				</div>
 				${!isCollapsed && isIncluded ? html`
@@ -461,16 +463,33 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		`;
 	}
 
+	#toggleAreaExclusion(areaKey: string) {
+		const next = new Set(this._excludedAreas);
+		if (next.has(areaKey)) {
+			next.delete(areaKey);
+		} else {
+			next.add(areaKey);
+		}
+		this._excludedAreas = next;
+	}
+
 	#renderArea(zone: DetectedZone, pageNum: number, areaIndex: number) {
 		const areaKey = `area-p${pageNum}-a${areaIndex}`;
 		const isCollapsed = this.#isCollapsed(areaKey);
+		const isIncluded = !this._excludedAreas.has(areaKey);
 		const sectionCount = zone.sections.length;
 		return html`
-			<div class="zone-area" style="border-left-color: ${zone.color};">
+			<div class="zone-area ${!isIncluded ? 'area-excluded' : ''}" style="border-left-color: ${zone.color};">
 				<div class="area-header" @click=${() => this.#toggleCollapse(areaKey)}>
-					<span class="area-color-swatch" style="background: ${zone.color};"></span>
 					<span class="area-name">Area ${areaIndex + 1}</span>
+					<span class="header-spacer"></span>
 					<span class="group-count">${sectionCount} section${sectionCount !== 1 ? 's' : ''}</span>
+					<uui-toggle
+						label="${isIncluded ? 'Included' : 'Excluded'}"
+						?checked=${isIncluded}
+						@click=${(e: Event) => e.stopPropagation()}
+						@change=${() => this.#toggleAreaExclusion(areaKey)}>
+					</uui-toggle>
 					<uui-icon class="collapse-chevron" name="${isCollapsed ? 'icon-navigation-right' : 'icon-navigation-down'}"></uui-icon>
 				</div>
 				${!isCollapsed ? html`
@@ -486,13 +505,20 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		if (zone.totalElements === 0) return nothing;
 		const areaKey = `area-p${pageNum}-undefined`;
 		const isCollapsed = this.#isCollapsed(areaKey);
+		const isIncluded = !this._excludedAreas.has(areaKey);
 		const sectionCount = zone.sections.length;
 		return html`
-			<div class="zone-area undefined" style="border-left-color: var(--uui-color-border-standalone);">
+			<div class="zone-area undefined ${!isIncluded ? 'area-excluded' : ''}" style="border-left-color: var(--uui-color-border-standalone);">
 				<div class="area-header" @click=${() => this.#toggleCollapse(areaKey)}>
-					<span class="area-color-swatch undefined-swatch"></span>
 					<span class="area-name undefined-name">Undefined</span>
+					<span class="header-spacer"></span>
 					<span class="group-count">${sectionCount} section${sectionCount !== 1 ? 's' : ''}</span>
+					<uui-toggle
+						label="${isIncluded ? 'Included' : 'Excluded'}"
+						?checked=${isIncluded}
+						@click=${(e: Event) => e.stopPropagation()}
+						@change=${() => this.#toggleAreaExclusion(areaKey)}>
+					</uui-toggle>
 					<uui-icon class="collapse-chevron" name="${isCollapsed ? 'icon-navigation-right' : 'icon-navigation-down'}"></uui-icon>
 				</div>
 				${!isCollapsed ? html`
@@ -951,6 +977,10 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				opacity: 0.4;
 			}
 
+			.header-spacer {
+				flex: 1;
+			}
+
 			/* Page groups */
 			.page-box {
 				margin: var(--uui-size-space-4);
@@ -985,13 +1015,15 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				opacity: 0.75;
 			}
 
+			.zone-area.area-excluded {
+				opacity: 0.4;
+			}
+
 			.area-header {
 				display: flex;
 				align-items: center;
 				gap: var(--uui-size-space-2);
 				padding: var(--uui-size-space-2) var(--uui-size-space-3);
-				font-size: var(--uui-type-small-size);
-				color: var(--uui-color-text-alt);
 				cursor: pointer;
 			}
 
@@ -1058,8 +1090,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 			}
 
 			.heading-text {
-				font-weight: 700;
-				font-size: var(--uui-type-default-size);
+				font-weight: 600;
 				margin-bottom: var(--uui-size-space-1);
 			}
 

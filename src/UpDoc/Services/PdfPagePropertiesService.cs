@@ -270,8 +270,10 @@ public class PdfPagePropertiesService : IPdfPagePropertiesService
                 continue;
             var page = document.GetPage(pageNum);
 
-            // Step 1: Detect filled rectangles (zones)
-            var zones = DetectPageFilledRects(page, pageNum, diagnostics);
+            // Step 1: Detect filled rectangles (zones), sorted left-to-right
+            var zones = DetectPageFilledRects(page, pageNum, diagnostics)
+                .OrderBy(z => z.BoundingBox.Left)
+                .ToList();
 
             // Step 2: Extract text lines (reuse existing method)
             var lines = ExtractRichTextLines(page);

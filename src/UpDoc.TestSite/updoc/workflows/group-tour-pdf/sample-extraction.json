@@ -2,31 +2,30 @@
   "version": "1.0",
   "sourceType": "pdf",
   "source": {
-    "fileName": "updoc-test-02.pdf",
-    "mediaKey": "b509525b-d05b-417f-bac9-1aee6446fd99",
-    "extractedDate": "2026-02-13T14:47:54.8957345Z",
+    "fileName": "TTM5085 Kingston Liverpool lo.pdf",
+    "mediaKey": "80d48fd4-5a0a-4369-b663-65a644291968",
+    "extractedDate": "2026-02-13T18:33:33.714214Z",
     "totalPages": 4,
     "extractedPages": [
-      1,
-      2
+      1
     ]
   },
   "elements": [
     {
       "id": "p1-e1",
       "page": 1,
-      "text": "National Trust \u2013 Exeter \u0026 District Centre presents",
+      "text": "The Arts Society Kingston presents",
       "metadata": {
         "fontSize": 10.8,
-        "fontName": "GJEBHN\u002BHelveticaNeue-Medium",
+        "fontName": "GHEALM\u002BHelveticaNeue-Medium",
         "position": {
           "x": 31.7,
-          "y": 816.9
+          "y": 816.5
         },
         "boundingBox": {
           "left": 31.7,
-          "top": 816.9,
-          "width": 243.3,
+          "top": 816.5,
+          "width": 193.2,
           "height": 7.9
         },
         "color": "#FFD200"
@@ -35,19 +34,19 @@
     {
       "id": "p1-e2",
       "page": 1,
-      "text": "Historic Houses \u0026 Heritage of Suffolk",
+      "text": "The Art \u0026 History of Liverpool",
       "metadata": {
-        "fontSize": 31,
-        "fontName": "GJEBIP\u002BClarendon",
+        "fontSize": 30,
+        "fontName": "GHEALP\u002BClarendon",
         "position": {
-          "x": 31.7,
-          "y": 798.8
+          "x": 33.2,
+          "y": 794.6
         },
         "boundingBox": {
-          "left": 31.7,
-          "top": 798.8,
-          "width": 289.8,
-          "height": 50.2
+          "left": 33.2,
+          "top": 794.6,
+          "width": 295.8,
+          "height": 51.2
         },
         "color": "#FFFFFF"
       }
@@ -55,18 +54,18 @@
     {
       "id": "p1-e3",
       "page": 1,
-      "text": "6 days from \u00A3559 Departing 1st October 2015",
+      "text": "5 days from \u00A3814 Departing 5th October 2026",
       "metadata": {
         "fontSize": 14.4,
-        "fontName": "GJEBHN\u002BHelveticaNeue-Medium",
+        "fontName": "GHEALM\u002BHelveticaNeue-Medium",
         "position": {
           "x": 30.1,
-          "y": 721.1
+          "y": 719.5
         },
         "boundingBox": {
           "left": 30.1,
-          "top": 721.1,
-          "width": 310.7,
+          "top": 719.5,
+          "width": 307.4,
           "height": 10.5
         },
         "color": "#FFD200"
@@ -78,15 +77,15 @@
       "text": "FEATURES",
       "metadata": {
         "fontSize": 12,
-        "fontName": "GJEBIP\u002BClarendon",
+        "fontName": "GHEALP\u002BClarendon",
         "position": {
           "x": 409.4,
-          "y": 693
+          "y": 707.9
         },
         "boundingBox": {
           "left": 409.4,
-          "top": 693,
-          "width": 67.5,
+          "top": 707.9,
+          "width": 67.6,
           "height": 8.2
         },
         "color": "#16549D"
@@ -95,19 +94,19 @@
     {
       "id": "p1-e5",
       "page": 1,
-      "text": "\u2022 All excursions \u0026 guided tours included",
+      "text": "\u2022 4* central Liverpool hotel",
       "metadata": {
-        "fontSize": 9,
-        "fontName": "GJEBJA\u002BHelveticaNeue",
+        "fontSize": 8.5,
+        "fontName": "GHEALO\u002BHelveticaNeue",
         "position": {
           "x": 409.3,
-          "y": 674.3
+          "y": 691.9
         },
         "boundingBox": {
           "left": 409.3,
-          "top": 674.3,
-          "width": 159.7,
-          "height": 6.4
+          "top": 691.9,
+          "width": 99.6,
+          "height": 6.1
         },
         "color": "#16549D"
       }
@@ -115,19 +114,19 @@
     {
       "id": "p1-e6",
       "page": 1,
-      "text": "\u2022 Half board accommodation",
+      "text": "\u2022 Three dinners included",
       "metadata": {
-        "fontSize": 9,
-        "fontName": "GJEBJA\u002BHelveticaNeue",
+        "fontSize": 8.5,
+        "fontName": "GHEALO\u002BHelveticaNeue",
         "position": {
           "x": 409.3,
-          "y": 660.8
+          "y": 681.3
         },
         "boundingBox": {
           "left": 409.3,
-          "top": 660.8,
-          "width": 115.5,
-          "height": 6.5
+          "top": 681.3,
+          "width": 91.8,
+          "height": 6.1
         },
         "color": "#16549D"
       }
@@ -135,19 +134,19 @@
     {
       "id": "p1-e7",
       "page": 1,
-      "text": "\u2022 Blue Badge guide on Days 2 to 5",
+      "text": "\u2022 All excursion travel \u0026 guided tours included",
       "metadata": {
-        "fontSize": 9,
-        "fontName": "GJEBJA\u002BHelveticaNeue",
+        "fontSize": 8.5,
+        "fontName": "GHEALO\u002BHelveticaNeue",
         "position": {
           "x": 409.3,
-          "y": 647.2
+          "y": 670.8
         },
         "boundingBox": {
           "left": 409.3,
-          "top": 647.2,
-          "width": 138.2,
-          "height": 6.4
+          "top": 670.8,
+          "width": 87.9,
+          "height": 15.2
         },
         "color": "#16549D"
       }
@@ -155,19 +154,19 @@
     {
       "id": "p1-e8",
       "page": 1,
-      "text": "\u2022 Executive coach throughout",
+      "text": "\u2022 Entrance fees to non-National Trust properties included",
       "metadata": {
-        "fontSize": 9,
-        "fontName": "GJEBJA\u002BHelveticaNeue",
+        "fontSize": 8.5,
+        "fontName": "GHEALO\u002BHelveticaNeue",
         "position": {
           "x": 409.3,
-          "y": 633.6
+          "y": 651.1
         },
         "boundingBox": {
           "left": 409.3,
-          "top": 633.6,
-          "width": 118.3,
-          "height": 6.4
+          "top": 651.1,
+          "width": 139.5,
+          "height": 15.3
         },
         "color": "#16549D"
       }
@@ -175,19 +174,19 @@
     {
       "id": "p1-e9",
       "page": 1,
-      "text": "\u2022 Included boat excursion on Day 5",
+      "text": "\u2022 Included River Mersey cruise on Day 3",
       "metadata": {
-        "fontSize": 9,
-        "fontName": "GJEBJA\u002BHelveticaNeue",
+        "fontSize": 8.5,
+        "fontName": "GHEALO\u002BHelveticaNeue",
         "position": {
           "x": 409.3,
-          "y": 620
+          "y": 631.4
         },
         "boundingBox": {
           "left": 409.3,
-          "top": 620,
-          "width": 140.8,
-          "height": 6.4
+          "top": 631.4,
+          "width": 151.3,
+          "height": 6.1
         },
         "color": "#16549D"
       }
@@ -195,19 +194,19 @@
     {
       "id": "p1-e10",
       "page": 1,
-      "text": "WHAT WE WILL SEE",
+      "text": "\u2022 Blue Badge guide on Days 2 to 4",
       "metadata": {
-        "fontSize": 12,
-        "fontName": "GJEBIP\u002BClarendon",
+        "fontSize": 8.5,
+        "fontName": "GHEALO\u002BHelveticaNeue",
         "position": {
-          "x": 409.4,
-          "y": 598.5
+          "x": 409.3,
+          "y": 620.8
         },
         "boundingBox": {
-          "left": 409.4,
-          "top": 598.5,
-          "width": 127.1,
-          "height": 8.2
+          "left": 409.3,
+          "top": 620.8,
+          "width": 130.4,
+          "height": 6.1
         },
         "color": "#16549D"
       }
@@ -215,19 +214,19 @@
     {
       "id": "p1-e11",
       "page": 1,
-      "text": "\u2022 Hughenden Manor",
+      "text": "\u2022 Executive coach throughout",
       "metadata": {
-        "fontSize": 9,
-        "fontName": "GJEBJA\u002BHelveticaNeue",
+        "fontSize": 8.5,
+        "fontName": "GHEALO\u002BHelveticaNeue",
         "position": {
           "x": 409.3,
-          "y": 579.9
+          "y": 610.3
         },
         "boundingBox": {
           "left": 409.3,
-          "top": 579.9,
-          "width": 80.6,
-          "height": 6.4
+          "top": 610.3,
+          "width": 111.7,
+          "height": 6.1
         },
         "color": "#16549D"
       }
@@ -235,19 +234,19 @@
     {
       "id": "p1-e12",
       "page": 1,
-      "text": "\u2022 Sutton Hoo",
+      "text": "WHAT WE WILL SEE",
       "metadata": {
-        "fontSize": 9,
-        "fontName": "GJEBJA\u002BHelveticaNeue",
+        "fontSize": 12,
+        "fontName": "GHEALP\u002BClarendon",
         "position": {
-          "x": 409.3,
-          "y": 566.4
+          "x": 409.4,
+          "y": 594.4
         },
         "boundingBox": {
-          "left": 409.3,
-          "top": 566.4,
-          "width": 51.6,
-          "height": 6.6
+          "left": 409.4,
+          "top": 594.4,
+          "width": 127.2,
+          "height": 8.2
         },
         "color": "#16549D"
       }
@@ -255,19 +254,19 @@
     {
       "id": "p1-e13",
       "page": 1,
-      "text": "\u2022 Aldeburgh",
+      "text": "\u2022 Little Moreton Hall",
       "metadata": {
-        "fontSize": 9,
-        "fontName": "GJEBJA\u002BHelveticaNeue",
+        "fontSize": 8.5,
+        "fontName": "GHEALO\u002BHelveticaNeue",
         "position": {
           "x": 409.3,
-          "y": 552.7
+          "y": 578.4
         },
         "boundingBox": {
           "left": 409.3,
-          "top": 552.7,
-          "width": 46.9,
-          "height": 6.4
+          "top": 578.4,
+          "width": 74.8,
+          "height": 6.1
         },
         "color": "#16549D"
       }
@@ -275,19 +274,19 @@
     {
       "id": "p1-e14",
       "page": 1,
-      "text": "\u2022 The Red House",
+      "text": "\u2022 Liverpool \u2013 guided tour",
       "metadata": {
-        "fontSize": 9,
-        "fontName": "GJEBJA\u002BHelveticaNeue",
+        "fontSize": 8.5,
+        "fontName": "GHEALO\u002BHelveticaNeue",
         "position": {
           "x": 409.3,
-          "y": 539.1
+          "y": 567.8
         },
         "boundingBox": {
           "left": 409.3,
-          "top": 539.1,
-          "width": 68,
-          "height": 6.4
+          "top": 567.8,
+          "width": 92.8,
+          "height": 6.1
         },
         "color": "#16549D"
       }
@@ -295,19 +294,19 @@
     {
       "id": "p1-e15",
       "page": 1,
-      "text": "\u2022 Lavenham",
+      "text": "\u2022 Metropolitan Roman Catholic Cathedral",
       "metadata": {
-        "fontSize": 9,
-        "fontName": "GJEBJA\u002BHelveticaNeue",
+        "fontSize": 8.5,
+        "fontName": "GHEALO\u002BHelveticaNeue",
         "position": {
           "x": 409.3,
-          "y": 525.6
+          "y": 557.4
         },
         "boundingBox": {
           "left": 409.3,
-          "top": 525.6,
-          "width": 47.3,
-          "height": 6.4
+          "top": 557.4,
+          "width": 155.8,
+          "height": 6.2
         },
         "color": "#16549D"
       }
@@ -315,19 +314,19 @@
     {
       "id": "p1-e16",
       "page": 1,
-      "text": "\u2022 Constable Country \u2013 East Bergholt, Dedham, The Munnings Collection \u0026 Bridge Cottage",
+      "text": "\u2022 Liverpool Cathedral",
       "metadata": {
-        "fontSize": 9,
-        "fontName": "GJEBJA\u002BHelveticaNeue",
+        "fontSize": 8.5,
+        "fontName": "GHEALO\u002BHelveticaNeue",
         "position": {
           "x": 409.3,
-          "y": 512.1
+          "y": 546.8
         },
         "boundingBox": {
           "left": 409.3,
-          "top": 512.1,
-          "width": 152.7,
-          "height": 28.1
+          "top": 546.8,
+          "width": 79.5,
+          "height": 6.2
         },
         "color": "#16549D"
       }
@@ -335,19 +334,19 @@
     {
       "id": "p1-e17",
       "page": 1,
-      "text": "\u2022 Bury St Edmunds \u2013 guided tour",
+      "text": "\u2022 Walker Art Gallery \u2013 guided tour",
       "metadata": {
-        "fontSize": 9,
-        "fontName": "GJEBJA\u002BHelveticaNeue",
+        "fontSize": 8.5,
+        "fontName": "GHEALO\u002BHelveticaNeue",
         "position": {
           "x": 409.3,
-          "y": 477.1
+          "y": 536.3
         },
         "boundingBox": {
           "left": 409.3,
-          "top": 477.1,
-          "width": 132,
-          "height": 6.6
+          "top": 536.3,
+          "width": 125.8,
+          "height": 6.2
         },
         "color": "#16549D"
       }
@@ -355,19 +354,19 @@
     {
       "id": "p1-e18",
       "page": 1,
-      "text": "\u2022 Ickworth House",
+      "text": "\u2022 Antony Gormley\u2019s \u2018Another Place\u2019 at Crosby Beach",
       "metadata": {
-        "fontSize": 9,
-        "fontName": "GJEBJA\u002BHelveticaNeue",
+        "fontSize": 8.5,
+        "fontName": "GHEALO\u002BHelveticaNeue",
         "position": {
           "x": 409.3,
-          "y": 463.4
+          "y": 525.7
         },
         "boundingBox": {
           "left": 409.3,
-          "top": 463.4,
-          "width": 68.8,
-          "height": 6.4
+          "top": 525.7,
+          "width": 142.5,
+          "height": 15.4
         },
         "color": "#16549D"
       }
@@ -375,19 +374,19 @@
     {
       "id": "p1-e19",
       "page": 1,
-      "text": "\u2022 River Orwell cruise",
+      "text": "\u2022 Museum of Liverpool",
       "metadata": {
-        "fontSize": 9,
-        "fontName": "GJEBJA\u002BHelveticaNeue",
+        "fontSize": 8.5,
+        "fontName": "GHEALO\u002BHelveticaNeue",
         "position": {
           "x": 409.3,
-          "y": 449.9
+          "y": 506
         },
         "boundingBox": {
           "left": 409.3,
-          "top": 449.9,
-          "width": 80.8,
-          "height": 6.6
+          "top": 506,
+          "width": 85.2,
+          "height": 6.1
         },
         "color": "#16549D"
       }
@@ -395,19 +394,19 @@
     {
       "id": "p1-e20",
       "page": 1,
-      "text": "(cruise ticket included)",
+      "text": "\u2022 Cruise on the River Mersey",
       "metadata": {
-        "fontSize": 9,
-        "fontName": "GJEGHF\u002BHelveticaNeue-Bold",
+        "fontSize": 8.5,
+        "fontName": "GHEALO\u002BHelveticaNeue",
         "position": {
-          "x": 415,
-          "y": 439.2
+          "x": 409.3,
+          "y": 495.5
         },
         "boundingBox": {
-          "left": 415,
-          "top": 439.2,
-          "width": 97.5,
-          "height": 6.6
+          "left": 409.3,
+          "top": 495.5,
+          "width": 107.9,
+          "height": 6.2
         },
         "color": "#16549D"
       }
@@ -415,19 +414,19 @@
     {
       "id": "p1-e21",
       "page": 1,
-      "text": "\u2022 Framlingham Castle",
+      "text": "\u2022 Albert Dock",
       "metadata": {
-        "fontSize": 9,
-        "fontName": "GJEBJA\u002BHelveticaNeue",
+        "fontSize": 8.5,
+        "fontName": "GHEALO\u002BHelveticaNeue",
         "position": {
           "x": 409.3,
-          "y": 425.6
+          "y": 484.8
         },
         "boundingBox": {
           "left": 409.3,
-          "top": 425.6,
-          "width": 86,
-          "height": 6.6
+          "top": 484.8,
+          "width": 50,
+          "height": 6.1
         },
         "color": "#16549D"
       }
@@ -435,19 +434,19 @@
     {
       "id": "p1-e22",
       "page": 1,
-      "text": "\u2022 Polesden Lacey",
+      "text": "\u2022 Liverpool",
       "metadata": {
-        "fontSize": 9,
-        "fontName": "GJEBJA\u002BHelveticaNeue",
+        "fontSize": 8.5,
+        "fontName": "GHEALO\u002BHelveticaNeue",
         "position": {
           "x": 409.3,
-          "y": 411.9
+          "y": 474.2
         },
         "boundingBox": {
           "left": 409.3,
-          "top": 411.9,
-          "width": 69.6,
-          "height": 6.4
+          "top": 474.2,
+          "width": 40.2,
+          "height": 6.1
         },
         "color": "#16549D"
       }
@@ -455,19 +454,19 @@
     {
       "id": "p1-e23",
       "page": 1,
-      "text": "ACCOMMODATION",
+      "text": "\u2022 Princes Road Synagogue \u2013 guided tour",
       "metadata": {
-        "fontSize": 12,
-        "fontName": "GJEBIP\u002BClarendon",
+        "fontSize": 8.5,
+        "fontName": "GHEALO\u002BHelveticaNeue",
         "position": {
-          "x": 409.4,
-          "y": 390.4
+          "x": 409.3,
+          "y": 463.8
         },
         "boundingBox": {
-          "left": 409.4,
-          "top": 390.4,
-          "width": 116.2,
-          "height": 8.2
+          "left": 409.3,
+          "top": 463.8,
+          "width": 154.2,
+          "height": 6.2
         },
         "color": "#16549D"
       }
@@ -475,19 +474,19 @@
     {
       "id": "p1-e24",
       "page": 1,
-      "text": "We stay five nights on half board basis at the 3* Novotel Ipswich (www.novotel.com), located a five minute walk from the town centre. Facilities at the hotel include a restaurant and a bar, and all rooms are en suite and feature television, telephone, hairdryer and tea \u0026 coffee making facilities.",
+      "text": "\u2022 Speke Hall",
       "metadata": {
-        "fontSize": 9,
-        "fontName": "GJEBJA\u002BHelveticaNeue",
+        "fontSize": 8.5,
+        "fontName": "GHEALO\u002BHelveticaNeue",
         "position": {
           "x": 409.3,
-          "y": 371.8
+          "y": 453.2
         },
         "boundingBox": {
           "left": 409.3,
-          "top": 371.8,
-          "width": 164.5,
-          "height": 81.7
+          "top": 453.2,
+          "width": 46.2,
+          "height": 6.2
         },
         "color": "#16549D"
       }
@@ -495,19 +494,19 @@
     {
       "id": "p1-e25",
       "page": 1,
-      "text": "EXTRAS TO YOUR TOUR",
+      "text": "\u2022 Tate Liverpool at Riba North, Mann Island",
       "metadata": {
-        "fontSize": 12,
-        "fontName": "GJEBIP\u002BClarendon",
+        "fontSize": 8.5,
+        "fontName": "GHEALO\u002BHelveticaNeue",
         "position": {
-          "x": 409.4,
-          "y": 275.1
+          "x": 409.3,
+          "y": 442.5
         },
         "boundingBox": {
-          "left": 409.4,
-          "top": 275.1,
-          "width": 154.2,
-          "height": 8.2
+          "left": 409.3,
+          "top": 442.5,
+          "width": 162.4,
+          "height": 6.1
         },
         "color": "#16549D"
       }
@@ -515,19 +514,19 @@
     {
       "id": "p1-e26",
       "page": 1,
-      "text": "\u2022 Single room supplement \u00A399",
+      "text": "\u2022 Quarry Bank Mill \u0026 Styal Estate",
       "metadata": {
-        "fontSize": 9,
-        "fontName": "GJEBJA\u002BHelveticaNeue",
+        "fontSize": 8.5,
+        "fontName": "GHEALO\u002BHelveticaNeue",
         "position": {
           "x": 409.3,
-          "y": 256.6
+          "y": 432.1
         },
         "boundingBox": {
           "left": 409.3,
-          "top": 256.6,
-          "width": 121.2,
-          "height": 6.6
+          "top": 432.1,
+          "width": 123.5,
+          "height": 6.2
         },
         "color": "#16549D"
       }
@@ -535,19 +534,19 @@
     {
       "id": "p1-e27",
       "page": 1,
-      "text": "\u2022 Insurance \u00A319",
+      "text": "ACCOMMODATION",
       "metadata": {
-        "fontSize": 9,
-        "fontName": "GJEBJA\u002BHelveticaNeue",
+        "fontSize": 12,
+        "fontName": "GHEALP\u002BClarendon",
         "position": {
-          "x": 409.3,
-          "y": 243
+          "x": 409.4,
+          "y": 416.1
         },
         "boundingBox": {
-          "left": 409.3,
-          "top": 243,
-          "width": 62.5,
-          "height": 6.6
+          "left": 409.4,
+          "top": 416.1,
+          "width": 116.2,
+          "height": 8.2
         },
         "color": "#16549D"
       }
@@ -555,39 +554,39 @@
     {
       "id": "p1-e28",
       "page": 1,
-      "text": "e g",
+      "text": "We stay four nights at the centrally located 4* Marriott Hotel (www.marriott.com) at Liverpool. Overlooking Queen Square, facilities at the hotel include a restaurant, bar, and a gymnasium. All rooms are en suite and feature television, telephone, hairdryer, an in-room safe, and tea \u0026 coffee making facilities. A set 3 course dinner will be served on the first evening, and a choice 3 course dinner will be served on Days 2 and 4. Day 3 is on a bed and breakfast basis.",
       "metadata": {
-        "fontSize": 9,
-        "fontName": "GJEBHN\u002BHelveticaNeue-Medium",
+        "fontSize": 8.5,
+        "fontName": "GHEALO\u002BHelveticaNeue",
         "position": {
-          "x": 20.8,
-          "y": 223.8
+          "x": 411.7,
+          "y": 400.2
         },
         "boundingBox": {
-          "left": 20.8,
-          "top": 223.8,
-          "width": 4.9,
-          "height": 0.6
+          "left": 411.7,
+          "top": 400.2,
+          "width": 160.5,
+          "height": 115.8
         },
-        "color": "#FFFFFF"
+        "color": "#16549D"
       }
     },
     {
       "id": "p1-e29",
       "page": 1,
-      "text": "\u2022 Entrance fees to places visited as part",
+      "text": "EXTRAS TO YOUR TOUR",
       "metadata": {
-        "fontSize": 9,
-        "fontName": "GJEBJA\u002BHelveticaNeue",
+        "fontSize": 12,
+        "fontName": "GHEALP\u002BClarendon",
         "position": {
-          "x": 409.3,
-          "y": 229.4
+          "x": 409.4,
+          "y": 274.5
         },
         "boundingBox": {
-          "left": 409.3,
-          "top": 229.4,
-          "width": 159,
-          "height": 6.5
+          "left": 409.4,
+          "top": 274.5,
+          "width": 154.3,
+          "height": 8.2
         },
         "color": "#16549D"
       }
@@ -595,157 +594,297 @@
     {
       "id": "p1-e30",
       "page": 1,
-      "text": "a t t",
+      "text": "\u2022 Insurance (including Covid cover) \u00A338",
       "metadata": {
-        "fontSize": 9,
-        "fontName": "GJEBHN\u002BHelveticaNeue-Medium",
+        "fontSize": 8.5,
+        "fontName": "GHEALO\u002BHelveticaNeue",
         "position": {
-          "x": 20.8,
-          "y": 213.2
+          "x": 409.3,
+          "y": 258.7
         },
         "boundingBox": {
-          "left": 20.8,
-          "top": 213.2,
-          "width": 4.9,
-          "height": 3.5
+          "left": 409.3,
+          "top": 258.7,
+          "width": 148,
+          "height": 6.2
         },
-        "color": "#FFFFFF"
+        "color": "#16549D"
       }
     },
     {
       "id": "p1-e31",
       "page": 1,
-      "text": "of this itinerary (NT properties free to",
+      "text": "g",
       "metadata": {
         "fontSize": 9,
-        "fontName": "GJEBJA\u002BHelveticaNeue",
+        "fontName": "GHEALM\u002BHelveticaNeue-Medium",
         "position": {
-          "x": 415,
-          "y": 218.7
+          "x": 19.3,
+          "y": 235.5
         },
         "boundingBox": {
-          "left": 415,
-          "top": 218.7,
-          "width": 147,
-          "height": 6.6
-        },
-        "color": "#16549D"
-      }
-    },
-    {
-      "id": "p1-e32",
-      "page": 1,
-      "text": "o C",
-      "metadata": {
-        "fontSize": 9,
-        "fontName": "GJEBHN\u002BHelveticaNeue-Medium",
-        "position": {
-          "x": 20.8,
-          "y": 201.5
-        },
-        "boundingBox": {
-          "left": 20.8,
-          "top": 201.5,
-          "width": 4.9,
-          "height": 0.5
-        },
-        "color": "#FFFFFF"
-      }
-    },
-    {
-      "id": "p1-e33",
-      "page": 1,
-      "text": "NT members)",
-      "metadata": {
-        "fontSize": 9,
-        "fontName": "GJEBJA\u002BHelveticaNeue",
-        "position": {
-          "x": 415,
-          "y": 208
-        },
-        "boundingBox": {
-          "left": 415,
-          "top": 208,
-          "width": 54.4,
-          "height": 6.6
-        },
-        "color": "#16549D"
-      }
-    },
-    {
-      "id": "p1-e34",
-      "page": 1,
-      "text": "e",
-      "metadata": {
-        "fontSize": 9,
-        "fontName": "GJEBHN\u002BHelveticaNeue-Medium",
-        "position": {
-          "x": 20.8,
-          "y": 187.1
-        },
-        "boundingBox": {
-          "left": 20.8,
-          "top": 187.1,
-          "width": 4.9,
+          "left": 19.3,
+          "top": 235.5,
+          "width": 6.6,
           "height": -4.8
         },
         "color": "#FFFFFF"
       }
     },
     {
-      "id": "p1-e35",
+      "id": "p1-e32",
       "page": 1,
-      "text": "\u2022 Gratuities",
+      "text": "\u2022 Single room supplement \u00A3119",
       "metadata": {
-        "fontSize": 9,
-        "fontName": "GJEBJA\u002BHelveticaNeue",
+        "fontSize": 8.5,
+        "fontName": "GHEALO\u002BHelveticaNeue",
         "position": {
           "x": 409.3,
-          "y": 194.4
+          "y": 248.1
         },
         "boundingBox": {
           "left": 409.3,
-          "top": 194.4,
-          "width": 44.3,
-          "height": 6.6
+          "top": 248.1,
+          "width": 119.1,
+          "height": 6.2
         },
         "color": "#16549D"
       }
     },
     {
-      "id": "p1-e36",
+      "id": "p1-e33",
       "page": 1,
-      "text": "g d i r",
+      "text": "n",
       "metadata": {
         "fontSize": 9,
-        "fontName": "GJEBHN\u002BHelveticaNeue-Medium",
+        "fontName": "GHEALM\u002BHelveticaNeue-Medium",
         "position": {
-          "x": 19.1,
-          "y": 181.6
+          "x": 21.2,
+          "y": 230.2
         },
         "boundingBox": {
-          "left": 19.1,
-          "top": 181.6,
-          "width": 6.6,
-          "height": 8
+          "left": 21.2,
+          "top": 230.2,
+          "width": 4.8,
+          "height": -4.6
         },
         "color": "#FFFFFF"
       }
     },
     {
+      "id": "p1-e34",
+      "page": 1,
+      "text": "\u2022 Entrance fees to National Trust properties",
+      "metadata": {
+        "fontSize": 8.5,
+        "fontName": "GHEALO\u002BHelveticaNeue",
+        "position": {
+          "x": 409.3,
+          "y": 237.5
+        },
+        "boundingBox": {
+          "left": 409.3,
+          "top": 237.5,
+          "width": 162.7,
+          "height": 6.1
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p1-e35",
+      "page": 1,
+      "text": "d i l i",
+      "metadata": {
+        "fontSize": 9,
+        "fontName": "GHEALM\u002BHelveticaNeue-Medium",
+        "position": {
+          "x": 19.4,
+          "y": 227.9
+        },
+        "boundingBox": {
+          "left": 19.4,
+          "top": 227.9,
+          "width": 6.6,
+          "height": 8.6
+        },
+        "color": "#FFFFFF"
+      }
+    },
+    {
+      "id": "p1-e36",
+      "page": 1,
+      "text": "(free to NT members)",
+      "metadata": {
+        "fontSize": 8.5,
+        "fontName": "GHEALO\u002BHelveticaNeue",
+        "position": {
+          "x": 414.6,
+          "y": 228.4
+        },
+        "boundingBox": {
+          "left": 414.6,
+          "top": 228.4,
+          "width": 80.1,
+          "height": 6.2
+        },
+        "color": "#16549D"
+      }
+    },
+    {
       "id": "p1-e37",
+      "page": 1,
+      "text": "u B",
+      "metadata": {
+        "fontSize": 9,
+        "fontName": "GHEALM\u002BHelveticaNeue-Medium",
+        "position": {
+          "x": 21.2,
+          "y": 212.4
+        },
+        "boundingBox": {
+          "left": 21.2,
+          "top": 212.4,
+          "width": 4.8,
+          "height": 0.5
+        },
+        "color": "#FFFFFF"
+      }
+    },
+    {
+      "id": "p1-e38",
+      "page": 1,
+      "text": "\u2022 Gratuities",
+      "metadata": {
+        "fontSize": 8.5,
+        "fontName": "GHEALO\u002BHelveticaNeue",
+        "position": {
+          "x": 409.3,
+          "y": 217.8
+        },
+        "boundingBox": {
+          "left": 409.3,
+          "top": 217.8,
+          "width": 41.8,
+          "height": 6.2
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p1-e39",
+      "page": 1,
+      "text": "e r",
+      "metadata": {
+        "fontSize": 9,
+        "fontName": "GHEALM\u002BHelveticaNeue-Medium",
+        "position": {
+          "x": 21,
+          "y": 200
+        },
+        "boundingBox": {
+          "left": 21,
+          "top": 200,
+          "width": 4.9,
+          "height": 0.4
+        },
+        "color": "#FFFFFF"
+      }
+    },
+    {
+      "id": "p1-e40",
+      "page": 1,
+      "text": "\u2022 Lunches",
+      "metadata": {
+        "fontSize": 8.5,
+        "fontName": "GHEALO\u002BHelveticaNeue",
+        "position": {
+          "x": 409.3,
+          "y": 207.1
+        },
+        "boundingBox": {
+          "left": 409.3,
+          "top": 207.1,
+          "width": 37.5,
+          "height": 6.1
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p1-e41",
+      "page": 1,
+      "text": "v",
+      "metadata": {
+        "fontSize": 9,
+        "fontName": "GHEALM\u002BHelveticaNeue-Medium",
+        "position": {
+          "x": 21.3,
+          "y": 190
+        },
+        "boundingBox": {
+          "left": 21.3,
+          "top": 190,
+          "width": 4.7,
+          "height": -4.6
+        },
+        "color": "#FFFFFF"
+      }
+    },
+    {
+      "id": "p1-e42",
+      "page": 1,
+      "text": "\u2022 Dinner on Day 3",
+      "metadata": {
+        "fontSize": 8.5,
+        "fontName": "GHEALO\u002BHelveticaNeue",
+        "position": {
+          "x": 409.3,
+          "y": 196.6
+        },
+        "boundingBox": {
+          "left": 409.3,
+          "top": 196.6,
+          "width": 66.2,
+          "height": 6.1
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p1-e43",
+      "page": 1,
+      "text": "i L e",
+      "metadata": {
+        "fontSize": 9,
+        "fontName": "GHEALM\u002BHelveticaNeue-Medium",
+        "position": {
+          "x": 19.5,
+          "y": 187.7
+        },
+        "boundingBox": {
+          "left": 19.5,
+          "top": 187.7,
+          "width": 6.4,
+          "height": 8.3
+        },
+        "color": "#FFFFFF"
+      }
+    },
+    {
+      "id": "p1-e44",
       "page": 1,
       "text": "Price based on twin share. Minimum numbers",
       "metadata": {
         "fontSize": 8,
-        "fontName": "GJEBHN\u002BHelveticaNeue-Medium",
+        "fontName": "GHEALM\u002BHelveticaNeue-Medium",
         "position": {
           "x": 408.6,
-          "y": 179.6
+          "y": 181.6
         },
         "boundingBox": {
           "left": 408.6,
-          "top": 179.6,
+          "top": 181.6,
           "width": 157.5,
           "height": 5.7
         },
@@ -753,161 +892,21 @@
       }
     },
     {
-      "id": "p1-e38",
-      "page": 1,
-      "text": "B",
-      "metadata": {
-        "fontSize": 9,
-        "fontName": "GJEBHN\u002BHelveticaNeue-Medium",
-        "position": {
-          "x": 19.3,
-          "y": 163.9
-        },
-        "boundingBox": {
-          "left": 19.3,
-          "top": 163.9,
-          "width": 6.4,
-          "height": -6
-        },
-        "color": "#FFFFFF"
-      }
-    },
-    {
-      "id": "p1-e39",
-      "page": 1,
-      "text": "required. Normal booking conditions apply.",
-      "metadata": {
-        "fontSize": 8,
-        "fontName": "GJEBHN\u002BHelveticaNeue-Medium",
-        "position": {
-          "x": 408.6,
-          "y": 171.6
-        },
-        "boundingBox": {
-          "left": 408.6,
-          "top": 171.6,
-          "width": 147.3,
-          "height": 5.7
-        },
-        "color": "#16549D"
-      }
-    },
-    {
-      "id": "p1-e40",
-      "page": 1,
-      "text": "For more information on this tour contact your Tour Organiser",
-      "metadata": {
-        "fontSize": 9,
-        "fontName": "GJEBJA\u002BHelveticaNeue",
-        "position": {
-          "x": 26.7,
-          "y": 144.7
-        },
-        "boundingBox": {
-          "left": 26.7,
-          "top": 144.7,
-          "width": 246.5,
-          "height": 6.6
-        },
-        "color": "#FFFFFF"
-      }
-    },
-    {
-      "id": "p1-e41",
-      "page": 1,
-      "text": "Sally Percival",
-      "metadata": {
-        "fontSize": 24,
-        "fontName": "GJEBIP\u002BClarendon",
-        "position": {
-          "x": 26.7,
-          "y": 132
-        },
-        "boundingBox": {
-          "left": 26.7,
-          "top": 132,
-          "width": 158.9,
-          "height": 16.4
-        },
-        "color": "#FFD200"
-      }
-    },
-    {
-      "id": "p1-e42",
-      "page": 1,
-      "text": "Tel: 01392 490437",
-      "metadata": {
-        "fontSize": 18,
-        "fontName": "GJEBIP\u002BClarendon",
-        "position": {
-          "x": 26.7,
-          "y": 108.5
-        },
-        "boundingBox": {
-          "left": 26.7,
-          "top": 108.5,
-          "width": 161.4,
-          "height": 11.9
-        },
-        "color": "#FFFFFF"
-      }
-    },
-    {
-      "id": "p1-e43",
-      "page": 1,
-      "text": "Email: sallymayflower2@talktalk.net ............................................................... Tailored Travel\u2019s ATOL",
-      "metadata": {
-        "fontSize": 14,
-        "fontName": "GJEBIP\u002BClarendon",
-        "position": {
-          "x": 26.7,
-          "y": 91.2
-        },
-        "boundingBox": {
-          "left": 26.7,
-          "top": 91.2,
-          "width": 350.3,
-          "height": 22.5
-        },
-        "color": "#FFD200"
-      }
-    },
-    {
-      "id": "p1-e44",
-      "page": 1,
-      "text": "2 Mayflower Avenue, Pennsylvania",
-      "metadata": {
-        "fontSize": 12,
-        "fontName": "GJEBIP\u002BClarendon",
-        "position": {
-          "x": 26.7,
-          "y": 66.8
-        },
-        "boundingBox": {
-          "left": 26.7,
-          "top": 66.8,
-          "width": 201.3,
-          "height": 8.2
-        },
-        "color": "#FFFFFF"
-      }
-    },
-    {
       "id": "p1-e45",
       "page": 1,
-      "text": "number is 5605",
+      "text": "h T",
       "metadata": {
-        "fontSize": 7,
-        "fontName": "GJEBJA\u002BHelveticaNeue",
+        "fontSize": 9,
+        "fontName": "GHEALM\u002BHelveticaNeue-Medium",
         "position": {
-          "x": 326,
-          "y": 65.6
+          "x": 19.5,
+          "y": 169.4
         },
         "boundingBox": {
-          "left": 326,
-          "top": 65.6,
-          "width": 42.4,
-          "height": 5
+          "left": 19.5,
+          "top": 169.4,
+          "width": 6.4,
+          "height": 0.2
         },
         "color": "#FFFFFF"
       }
@@ -915,39 +914,39 @@
     {
       "id": "p1-e46",
       "page": 1,
-      "text": "Exeter EX4 5DS",
+      "text": "required. Normal booking conditions apply.",
       "metadata": {
-        "fontSize": 12,
-        "fontName": "GJEBIP\u002BClarendon",
+        "fontSize": 8,
+        "fontName": "GHEALM\u002BHelveticaNeue-Medium",
         "position": {
-          "x": 26.7,
-          "y": 53.8
+          "x": 408.6,
+          "y": 173.6
         },
         "boundingBox": {
-          "left": 26.7,
-          "top": 53.8,
-          "width": 94.2,
-          "height": 8.2
+          "left": 408.6,
+          "top": 173.6,
+          "width": 147.3,
+          "height": 5.7
         },
-        "color": "#FFFFFF"
+        "color": "#16549D"
       }
     },
     {
       "id": "p1-e47",
       "page": 1,
-      "text": "Aldeburgh",
+      "text": "For more information on this tour contact your Group Organiser",
       "metadata": {
         "fontSize": 9,
-        "fontName": "GJEBHN\u002BHelveticaNeue-Medium",
+        "fontName": "GHEALO\u002BHelveticaNeue",
         "position": {
-          "x": 530,
-          "y": 40.8
+          "x": 26.7,
+          "y": 146.7
         },
         "boundingBox": {
-          "left": 530,
-          "top": 40.8,
-          "width": 44.1,
-          "height": 6.4
+          "left": 26.7,
+          "top": 146.7,
+          "width": 254.3,
+          "height": 6.6
         },
         "color": "#FFFFFF"
       }
@@ -955,1018 +954,158 @@
     {
       "id": "p1-e48",
       "page": 1,
-      "text": "Vie w a nd sha r e this to u r o nlin e - click o n Vie w Yo u r To u r at w w w.tailo r ed-tr a v el. c o . uk a nd qu ote e x nt151",
+      "text": "Robin Linnecar",
       "metadata": {
-        "fontSize": 9.5,
-        "fontName": "GJEHAM\u002BSwiss721BT-Bold",
+        "fontSize": 20,
+        "fontName": "GHEALP\u002BClarendon",
         "position": {
-          "x": 23.1,
-          "y": 21.5
+          "x": 26.7,
+          "y": 127.6
         },
         "boundingBox": {
-          "left": 23.1,
-          "top": 21.5,
-          "width": 549.1,
-          "height": 6.8
-        },
-        "color": "#CC161E"
-      }
-    },
-    {
-      "id": "p2-e49",
-      "page": 2,
-      "text": "National Trust \u2013 Exeter \u0026 District Centre presents",
-      "metadata": {
-        "fontSize": 9.6,
-        "fontName": "GJEBJA\u002BHelveticaNeue",
-        "position": {
-          "x": 210.3,
-          "y": 807.7
-        },
-        "boundingBox": {
-          "left": 210.3,
-          "top": 807.7,
-          "width": 248.3,
-          "height": 7
+          "left": 26.7,
+          "top": 127.6,
+          "width": 150.4,
+          "height": 13.5
         },
         "color": "#FFD200"
       }
     },
     {
-      "id": "p2-e50",
-      "page": 2,
-      "text": "Historic Houses \u0026 Heritage of Suffolk",
+      "id": "p1-e49",
+      "page": 1,
+      "text": "Tel: 020 8942 1558",
       "metadata": {
-        "fontSize": 31,
-        "fontName": "GJEBIP\u002BClarendon",
+        "fontSize": 20,
+        "fontName": "GHEALP\u002BClarendon",
         "position": {
-          "x": 210.3,
-          "y": 786.6
+          "x": 26.7,
+          "y": 108.3
         },
         "boundingBox": {
-          "left": 210.3,
-          "top": 786.6,
-          "width": 289.8,
-          "height": 50.2
-        },
-        "color": "#16549D"
-      }
-    },
-    {
-      "id": "p2-e51",
-      "page": 2,
-      "text": "6 days from \u00A3559 Departing 1st October 2015",
-      "metadata": {
-        "fontSize": 14.4,
-        "fontName": "GJEBHN\u002BHelveticaNeue-Medium",
-        "position": {
-          "x": 209.8,
-          "y": 715.1
-        },
-        "boundingBox": {
-          "left": 209.8,
-          "top": 715.1,
-          "width": 310.7,
-          "height": 10.5
-        },
-        "color": "#16549D"
-      }
-    },
-    {
-      "id": "p2-e52",
-      "page": 2,
-      "text": "WHAT WE WILL SEE",
-      "metadata": {
-        "fontSize": 12,
-        "fontName": "GJEBIP\u002BClarendon",
-        "position": {
-          "x": 29.9,
-          "y": 693
-        },
-        "boundingBox": {
-          "left": 29.9,
-          "top": 693,
-          "width": 127.1,
-          "height": 8.2
-        },
-        "color": "#16549D"
-      }
-    },
-    {
-      "id": "p2-e53",
-      "page": 2,
-      "text": "Day 1",
-      "metadata": {
-        "fontSize": 9.5,
-        "fontName": "GJEBHN\u002BHelveticaNeue-Medium",
-        "position": {
-          "x": 208.2,
-          "y": 693.7
-        },
-        "boundingBox": {
-          "left": 208.2,
-          "top": 693.7,
-          "width": 25,
-          "height": 6.8
-        },
-        "color": "#16549D"
-      }
-    },
-    {
-      "id": "p2-e54",
-      "page": 2,
-      "text": "We meet at our designated pick up point and en route to our hotel we visit the",
-      "metadata": {
-        "fontSize": 9.5,
-        "fontName": "GJEBJA\u002BHelveticaNeue",
-        "position": {
-          "x": 208.2,
-          "y": 682.9
-        },
-        "boundingBox": {
-          "left": 208.2,
-          "top": 682.9,
-          "width": 330.1,
-          "height": 6.8
-        },
-        "color": "#221F1F"
-      }
-    },
-    {
-      "id": "p2-e55",
-      "page": 2,
-      "text": "Hughenden Manor",
-      "metadata": {
-        "fontSize": 11,
-        "fontName": "GJEBJA\u002BHelveticaNeue",
-        "position": {
-          "x": 31.2,
-          "y": 670.4
-        },
-        "boundingBox": {
-          "left": 31.2,
-          "top": 670.4,
-          "width": 91.7,
-          "height": 7.9
-        },
-        "color": "#16549D"
-      }
-    },
-    {
-      "id": "p2-e56",
-      "page": 2,
-      "text": "National Trust\u2019s Hughenden Manor near High Wycombe, home of Victorian Prime Minister Benjamin Disraeli from 1848 until his death in 1881. Most of his",
-      "metadata": {
-        "fontSize": 9.5,
-        "fontName": "GJEBJA\u002BHelveticaNeue",
-        "position": {
-          "x": 208.2,
-          "y": 672.2
-        },
-        "boundingBox": {
-          "left": 208.2,
-          "top": 672.2,
-          "width": 331,
-          "height": 17.6
-        },
-        "color": "#221F1F"
-      }
-    },
-    {
-      "id": "p2-e57",
-      "page": 2,
-      "text": "Sutton Hoo",
-      "metadata": {
-        "fontSize": 11,
-        "fontName": "GJEBJA\u002BHelveticaNeue",
-        "position": {
-          "x": 31.2,
-          "y": 651.6
-        },
-        "boundingBox": {
-          "left": 31.2,
-          "top": 651.6,
-          "width": 56.2,
-          "height": 8
-        },
-        "color": "#16549D"
-      }
-    },
-    {
-      "id": "p2-e58",
-      "page": 2,
-      "text": "furniture, books and pictures remain in this, his private retreat from the rigours of parliamentary life in London. We continue to the 3* Novotel in Ipswich for a",
-      "metadata": {
-        "fontSize": 9.5,
-        "fontName": "GJEBJA\u002BHelveticaNeue",
-        "position": {
-          "x": 208.2,
-          "y": 650.7
-        },
-        "boundingBox": {
-          "left": 208.2,
-          "top": 650.7,
-          "width": 329.9,
-          "height": 17.6
-        },
-        "color": "#221F1F"
-      }
-    },
-    {
-      "id": "p2-e59",
-      "page": 2,
-      "text": "Aldeburgh",
-      "metadata": {
-        "fontSize": 11,
-        "fontName": "GJEBJA\u002BHelveticaNeue",
-        "position": {
-          "x": 31.2,
-          "y": 632.5
-        },
-        "boundingBox": {
-          "left": 31.2,
-          "top": 632.5,
-          "width": 50.4,
-          "height": 7.9
-        },
-        "color": "#16549D"
-      }
-    },
-    {
-      "id": "p2-e60",
-      "page": 2,
-      "text": "five night stay on half board basis.",
-      "metadata": {
-        "fontSize": 9.5,
-        "fontName": "GJEBJA\u002BHelveticaNeue",
-        "position": {
-          "x": 208.2,
-          "y": 629.1
-        },
-        "boundingBox": {
-          "left": 208.2,
-          "top": 629.1,
-          "width": 145.2,
-          "height": 6.9
-        },
-        "color": "#221F1F"
-      }
-    },
-    {
-      "id": "p2-e61",
-      "page": 2,
-      "text": "The Red House",
-      "metadata": {
-        "fontSize": 11,
-        "fontName": "GJEBJA\u002BHelveticaNeue",
-        "position": {
-          "x": 31.2,
-          "y": 613.5
-        },
-        "boundingBox": {
-          "left": 31.2,
-          "top": 613.5,
-          "width": 76.2,
-          "height": 7.9
-        },
-        "color": "#16549D"
-      }
-    },
-    {
-      "id": "p2-e62",
-      "page": 2,
-      "text": "Day 2",
-      "metadata": {
-        "fontSize": 9.5,
-        "fontName": "GJEBHN\u002BHelveticaNeue-Medium",
-        "position": {
-          "x": 208.2,
-          "y": 612.6
-        },
-        "boundingBox": {
-          "left": 208.2,
-          "top": 612.6,
-          "width": 24.4,
-          "height": 6.8
-        },
-        "color": "#16549D"
-      }
-    },
-    {
-      "id": "p2-e63",
-      "page": 2,
-      "text": "Our Blue Badge guide meets us at our hotel this morning and accompanies us",
-      "metadata": {
-        "fontSize": 9.5,
-        "fontName": "GJEBJA\u002BHelveticaNeue",
-        "position": {
-          "x": 208.2,
-          "y": 602
-        },
-        "boundingBox": {
-          "left": 208.2,
-          "top": 602,
-          "width": 332.4,
-          "height": 6.9
-        },
-        "color": "#221F1F"
-      }
-    },
-    {
-      "id": "p2-e64",
-      "page": 2,
-      "text": "Lavenham",
-      "metadata": {
-        "fontSize": 11,
-        "fontName": "GJEBJA\u002BHelveticaNeue",
-        "position": {
-          "x": 31.2,
-          "y": 594.5
-        },
-        "boundingBox": {
-          "left": 31.2,
-          "top": 594.5,
-          "width": 51,
-          "height": 7.9
-        },
-        "color": "#16549D"
-      }
-    },
-    {
-      "id": "p2-e65",
-      "page": 2,
-      "text": "throughout the day. This morning we visit the National Trust\u2019s Sutton Hoo, an Anglo Saxon royal burial site where the priceless Sutton Hoo treasure was",
-      "metadata": {
-        "fontSize": 9.5,
-        "fontName": "GJEBJA\u002BHelveticaNeue",
-        "position": {
-          "x": 208.2,
-          "y": 591.2
-        },
-        "boundingBox": {
-          "left": 208.2,
-          "top": 591.2,
-          "width": 325.4,
-          "height": 17.7
-        },
-        "color": "#221F1F"
-      }
-    },
-    {
-      "id": "p2-e66",
-      "page": 2,
-      "text": "Constable Country \u2013",
-      "metadata": {
-        "fontSize": 11,
-        "fontName": "GJEBJA\u002BHelveticaNeue",
-        "position": {
-          "x": 31.2,
-          "y": 575.8
-        },
-        "boundingBox": {
-          "left": 31.2,
-          "top": 575.8,
-          "width": 100.8,
-          "height": 8
-        },
-        "color": "#16549D"
-      }
-    },
-    {
-      "id": "p2-e67",
-      "page": 2,
-      "text": "discovered in a huge ship grave in 1939. We continue to the picturesque 16th",
-      "metadata": {
-        "fontSize": 9.5,
-        "fontName": "GJEBJA\u002BHelveticaNeue",
-        "position": {
-          "x": 208.2,
-          "y": 569.5
-        },
-        "boundingBox": {
-          "left": 208.2,
-          "top": 569.5,
-          "width": 327.7,
-          "height": 6.8
-        },
-        "color": "#221F1F"
-      }
-    },
-    {
-      "id": "p2-e68",
-      "page": 2,
-      "text": "East Bergholt, Dedham,",
-      "metadata": {
-        "fontSize": 11,
-        "fontName": "GJEBJA\u002BHelveticaNeue",
-        "position": {
-          "x": 31.2,
-          "y": 560.9
-        },
-        "boundingBox": {
-          "left": 31.2,
-          "top": 560.9,
-          "width": 116.9,
-          "height": 7.9
-        },
-        "color": "#16549D"
-      }
-    },
-    {
-      "id": "p2-e69",
-      "page": 2,
-      "text": "century fishing village of Aldeburgh and subject to availability we visit The Red",
-      "metadata": {
-        "fontSize": 9.5,
-        "fontName": "GJEBJA\u002BHelveticaNeue",
-        "position": {
-          "x": 208.2,
-          "y": 558.8
-        },
-        "boundingBox": {
-          "left": 208.2,
-          "top": 558.8,
-          "width": 331.2,
-          "height": 6.9
-        },
-        "color": "#221F1F"
-      }
-    },
-    {
-      "id": "p2-e70",
-      "page": 2,
-      "text": "The Munnings Collection",
-      "metadata": {
-        "fontSize": 11,
-        "fontName": "GJEBJA\u002BHelveticaNeue",
-        "position": {
-          "x": 31.2,
-          "y": 546.4
-        },
-        "boundingBox": {
-          "left": 31.2,
-          "top": 546.4,
-          "width": 122,
-          "height": 8
-        },
-        "color": "#16549D"
-      }
-    },
-    {
-      "id": "p2-e71",
-      "page": 2,
-      "text": "House, where Britten and Pears lived and worked from 1957 until their deaths. The Gallery features an engaging permanent exhibition that introduces visitors",
-      "metadata": {
-        "fontSize": 9.5,
-        "fontName": "GJEBJA\u002BHelveticaNeue",
-        "position": {
-          "x": 208.2,
-          "y": 548
-        },
-        "boundingBox": {
-          "left": 208.2,
-          "top": 548,
-          "width": 331.5,
-          "height": 17.6
-        },
-        "color": "#221F1F"
-      }
-    },
-    {
-      "id": "p2-e72",
-      "page": 2,
-      "text": "\u0026 Bridge Cottage",
-      "metadata": {
-        "fontSize": 11,
-        "fontName": "GJEBJA\u002BHelveticaNeue",
-        "position": {
-          "x": 31.2,
-          "y": 531.7
-        },
-        "boundingBox": {
-          "left": 31.2,
-          "top": 531.7,
-          "width": 84.7,
-          "height": 8
-        },
-        "color": "#16549D"
-      }
-    },
-    {
-      "id": "p2-e73",
-      "page": 2,
-      "text": "of all ages to Britten and his music, and the interiors of the House have been re-",
-      "metadata": {
-        "fontSize": 9.5,
-        "fontName": "GJEBJA\u002BHelveticaNeue",
-        "position": {
-          "x": 208.2,
-          "y": 526.4
-        },
-        "boundingBox": {
-          "left": 208.2,
-          "top": 526.4,
-          "width": 338.7,
-          "height": 6.9
-        },
-        "color": "#221F1F"
-      }
-    },
-    {
-      "id": "p2-e74",
-      "page": 2,
-      "text": "Bury St Edmunds",
-      "metadata": {
-        "fontSize": 11,
-        "fontName": "GJEBJA\u002BHelveticaNeue",
-        "position": {
-          "x": 31.2,
-          "y": 512.7
-        },
-        "boundingBox": {
-          "left": 31.2,
-          "top": 512.7,
-          "width": 86.4,
-          "height": 8
-        },
-        "color": "#16549D"
-      }
-    },
-    {
-      "id": "p2-e75",
-      "page": 2,
-      "text": "presented as they were in the mid-1960s, as has the historic Library room.",
-      "metadata": {
-        "fontSize": 9.5,
-        "fontName": "GJEBJA\u002BHelveticaNeue",
-        "position": {
-          "x": 208.2,
-          "y": 515.6
-        },
-        "boundingBox": {
-          "left": 208.2,
-          "top": 515.6,
-          "width": 314.6,
-          "height": 6.8
-        },
-        "color": "#221F1F"
-      }
-    },
-    {
-      "id": "p2-e76",
-      "page": 2,
-      "text": "Day 3",
-      "metadata": {
-        "fontSize": 9.5,
-        "fontName": "GJEBHN\u002BHelveticaNeue-Medium",
-        "position": {
-          "x": 208.2,
-          "y": 499.1
-        },
-        "boundingBox": {
-          "left": 208.2,
-          "top": 499.1,
-          "width": 24.4,
-          "height": 6.8
-        },
-        "color": "#16549D"
-      }
-    },
-    {
-      "id": "p2-e77",
-      "page": 2,
-      "text": "Ickworth House",
-      "metadata": {
-        "fontSize": 11,
-        "fontName": "GJEBJA\u002BHelveticaNeue",
-        "position": {
-          "x": 31.2,
-          "y": 493.6
-        },
-        "boundingBox": {
-          "left": 31.2,
-          "top": 493.6,
-          "width": 77.2,
-          "height": 7.9
-        },
-        "color": "#16549D"
-      }
-    },
-    {
-      "id": "p2-e78",
-      "page": 2,
-      "text": "With our Blue Badge guide we visit Lavenham this morning. Here you may",
-      "metadata": {
-        "fontSize": 9.5,
-        "fontName": "GJEBJA\u002BHelveticaNeue",
-        "position": {
-          "x": 208.2,
-          "y": 488.4
-        },
-        "boundingBox": {
-          "left": 208.2,
-          "top": 488.4,
-          "width": 314.4,
-          "height": 6.8
-        },
-        "color": "#221F1F"
-      }
-    },
-    {
-      "id": "p2-e79",
-      "page": 2,
-      "text": "River Orwell cruise",
-      "metadata": {
-        "fontSize": 11,
-        "fontName": "GJEBJA\u002BHelveticaNeue",
-        "position": {
-          "x": 31.2,
-          "y": 474.8
-        },
-        "boundingBox": {
-          "left": 31.2,
-          "top": 474.8,
-          "width": 91.8,
-          "height": 8
-        },
-        "color": "#16549D"
-      }
-    },
-    {
-      "id": "p2-e80",
-      "page": 2,
-      "text": "choose to visit the National Trust\u2019s Guildhall on an individual basis, an early 16th century timber framed building that dominates the Market Place. We enjoy a",
-      "metadata": {
-        "fontSize": 9.5,
-        "fontName": "GJEBJA\u002BHelveticaNeue",
-        "position": {
-          "x": 208.2,
-          "y": 477.7
-        },
-        "boundingBox": {
-          "left": 208.2,
-          "top": 477.7,
-          "width": 339.1,
-          "height": 17.7
-        },
-        "color": "#221F1F"
-      }
-    },
-    {
-      "id": "p2-e81",
-      "page": 2,
-      "text": "Framlingham Castle",
-      "metadata": {
-        "fontSize": 11,
-        "fontName": "GJEBJA\u002BHelveticaNeue",
-        "position": {
-          "x": 31.2,
-          "y": 455.9
-        },
-        "boundingBox": {
-          "left": 31.2,
-          "top": 455.9,
-          "width": 98.2,
-          "height": 8
-        },
-        "color": "#16549D"
-      }
-    },
-    {
-      "id": "p2-e82",
-      "page": 2,
-      "text": "guided tour of Constable Country this afternoon, located on the Suffolk and Essex border and renowned as the birthplace of artist John Constable. Our",
-      "metadata": {
-        "fontSize": 9.5,
-        "fontName": "GJEBJA\u002BHelveticaNeue",
-        "position": {
-          "x": 208.2,
-          "y": 456.2
-        },
-        "boundingBox": {
-          "left": 208.2,
-          "top": 456.2,
-          "width": 320.1,
-          "height": 17.7
-        },
-        "color": "#221F1F"
-      }
-    },
-    {
-      "id": "p2-e83",
-      "page": 2,
-      "text": "Polesden Lacey",
-      "metadata": {
-        "fontSize": 11,
-        "fontName": "GJEBJA\u002BHelveticaNeue",
-        "position": {
-          "x": 31.2,
-          "y": 436.7
-        },
-        "boundingBox": {
-          "left": 31.2,
-          "top": 436.7,
-          "width": 78.2,
-          "height": 7.9
-        },
-        "color": "#16549D"
-      }
-    },
-    {
-      "id": "p2-e84",
-      "page": 2,
-      "text": "guided tour of East Bergholt takes in sights such as John Constable\u2019s Studio and St Mary\u2019s Church, built in the 15th and 16th centuries and renowned for the absence of a tower or spire to house the bells. We continue to Dedham where our guided tour takes in sights such as Constable\u2019s School and Dedham Parish Church, dedicated to St Mary the Virgin in 1492 when the present building was begun. Here we visit The Munnings Collection at Castle House. Sir Alfred Munnings\u2019 (1878-1959) prolific career as an artist spanned nearly seventy years, and he spent over half of those working and living at Castle House, the house of his dreams, in the heart of the Dedham Vale. We then visit the National Trust\u2019s Bridge Cottage at Flatford. Located upstream from Flatford Mill, Bridge Cottage houses an exhibition on John Constable, several of whose paintings famously feature this property.",
-      "metadata": {
-        "fontSize": 9.5,
-        "fontName": "GJEBJA\u002BHelveticaNeue",
-        "position": {
-          "x": 208.2,
-          "y": 434.6
-        },
-        "boundingBox": {
-          "left": 208.2,
-          "top": 434.6,
-          "width": 339.4,
-          "height": 125.5
-        },
-        "color": "#221F1F"
-      }
-    },
-    {
-      "id": "p2-e85",
-      "page": 2,
-      "text": "Lavenham",
-      "metadata": {
-        "fontSize": 9,
-        "fontName": "GJEBHN\u002BHelveticaNeue-Medium",
-        "position": {
-          "x": 34.9,
-          "y": 295
-        },
-        "boundingBox": {
-          "left": 34.9,
-          "top": 295,
-          "width": 44,
-          "height": 6.4
+          "left": 26.7,
+          "top": 108.3,
+          "width": 185.6,
+          "height": 13.3
         },
         "color": "#FFFFFF"
       }
     },
     {
-      "id": "p2-e86",
-      "page": 2,
-      "text": "Day 4",
+      "id": "p1-e50",
+      "page": 1,
+      "text": "Email: linnecar@btinternet.com",
       "metadata": {
-        "fontSize": 9.5,
-        "fontName": "GJEBHN\u002BHelveticaNeue-Medium",
+        "fontSize": 15,
+        "fontName": "GHEALP\u002BClarendon",
         "position": {
-          "x": 208.2,
-          "y": 299.4
+          "x": 26.7,
+          "y": 88.3
         },
         "boundingBox": {
-          "left": 208.2,
-          "top": 299.4,
-          "width": 24.4,
-          "height": 6.8
+          "left": 26.7,
+          "top": 88.3,
+          "width": 231.1,
+          "height": 10.2
         },
-        "color": "#16549D"
+        "color": "#FFD200"
       }
     },
     {
-      "id": "p2-e87",
-      "page": 2,
-      "text": "Our guided tour of Bury St Edmunds this morning takes in sights such as St Edmundsbury Cathedral, a place of worship for nearly 1,000 years. We continue this afternoon with our Blue Badge guide to the National Trust\u2019s Ickworth House, located in 70 acres of stunning gardens and 1,800 acres of idyllic \u2018Capability\u2019 Brown parkland. Dominated by its huge central Rotunda dating from 1795, Ickworth is home to a fine collection of Old Master paintings, silver and Regency furniture.",
+      "id": "p1-e51",
+      "page": 1,
+      "text": ".................................................................... Tailored Travel\u2019s ATOL",
       "metadata": {
-        "fontSize": 9.5,
-        "fontName": "GJEBJA\u002BHelveticaNeue",
+        "fontSize": 13,
+        "fontName": "GHEALP\u002BClarendon",
         "position": {
-          "x": 208.2,
-          "y": 288.8
+          "x": 26.7,
+          "y": 76.8
         },
         "boundingBox": {
-          "left": 208.2,
-          "top": 288.8,
-          "width": 340,
-          "height": 71.6
+          "left": 26.7,
+          "top": 76.8,
+          "width": 350.3,
+          "height": 9.7
         },
-        "color": "#221F1F"
+        "color": "#FFD200"
       }
     },
     {
-      "id": "p2-e88",
-      "page": 2,
-      "text": "Day 5",
+      "id": "p1-e52",
+      "page": 1,
+      "text": "number is 5605",
       "metadata": {
-        "fontSize": 9.5,
-        "fontName": "GJEBHN\u002BHelveticaNeue-Medium",
+        "fontSize": 7,
+        "fontName": "GHEALO\u002BHelveticaNeue",
         "position": {
-          "x": 208.2,
-          "y": 207.5
+          "x": 326,
+          "y": 68.6
         },
         "boundingBox": {
-          "left": 208.2,
-          "top": 207.5,
-          "width": 24.4,
-          "height": 6.8
+          "left": 326,
+          "top": 68.6,
+          "width": 42.4,
+          "height": 5
         },
-        "color": "#16549D"
+        "color": "#FFFFFF"
       }
     },
     {
-      "id": "p2-e89",
-      "page": 2,
-      "text": "We enjoy an included scenic two and a half hour cruise with our Blue Badge guide this morning, taking in the most beautiful wooded stretches of the River",
+      "id": "p1-e53",
+      "page": 1,
+      "text": "81 Alric Avenue, New Malden KT3 4JP",
       "metadata": {
-        "fontSize": 9.5,
-        "fontName": "GJEBJA\u002BHelveticaNeue",
+        "fontSize": 11,
+        "fontName": "GHEALP\u002BClarendon",
         "position": {
-          "x": 208.2,
-          "y": 196.8
+          "x": 26.7,
+          "y": 60.5
         },
         "boundingBox": {
-          "left": 208.2,
-          "top": 196.8,
-          "width": 329.2,
-          "height": 17.6
+          "left": 26.7,
+          "top": 60.5,
+          "width": 208.4,
+          "height": 7.4
         },
-        "color": "#221F1F"
+        "color": "#FFFFFF"
       }
     },
     {
-      "id": "p2-e90",
-      "page": 2,
-      "text": "Sutton Hoo",
+      "id": "p1-e54",
+      "page": 1,
+      "text": "Speke Hall",
       "metadata": {
         "fontSize": 9,
-        "fontName": "GJEBHN\u002BHelveticaNeue-Medium",
+        "fontName": "GHEALM\u002BHelveticaNeue-Medium",
         "position": {
-          "x": 34.9,
-          "y": 175.7
+          "x": 530.4,
+          "y": 40.8
         },
         "boundingBox": {
-          "left": 34.9,
-          "top": 175.7,
-          "width": 48.4,
+          "left": 530.4,
+          "top": 40.8,
+          "width": 45.7,
           "height": 6.6
         },
         "color": "#FFFFFF"
       }
     },
     {
-      "id": "p2-e91",
-      "page": 2,
-      "text": "Orwell. We continue on to the English Heritage\u0027s Framlingham Castle, an enchanting 12th century castle that dominates the town. It was here that Mary Tudor waited to hear whether she or Lady Jane Grey had been declared queen after the death of Edward VI.",
+      "id": "p1-e55",
+      "page": 1,
+      "text": "Vie w a nd sha r e this to u r o nlin e - click o n Vie w Yo u r To u r at w w w.tailo r ed-tr a v el. c o . uk a nd qu ote kngd261",
       "metadata": {
         "fontSize": 9.5,
-        "fontName": "GJEBJA\u002BHelveticaNeue",
+        "fontName": "GHEELJ\u002BSwiss721BT-Bold",
         "position": {
-          "x": 208.2,
-          "y": 175.3
+          "x": 21,
+          "y": 22
         },
         "boundingBox": {
-          "left": 208.2,
-          "top": 175.3,
-          "width": 333.1,
-          "height": 39.3
-        },
-        "color": "#221F1F"
-      }
-    },
-    {
-      "id": "p2-e92",
-      "page": 2,
-      "text": "Day 6",
-      "metadata": {
-        "fontSize": 9.5,
-        "fontName": "GJEBHN\u002BHelveticaNeue-Medium",
-        "position": {
-          "x": 208.2,
-          "y": 126.4
-        },
-        "boundingBox": {
-          "left": 208.2,
-          "top": 126.4,
-          "width": 24.4,
-          "height": 6.8
-        },
-        "color": "#16549D"
-      }
-    },
-    {
-      "id": "p2-e93",
-      "page": 2,
-      "text": "After checking out of our hotel and before returning home we visit the National Trust\u2019s Polesden Lacey near Dorking, an Edwardian country estate designed to be the perfect setting for a millionairess hostess to entice royalty, politicians and the best of Edwardian society for entertaining weekends in the country.",
-      "metadata": {
-        "fontSize": 9.5,
-        "fontName": "GJEBJA\u002BHelveticaNeue",
-        "position": {
-          "x": 208.2,
-          "y": 115.7
-        },
-        "boundingBox": {
-          "left": 208.2,
-          "top": 115.7,
-          "width": 339.1,
-          "height": 39.2
-        },
-        "color": "#221F1F"
-      }
-    },
-    {
-      "id": "p2-e94",
-      "page": 2,
-      "text": "NB:- Please note we reserve the right to alter the above itinerary if required for operational",
-      "metadata": {
-        "fontSize": 8,
-        "fontName": "GJEBHN\u002BHelveticaNeue-Medium",
-        "position": {
-          "x": 212.3,
-          "y": 69.8
-        },
-        "boundingBox": {
-          "left": 212.3,
-          "top": 69.8,
-          "width": 324.7,
-          "height": 5.7
-        },
-        "color": "#16549D"
-      }
-    },
-    {
-      "id": "p2-e95",
-      "page": 2,
-      "text": "reasons. Given the historic nature of the places visited, a certain degree of walking will",
-      "metadata": {
-        "fontSize": 8,
-        "fontName": "GJEBHN\u002BHelveticaNeue-Medium",
-        "position": {
-          "x": 230.8,
-          "y": 61.9
-        },
-        "boundingBox": {
-          "left": 230.8,
-          "top": 61.9,
-          "width": 311.6,
-          "height": 5.8
-        },
-        "color": "#16549D"
-      }
-    },
-    {
-      "id": "p2-e96",
-      "page": 2,
-      "text": "Ickworth House",
-      "metadata": {
-        "fontSize": 9,
-        "fontName": "GJEBHN\u002BHelveticaNeue-Medium",
-        "position": {
-          "x": 34.9,
-          "y": 54.2
-        },
-        "boundingBox": {
-          "left": 34.9,
-          "top": 54.2,
-          "width": 66.9,
-          "height": 6.4
-        },
-        "color": "#FFFFFF"
-      }
-    },
-    {
-      "id": "p2-e97",
-      "page": 2,
-      "text": "be involved, and this holiday may not be suitable for those with mobility problems.",
-      "metadata": {
-        "fontSize": 8,
-        "fontName": "GJEBHN\u002BHelveticaNeue-Medium",
-        "position": {
-          "x": 230.8,
-          "y": 53.8
-        },
-        "boundingBox": {
-          "left": 230.8,
-          "top": 53.8,
-          "width": 296.8,
-          "height": 5.7
-        },
-        "color": "#16549D"
-      }
-    },
-    {
-      "id": "p2-e98",
-      "page": 2,
-      "text": "Vie w a nd sha r e this to u r o nlin e - click o n Vie w Yo u r To u r at w w w.tailo r ed-tr a v el. c o . uk a nd qu ote e x nt151",
-      "metadata": {
-        "fontSize": 9.5,
-        "fontName": "GJEHAM\u002BSwiss721BT-Bold",
-        "position": {
-          "x": 23.1,
-          "y": 21.1
-        },
-        "boundingBox": {
-          "left": 23.1,
-          "top": 21.1,
-          "width": 549.1,
+          "left": 21,
+          "top": 22,
+          "width": 553.4,
           "height": 6.8
         },
         "color": "#CC161E"
