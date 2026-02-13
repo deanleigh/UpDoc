@@ -598,7 +598,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		const extractedPageCount = hasZones ? this._zoneDetection!.pages.length : totalPages;
 		const isFiltered = extractedPageCount < totalPages;
 		const pagesLabel = isFiltered ? `${extractedPageCount} of ${totalPages}` : `${totalPages}`;
-		const zones = hasZones ? this._zoneDetection!.diagnostics.zonesDetected : 0;
+		const areas = hasZones ? this._zoneDetection!.diagnostics.zonesDetected : 0;
 		const sections = hasZones ? this.#computeSectionCount() : 0;
 		const fileName = hasExtraction ? this._extraction!.source.fileName : '';
 		const extractedDate = hasExtraction
@@ -607,7 +607,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 
 		return html`
 			<div class="info-boxes">
-				<uui-box class="info-box-item">
+				<uui-box headline="Source" class="info-box-item">
 					<div class="box-content">
 						<h2 class="box-title">${fileName}</h2>
 						<uui-icon name="icon-document" class="box-icon"></uui-icon>
@@ -625,27 +625,24 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 					</div>
 				</uui-box>
 
-				<uui-box class="info-box-item">
+				<uui-box headline="Pages" class="info-box-item">
 					<div class="box-content">
-						<span class="box-stat ${isFiltered ? 'stat-filtered' : ''}">${pagesLabel}</span>
-						<span class="box-label">Pages</span>
+						<span class="box-stat">${pagesLabel}</span>
 						<div class="page-selection">
 							${this.#renderPageSelection()}
 						</div>
 					</div>
 				</uui-box>
 
-				<uui-box class="info-box-item">
+				<uui-box headline="Areas" class="info-box-item">
 					<div class="box-content">
-						<span class="box-stat">${zones}</span>
-						<span class="box-label">Zones</span>
+						<span class="box-stat">${areas}</span>
 					</div>
 				</uui-box>
 
-				<uui-box class="info-box-item">
+				<uui-box headline="Sections" class="info-box-item">
 					<div class="box-content">
 						<span class="box-stat">${sections}</span>
-						<span class="box-label">Sections</span>
 					</div>
 				</uui-box>
 			</div>
@@ -891,14 +888,6 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				color: var(--uui-color-text);
 			}
 
-			.box-stat.stat-filtered {
-				color: var(--uui-color-warning);
-			}
-
-			.box-label {
-				font-size: var(--uui-type-small-size);
-				color: var(--uui-color-text-alt);
-			}
 
 			/* Collapse row below boxes */
 			.collapse-row {

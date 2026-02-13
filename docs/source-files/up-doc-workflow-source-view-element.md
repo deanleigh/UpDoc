@@ -22,7 +22,7 @@ Uses `umb-body-layout header-fit-height` with a single `slot="header"` div conta
     <div slot="header" class="source-header">
         <uui-tab-group><!-- Extracted / Transformed --></uui-tab-group>
     </div>
-    <div class="info-boxes"><!-- uui-box cards: Source, Pages, Zones, Sections --></div>
+    <div class="info-boxes"><!-- uui-box cards: Source, Pages, Areas, Sections --></div>
     <div class="collapse-row"><!-- Collapse All button, right-aligned --></div>
     <!-- scrollable content -->
 </umb-body-layout>
@@ -30,12 +30,12 @@ Uses `umb-body-layout header-fit-height` with a single `slot="header"` div conta
 
 ### Info boxes (uSync-inspired)
 
-Four equal-width `<uui-box>` cards in a flex row with `flex-grow: 1`, following the uSync dashboard pattern:
+Four equal-width `<uui-box>` cards in a flex row with `flex-grow: 1`, following the uSync dashboard pattern. Each box uses the `headline` attribute for its title label.
 
 1. **Source** — h2 filename, document icon, extraction date, Re-extract (green) and Change PDF (blue) buttons
-2. **Pages** — stat number (e.g., "2 of 4"), label, page selection controls (All/Choose radio + range input)
-3. **Zones** — stat number, label
-4. **Sections** — stat number, label
+2. **Pages** — stat number (e.g., "2 of 4"), page selection controls (All/Choose radio + range input)
+3. **Areas** — stat number
+4. **Sections** — stat number
 
 The Collapse All / Expand All button sits in its own row below the boxes, right-aligned.
 
@@ -110,7 +110,7 @@ When no sample extraction exists, shows a centered prompt with "Choose PDF" butt
 | `#toggleCollapse(key)` | Toggles collapse state for any level |
 | `#toggleCollapseAll()` | Collapses or expands all pages at once |
 | `#renderExtractionHeader()` | Tab group slotted into header |
-| `#renderInfoBoxes()` | Four equal-width uui-box cards (Source, Pages, Zones, Sections) |
+| `#renderInfoBoxes()` | Four equal-width uui-box cards (Source, Pages, Areas, Sections) |
 | `#renderPageSelection()` | Radio buttons (All/Choose) + range text input |
 | `#renderExtractionContent()` | Dispatches to zone detection or transformed view |
 | `#renderZonePage()` | Renders a page with toggle, area count, and collapse |

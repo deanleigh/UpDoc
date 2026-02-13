@@ -1,9 +1,9 @@
-var xt = Object.defineProperty;
-var mt = (t, e, s) => e in t ? xt(t, e, { enumerable: !0, configurable: !0, writable: !0, value: s }) : t[e] = s;
+var bt = Object.defineProperty;
+var mt = (t, e, s) => e in t ? bt(t, e, { enumerable: !0, configurable: !0, writable: !0, value: s }) : t[e] = s;
 var w = (t, e, s) => mt(t, typeof e != "symbol" ? e + "" : e, s);
 import { c as wt, d as Ie, b as vt, g as _t, h as $t, i as yt, j as zt, s as St, k as Rt, u as Tt } from "./workflow.service-C2GzEBYw.js";
 import { UmbModalToken as Ct, UMB_MODAL_MANAGER_CONTEXT as Ee } from "@umbraco-cms/backoffice/modal";
-import { html as x, nothing as y, css as Pt, state as R, customElement as At } from "@umbraco-cms/backoffice/external/lit";
+import { html as b, nothing as y, css as Pt, state as R, customElement as At } from "@umbraco-cms/backoffice/external/lit";
 import { UmbLitElement as Mt } from "@umbraco-cms/backoffice/lit-element";
 import { UmbTextStyles as It } from "@umbraco-cms/backoffice/style";
 import { UMB_AUTH_CONTEXT as De } from "@umbraco-cms/backoffice/auth";
@@ -17,7 +17,7 @@ function Le(t) {
   D = t;
 }
 var V = { exec: () => null };
-function b(t, e = "") {
+function x(t, e = "") {
   let s = typeof t == "string" ? t : t.source, n = { replace: (i, a) => {
     let l = typeof a == "string" ? a : a.source;
     return l = l.replace(S.caret, "$1"), s = s.replace(i, l), n;
@@ -30,8 +30,8 @@ var Lt = (() => {
   } catch {
     return !1;
   }
-})(), S = { codeRemoveIndent: /^(?: {1,4}| {0,3}\t)/gm, outputLinkReplace: /\\([\[\]])/g, indentCodeCompensation: /^(\s+)(?:```)/, beginningSpace: /^\s+/, endingHash: /#$/, startingSpaceChar: /^ /, endingSpaceChar: / $/, nonSpaceChar: /[^ ]/, newLineCharGlobal: /\n/g, tabCharGlobal: /\t/g, multipleSpaceGlobal: /\s+/g, blankLine: /^[ \t]*$/, doubleBlankLine: /\n[ \t]*\n[ \t]*$/, blockquoteStart: /^ {0,3}>/, blockquoteSetextReplace: /\n {0,3}((?:=+|-+) *)(?=\n|$)/g, blockquoteSetextReplace2: /^ {0,3}>[ \t]?/gm, listReplaceTabs: /^\t+/, listReplaceNesting: /^ {1,4}(?=( {4})*[^ ])/g, listIsTask: /^\[[ xX]\] +\S/, listReplaceTask: /^\[[ xX]\] +/, listTaskCheckbox: /\[[ xX]\]/, anyLine: /\n.*\n/, hrefBrackets: /^<(.*)>$/, tableDelimiter: /[:|]/, tableAlignChars: /^\||\| *$/g, tableRowBlankLine: /\n[ \t]*$/, tableAlignRight: /^ *-+: *$/, tableAlignCenter: /^ *:-+: *$/, tableAlignLeft: /^ *:-+ *$/, startATag: /^<a /i, endATag: /^<\/a>/i, startPreScriptTag: /^<(pre|code|kbd|script)(\s|>)/i, endPreScriptTag: /^<\/(pre|code|kbd|script)(\s|>)/i, startAngleBracket: /^</, endAngleBracket: />$/, pedanticHrefTitle: /^([^'"]*[^\s])\s+(['"])(.*)\2/, unicodeAlphaNumeric: /[\p{L}\p{N}]/u, escapeTest: /[&<>"']/, escapeReplace: /[&<>"']/g, escapeTestNoEncode: /[<>"']|&(?!(#\d{1,7}|#[Xx][a-fA-F0-9]{1,6}|\w+);)/, escapeReplaceNoEncode: /[<>"']|&(?!(#\d{1,7}|#[Xx][a-fA-F0-9]{1,6}|\w+);)/g, unescapeTest: /&(#(?:\d+)|(?:#x[0-9A-Fa-f]+)|(?:\w+));?/ig, caret: /(^|[^\[])\^/g, percentDecode: /%25/g, findPipe: /\|/g, splitPipe: / \|/, slashPipe: /\\\|/g, carriageReturn: /\r\n|\r/g, spaceLine: /^ +$/gm, notSpaceStart: /^\S*/, endingNewline: /\n$/, listItemRegex: (t) => new RegExp(`^( {0,3}${t})((?:[	 ][^\\n]*)?(?:\\n|$))`), nextBulletRegex: (t) => new RegExp(`^ {0,${Math.min(3, t - 1)}}(?:[*+-]|\\d{1,9}[.)])((?:[ 	][^\\n]*)?(?:\\n|$))`), hrRegex: (t) => new RegExp(`^ {0,${Math.min(3, t - 1)}}((?:- *){3,}|(?:_ *){3,}|(?:\\* *){3,})(?:\\n+|$)`), fencesBeginRegex: (t) => new RegExp(`^ {0,${Math.min(3, t - 1)}}(?:\`\`\`|~~~)`), headingBeginRegex: (t) => new RegExp(`^ {0,${Math.min(3, t - 1)}}#`), htmlBeginRegex: (t) => new RegExp(`^ {0,${Math.min(3, t - 1)}}<(?:[a-z].*>|!--)`, "i") }, Bt = /^(?:[ \t]*(?:\n|$))+/, Nt = /^((?: {4}| {0,3}\t)[^\n]+(?:\n(?:[ \t]*(?:\n|$))*)?)+/, qt = /^ {0,3}(`{3,}(?=[^`\n]*(?:\n|$))|~{3,})([^\n]*)(?:\n|$)(?:|([\s\S]*?)(?:\n|$))(?: {0,3}\1[~`]* *(?=\n|$)|$)/, U = /^ {0,3}((?:-[\t ]*){3,}|(?:_[ \t]*){3,}|(?:\*[ \t]*){3,})(?:\n+|$)/, Zt = /^ {0,3}(#{1,6})(?=\s|$)(.*)(?:\n+|$)/, de = /(?:[*+-]|\d{1,9}[.)])/, Be = /^(?!bull |blockCode|fences|blockquote|heading|html|table)((?:.|\n(?!\s*?\n|bull |blockCode|fences|blockquote|heading|html|table))+?)\n {0,3}(=+|-+) *(?:\n+|$)/, Ne = b(Be).replace(/bull/g, de).replace(/blockCode/g, /(?: {4}| {0,3}\t)/).replace(/fences/g, / {0,3}(?:`{3,}|~{3,})/).replace(/blockquote/g, / {0,3}>/).replace(/heading/g, / {0,3}#{1,6}/).replace(/html/g, / {0,3}<[^\n>]+>\n/).replace(/\|table/g, "").getRegex(), Ot = b(Be).replace(/bull/g, de).replace(/blockCode/g, /(?: {4}| {0,3}\t)/).replace(/fences/g, / {0,3}(?:`{3,}|~{3,})/).replace(/blockquote/g, / {0,3}>/).replace(/heading/g, / {0,3}#{1,6}/).replace(/html/g, / {0,3}<[^\n>]+>\n/).replace(/table/g, / {0,3}\|?(?:[:\- ]*\|)+[\:\- ]*\n/).getRegex(), ge = /^([^\n]+(?:\n(?!hr|heading|lheading|blockquote|fences|list|html|table| +\n)[^\n]+)*)/, Ht = /^[^\n]+/, fe = /(?!\s*\])(?:\\[\s\S]|[^\[\]\\])+/, Vt = b(/^ {0,3}\[(label)\]: *(?:\n[ \t]*)?([^<\s][^\s]*|<.*?>)(?:(?: +(?:\n[ \t]*)?| *\n[ \t]*)(title))? *(?:\n+|$)/).replace("label", fe).replace("title", /(?:"(?:\\"?|[^"\\])*"|'[^'\n]*(?:\n[^'\n]+)*\n?'|\([^()]*\))/).getRegex(), Ut = b(/^( {0,3}bull)([ \t][^\n]+?)?(?:\n|$)/).replace(/bull/g, de).getRegex(), ee = "address|article|aside|base|basefont|blockquote|body|caption|center|col|colgroup|dd|details|dialog|dir|div|dl|dt|fieldset|figcaption|figure|footer|form|frame|frameset|h[1-6]|head|header|hr|html|iframe|legend|li|link|main|menu|menuitem|meta|nav|noframes|ol|optgroup|option|p|param|search|section|summary|table|tbody|td|tfoot|th|thead|title|tr|track|ul", ke = /<!--(?:-?>|[\s\S]*?(?:-->|$))/, Qt = b("^ {0,3}(?:<(script|pre|style|textarea)[\\s>][\\s\\S]*?(?:</\\1>[^\\n]*\\n+|$)|comment[^\\n]*(\\n+|$)|<\\?[\\s\\S]*?(?:\\?>\\n*|$)|<![A-Z][\\s\\S]*?(?:>\\n*|$)|<!\\[CDATA\\[[\\s\\S]*?(?:\\]\\]>\\n*|$)|</?(tag)(?: +|\\n|/?>)[\\s\\S]*?(?:(?:\\n[ 	]*)+\\n|$)|<(?!script|pre|style|textarea)([a-z][\\w-]*)(?:attribute)*? */?>(?=[ \\t]*(?:\\n|$))[\\s\\S]*?(?:(?:\\n[ 	]*)+\\n|$)|</(?!script|pre|style|textarea)[a-z][\\w-]*\\s*>(?=[ \\t]*(?:\\n|$))[\\s\\S]*?(?:(?:\\n[ 	]*)+\\n|$))", "i").replace("comment", ke).replace("tag", ee).replace("attribute", / +[a-zA-Z:_][\w.:-]*(?: *= *"[^"\n]*"| *= *'[^'\n]*'| *= *[^\s"'=<>`]+)?/).getRegex(), qe = b(ge).replace("hr", U).replace("heading", " {0,3}#{1,6}(?:\\s|$)").replace("|lheading", "").replace("|table", "").replace("blockquote", " {0,3}>").replace("fences", " {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n").replace("list", " {0,3}(?:[*+-]|1[.)]) ").replace("html", "</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)").replace("tag", ee).getRegex(), Gt = b(/^( {0,3}> ?(paragraph|[^\n]*)(?:\n|$))+/).replace("paragraph", qe).getRegex(), be = { blockquote: Gt, code: Nt, def: Vt, fences: qt, heading: Zt, hr: U, html: Qt, lheading: Ne, list: Ut, newline: Bt, paragraph: qe, table: V, text: Ht }, Se = b("^ *([^\\n ].*)\\n {0,3}((?:\\| *)?:?-+:? *(?:\\| *:?-+:? *)*(?:\\| *)?)(?:\\n((?:(?! *\\n|hr|heading|blockquote|code|fences|list|html).*(?:\\n|$))*)\\n*|$)").replace("hr", U).replace("heading", " {0,3}#{1,6}(?:\\s|$)").replace("blockquote", " {0,3}>").replace("code", "(?: {4}| {0,3}	)[^\\n]").replace("fences", " {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n").replace("list", " {0,3}(?:[*+-]|1[.)]) ").replace("html", "</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)").replace("tag", ee).getRegex(), Ft = { ...be, lheading: Ot, table: Se, paragraph: b(ge).replace("hr", U).replace("heading", " {0,3}#{1,6}(?:\\s|$)").replace("|lheading", "").replace("table", Se).replace("blockquote", " {0,3}>").replace("fences", " {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n").replace("list", " {0,3}(?:[*+-]|1[.)]) ").replace("html", "</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)").replace("tag", ee).getRegex() }, jt = { ...be, html: b(`^ *(?:comment *(?:\\n|\\s*$)|<(tag)[\\s\\S]+?</\\1> *(?:\\n{2,}|\\s*$)|<tag(?:"[^"]*"|'[^']*'|\\s[^'"/>\\s]*)*?/?> *(?:\\n{2,}|\\s*$))`).replace("comment", ke).replace(/tag/g, "(?!(?:a|em|strong|small|s|cite|q|dfn|abbr|data|time|code|var|samp|kbd|sub|sup|i|b|u|mark|ruby|rt|rp|bdi|bdo|span|br|wbr|ins|del|img)\\b)\\w+(?!:|[^\\w\\s@]*@)\\b").getRegex(), def: /^ *\[([^\]]+)\]: *<?([^\s>]+)>?(?: +(["(][^\n]+[")]))? *(?:\n+|$)/, heading: /^(#{1,6})(.*)(?:\n+|$)/, fences: V, lheading: /^(.+?)\n {0,3}(=+|-+) *(?:\n+|$)/, paragraph: b(ge).replace("hr", U).replace("heading", ` *#{1,6} *[^
-]`).replace("lheading", Ne).replace("|table", "").replace("blockquote", " {0,3}>").replace("|fences", "").replace("|list", "").replace("|html", "").replace("|tag", "").getRegex() }, Wt = /^\\([!"#$%&'()*+,\-./:;<=>?@\[\]\\^_`{|}~])/, Kt = /^(`+)([^`]|[^`][\s\S]*?[^`])\1(?!`)/, Ze = /^( {2,}|\\)\n(?!\s*$)/, Xt = /^(`+|[^`])(?:(?= {2,}\n)|[\s\S]*?(?:(?=[\\<!\[`*_]|\b_|$)|[^ ](?= {2,}\n)))/, te = /[\p{P}\p{S}]/u, xe = /[\s\p{P}\p{S}]/u, Oe = /[^\s\p{P}\p{S}]/u, Jt = b(/^((?![*_])punctSpace)/, "u").replace(/punctSpace/g, xe).getRegex(), He = /(?!~)[\p{P}\p{S}]/u, Yt = /(?!~)[\s\p{P}\p{S}]/u, es = /(?:[^\s\p{P}\p{S}]|~)/u, ts = b(/link|precode-code|html/, "g").replace("link", /\[(?:[^\[\]`]|(?<a>`+)[^`]+\k<a>(?!`))*?\]\((?:\\[\s\S]|[^\\\(\)]|\((?:\\[\s\S]|[^\\\(\)])*\))*\)/).replace("precode-", Lt ? "(?<!`)()" : "(^^|[^`])").replace("code", /(?<b>`+)[^`]+\k<b>(?!`)/).replace("html", /<(?! )[^<>]*?>/).getRegex(), Ve = /^(?:\*+(?:((?!\*)punct)|[^\s*]))|^_+(?:((?!_)punct)|([^\s_]))/, ss = b(Ve, "u").replace(/punct/g, te).getRegex(), is = b(Ve, "u").replace(/punct/g, He).getRegex(), Ue = "^[^_*]*?__[^_*]*?\\*[^_*]*?(?=__)|[^*]+(?=[^*])|(?!\\*)punct(\\*+)(?=[\\s]|$)|notPunctSpace(\\*+)(?!\\*)(?=punctSpace|$)|(?!\\*)punctSpace(\\*+)(?=notPunctSpace)|[\\s](\\*+)(?!\\*)(?=punct)|(?!\\*)punct(\\*+)(?!\\*)(?=punct)|notPunctSpace(\\*+)(?=notPunctSpace)", ns = b(Ue, "gu").replace(/notPunctSpace/g, Oe).replace(/punctSpace/g, xe).replace(/punct/g, te).getRegex(), as = b(Ue, "gu").replace(/notPunctSpace/g, es).replace(/punctSpace/g, Yt).replace(/punct/g, He).getRegex(), rs = b("^[^_*]*?\\*\\*[^_*]*?_[^_*]*?(?=\\*\\*)|[^_]+(?=[^_])|(?!_)punct(_+)(?=[\\s]|$)|notPunctSpace(_+)(?!_)(?=punctSpace|$)|(?!_)punctSpace(_+)(?=notPunctSpace)|[\\s](_+)(?!_)(?=punct)|(?!_)punct(_+)(?!_)(?=punct)", "gu").replace(/notPunctSpace/g, Oe).replace(/punctSpace/g, xe).replace(/punct/g, te).getRegex(), ls = b(/\\(punct)/, "gu").replace(/punct/g, te).getRegex(), os = b(/^<(scheme:[^\s\x00-\x1f<>]*|email)>/).replace("scheme", /[a-zA-Z][a-zA-Z0-9+.-]{1,31}/).replace("email", /[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+(@)[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+(?![-_])/).getRegex(), cs = b(ke).replace("(?:-->|$)", "-->").getRegex(), us = b("^comment|^</[a-zA-Z][\\w:-]*\\s*>|^<[a-zA-Z][\\w-]*(?:attribute)*?\\s*/?>|^<\\?[\\s\\S]*?\\?>|^<![a-zA-Z]+\\s[\\s\\S]*?>|^<!\\[CDATA\\[[\\s\\S]*?\\]\\]>").replace("comment", cs).replace("attribute", /\s+[a-zA-Z:_][\w.:-]*(?:\s*=\s*"[^"]*"|\s*=\s*'[^']*'|\s*=\s*[^\s"'=<>`]+)?/).getRegex(), K = /(?:\[(?:\\[\s\S]|[^\[\]\\])*\]|\\[\s\S]|`+[^`]*?`+(?!`)|[^\[\]\\`])*?/, ps = b(/^!?\[(label)\]\(\s*(href)(?:(?:[ \t]*(?:\n[ \t]*)?)(title))?\s*\)/).replace("label", K).replace("href", /<(?:\\.|[^\n<>\\])+>|[^ \t\n\x00-\x1f]*/).replace("title", /"(?:\\"?|[^"\\])*"|'(?:\\'?|[^'\\])*'|\((?:\\\)?|[^)\\])*\)/).getRegex(), Qe = b(/^!?\[(label)\]\[(ref)\]/).replace("label", K).replace("ref", fe).getRegex(), Ge = b(/^!?\[(ref)\](?:\[\])?/).replace("ref", fe).getRegex(), hs = b("reflink|nolink(?!\\()", "g").replace("reflink", Qe).replace("nolink", Ge).getRegex(), Re = /[hH][tT][tT][pP][sS]?|[fF][tT][pP]/, me = { _backpedal: V, anyPunctuation: ls, autolink: os, blockSkip: ts, br: Ze, code: Kt, del: V, emStrongLDelim: ss, emStrongRDelimAst: ns, emStrongRDelimUnd: rs, escape: Wt, link: ps, nolink: Ge, punctuation: Jt, reflink: Qe, reflinkSearch: hs, tag: us, text: Xt, url: V }, ds = { ...me, link: b(/^!?\[(label)\]\((.*?)\)/).replace("label", K).getRegex(), reflink: b(/^!?\[(label)\]\s*\[([^\]]*)\]/).replace("label", K).getRegex() }, ae = { ...me, emStrongRDelimAst: as, emStrongLDelim: is, url: b(/^((?:protocol):\/\/|www\.)(?:[a-zA-Z0-9\-]+\.?)+[^\s<]*|^email/).replace("protocol", Re).replace("email", /[A-Za-z0-9._+-]+(@)[a-zA-Z0-9-_]+(?:\.[a-zA-Z0-9-_]*[a-zA-Z0-9])+(?![-_])/).getRegex(), _backpedal: /(?:[^?!.,:;*_'"~()&]+|\([^)]*\)|&(?![a-zA-Z0-9]+;$)|[?!.,:;*_'"~)]+(?!$))+/, del: /^(~~?)(?=[^\s~])((?:\\[\s\S]|[^\\])*?(?:\\[\s\S]|[^\s~\\]))\1(?=[^~]|$)/, text: b(/^([`~]+|[^`~])(?:(?= {2,}\n)|(?=[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@)|[\s\S]*?(?:(?=[\\<!\[`*~_]|\b_|protocol:\/\/|www\.|$)|[^ ](?= {2,}\n)|[^a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-](?=[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@)))/).replace("protocol", Re).getRegex() }, gs = { ...ae, br: b(Ze).replace("{2,}", "*").getRegex(), text: b(ae.text).replace("\\b_", "\\b_| {2,}\\n").replace(/\{2,\}/g, "*").getRegex() }, F = { normal: be, gfm: Ft, pedantic: jt }, Z = { normal: me, gfm: ae, breaks: gs, pedantic: ds }, fs = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }, Te = (t) => fs[t];
+})(), S = { codeRemoveIndent: /^(?: {1,4}| {0,3}\t)/gm, outputLinkReplace: /\\([\[\]])/g, indentCodeCompensation: /^(\s+)(?:```)/, beginningSpace: /^\s+/, endingHash: /#$/, startingSpaceChar: /^ /, endingSpaceChar: / $/, nonSpaceChar: /[^ ]/, newLineCharGlobal: /\n/g, tabCharGlobal: /\t/g, multipleSpaceGlobal: /\s+/g, blankLine: /^[ \t]*$/, doubleBlankLine: /\n[ \t]*\n[ \t]*$/, blockquoteStart: /^ {0,3}>/, blockquoteSetextReplace: /\n {0,3}((?:=+|-+) *)(?=\n|$)/g, blockquoteSetextReplace2: /^ {0,3}>[ \t]?/gm, listReplaceTabs: /^\t+/, listReplaceNesting: /^ {1,4}(?=( {4})*[^ ])/g, listIsTask: /^\[[ xX]\] +\S/, listReplaceTask: /^\[[ xX]\] +/, listTaskCheckbox: /\[[ xX]\]/, anyLine: /\n.*\n/, hrefBrackets: /^<(.*)>$/, tableDelimiter: /[:|]/, tableAlignChars: /^\||\| *$/g, tableRowBlankLine: /\n[ \t]*$/, tableAlignRight: /^ *-+: *$/, tableAlignCenter: /^ *:-+: *$/, tableAlignLeft: /^ *:-+ *$/, startATag: /^<a /i, endATag: /^<\/a>/i, startPreScriptTag: /^<(pre|code|kbd|script)(\s|>)/i, endPreScriptTag: /^<\/(pre|code|kbd|script)(\s|>)/i, startAngleBracket: /^</, endAngleBracket: />$/, pedanticHrefTitle: /^([^'"]*[^\s])\s+(['"])(.*)\2/, unicodeAlphaNumeric: /[\p{L}\p{N}]/u, escapeTest: /[&<>"']/, escapeReplace: /[&<>"']/g, escapeTestNoEncode: /[<>"']|&(?!(#\d{1,7}|#[Xx][a-fA-F0-9]{1,6}|\w+);)/, escapeReplaceNoEncode: /[<>"']|&(?!(#\d{1,7}|#[Xx][a-fA-F0-9]{1,6}|\w+);)/g, unescapeTest: /&(#(?:\d+)|(?:#x[0-9A-Fa-f]+)|(?:\w+));?/ig, caret: /(^|[^\[])\^/g, percentDecode: /%25/g, findPipe: /\|/g, splitPipe: / \|/, slashPipe: /\\\|/g, carriageReturn: /\r\n|\r/g, spaceLine: /^ +$/gm, notSpaceStart: /^\S*/, endingNewline: /\n$/, listItemRegex: (t) => new RegExp(`^( {0,3}${t})((?:[	 ][^\\n]*)?(?:\\n|$))`), nextBulletRegex: (t) => new RegExp(`^ {0,${Math.min(3, t - 1)}}(?:[*+-]|\\d{1,9}[.)])((?:[ 	][^\\n]*)?(?:\\n|$))`), hrRegex: (t) => new RegExp(`^ {0,${Math.min(3, t - 1)}}((?:- *){3,}|(?:_ *){3,}|(?:\\* *){3,})(?:\\n+|$)`), fencesBeginRegex: (t) => new RegExp(`^ {0,${Math.min(3, t - 1)}}(?:\`\`\`|~~~)`), headingBeginRegex: (t) => new RegExp(`^ {0,${Math.min(3, t - 1)}}#`), htmlBeginRegex: (t) => new RegExp(`^ {0,${Math.min(3, t - 1)}}<(?:[a-z].*>|!--)`, "i") }, Bt = /^(?:[ \t]*(?:\n|$))+/, Nt = /^((?: {4}| {0,3}\t)[^\n]+(?:\n(?:[ \t]*(?:\n|$))*)?)+/, qt = /^ {0,3}(`{3,}(?=[^`\n]*(?:\n|$))|~{3,})([^\n]*)(?:\n|$)(?:|([\s\S]*?)(?:\n|$))(?: {0,3}\1[~`]* *(?=\n|$)|$)/, U = /^ {0,3}((?:-[\t ]*){3,}|(?:_[ \t]*){3,}|(?:\*[ \t]*){3,})(?:\n+|$)/, Zt = /^ {0,3}(#{1,6})(?=\s|$)(.*)(?:\n+|$)/, de = /(?:[*+-]|\d{1,9}[.)])/, Be = /^(?!bull |blockCode|fences|blockquote|heading|html|table)((?:.|\n(?!\s*?\n|bull |blockCode|fences|blockquote|heading|html|table))+?)\n {0,3}(=+|-+) *(?:\n+|$)/, Ne = x(Be).replace(/bull/g, de).replace(/blockCode/g, /(?: {4}| {0,3}\t)/).replace(/fences/g, / {0,3}(?:`{3,}|~{3,})/).replace(/blockquote/g, / {0,3}>/).replace(/heading/g, / {0,3}#{1,6}/).replace(/html/g, / {0,3}<[^\n>]+>\n/).replace(/\|table/g, "").getRegex(), Ot = x(Be).replace(/bull/g, de).replace(/blockCode/g, /(?: {4}| {0,3}\t)/).replace(/fences/g, / {0,3}(?:`{3,}|~{3,})/).replace(/blockquote/g, / {0,3}>/).replace(/heading/g, / {0,3}#{1,6}/).replace(/html/g, / {0,3}<[^\n>]+>\n/).replace(/table/g, / {0,3}\|?(?:[:\- ]*\|)+[\:\- ]*\n/).getRegex(), ge = /^([^\n]+(?:\n(?!hr|heading|lheading|blockquote|fences|list|html|table| +\n)[^\n]+)*)/, Ht = /^[^\n]+/, fe = /(?!\s*\])(?:\\[\s\S]|[^\[\]\\])+/, Vt = x(/^ {0,3}\[(label)\]: *(?:\n[ \t]*)?([^<\s][^\s]*|<.*?>)(?:(?: +(?:\n[ \t]*)?| *\n[ \t]*)(title))? *(?:\n+|$)/).replace("label", fe).replace("title", /(?:"(?:\\"?|[^"\\])*"|'[^'\n]*(?:\n[^'\n]+)*\n?'|\([^()]*\))/).getRegex(), Ut = x(/^( {0,3}bull)([ \t][^\n]+?)?(?:\n|$)/).replace(/bull/g, de).getRegex(), ee = "address|article|aside|base|basefont|blockquote|body|caption|center|col|colgroup|dd|details|dialog|dir|div|dl|dt|fieldset|figcaption|figure|footer|form|frame|frameset|h[1-6]|head|header|hr|html|iframe|legend|li|link|main|menu|menuitem|meta|nav|noframes|ol|optgroup|option|p|param|search|section|summary|table|tbody|td|tfoot|th|thead|title|tr|track|ul", ke = /<!--(?:-?>|[\s\S]*?(?:-->|$))/, Qt = x("^ {0,3}(?:<(script|pre|style|textarea)[\\s>][\\s\\S]*?(?:</\\1>[^\\n]*\\n+|$)|comment[^\\n]*(\\n+|$)|<\\?[\\s\\S]*?(?:\\?>\\n*|$)|<![A-Z][\\s\\S]*?(?:>\\n*|$)|<!\\[CDATA\\[[\\s\\S]*?(?:\\]\\]>\\n*|$)|</?(tag)(?: +|\\n|/?>)[\\s\\S]*?(?:(?:\\n[ 	]*)+\\n|$)|<(?!script|pre|style|textarea)([a-z][\\w-]*)(?:attribute)*? */?>(?=[ \\t]*(?:\\n|$))[\\s\\S]*?(?:(?:\\n[ 	]*)+\\n|$)|</(?!script|pre|style|textarea)[a-z][\\w-]*\\s*>(?=[ \\t]*(?:\\n|$))[\\s\\S]*?(?:(?:\\n[ 	]*)+\\n|$))", "i").replace("comment", ke).replace("tag", ee).replace("attribute", / +[a-zA-Z:_][\w.:-]*(?: *= *"[^"\n]*"| *= *'[^'\n]*'| *= *[^\s"'=<>`]+)?/).getRegex(), qe = x(ge).replace("hr", U).replace("heading", " {0,3}#{1,6}(?:\\s|$)").replace("|lheading", "").replace("|table", "").replace("blockquote", " {0,3}>").replace("fences", " {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n").replace("list", " {0,3}(?:[*+-]|1[.)]) ").replace("html", "</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)").replace("tag", ee).getRegex(), Gt = x(/^( {0,3}> ?(paragraph|[^\n]*)(?:\n|$))+/).replace("paragraph", qe).getRegex(), xe = { blockquote: Gt, code: Nt, def: Vt, fences: qt, heading: Zt, hr: U, html: Qt, lheading: Ne, list: Ut, newline: Bt, paragraph: qe, table: V, text: Ht }, Se = x("^ *([^\\n ].*)\\n {0,3}((?:\\| *)?:?-+:? *(?:\\| *:?-+:? *)*(?:\\| *)?)(?:\\n((?:(?! *\\n|hr|heading|blockquote|code|fences|list|html).*(?:\\n|$))*)\\n*|$)").replace("hr", U).replace("heading", " {0,3}#{1,6}(?:\\s|$)").replace("blockquote", " {0,3}>").replace("code", "(?: {4}| {0,3}	)[^\\n]").replace("fences", " {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n").replace("list", " {0,3}(?:[*+-]|1[.)]) ").replace("html", "</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)").replace("tag", ee).getRegex(), Ft = { ...xe, lheading: Ot, table: Se, paragraph: x(ge).replace("hr", U).replace("heading", " {0,3}#{1,6}(?:\\s|$)").replace("|lheading", "").replace("table", Se).replace("blockquote", " {0,3}>").replace("fences", " {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n").replace("list", " {0,3}(?:[*+-]|1[.)]) ").replace("html", "</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)").replace("tag", ee).getRegex() }, jt = { ...xe, html: x(`^ *(?:comment *(?:\\n|\\s*$)|<(tag)[\\s\\S]+?</\\1> *(?:\\n{2,}|\\s*$)|<tag(?:"[^"]*"|'[^']*'|\\s[^'"/>\\s]*)*?/?> *(?:\\n{2,}|\\s*$))`).replace("comment", ke).replace(/tag/g, "(?!(?:a|em|strong|small|s|cite|q|dfn|abbr|data|time|code|var|samp|kbd|sub|sup|i|b|u|mark|ruby|rt|rp|bdi|bdo|span|br|wbr|ins|del|img)\\b)\\w+(?!:|[^\\w\\s@]*@)\\b").getRegex(), def: /^ *\[([^\]]+)\]: *<?([^\s>]+)>?(?: +(["(][^\n]+[")]))? *(?:\n+|$)/, heading: /^(#{1,6})(.*)(?:\n+|$)/, fences: V, lheading: /^(.+?)\n {0,3}(=+|-+) *(?:\n+|$)/, paragraph: x(ge).replace("hr", U).replace("heading", ` *#{1,6} *[^
+]`).replace("lheading", Ne).replace("|table", "").replace("blockquote", " {0,3}>").replace("|fences", "").replace("|list", "").replace("|html", "").replace("|tag", "").getRegex() }, Wt = /^\\([!"#$%&'()*+,\-./:;<=>?@\[\]\\^_`{|}~])/, Kt = /^(`+)([^`]|[^`][\s\S]*?[^`])\1(?!`)/, Ze = /^( {2,}|\\)\n(?!\s*$)/, Xt = /^(`+|[^`])(?:(?= {2,}\n)|[\s\S]*?(?:(?=[\\<!\[`*_]|\b_|$)|[^ ](?= {2,}\n)))/, te = /[\p{P}\p{S}]/u, be = /[\s\p{P}\p{S}]/u, Oe = /[^\s\p{P}\p{S}]/u, Jt = x(/^((?![*_])punctSpace)/, "u").replace(/punctSpace/g, be).getRegex(), He = /(?!~)[\p{P}\p{S}]/u, Yt = /(?!~)[\s\p{P}\p{S}]/u, es = /(?:[^\s\p{P}\p{S}]|~)/u, ts = x(/link|precode-code|html/, "g").replace("link", /\[(?:[^\[\]`]|(?<a>`+)[^`]+\k<a>(?!`))*?\]\((?:\\[\s\S]|[^\\\(\)]|\((?:\\[\s\S]|[^\\\(\)])*\))*\)/).replace("precode-", Lt ? "(?<!`)()" : "(^^|[^`])").replace("code", /(?<b>`+)[^`]+\k<b>(?!`)/).replace("html", /<(?! )[^<>]*?>/).getRegex(), Ve = /^(?:\*+(?:((?!\*)punct)|[^\s*]))|^_+(?:((?!_)punct)|([^\s_]))/, ss = x(Ve, "u").replace(/punct/g, te).getRegex(), is = x(Ve, "u").replace(/punct/g, He).getRegex(), Ue = "^[^_*]*?__[^_*]*?\\*[^_*]*?(?=__)|[^*]+(?=[^*])|(?!\\*)punct(\\*+)(?=[\\s]|$)|notPunctSpace(\\*+)(?!\\*)(?=punctSpace|$)|(?!\\*)punctSpace(\\*+)(?=notPunctSpace)|[\\s](\\*+)(?!\\*)(?=punct)|(?!\\*)punct(\\*+)(?!\\*)(?=punct)|notPunctSpace(\\*+)(?=notPunctSpace)", ns = x(Ue, "gu").replace(/notPunctSpace/g, Oe).replace(/punctSpace/g, be).replace(/punct/g, te).getRegex(), as = x(Ue, "gu").replace(/notPunctSpace/g, es).replace(/punctSpace/g, Yt).replace(/punct/g, He).getRegex(), rs = x("^[^_*]*?\\*\\*[^_*]*?_[^_*]*?(?=\\*\\*)|[^_]+(?=[^_])|(?!_)punct(_+)(?=[\\s]|$)|notPunctSpace(_+)(?!_)(?=punctSpace|$)|(?!_)punctSpace(_+)(?=notPunctSpace)|[\\s](_+)(?!_)(?=punct)|(?!_)punct(_+)(?!_)(?=punct)", "gu").replace(/notPunctSpace/g, Oe).replace(/punctSpace/g, be).replace(/punct/g, te).getRegex(), ls = x(/\\(punct)/, "gu").replace(/punct/g, te).getRegex(), os = x(/^<(scheme:[^\s\x00-\x1f<>]*|email)>/).replace("scheme", /[a-zA-Z][a-zA-Z0-9+.-]{1,31}/).replace("email", /[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+(@)[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+(?![-_])/).getRegex(), cs = x(ke).replace("(?:-->|$)", "-->").getRegex(), us = x("^comment|^</[a-zA-Z][\\w:-]*\\s*>|^<[a-zA-Z][\\w-]*(?:attribute)*?\\s*/?>|^<\\?[\\s\\S]*?\\?>|^<![a-zA-Z]+\\s[\\s\\S]*?>|^<!\\[CDATA\\[[\\s\\S]*?\\]\\]>").replace("comment", cs).replace("attribute", /\s+[a-zA-Z:_][\w.:-]*(?:\s*=\s*"[^"]*"|\s*=\s*'[^']*'|\s*=\s*[^\s"'=<>`]+)?/).getRegex(), K = /(?:\[(?:\\[\s\S]|[^\[\]\\])*\]|\\[\s\S]|`+[^`]*?`+(?!`)|[^\[\]\\`])*?/, ps = x(/^!?\[(label)\]\(\s*(href)(?:(?:[ \t]*(?:\n[ \t]*)?)(title))?\s*\)/).replace("label", K).replace("href", /<(?:\\.|[^\n<>\\])+>|[^ \t\n\x00-\x1f]*/).replace("title", /"(?:\\"?|[^"\\])*"|'(?:\\'?|[^'\\])*'|\((?:\\\)?|[^)\\])*\)/).getRegex(), Qe = x(/^!?\[(label)\]\[(ref)\]/).replace("label", K).replace("ref", fe).getRegex(), Ge = x(/^!?\[(ref)\](?:\[\])?/).replace("ref", fe).getRegex(), hs = x("reflink|nolink(?!\\()", "g").replace("reflink", Qe).replace("nolink", Ge).getRegex(), Re = /[hH][tT][tT][pP][sS]?|[fF][tT][pP]/, me = { _backpedal: V, anyPunctuation: ls, autolink: os, blockSkip: ts, br: Ze, code: Kt, del: V, emStrongLDelim: ss, emStrongRDelimAst: ns, emStrongRDelimUnd: rs, escape: Wt, link: ps, nolink: Ge, punctuation: Jt, reflink: Qe, reflinkSearch: hs, tag: us, text: Xt, url: V }, ds = { ...me, link: x(/^!?\[(label)\]\((.*?)\)/).replace("label", K).getRegex(), reflink: x(/^!?\[(label)\]\s*\[([^\]]*)\]/).replace("label", K).getRegex() }, ae = { ...me, emStrongRDelimAst: as, emStrongLDelim: is, url: x(/^((?:protocol):\/\/|www\.)(?:[a-zA-Z0-9\-]+\.?)+[^\s<]*|^email/).replace("protocol", Re).replace("email", /[A-Za-z0-9._+-]+(@)[a-zA-Z0-9-_]+(?:\.[a-zA-Z0-9-_]*[a-zA-Z0-9])+(?![-_])/).getRegex(), _backpedal: /(?:[^?!.,:;*_'"~()&]+|\([^)]*\)|&(?![a-zA-Z0-9]+;$)|[?!.,:;*_'"~)]+(?!$))+/, del: /^(~~?)(?=[^\s~])((?:\\[\s\S]|[^\\])*?(?:\\[\s\S]|[^\s~\\]))\1(?=[^~]|$)/, text: x(/^([`~]+|[^`~])(?:(?= {2,}\n)|(?=[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@)|[\s\S]*?(?:(?=[\\<!\[`*~_]|\b_|protocol:\/\/|www\.|$)|[^ ](?= {2,}\n)|[^a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-](?=[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@)))/).replace("protocol", Re).getRegex() }, gs = { ...ae, br: x(Ze).replace("{2,}", "*").getRegex(), text: x(ae.text).replace("\\b_", "\\b_| {2,}\\n").replace(/\{2,\}/g, "*").getRegex() }, F = { normal: xe, gfm: Ft, pedantic: jt }, Z = { normal: me, gfm: ae, breaks: gs, pedantic: ds }, fs = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }, Te = (t) => fs[t];
 function A(t, e) {
   if (e) {
     if (S.escapeTest.test(t)) return t.replace(S.escapeReplace, Te);
@@ -80,7 +80,7 @@ function Ae(t, e, s, n, i) {
   let c = { type: t[0].charAt(0) === "!" ? "image" : "link", raw: s, href: a, title: l, text: r, tokens: n.inlineTokens(r) };
   return n.state.inLink = !1, c;
 }
-function bs(t, e, s) {
+function xs(t, e, s) {
   let n = t.match(s.other.indentCodeCompensation);
   if (n === null) return e;
   let i = n[1];
@@ -115,7 +115,7 @@ var X = class {
   fences(t) {
     let e = this.rules.block.fences.exec(t);
     if (e) {
-      let s = e[0], n = bs(s, e[3] || "", this.rules);
+      let s = e[0], n = xs(s, e[3] || "", this.rules);
       return { type: "code", raw: s, lang: e[2] ? e[2].trim().replace(this.rules.inline.anyPunctuation, "$1") : e[2], text: n };
     }
   }
@@ -191,11 +191,11 @@ ${p}` : p;
 `, 1)[0], k = !u.trim(), $ = 0;
         if (this.options.pedantic ? ($ = 2, g = u.trimStart()) : k ? $ = e[1].length + 1 : ($ = e[2].search(this.rules.other.nonSpaceChar), $ = $ > 4 ? 1 : $, g = u.slice($), $ += e[1].length), k && this.rules.other.blankLine.test(v) && (f += v + `
 `, t = t.substring(v.length + 1), p = !0), !p) {
-          let M = this.rules.other.nextBulletRegex($), G = this.rules.other.hrRegex($), ye = this.rules.other.fencesBeginRegex($), ze = this.rules.other.headingBeginRegex($), bt = this.rules.other.htmlBeginRegex($);
+          let M = this.rules.other.nextBulletRegex($), G = this.rules.other.hrRegex($), ye = this.rules.other.fencesBeginRegex($), ze = this.rules.other.headingBeginRegex($), xt = this.rules.other.htmlBeginRegex($);
           for (; t; ) {
             let ne = t.split(`
 `, 1)[0], q;
-            if (v = ne, this.options.pedantic ? (v = v.replace(this.rules.other.listReplaceNesting, "  "), q = v) : q = v.replace(this.rules.other.tabCharGlobal, "    "), ye.test(v) || ze.test(v) || bt.test(v) || M.test(v) || G.test(v)) break;
+            if (v = ne, this.options.pedantic ? (v = v.replace(this.rules.other.listReplaceNesting, "  "), q = v) : q = v.replace(this.rules.other.tabCharGlobal, "    "), ye.test(v) || ze.test(v) || xt.test(v) || M.test(v) || G.test(v)) break;
             if (q.search(this.rules.other.nonSpaceChar) >= $ || !v.trim()) g += `
 ` + q.slice($);
             else {
@@ -926,7 +926,7 @@ ${t}</tr>
   provideParser() {
     return this.block ? C.parse : C.parseInline;
   }
-}, w(j, "passThroughHooks", /* @__PURE__ */ new Set(["preprocess", "postprocess", "processAllTokens", "emStrongMask"])), w(j, "passThroughHooksRespectAsync", /* @__PURE__ */ new Set(["preprocess", "postprocess", "processAllTokens"])), j), xs = class {
+}, w(j, "passThroughHooks", /* @__PURE__ */ new Set(["preprocess", "postprocess", "processAllTokens", "emStrongMask"])), w(j, "passThroughHooksRespectAsync", /* @__PURE__ */ new Set(["preprocess", "postprocess", "processAllTokens"])), j), bs = class {
   constructor(...t) {
     w(this, "defaults", he());
     w(this, "options", this.setOptions);
@@ -1087,7 +1087,7 @@ Please report this to https://github.com/markedjs/marked.`, t) {
       throw s;
     };
   }
-}, E = new xs();
+}, E = new bs();
 function m(t, e) {
   return E.parse(t, e);
 }
@@ -1160,18 +1160,18 @@ let _ = class extends Mt {
   }
   render() {
     if (this._loading)
-      return x`<div class="loading"><uui-loader-bar></uui-loader-bar></div>`;
+      return b`<div class="loading"><uui-loader-bar></uui-loader-bar></div>`;
     if (this._error)
-      return x`
+      return b`
 				<umb-body-layout header-fit-height>
 					<p style="color: var(--uui-color-danger); padding: var(--uui-size-layout-1);">${this._error}</p>
 				</umb-body-layout>`;
     const t = this._zoneDetection !== null || this._extraction !== null;
-    return x`
+    return b`
 			<umb-body-layout header-fit-height>
 				${t ? d(this, h, pt).call(this) : y}
 				${t && this._viewMode === "elements" ? d(this, h, ht).call(this) : y}
-				${this._successMessage ? x`<div class="success-banner"><uui-icon name="icon-check"></uui-icon> ${this._successMessage}</div>` : y}
+				${this._successMessage ? b`<div class="success-banner"><uui-icon name="icon-check"></uui-icon> ${this._successMessage}</div>` : y}
 				${t ? d(this, h, dt).call(this) : d(this, h, kt).call(this)}
 			</umb-body-layout>
 		`;
@@ -1393,7 +1393,7 @@ nt = function(t) {
 };
 ue = function(t) {
   const e = d(this, h, nt).call(this, t.text);
-  return x`
+  return b`
 			<div class="element-item">
 				<div class="element-content">
 					<div class="element-text">${t.text}</div>
@@ -1410,7 +1410,7 @@ ue = function(t) {
 $e = function(t, e, s, n) {
   const i = d(this, h, Q).call(this, e), a = t.heading ? ws(t.heading.text) : n >= 0 ? `preamble-p${s}-z${n}` : `preamble-p${s}-unzoned`, l = d(this, h, st).call(this, a);
   if (!t.heading)
-    return x`
+    return b`
 				<div class="zone-section ${l ? "" : "excluded"}">
 					<div class="section-heading preamble" @click=${() => d(this, h, N).call(this, e)}>
 						<uui-toggle
@@ -1423,13 +1423,13 @@ $e = function(t, e, s, n) {
 						<span class="group-count">${t.children.length} text${t.children.length !== 1 ? "s" : ""}</span>
 						<uui-icon class="collapse-chevron" name="${i ? "icon-navigation-right" : "icon-navigation-down"}"></uui-icon>
 					</div>
-					${l && !i ? x`
+					${l && !i ? b`
 						${t.children.map((c) => d(this, h, ue).call(this, c))}
 					` : y}
 				</div>
 			`;
   const r = t.heading;
-  return x`
+  return b`
 			<div class="zone-section ${l ? "" : "excluded"}">
 				<div class="section-heading" @click=${() => d(this, h, N).call(this, e)}>
 					<uui-toggle
@@ -1448,7 +1448,7 @@ $e = function(t, e, s, n) {
 					<span class="group-count">${t.children.length} text${t.children.length !== 1 ? "s" : ""}</span>
 					<uui-icon class="collapse-chevron" name="${i ? "icon-navigation-right" : "icon-navigation-down"}"></uui-icon>
 				</div>
-				${!i && l ? x`
+				${!i && l ? b`
 					<div class="section-children">
 						${t.children.map((c) => d(this, h, ue).call(this, c))}
 					</div>
@@ -1458,7 +1458,7 @@ $e = function(t, e, s, n) {
 };
 at = function(t, e, s) {
   const n = `area-p${e}-a${s}`, i = d(this, h, Q).call(this, n), a = t.sections.length;
-  return x`
+  return b`
 			<div class="zone-area" style="border-left-color: ${t.color};">
 				<div class="area-header" @click=${() => d(this, h, N).call(this, n)}>
 					<span class="area-color-swatch" style="background: ${t.color};"></span>
@@ -1466,7 +1466,7 @@ at = function(t, e, s) {
 					<span class="group-count">${a} section${a !== 1 ? "s" : ""}</span>
 					<uui-icon class="collapse-chevron" name="${i ? "icon-navigation-right" : "icon-navigation-down"}"></uui-icon>
 				</div>
-				${i ? y : x`
+				${i ? y : b`
 					${t.sections.map(
     (l, r) => d(this, h, $e).call(this, l, `p${e}-a${s}-s${r}`, e, s)
   )}
@@ -1477,7 +1477,7 @@ at = function(t, e, s) {
 rt = function(t, e) {
   if (t.totalElements === 0) return y;
   const s = `area-p${e}-undefined`, n = d(this, h, Q).call(this, s), i = t.sections.length;
-  return x`
+  return b`
 			<div class="zone-area undefined" style="border-left-color: var(--uui-color-border-standalone);">
 				<div class="area-header" @click=${() => d(this, h, N).call(this, s)}>
 					<span class="area-color-swatch undefined-swatch"></span>
@@ -1485,7 +1485,7 @@ rt = function(t, e) {
 					<span class="group-count">${i} section${i !== 1 ? "s" : ""}</span>
 					<uui-icon class="collapse-chevron" name="${n ? "icon-navigation-right" : "icon-navigation-down"}"></uui-icon>
 				</div>
-				${n ? y : x`
+				${n ? y : b`
 					${t.sections.map(
     (a, l) => d(this, h, $e).call(this, a, `p${e}-undefined-s${l}`, e, -1)
   )}
@@ -1495,7 +1495,7 @@ rt = function(t, e) {
 };
 lt = function(t, e, s) {
   const n = `page-${t}`, i = d(this, h, Q).call(this, n), a = s && s.totalElements > 0, l = e.length + (a ? 1 : 0), r = e.reduce((o, p) => o + p.sections.length, 0) + ((s == null ? void 0 : s.sections.length) ?? 0), c = d(this, h, Ke).call(this, t);
-  return x`
+  return b`
 			<uui-box headline="Page ${t}" class="page-box ${c ? "" : "page-excluded"}">
 				<div slot="header-actions" class="page-header-actions">
 					<span class="group-count">${r} section${r !== 1 ? "s" : ""}, ${l} area${l !== 1 ? "s" : ""}</span>
@@ -1509,7 +1509,7 @@ lt = function(t, e, s) {
 						<uui-icon class="collapse-chevron" name="${i ? "icon-navigation-right" : "icon-navigation-down"}"></uui-icon>
 					</div>
 				</div>
-				${i ? y : x`
+				${i ? y : b`
 					${e.map((o, p) => d(this, h, at).call(this, o, t, p))}
 					${a ? d(this, h, rt).call(this, s, t) : y}
 				`}
@@ -1517,7 +1517,7 @@ lt = function(t, e, s) {
 		`;
 };
 ot = function() {
-  return this._zoneDetection ? x`
+  return this._zoneDetection ? b`
 			${this._zoneDetection.pages.map(
     (t) => d(this, h, lt).call(this, t.page, t.zones, t.unzonedContent)
   )}
@@ -1531,7 +1531,7 @@ ct = function() {
 };
 ut = function() {
   var e, s;
-  return (((e = this._zoneDetection) == null ? void 0 : e.totalPages) ?? ((s = this._extraction) == null ? void 0 : s.source.totalPages) ?? 0) === 0 ? y : x`
+  return (((e = this._zoneDetection) == null ? void 0 : e.totalPages) ?? ((s = this._extraction) == null ? void 0 : s.source.totalPages) ?? 0) === 0 ? y : b`
 			<label class="page-radio">
 				<input type="radio" name="page-mode" value="all"
 					.checked=${this._pageMode === "all"}
@@ -1556,7 +1556,7 @@ ut = function() {
 		`;
 };
 pt = function() {
-  return x`
+  return b`
 			<div slot="header" class="source-header">
 				<uui-tab-group dropdown-content-direction="vertical">
 					<uui-tab label="Extracted" ?active=${this._viewMode === "elements"} @click=${() => {
@@ -1573,10 +1573,10 @@ ht = function() {
   var p;
   const t = this._zoneDetection !== null, e = this._extraction !== null;
   if (!t && !e) return y;
-  const s = ((p = this._zoneDetection) == null ? void 0 : p.totalPages) ?? (e ? this._extraction.source.totalPages : 0), n = t ? this._zoneDetection.pages.length : s, i = n < s, a = i ? `${n} of ${s}` : `${s}`, l = t ? this._zoneDetection.diagnostics.zonesDetected : 0, r = t ? d(this, h, ct).call(this) : 0, c = e ? this._extraction.source.fileName : "", o = e ? new Date(this._extraction.source.extractedDate).toLocaleString() : "";
-  return x`
+  const s = ((p = this._zoneDetection) == null ? void 0 : p.totalPages) ?? (e ? this._extraction.source.totalPages : 0), n = t ? this._zoneDetection.pages.length : s, a = n < s ? `${n} of ${s}` : `${s}`, l = t ? this._zoneDetection.diagnostics.zonesDetected : 0, r = t ? d(this, h, ct).call(this) : 0, c = e ? this._extraction.source.fileName : "", o = e ? new Date(this._extraction.source.extractedDate).toLocaleString() : "";
+  return b`
 			<div class="info-boxes">
-				<uui-box class="info-box-item">
+				<uui-box headline="Source" class="info-box-item">
 					<div class="box-content">
 						<h2 class="box-title">${c}</h2>
 						<uui-icon name="icon-document" class="box-icon"></uui-icon>
@@ -1594,32 +1594,29 @@ ht = function() {
 					</div>
 				</uui-box>
 
-				<uui-box class="info-box-item">
+				<uui-box headline="Pages" class="info-box-item">
 					<div class="box-content">
-						<span class="box-stat ${i ? "stat-filtered" : ""}">${a}</span>
-						<span class="box-label">Pages</span>
+						<span class="box-stat">${a}</span>
 						<div class="page-selection">
 							${d(this, h, ut).call(this)}
 						</div>
 					</div>
 				</uui-box>
 
-				<uui-box class="info-box-item">
+				<uui-box headline="Areas" class="info-box-item">
 					<div class="box-content">
 						<span class="box-stat">${l}</span>
-						<span class="box-label">Zones</span>
 					</div>
 				</uui-box>
 
-				<uui-box class="info-box-item">
+				<uui-box headline="Sections" class="info-box-item">
 					<div class="box-content">
 						<span class="box-stat">${r}</span>
-						<span class="box-label">Sections</span>
 					</div>
 				</uui-box>
 			</div>
 
-			${t ? x`
+			${t ? b`
 				<div class="collapse-row">
 					<uui-button look="outline" compact label="${this._allCollapsed ? "Expand All" : "Collapse All"}" @click=${d(this, h, et)}>
 						<uui-icon name="${this._allCollapsed ? "icon-navigation-down" : "icon-navigation-right"}"></uui-icon>
@@ -1635,10 +1632,10 @@ dt = function() {
 };
 pe = function(t) {
   const e = d(this, h, Y).call(this, t);
-  return e.length === 0 ? x`<uui-button look="secondary" compact label="Map" @click=${() => d(this, h, ce).call(this, t)}>
+  return e.length === 0 ? b`<uui-button look="secondary" compact label="Map" @click=${() => d(this, h, ce).call(this, t)}>
 				<uui-icon name="icon-link"></uui-icon> Map
-			</uui-button>` : x`${e.map(
-    (s) => x`<span class="meta-badge mapped-target" @click=${() => d(this, h, ce).call(this, t)} style="cursor:pointer;" title="Click to re-map">
+			</uui-button>` : b`${e.map(
+    (s) => b`<span class="meta-badge mapped-target" @click=${() => d(this, h, ce).call(this, t)} style="cursor:pointer;" title="Click to re-map">
 				<uui-icon name="icon-check" style="font-size:10px;"></uui-icon> ${d(this, h, it).call(this, s)}
 			</span>`
   )}`;
@@ -1651,12 +1648,12 @@ gt = function(t) {
     preamble: "Preamble",
     mixed: "Mixed"
   }, s = `${t.id}.heading`, n = `${t.id}.content`, i = d(this, h, Y).call(this, s).length > 0, a = d(this, h, Y).call(this, n).length > 0, l = i || a, r = t.heading ?? "Preamble";
-  return x`
+  return b`
 			<uui-box headline=${r} class="transformed-section ${l ? "section-mapped" : ""}">
 				<div slot="header-actions" class="transformed-header-badges">
 					<span class="pattern-badge ${t.pattern}">${e[t.pattern] ?? t.pattern}</span>
 					<span class="meta-badge">p${t.page}</span>
-					${t.zoneColor ? x`<span class="area-color-swatch" style="background: ${t.zoneColor};"></span>` : y}
+					${t.zoneColor ? b`<span class="area-color-swatch" style="background: ${t.zoneColor};"></span>` : y}
 					<span class="meta-badge">${t.childCount} item${t.childCount !== 1 ? "s" : ""}</span>
 					${t.heading ? d(this, h, pe).call(this, s) : y}
 				</div>
@@ -1670,7 +1667,7 @@ gt = function(t) {
 };
 ft = function() {
   if (!this._transformResult)
-    return x`
+    return b`
 				<div class="empty-state">
 					<uui-icon name="icon-lab" style="font-size: 48px; color: var(--uui-color-text-alt);"></uui-icon>
 					<h3>No transform result</h3>
@@ -1678,25 +1675,25 @@ ft = function() {
 				</div>
 			`;
   const t = this._transformResult.sections.filter((s) => s.included), e = this._transformResult.sections.length;
-  return x`
+  return b`
 			${t.map((s) => d(this, h, gt).call(this, s))}
 			<div class="diagnostics">
 				<span class="meta-badge">${t.length}/${e} sections included</span>
 				<span class="meta-badge">${this._transformResult.diagnostics.bulletListSections} bullet</span>
 				<span class="meta-badge">${this._transformResult.diagnostics.paragraphSections} paragraph</span>
 				<span class="meta-badge">${this._transformResult.diagnostics.subHeadedSections} sub-headed</span>
-				${this._transformResult.diagnostics.preambleSections > 0 ? x`<span class="meta-badge">${this._transformResult.diagnostics.preambleSections} preamble</span>` : y}
+				${this._transformResult.diagnostics.preambleSections > 0 ? b`<span class="meta-badge">${this._transformResult.diagnostics.preambleSections} preamble</span>` : y}
 			</div>
 		`;
 };
 kt = function() {
-  return x`
+  return b`
 			<div class="empty-state">
 				<uui-icon name="icon-document" style="font-size: 48px; color: var(--uui-color-text-alt);"></uui-icon>
 				<h3>No sample extraction</h3>
 				<p>Choose a PDF from the media library to extract text elements with their metadata.</p>
 				<uui-button look="primary" label="Choose PDF" @click=${d(this, h, ie)} ?disabled=${this._extracting}>
-					${this._extracting ? x`<uui-loader-bar></uui-loader-bar>` : "Choose PDF..."}
+					${this._extracting ? b`<uui-loader-bar></uui-loader-bar>` : "Choose PDF..."}
 				</uui-button>
 			</div>
 		`;
@@ -1811,14 +1808,6 @@ _.styles = [
 				color: var(--uui-color-text);
 			}
 
-			.box-stat.stat-filtered {
-				color: var(--uui-color-warning);
-			}
-
-			.box-label {
-				font-size: var(--uui-type-small-size);
-				color: var(--uui-color-text-alt);
-			}
 
 			/* Collapse row below boxes */
 			.collapse-row {
@@ -2219,4 +2208,4 @@ export {
   _ as UpDocWorkflowSourceViewElement,
   Es as default
 };
-//# sourceMappingURL=up-doc-workflow-source-view.element-C6BLl97J.js.map
+//# sourceMappingURL=up-doc-workflow-source-view.element-yeVItOaC.js.map
