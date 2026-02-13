@@ -29,6 +29,11 @@ nav:
   - Home: index.md
   - User Journeys: user-journeys.md
   - Mapping Directions: mapping-directions.md
+  - User Interface:
+    - ui/index.md
+    - UUI Components: ui/uui-components.md
+    - Umbraco Components: ui/umbraco-components.md
+    - Custom Components: ui/custom-components.md
   - Frontend (TypeScript):
     - frontend/index.md
     - index.ts: source-files/index.md

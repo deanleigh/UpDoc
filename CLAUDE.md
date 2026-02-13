@@ -122,8 +122,10 @@ d:\Users\deanl\source\repos\Umbraco Extensions\Umbraco-CMS
 
 ## Umbraco References
 
-- UUI Storybook (base UI components): https://uui.umbraco.com/
-- Umbraco API Docs (property editor UIs, Umbraco-specific components): https://apidocs.umbraco.com/
+- **UUI Storybook** — base UI primitives (`uui-button`, `uui-box`, `uui-tab`, `uui-icon`, `uui-table`, etc.): https://uui.umbraco.com/
+- **Umbraco API Docs Storybook** — Umbraco-specific composed components, layout patterns, property editors, and dashboard patterns (`umb-body-layout`, `umb-property`, collection views, etc.): https://apidocs.umbraco.com/v14/ui/
+
+When implementing UI, check **both** references. UUI for base components, API Docs for how Umbraco composes them into higher-level patterns. The API Docs Storybook often shows patterns (stat boxes, tables, dashboard layouts) that aren't in UUI alone.
 
 ## Documentation (MkDocs)
 
