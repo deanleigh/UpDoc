@@ -110,6 +110,16 @@ public interface IWorkflowService
     /// Saves a SourceConfig as source.json in the workflow folder, replacing the existing file.
     /// </summary>
     void SaveSourceConfig(string workflowName, SourceConfig config);
+
+    /// <summary>
+    /// Saves a zone template as zone-template.json in the workflow folder.
+    /// </summary>
+    void SaveZoneTemplate(string workflowName, ZoneTemplate template);
+
+    /// <summary>
+    /// Loads the stored zone-template.json from a workflow folder, if it exists.
+    /// </summary>
+    ZoneTemplate? GetZoneTemplate(string workflowName);
 }
 
 /// <summary>
@@ -647,6 +657,35 @@ public class WorkflowService : IWorkflowService
         _logger.LogInformation("Saved source config to {Path}", filePath);
 
         ClearCache();
+    }
+
+    public void SaveZoneTemplate(string workflowName, ZoneTemplate template)
+    {
+        var folderPath = GetWorkflowFolderPath(workflowName);
+        if (!Directory.Exists(folderPath))
+        {
+            throw new DirectoryNotFoundException($"Workflow folder '{workflowName}' does not exist.");
+        }
+
+        var filePath = Path.Combine(folderPath, "zone-template.json");
+        var writeOptions = new JsonSerializerOptions { WriteIndented = true };
+        var json = JsonSerializer.Serialize(template, writeOptions);
+        File.WriteAllText(filePath, json);
+
+        _logger.LogInformation("Saved zone template to {Path} ({Count} zones)",
+            filePath, template.Zones.Count);
+    }
+
+    public ZoneTemplate? GetZoneTemplate(string workflowName)
+    {
+        var folderPath = GetWorkflowFolderPath(workflowName);
+        var filePath = Path.Combine(folderPath, "zone-template.json");
+
+        if (!File.Exists(filePath))
+            return null;
+
+        var json = File.ReadAllText(filePath);
+        return JsonSerializer.Deserialize<ZoneTemplate>(json, JsonOptions);
     }
 
     private string GetWorkflowFolderPath(string workflowName)

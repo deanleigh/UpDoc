@@ -88,6 +88,12 @@ export const manifests: Array<UmbExtensionManifest> = [
 		name: 'Destination Picker Modal',
 		element: () => import('./destination-picker-modal.element.js'),
 	},
+	{
+		type: 'modal',
+		alias: 'UpDoc.ZoneEditorModal',
+		name: 'Zone Editor Modal',
+		element: () => import('./pdf-zone-editor-modal.element.js'),
+	},
 
 	// =====================================================================
 	// Workflow Workspace — full page for editing individual workflows

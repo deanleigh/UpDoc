@@ -341,6 +341,37 @@ export interface TransformDiagnostics {
 }
 
 // ============================================================================
+// Zone Template Types (zone-template.json — user-defined extraction zones)
+// ============================================================================
+
+export interface ZoneTemplate {
+	templateName: string;
+	sourceFile: string;
+	pageSize: { width: number; height: number };
+	createdAt: string;
+	zones: ZoneDefinition[];
+}
+
+export interface ZoneDefinition {
+	name: string;
+	property: string;
+	page: number;
+	type: string;
+	bounds: ZoneBounds;
+	color: string;
+	headingFont: string;
+	expectedSections: string[];
+	notes: string;
+}
+
+export interface ZoneBounds {
+	x: number;
+	y: number;
+	width: number;
+	height: number;
+}
+
+// ============================================================================
 // API Response Types
 // ============================================================================
 

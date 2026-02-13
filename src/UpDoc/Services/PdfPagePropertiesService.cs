@@ -42,7 +42,8 @@ public interface IPdfPagePropertiesService
     /// </summary>
     /// <param name="filePath">Path to the PDF file.</param>
     /// <param name="includePages">Optional list of page numbers to extract. Null = all pages.</param>
-    ZoneDetectionResult DetectZones(string filePath, List<int>? includePages = null);
+    /// <param name="zoneTemplate">Optional user-defined zone template. When provided, uses template zones instead of auto-detecting from filled rectangles.</param>
+    ZoneDetectionResult DetectZones(string filePath, List<int>? includePages = null, ZoneTemplate? zoneTemplate = null);
 }
 
 /// <summary>
@@ -238,12 +239,12 @@ public class PdfPagePropertiesService : IPdfPagePropertiesService
         }
     }
 
-    public ZoneDetectionResult DetectZones(string filePath, List<int>? includePages = null)
+    public ZoneDetectionResult DetectZones(string filePath, List<int>? includePages = null, ZoneTemplate? zoneTemplate = null)
     {
         try
         {
             using var document = PdfDocument.Open(filePath);
-            return DetectZonesFromDocument(document, includePages);
+            return DetectZonesFromDocument(document, includePages, zoneTemplate);
         }
         catch (Exception)
         {
@@ -257,7 +258,7 @@ public class PdfPagePropertiesService : IPdfPagePropertiesService
         }
     }
 
-    private static ZoneDetectionResult DetectZonesFromDocument(PdfDocument document, List<int>? includePages = null)
+    private static ZoneDetectionResult DetectZonesFromDocument(PdfDocument document, List<int>? includePages = null, ZoneTemplate? zoneTemplate = null)
     {
         var result = new ZoneDetectionResult { TotalPages = document.NumberOfPages };
         var diagnostics = new ZoneDiagnosticInfo();
@@ -270,10 +271,33 @@ public class PdfPagePropertiesService : IPdfPagePropertiesService
                 continue;
             var page = document.GetPage(pageNum);
 
-            // Step 1: Detect filled rectangles (zones), sorted left-to-right
-            var zones = DetectPageFilledRects(page, pageNum, diagnostics)
-                .OrderBy(z => z.BoundingBox.Left)
-                .ToList();
+            // Step 1: Build zones — from template if provided, otherwise auto-detect from filled rectangles
+            List<DetectedZone> zones;
+            if (zoneTemplate != null)
+            {
+                zones = zoneTemplate.Zones
+                    .Where(z => z.Page == pageNum)
+                    .Select(z => new DetectedZone
+                    {
+                        Color = z.Color,
+                        Page = pageNum,
+                        BoundingBox = new ElementBoundingBox
+                        {
+                            Left = z.Bounds.X,
+                            Top = z.Bounds.Y + z.Bounds.Height, // Convert from bottom-left origin Y to Top
+                            Width = z.Bounds.Width,
+                            Height = z.Bounds.Height
+                        }
+                    })
+                    .OrderBy(z => z.BoundingBox.Left)
+                    .ToList();
+            }
+            else
+            {
+                zones = DetectPageFilledRects(page, pageNum, diagnostics)
+                    .OrderBy(z => z.BoundingBox.Left)
+                    .ToList();
+            }
 
             // Step 2: Extract text lines (reuse existing method)
             var lines = ExtractRichTextLines(page);

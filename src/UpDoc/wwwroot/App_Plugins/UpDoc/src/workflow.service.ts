@@ -1,4 +1,4 @@
-import type { DocumentTypeConfig, ExtractSectionsResponse, MapConfig, RichExtractionResult, TransformResult, ZoneDetectionResult } from './workflow.types.js';
+import type { DocumentTypeConfig, ExtractSectionsResponse, MapConfig, RichExtractionResult, TransformResult, ZoneDetectionResult, ZoneTemplate } from './workflow.types.js';
 
 const configCache = new Map<string, DocumentTypeConfig>();
 
@@ -435,6 +435,76 @@ export async function fetchSourceConfig(
 
 	if (!response.ok) return null;
 	return response.json();
+}
+
+/**
+ * Fetches the zone template for a workflow, if it exists.
+ */
+export async function fetchZoneTemplate(
+	workflowName: string,
+	token: string
+): Promise<ZoneTemplate | null> {
+	const response = await fetch(
+		`/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(workflowName)}/zone-template`,
+		{
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		}
+	);
+
+	if (!response.ok) return null;
+	return response.json();
+}
+
+/**
+ * Saves a zone template for a workflow.
+ */
+export async function saveZoneTemplate(
+	workflowName: string,
+	template: ZoneTemplate,
+	token: string
+): Promise<ZoneTemplate | null> {
+	const response = await fetch(
+		`/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(workflowName)}/zone-template`,
+		{
+			method: 'PUT',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${token}`,
+			},
+			body: JSON.stringify(template),
+		}
+	);
+
+	if (!response.ok) {
+		const error = await response.json();
+		console.error('Save zone template failed:', error);
+		return null;
+	}
+
+	return response.json();
+}
+
+/**
+ * Fetches the PDF file bytes for a workflow's source document.
+ * Returns a Blob that can be used with PDF.js.
+ */
+export async function fetchPdfBlob(
+	workflowName: string,
+	token: string
+): Promise<Blob | null> {
+	const response = await fetch(
+		`/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(workflowName)}/pdf`,
+		{
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		}
+	);
+
+	if (!response.ok) return null;
+	return response.blob();
 }
 
 /**

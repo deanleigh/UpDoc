@@ -10,6 +10,7 @@ export default defineConfig({
     outDir: 'dist',
     emptyDirFirst: true,
     sourcemap: true,
+    target: 'es2022',
     rollupOptions: {
       external: [/^@umbraco/]
     }

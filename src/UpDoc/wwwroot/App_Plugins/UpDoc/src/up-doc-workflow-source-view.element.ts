@@ -1,7 +1,8 @@
-import type { RichExtractionResult, DocumentTypeConfig, MappingDestination, ZoneDetectionResult, DetectedZone, DetectedSection, ZoneElement, TransformResult, TransformedSection, SourceConfig } from './workflow.types.js';
-import { fetchSampleExtraction, triggerSampleExtraction, fetchWorkflowByName, fetchZoneDetection, triggerTransform, fetchTransformResult, updateSectionInclusion, saveMapConfig, savePageSelection, fetchSourceConfig } from './workflow.service.js';
+import type { RichExtractionResult, DocumentTypeConfig, MappingDestination, ZoneDetectionResult, DetectedZone, DetectedSection, ZoneElement, TransformResult, TransformedSection, SourceConfig, ZoneTemplate } from './workflow.types.js';
+import { fetchSampleExtraction, triggerSampleExtraction, fetchWorkflowByName, fetchZoneDetection, triggerTransform, fetchTransformResult, updateSectionInclusion, saveMapConfig, savePageSelection, fetchSourceConfig, fetchZoneTemplate, saveZoneTemplate } from './workflow.service.js';
 import { markdownToHtml, normalizeToKebabCase } from './transforms.js';
 import { UMB_DESTINATION_PICKER_MODAL } from './destination-picker-modal.token.js';
+import { UMB_ZONE_EDITOR_MODAL } from './pdf-zone-editor-modal.token.js';
 import { html, css, state, nothing } from '@umbraco-cms/backoffice/external/lit';
 import { customElement } from '@umbraco-cms/backoffice/external/lit';
 import { UmbLitElement } from '@umbraco-cms/backoffice/lit-element';
@@ -29,6 +30,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 	@state() private _pageInputValue = '';
 	@state() private _allCollapsed = false;
 	@state() private _excludedAreas = new Set<string>();
+	@state() private _zoneTemplate: ZoneTemplate | null = null;
 	#token = '';
 
 	override connectedCallback() {
@@ -53,18 +55,20 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		try {
 			const authContext = await this.getContext(UMB_AUTH_CONTEXT);
 			this.#token = await authContext.getLatestToken();
-			const [extraction, zoneDetection, config, transformResult, sourceConfig] = await Promise.all([
+			const [extraction, zoneDetection, config, transformResult, sourceConfig, zoneTemplate] = await Promise.all([
 				fetchSampleExtraction(this._workflowName, this.#token),
 				fetchZoneDetection(this._workflowName, this.#token),
 				fetchWorkflowByName(this._workflowName, this.#token),
 				fetchTransformResult(this._workflowName, this.#token),
 				fetchSourceConfig(this._workflowName, this.#token),
+				fetchZoneTemplate(this._workflowName, this.#token),
 			]);
 			this._extraction = extraction;
 			this._zoneDetection = zoneDetection;
 			this._config = config;
 			this._transformResult = transformResult;
 			this._sourceConfig = sourceConfig;
+			this._zoneTemplate = zoneTemplate;
 
 			// Initialize page selection state from source config
 			if (sourceConfig?.pages && Array.isArray(sourceConfig.pages) && sourceConfig.pages.length > 0) {
@@ -229,6 +233,37 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		if (!mediaKey) return;
 
 		await this.#runExtraction(mediaKey);
+	}
+
+	/** Opens the zone editor modal to define/edit extraction areas. */
+	async #onEditAreas() {
+		if (!this._workflowName) return;
+
+		const modalManager = await this.getContext(UMB_MODAL_MANAGER_CONTEXT);
+		const modal = modalManager.open(this, UMB_ZONE_EDITOR_MODAL, {
+			data: {
+				workflowName: this._workflowName,
+				existingTemplate: this._zoneTemplate,
+				selectedPages: this._sourceConfig?.pages && Array.isArray(this._sourceConfig.pages)
+					? this._sourceConfig.pages
+					: null,
+			},
+		});
+
+		try {
+			const result = await modal.onSubmit();
+			if (result?.template) {
+				// Save the zone template
+				const saved = await saveZoneTemplate(this._workflowName, result.template, this.#token);
+				if (saved) {
+					this._zoneTemplate = saved;
+					// Re-extract with the new zone template applied
+					await this.#onReExtract();
+				}
+			}
+		} catch {
+			// Modal was cancelled — do nothing
+		}
 	}
 
 	/** Re-extract using the previously stored media key (after page selection change). */
@@ -662,7 +697,18 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 
 				<uui-box headline="Areas" class="info-box-item">
 					<div class="box-content">
-						<span class="box-stat">${areas}</span>
+						<span class="box-stat">${this._zoneTemplate ? this._zoneTemplate.zones.length : areas}</span>
+						<div class="box-buttons">
+							${this._zoneTemplate
+								? html`<uui-button look="outline" compact label="Edit Areas" @click=${this.#onEditAreas}>
+									<uui-icon name="icon-edit"></uui-icon>
+									Edit Areas
+								</uui-button>`
+								: html`<uui-button look="primary" color="positive" compact label="Define Areas" @click=${this.#onEditAreas}>
+									<uui-icon name="icon-grid"></uui-icon>
+									Define Areas
+								</uui-button>`}
+						</div>
 					</div>
 				</uui-box>
 

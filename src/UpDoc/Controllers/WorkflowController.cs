@@ -306,11 +306,12 @@ public class WorkflowController : ControllerBase
             return NotFound(new { error = "Media item not found or file not on disk" });
         }
 
-        // Read page selection from source.json
+        // Read page selection and zone template from workflow
         var sourceConfig = _workflowService.GetSourceConfig(name);
         var includePages = ResolveIncludePages(absolutePath, sourceConfig);
+        var zoneTemplate = _workflowService.GetZoneTemplate(name);
 
-        var result = _pdfPagePropertiesService.DetectZones(absolutePath, includePages);
+        var result = _pdfPagePropertiesService.DetectZones(absolutePath, includePages, zoneTemplate);
 
         try
         {
@@ -348,12 +349,13 @@ public class WorkflowController : ControllerBase
             return NotFound(new { error = "Media item not found or file not on disk" });
         }
 
-        // Read page selection from source.json
+        // Read page selection and zone template from workflow
         var sourceConfig = _workflowService.GetSourceConfig(name);
         var includePages = ResolveIncludePages(absolutePath, sourceConfig);
+        var zoneTemplate = _workflowService.GetZoneTemplate(name);
 
-        // Step 1: Run zone detection (with page filtering)
-        var zoneResult = _pdfPagePropertiesService.DetectZones(absolutePath, includePages);
+        // Step 1: Run zone detection (with page filtering and optional zone template)
+        var zoneResult = _pdfPagePropertiesService.DetectZones(absolutePath, includePages, zoneTemplate);
 
         try
         {
@@ -403,11 +405,12 @@ public class WorkflowController : ControllerBase
 
         try
         {
-            // Read page selection from source.json
+            // Read page selection and zone template from workflow
             var sourceConfig = _workflowService.GetSourceConfig(name);
             var includePages = ResolveIncludePages(absolutePath, sourceConfig);
+            var zoneTemplate = _workflowService.GetZoneTemplate(name);
 
-            var zoneResult = _pdfPagePropertiesService.DetectZones(absolutePath, includePages);
+            var zoneResult = _pdfPagePropertiesService.DetectZones(absolutePath, includePages, zoneTemplate);
             var previousTransform = _workflowService.GetTransformResult(name);
             var result = _contentTransformService.Transform(zoneResult, previousTransform);
             return Ok(result);
@@ -468,6 +471,56 @@ public class WorkflowController : ControllerBase
         }
 
         return Ok(sourceConfig);
+    }
+
+    [HttpPut("{name}/zone-template")]
+    public IActionResult UpdateZoneTemplate(string name, [FromBody] ZoneTemplate template)
+    {
+        try
+        {
+            _workflowService.SaveZoneTemplate(name, template);
+            return Ok(template);
+        }
+        catch (DirectoryNotFoundException)
+        {
+            return NotFound(new { error = $"Workflow '{name}' not found." });
+        }
+    }
+
+    [HttpGet("{name}/zone-template")]
+    public IActionResult GetZoneTemplate(string name)
+    {
+        var template = _workflowService.GetZoneTemplate(name);
+        if (template == null)
+        {
+            return NotFound(new { error = $"No zone template found for workflow '{name}'." });
+        }
+
+        return Ok(template);
+    }
+
+    [HttpGet("{name}/pdf")]
+    public IActionResult GetPdf(string name, [FromQuery] Guid? mediaKey = null)
+    {
+        // If mediaKey not provided, try to get it from the stored sample extraction
+        if (mediaKey == null || mediaKey == Guid.Empty)
+        {
+            var extraction = _workflowService.GetSampleExtraction(name);
+            if (extraction?.Source?.MediaKey == null || !Guid.TryParse(extraction.Source.MediaKey, out var parsedKey))
+            {
+                return BadRequest(new { error = "No media key provided and no sample extraction found." });
+            }
+            mediaKey = parsedKey;
+        }
+
+        var absolutePath = ResolveMediaFilePath(mediaKey.Value);
+        if (absolutePath == null)
+        {
+            return NotFound(new { error = "Media item not found or file not on disk." });
+        }
+
+        var fileStream = new FileStream(absolutePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+        return File(fileStream, "application/pdf");
     }
 
     /// <summary>
