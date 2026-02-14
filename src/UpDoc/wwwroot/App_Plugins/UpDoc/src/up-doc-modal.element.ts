@@ -1,6 +1,7 @@
 import type { UmbUpDocModalData, UmbUpDocModalValue, SourceType } from './up-doc-modal.token.js';
 import type { DocumentTypeConfig } from './workflow.types.js';
 import { extractRich, fetchConfig, transformAdhoc } from './workflow.service.js';
+import { getDestinationTabs, resolveDestinationTab, resolveBlockLabel } from './destination-utils.js';
 import { html, customElement, css, state, nothing } from '@umbraco-cms/backoffice/external/lit';
 import { UmbTextStyles } from '@umbraco-cms/backoffice/style';
 import { UmbModalBaseElement } from '@umbraco-cms/backoffice/modal';
@@ -54,6 +55,9 @@ export class UpDocModalElement extends UmbModalBaseElement<
 	private _extractionError: string | null = null;
 
 	@state()
+	private _contentActiveTab = '';
+
+	@state()
 	private _availableSourceTypes: string[] = [];
 
 	@state()
@@ -67,6 +71,7 @@ export class UpDocModalElement extends UmbModalBaseElement<
 		this._extractedSections = {};
 		this._sectionLookup = {};
 		this._config = null;
+		this._contentActiveTab = '';
 		this.#loadAvailableSourceTypes();
 	}
 
@@ -109,6 +114,7 @@ export class UpDocModalElement extends UmbModalBaseElement<
 			this._extractedSections = {};
 			this._sectionLookup = {};
 			this._extractionError = null;
+			this._contentActiveTab = '';
 		}
 
 		this._sourceType = newSourceType;
@@ -447,13 +453,21 @@ export class UpDocModalElement extends UmbModalBaseElement<
 	}
 
 	/**
-	 * Builds a preview of what the mapped values will look like.
+	 * Builds a grouped preview of mapped values, organised by destination tab.
 	 * Groups by compound key (blockKey:alias) so block properties with the same
-	 * alias across different blocks are kept separate.
+	 * alias across different blocks are kept separate, then classifies each
+	 * into its destination tab using the destination.json structure.
 	 */
-	#buildMappedPreview(): Array<{ label: string; value: string }> {
-		if (!this._config?.map?.mappings?.length) return [];
+	#buildGroupedPreview(): Array<{
+		tabId: string;
+		tabLabel: string;
+		items: Array<{ label: string; value: string; blockLabel?: string }>;
+	}> {
+		if (!this._config?.map?.mappings?.length || !this._config?.destination) return [];
 
+		const destination = this._config.destination;
+
+		// Step 1: Build compound key → values + metadata (same as old #buildMappedPreview)
 		const preview = new Map<string, string[]>();
 		const keyMeta = new Map<string, { alias: string; blockKey?: string }>();
 
@@ -472,47 +486,147 @@ export class UpDocModalElement extends UmbModalBaseElement<
 			}
 		}
 
-		return Array.from(preview.entries()).map(([compoundKey, parts]) => {
+		// Step 2: Classify each item into a destination tab
+		const tabItems = new Map<string, Array<{ label: string; value: string; blockLabel?: string }>>();
+		const tabLabels = new Map<string, string>();
+
+		for (const [compoundKey, parts] of preview.entries()) {
 			const meta = keyMeta.get(compoundKey);
-			return {
-				label: this.#resolveDestinationLabel(meta?.alias ?? compoundKey, meta?.blockKey),
+			const alias = meta?.alias ?? compoundKey;
+			const blockKey = meta?.blockKey;
+
+			const tabId = resolveDestinationTab(
+				{ target: alias, blockKey },
+				destination,
+			) ?? 'other';
+
+			if (!tabItems.has(tabId)) {
+				tabItems.set(tabId, []);
+			}
+
+			// Resolve the field-level label (without block prefix for block properties)
+			let fieldLabel = alias;
+			if (blockKey && destination.blockGrids) {
+				for (const grid of destination.blockGrids) {
+					const block = grid.blocks.find((b) => b.key === blockKey);
+					if (block) {
+						const prop = block.properties?.find((p) => p.alias === alias);
+						if (prop) fieldLabel = prop.label || prop.alias;
+						break;
+					}
+				}
+			} else {
+				const field = destination.fields.find((f) => f.alias === alias);
+				if (field) fieldLabel = field.label;
+			}
+
+			tabItems.get(tabId)!.push({
+				label: fieldLabel,
 				value: parts.join(' '),
-			};
-		});
-	}
-
-	#resolveDestinationLabel(alias: string, blockKey?: string): string {
-		if (!this._config?.destination) return alias;
-
-		// Check top-level fields first (only when no blockKey)
-		if (!blockKey) {
-			const field = this._config.destination.fields.find((f) => f.alias === alias);
-			if (field) return field.label;
+				blockLabel: blockKey ? (resolveBlockLabel(blockKey, destination) ?? undefined) : undefined,
+			});
 		}
 
-		// Check block properties — use blockKey to find the specific block
-		if (this._config.destination.blockGrids) {
-			for (const grid of this._config.destination.blockGrids) {
-				for (const block of grid.blocks) {
-					if (blockKey && block.key !== blockKey) continue;
-					const prop = block.properties?.find((p) => p.alias === alias);
-					if (prop) return `${block.label} > ${prop.label || prop.alias}`;
-				}
+		// Step 3: Order tabs according to destination structure, only include tabs with items
+		const allTabs = getDestinationTabs(destination);
+		const result: Array<{
+			tabId: string;
+			tabLabel: string;
+			items: Array<{ label: string; value: string; blockLabel?: string }>;
+		}> = [];
+
+		for (const tab of allTabs) {
+			const items = tabItems.get(tab.id);
+			if (items?.length) {
+				tabLabels.set(tab.id, tab.label);
+				result.push({ tabId: tab.id, tabLabel: tab.label, items });
 			}
 		}
 
-		// Fallback: check top-level fields even with blockKey (shouldn't happen but safe)
-		const field = this._config.destination.fields.find((f) => f.alias === alias);
-		return field?.label ?? alias;
+		// Add orphaned items if any
+		const orphanedItems = tabItems.get('other');
+		if (orphanedItems?.length) {
+			result.push({ tabId: 'other', tabLabel: 'Other', items: orphanedItems });
+		}
+
+		return result;
+	}
+
+	#renderSectionCard(label: string, value: string) {
+		return html`
+			<div class="section-card">
+				<div class="section-card-header">
+					<span class="section-card-label">${label}</span>
+				</div>
+				<div class="section-card-body">
+					<uui-action-bar class="section-card-actions">
+						<uui-button
+							compact
+							title="Copy"
+							label="Copy ${label}"
+							@click=${() => this.#copySection(label, value)}>
+							<uui-icon name="icon-documents"></uui-icon>
+						</uui-button>
+					</uui-action-bar>
+					<div class="section-card-content">${value}</div>
+				</div>
+			</div>
+		`;
+	}
+
+	#renderContentGroupItems(group: { tabId: string; items: Array<{ label: string; value: string; blockLabel?: string }> }) {
+		if (group.tabId === 'page-content') {
+			// Sub-group by block label
+			const blockGroups = new Map<string, Array<{ label: string; value: string }>>();
+			for (const item of group.items) {
+				const key = item.blockLabel ?? 'Other';
+				const arr = blockGroups.get(key) ?? [];
+				arr.push(item);
+				blockGroups.set(key, arr);
+			}
+
+			return html`
+				${Array.from(blockGroups.entries()).map(([blockLabel, items]) => html`
+					<div class="block-group-header">
+						<umb-icon name="icon-box"></umb-icon>
+						<span>${blockLabel}</span>
+					</div>
+					${items.map((item) => this.#renderSectionCard(item.label, item.value))}
+				`)}
+			`;
+		}
+
+		return html`
+			${group.items.map((item) => this.#renderSectionCard(item.label, item.value))}
+		`;
 	}
 
 	#renderContentTab() {
-		const mapped = this.#buildMappedPreview();
+		const grouped = this.#buildGroupedPreview();
 
-		if (mapped.length === 0) {
+		if (grouped.length === 0) {
 			return html`
 				<div class="content-editor">
 					<p class="content-editor-intro">No mapped content to preview. Create mappings in the workflow editor first.</p>
+				</div>
+			`;
+		}
+
+		// Auto-select first tab if none active or current tab no longer exists
+		if (!this._contentActiveTab || !grouped.find((g) => g.tabId === this._contentActiveTab)) {
+			this._contentActiveTab = grouped[0].tabId;
+		}
+
+		const activeGroup = grouped.find((g) => g.tabId === this._contentActiveTab) ?? grouped[0];
+
+		// If only one tab, don't render the tab bar — just show the content directly
+		if (grouped.length === 1) {
+			return html`
+				<div class="content-editor">
+					<p class="content-editor-intro">
+						Review the content that will be mapped to the document.
+					</p>
+					${this.#renderContentGroupItems(activeGroup)}
 				</div>
 			`;
 		}
@@ -522,25 +636,17 @@ export class UpDocModalElement extends UmbModalBaseElement<
 				<p class="content-editor-intro">
 					Review the content that will be mapped to the document.
 				</p>
-				${mapped.map(({ label, value }) => html`
-					<div class="section-card">
-						<div class="section-card-header">
-							<span class="section-card-label">${label}</span>
-						</div>
-						<div class="section-card-body">
-							<uui-action-bar class="section-card-actions">
-								<uui-button
-									compact
-									title="Copy"
-									label="Copy ${label}"
-									@click=${() => this.#copySection(label, value)}>
-									<uui-icon name="icon-documents"></uui-icon>
-								</uui-button>
-							</uui-action-bar>
-							<div class="section-card-content">${value}</div>
-						</div>
-					</div>
-				`)}
+				<uui-tab-group class="content-inner-tabs">
+					${grouped.map((group) => html`
+						<uui-tab
+							label=${group.tabLabel}
+							?active=${this._contentActiveTab === group.tabId}
+							@click=${() => { this._contentActiveTab = group.tabId; }}>
+							${group.tabLabel}
+						</uui-tab>
+					`)}
+				</uui-tab-group>
+				${this.#renderContentGroupItems(activeGroup)}
 			</div>
 		`;
 	}
@@ -701,6 +807,38 @@ export class UpDocModalElement extends UmbModalBaseElement<
 				font-size: var(--uui-type-small-size);
 				max-height: 300px;
 				overflow-y: auto;
+			}
+
+			/* Content tab inner tabs */
+			.content-inner-tabs {
+				margin-bottom: var(--uui-size-space-4);
+				--uui-tab-background: var(--uui-color-surface);
+			}
+
+			.block-group-header {
+				display: flex;
+				align-items: center;
+				gap: var(--uui-size-space-2);
+				padding: var(--uui-size-space-3) var(--uui-size-space-4);
+				background: var(--uui-color-surface-alt);
+				border: 1px solid var(--uui-color-border);
+				border-radius: var(--uui-border-radius) var(--uui-border-radius) 0 0;
+				font-weight: 600;
+				font-size: var(--uui-type-small-size);
+				margin-top: var(--uui-size-space-4);
+			}
+
+			.block-group-header:first-child {
+				margin-top: 0;
+			}
+
+			.block-group-header + .section-card {
+				border-top: none;
+				border-radius: 0 0 var(--uui-border-radius) var(--uui-border-radius);
+			}
+
+			.block-group-header + .section-card .section-card-header {
+				border-radius: 0;
 			}
 
 			/* Destination tab */

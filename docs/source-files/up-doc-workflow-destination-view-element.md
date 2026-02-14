@@ -10,8 +10,8 @@ Renders a read-only view of the workflow's destination configuration — the blu
 
 1. On `connectedCallback`, consumes `UMB_WORKSPACE_CONTEXT` and observes the `unique` value
 2. When `unique` changes, calls `fetchWorkflowByName()` to load the workflow configuration
-3. Extracts unique tab names from the destination fields to build inner tabs
-4. If block grids exist and there's no explicit "Page Content" tab, adds one automatically
+3. Uses `getDestinationTabs()` from `destination-utils.ts` to build inner tabs (shared logic with Map view and Content tab)
+4. If block grids exist and there's no explicit "Page Content" tab, adds one automatically (handled by the shared utility)
 5. Renders using Umbraco's native `umb-body-layout` + `uui-tab-group` + `uui-tab` pattern
 
 ### Tab structure
@@ -57,6 +57,7 @@ The `uui-tab` element requires text content inside it (`${tab.label}`) in additi
 ```typescript
 import type { DocumentTypeConfig, DestinationField, DestinationBlockGrid } from './workflow.types.js';
 import { fetchWorkflowByName } from './workflow.service.js';
+import { getDestinationTabs } from './destination-utils.js';
 import { html, customElement, css, state, nothing } from '@umbraco-cms/backoffice/external/lit';
 import { UmbLitElement } from '@umbraco-cms/backoffice/lit-element';
 import { UmbTextStyles } from '@umbraco-cms/backoffice/style';

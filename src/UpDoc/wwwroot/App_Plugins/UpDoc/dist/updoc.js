@@ -59,7 +59,7 @@ const o = [
     type: "modal",
     alias: "UpDoc.Modal",
     name: "UpDoc Modal",
-    element: () => import("./up-doc-modal.element-FWdF0CLB.js")
+    element: () => import("./up-doc-modal.element-C4dTmSMs.js")
   },
   {
     type: "modal",
@@ -108,7 +108,7 @@ const o = [
     type: "workspaceView",
     alias: "UpDoc.WorkflowWorkspaceView.Destination",
     name: "Destination",
-    element: () => import("./up-doc-workflow-destination-view.element-8B1FfwgT.js"),
+    element: () => import("./up-doc-workflow-destination-view.element-BbXMqUw8.js"),
     weight: 300,
     meta: {
       label: "Destination",
@@ -144,7 +144,7 @@ const o = [
     type: "workspaceView",
     alias: "UpDoc.WorkflowWorkspaceView.Map",
     name: "UpDoc Workflow Map View",
-    element: () => import("./up-doc-workflow-map-view.element-CF6V1Rwk.js"),
+    element: () => import("./up-doc-workflow-map-view.element-CjfDZJkV.js"),
     weight: 100,
     meta: {
       label: "Map",

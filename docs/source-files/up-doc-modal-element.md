@@ -142,34 +142,27 @@ The `#prefillDocumentName` method finds the first destination target in `map.jso
 
 This handles cases like a title split across two PDF lines (e.g., "Flemish Masters –" + "Bruges, Antwerp & Ghent" → "Flemish Masters – Bruges, Antwerp & Ghent").
 
-### Content tab with mapped preview
+### Content tab with grouped preview
 
-The Content tab shows destination field labels with assembled values from the extraction, rather than raw extraction elements. This gives the user a preview of what the created document will look like:
+The Content tab shows destination field labels with assembled values from the extraction, grouped by the destination document's tab structure. This gives the user a preview that matches the layout they'll see when editing the document in Umbraco.
+
+The `#buildGroupedPreview()` method groups mapped content by destination tab using shared utilities from `destination-utils.ts`:
 
 ```typescript
-#buildMappedPreview(): Array<{ label: string; value: string }> {
-    if (!this._config?.map?.mappings?.length) return [];
-
-    const preview = new Map<string, string[]>();
-    for (const mapping of this._config.map.mappings) {
-        if (mapping.enabled === false) continue;
-        const text = this._extractedSections[mapping.source];
-        if (!text) continue;
-        for (const dest of mapping.destinations) {
-            const existing = preview.get(dest.target) ?? [];
-            existing.push(text);
-            preview.set(dest.target, existing);
-        }
-    }
-
-    return Array.from(preview.entries()).map(([alias, parts]) => ({
-        label: this.#resolveDestinationLabel(alias),
-        value: parts.join(' '),
-    }));
+interface ContentTabGroup {
+    tabId: string;
+    tabLabel: string;
+    items: Array<{ label: string; value: string; blockLabel?: string }>;
 }
 ```
 
-The `#resolveDestinationLabel` method looks up human-readable labels from the destination config — checking both top-level fields and block grid properties.
+- Uses `resolveDestinationTab()` to classify each mapping into a destination tab
+- Uses `resolveBlockLabel()` to resolve block labels for Page Content items
+- Compound keys (`blockKey:alias`) ensure block property values are correctly grouped
+- Items within Page Content are sub-grouped by block, with block headers as visual dividers
+- Only tabs with mapped content are shown
+
+When multiple tabs have content, inner `uui-tab-group` tabs appear (matching the Destination view's tab pattern). When only one tab has content, the tab bar is omitted to avoid a single useless tab.
 
 ### Destination tab
 
@@ -331,6 +324,9 @@ The modal uses a tabbed interface with three tabs:
 2. **Source box** -- Contains a source type dropdown and conditional source-specific UI
 
 ### Content Tab
+- **Inner tabs** matching the destination document's tab structure (Page Properties, Page Content, custom tabs)
+- When only one tab has content, the tab bar is hidden
+- **Page Content** items are sub-grouped by block with block name headers
 - **Mapped field cards** -- Each destination field displayed as a card with:
   - Header showing the human-readable destination field label (resolved from destination config)
   - Body with assembled content from all mapped source elements (concatenated with spaces)
@@ -370,6 +366,7 @@ The modal shows visual feedback during and after extraction:
 import type { UmbUpDocModalData, UmbUpDocModalValue, SourceType } from './up-doc-modal.token.js';
 import type { DocumentTypeConfig } from './workflow.types.js';
 import { extractRich, fetchConfig } from './workflow.service.js';
+import { getDestinationTabs, resolveDestinationTab, resolveBlockLabel } from './destination-utils.js';
 import { html, customElement, css, state, nothing } from '@umbraco-cms/backoffice/external/lit';
 import { UmbTextStyles } from '@umbraco-cms/backoffice/style';
 import { UmbModalBaseElement } from '@umbraco-cms/backoffice/modal';

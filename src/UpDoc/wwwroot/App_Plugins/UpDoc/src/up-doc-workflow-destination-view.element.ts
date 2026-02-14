@@ -1,5 +1,6 @@
 import type { DocumentTypeConfig, DestinationField, DestinationBlockGrid } from './workflow.types.js';
 import { fetchWorkflowByName } from './workflow.service.js';
+import { getDestinationTabs } from './destination-utils.js';
 import { html, customElement, css, state, nothing } from '@umbraco-cms/backoffice/external/lit';
 import { UmbLitElement } from '@umbraco-cms/backoffice/lit-element';
 import { UmbTextStyles } from '@umbraco-cms/backoffice/style';
@@ -51,26 +52,9 @@ export class UpDocWorkflowDestinationViewElement extends UmbLitElement {
 		}
 	}
 
-	#getTabs(): Array<{ id: string; label: string }> {
+	#getTabs() {
 		if (!this._config) return [];
-
-		const tabs: Array<{ id: string; label: string }> = [];
-		const tabNames = new Set(this._config.destination.fields.map((f) => f.tab).filter(Boolean));
-
-		for (const tabName of tabNames) {
-			tabs.push({
-				id: tabName!.toLowerCase().replace(/\s+/g, '-'),
-				label: tabName!,
-			});
-		}
-
-		if (this._config.destination.blockGrids?.length) {
-			if (!tabNames.has('Page Content')) {
-				tabs.push({ id: 'page-content', label: 'Page Content' });
-			}
-		}
-
-		return tabs;
+		return getDestinationTabs(this._config.destination);
 	}
 
 	#renderFieldsForTab(tabName: string) {

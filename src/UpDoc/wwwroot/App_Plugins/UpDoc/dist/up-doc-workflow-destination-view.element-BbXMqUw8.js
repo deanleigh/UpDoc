@@ -1,24 +1,25 @@
 import { b as z } from "./workflow.service-T0TEyrPt.js";
-import { html as a, nothing as o, css as x, state as d, customElement as $ } from "@umbraco-cms/backoffice/external/lit";
-import { UmbLitElement as w } from "@umbraco-cms/backoffice/lit-element";
+import { g as x } from "./destination-utils-CEQ5Lbpg.js";
+import { html as a, nothing as o, css as $, state as d, customElement as w } from "@umbraco-cms/backoffice/external/lit";
+import { UmbLitElement as T } from "@umbraco-cms/backoffice/lit-element";
 import { UmbTextStyles as C } from "@umbraco-cms/backoffice/style";
-import { UMB_AUTH_CONTEXT as T } from "@umbraco-cms/backoffice/auth";
-import { UMB_WORKSPACE_CONTEXT as E } from "@umbraco-cms/backoffice/workspace";
-var U = Object.defineProperty, B = Object.getOwnPropertyDescriptor, v = (i) => {
+import { UMB_AUTH_CONTEXT as E } from "@umbraco-cms/backoffice/auth";
+import { UMB_WORKSPACE_CONTEXT as D } from "@umbraco-cms/backoffice/workspace";
+var U = Object.defineProperty, W = Object.getOwnPropertyDescriptor, v = (i) => {
   throw TypeError(i);
 }, u = (i, e, t, n) => {
-  for (var c = n > 1 ? void 0 : n ? B(e, t) : e, p = i.length - 1, f; p >= 0; p--)
+  for (var c = n > 1 ? void 0 : n ? W(e, t) : e, p = i.length - 1, f; p >= 0; p--)
     (f = i[p]) && (c = (n ? f(e, t, c) : f(c)) || c);
   return n && c && U(e, t, c), c;
-}, D = (i, e, t) => e.has(i) || v("Cannot " + t), W = (i, e, t) => e.has(i) ? v("Cannot add the same private member more than once") : e instanceof WeakSet ? e.add(i) : e.set(i, t), l = (i, e, t) => (D(i, e, "access private method"), t), s, h, b, m, g, _, y, k;
-let r = class extends w {
+}, B = (i, e, t) => e.has(i) || v("Cannot " + t), F = (i, e, t) => e.has(i) ? v("Cannot add the same private member more than once") : e instanceof WeakSet ? e.add(i) : e.set(i, t), r = (i, e, t) => (B(i, e, "access private method"), t), s, m, b, h, g, _, y, k;
+let l = class extends T {
   constructor() {
-    super(...arguments), W(this, s), this._config = null, this._loading = !0, this._error = null, this._activeTab = "";
+    super(...arguments), F(this, s), this._config = null, this._loading = !0, this._error = null, this._activeTab = "";
   }
   connectedCallback() {
-    super.connectedCallback(), this.consumeContext(E, (i) => {
+    super.connectedCallback(), this.consumeContext(D, (i) => {
       i && this.observe(i.unique, (e) => {
-        e && l(this, s, h).call(this, decodeURIComponent(e));
+        e && r(this, s, m).call(this, decodeURIComponent(e));
       });
     });
   }
@@ -27,7 +28,7 @@ let r = class extends w {
       return a`<div class="loading"><uui-loader-bar></uui-loader-bar></div>`;
     if (this._error)
       return a`<p style="color: var(--uui-color-danger);">${this._error}</p>`;
-    const i = l(this, s, b).call(this);
+    const i = r(this, s, b).call(this);
     return a`
 			<umb-body-layout header-fit-height>
 				<uui-tab-group slot="header" dropdown-content-direction="vertical">
@@ -45,22 +46,22 @@ let r = class extends w {
     )}
 				</uui-tab-group>
 				<uui-box>
-					${l(this, s, k).call(this)}
+					${r(this, s, k).call(this)}
 				</uui-box>
 			</umb-body-layout>
 		`;
   }
 };
 s = /* @__PURE__ */ new WeakSet();
-h = async function(i) {
+m = async function(i) {
   this._loading = !0, this._error = null;
   try {
-    const t = await (await this.getContext(T)).getLatestToken();
+    const t = await (await this.getContext(E)).getLatestToken();
     if (this._config = await z(i, t), !this._config) {
       this._error = `Workflow "${i}" not found`;
       return;
     }
-    const n = l(this, s, b).call(this);
+    const n = r(this, s, b).call(this);
     n.length > 0 && (this._activeTab = n[0].id);
   } catch (e) {
     this._error = e instanceof Error ? e.message : "Failed to load workflow", console.error("Failed to load workflow config:", e);
@@ -69,21 +70,14 @@ h = async function(i) {
   }
 };
 b = function() {
-  if (!this._config) return [];
-  const i = [], e = new Set(this._config.destination.fields.map((t) => t.tab).filter(Boolean));
-  for (const t of e)
-    i.push({
-      id: t.toLowerCase().replace(/\s+/g, "-"),
-      label: t
-    });
-  return this._config.destination.blockGrids?.length && (e.has("Page Content") || i.push({ id: "page-content", label: "Page Content" })), i;
+  return this._config ? x(this._config.destination) : [];
 };
-m = function(i) {
+h = function(i) {
   if (!this._config) return o;
   const e = this._config.destination.fields.filter((t) => t.tab === i);
   return e.length === 0 ? a`<p class="empty-message">No fields in this tab.</p>` : a`
 			<div class="field-list">
-				${e.map((t) => l(this, s, g).call(this, t))}
+				${e.map((t) => r(this, s, g).call(this, t))}
 			</div>
 		`;
 };
@@ -107,7 +101,7 @@ g = function(i) {
 };
 _ = function() {
   return this._config?.destination.blockGrids?.length ? a`
-			${this._config.destination.blockGrids.map((i) => l(this, s, y).call(this, i))}
+			${this._config.destination.blockGrids.map((i) => r(this, s, y).call(this, i))}
 		` : a`<p class="empty-message">No block grids configured.</p>`;
 };
 y = function(i) {
@@ -153,15 +147,15 @@ y = function(i) {
 k = function() {
   if (!this._config) return o;
   if (this._activeTab === "page-content")
-    return l(this, s, _).call(this);
+    return r(this, s, _).call(this);
   const i = this._config.destination.fields.find(
     (e) => e.tab && e.tab.toLowerCase().replace(/\s+/g, "-") === this._activeTab
   )?.tab;
-  return i ? l(this, s, m).call(this, i) : o;
+  return i ? r(this, s, h).call(this, i) : o;
 };
-r.styles = [
+l.styles = [
   C,
-  x`
+  $`
 			:host {
 				display: block;
 				height: 100%;
@@ -315,22 +309,22 @@ r.styles = [
 ];
 u([
   d()
-], r.prototype, "_config", 2);
+], l.prototype, "_config", 2);
 u([
   d()
-], r.prototype, "_loading", 2);
+], l.prototype, "_loading", 2);
 u([
   d()
-], r.prototype, "_error", 2);
+], l.prototype, "_error", 2);
 u([
   d()
-], r.prototype, "_activeTab", 2);
-r = u([
-  $("up-doc-workflow-destination-view")
-], r);
-const S = r;
+], l.prototype, "_activeTab", 2);
+l = u([
+  w("up-doc-workflow-destination-view")
+], l);
+const L = l;
 export {
-  r as UpDocWorkflowDestinationViewElement,
-  S as default
+  l as UpDocWorkflowDestinationViewElement,
+  L as default
 };
-//# sourceMappingURL=up-doc-workflow-destination-view.element-8B1FfwgT.js.map
+//# sourceMappingURL=up-doc-workflow-destination-view.element-BbXMqUw8.js.map

@@ -1,5 +1,6 @@
-import type { DocumentTypeConfig, SectionMapping, MappingDestination, DestinationField, BlockProperty, RichExtractionResult, ExtractionElement } from './workflow.types.js';
+import type { DocumentTypeConfig, SectionMapping, MappingDestination, RichExtractionResult } from './workflow.types.js';
 import { fetchWorkflowByName, fetchSampleExtraction, saveMapConfig } from './workflow.service.js';
+import { getDestinationTabs, resolveDestinationTab, resolveBlockLabel } from './destination-utils.js';
 import { html, customElement, css, state, nothing } from '@umbraco-cms/backoffice/external/lit';
 import { UmbLitElement } from '@umbraco-cms/backoffice/lit-element';
 import { UmbTextStyles } from '@umbraco-cms/backoffice/style';
@@ -153,25 +154,139 @@ export class UpDocWorkflowMapViewElement extends UmbLitElement {
 		`;
 	}
 
+	/**
+	 * Groups mappings by their destination tab and block.
+	 * Uses the first destination in each mapping to determine the group.
+	 */
+	#groupMappingsByDestination(): Array<{
+		tabId: string;
+		tabLabel: string;
+		blockKey?: string;
+		blockLabel?: string;
+		mappings: Array<{ mapping: SectionMapping; index: number }>;
+	}> {
+		if (!this._config?.destination) return [];
+
+		const destination = this._config.destination;
+		const allTabs = getDestinationTabs(destination);
+
+		// Composite key: "tabId" for top-level, "tabId:blockKey" for blocks
+		const groupMap = new Map<string, {
+			tabId: string;
+			tabLabel: string;
+			blockKey?: string;
+			blockLabel?: string;
+			mappings: Array<{ mapping: SectionMapping; index: number }>;
+		}>();
+
+		for (let index = 0; index < this._config.map.mappings.length; index++) {
+			const mapping = this._config.map.mappings[index];
+			const firstDest = mapping.destinations[0];
+			if (!firstDest) continue;
+
+			const tabId = resolveDestinationTab(firstDest, destination) ?? 'unmapped';
+			const tabLabel = allTabs.find((t) => t.id === tabId)?.label ?? 'Unmapped';
+			const blockKey = firstDest.blockKey;
+			const blockLabel = blockKey ? resolveBlockLabel(blockKey, destination) : undefined;
+
+			const groupKey = blockKey ? `${tabId}:${blockKey}` : tabId;
+
+			if (!groupMap.has(groupKey)) {
+				groupMap.set(groupKey, {
+					tabId,
+					tabLabel,
+					blockKey: blockKey ?? undefined,
+					blockLabel: blockLabel ?? undefined,
+					mappings: [],
+				});
+			}
+
+			groupMap.get(groupKey)!.mappings.push({ mapping, index });
+		}
+
+		// Order groups: by tab order, then blocks by their order in destination.json
+		const result: typeof groupMap extends Map<string, infer V> ? V[] : never = [];
+		const blockOrder = new Map<string, number>();
+		let blockIdx = 0;
+		for (const grid of destination.blockGrids ?? []) {
+			for (const block of grid.blocks) {
+				blockOrder.set(block.key, blockIdx++);
+			}
+		}
+
+		// Add groups in tab order
+		for (const tab of allTabs) {
+			// Non-block groups for this tab
+			const nonBlockGroup = groupMap.get(tab.id);
+			if (nonBlockGroup) {
+				result.push(nonBlockGroup);
+			}
+
+			// Block groups for this tab, ordered by block position
+			const blockGroups = Array.from(groupMap.entries())
+				.filter(([key, group]) => group.tabId === tab.id && group.blockKey)
+				.sort(([, a], [, b]) => {
+					const orderA = blockOrder.get(a.blockKey!) ?? 999;
+					const orderB = blockOrder.get(b.blockKey!) ?? 999;
+					return orderA - orderB;
+				})
+				.map(([, group]) => group);
+
+			result.push(...blockGroups);
+		}
+
+		// Add unmapped group at the end
+		const unmapped = groupMap.get('unmapped');
+		if (unmapped) {
+			result.push(unmapped);
+		}
+
+		return result;
+	}
+
+	#renderMappingGroup(group: {
+		tabLabel: string;
+		blockLabel?: string;
+		mappings: Array<{ mapping: SectionMapping; index: number }>;
+	}) {
+		const label = group.blockLabel
+			? `${group.tabLabel} \u2014 ${group.blockLabel}`
+			: group.tabLabel;
+
+		return html`
+			<div class="mapping-group">
+				<div class="mapping-group-header">
+					<span class="mapping-group-label">${label}</span>
+					<span class="mapping-group-count">${group.mappings.length}</span>
+				</div>
+				<uui-table>
+					<uui-table-head>
+						<uui-table-head-cell>Source</uui-table-head-cell>
+						<uui-table-head-cell style="width: 40px;"></uui-table-head-cell>
+						<uui-table-head-cell>Destination</uui-table-head-cell>
+						<uui-table-head-cell style="width: 100px;"></uui-table-head-cell>
+					</uui-table-head>
+					${group.mappings.map(({ mapping, index }) =>
+						this.#renderMappingRow(mapping, index)
+					)}
+				</uui-table>
+			</div>
+		`;
+	}
+
 	#renderMappingsTable() {
 		if (!this._config) return nothing;
 
 		const mappings = this._config.map.mappings;
 		if (mappings.length === 0) return this.#renderEmptyState();
 
+		const groups = this.#groupMappingsByDestination();
+
 		return html`
 			<div class="mappings-header">
 				<span class="mapping-count">${mappings.length} mapping${mappings.length !== 1 ? 's' : ''}</span>
 			</div>
-			<uui-table>
-				<uui-table-head>
-					<uui-table-head-cell>Source</uui-table-head-cell>
-					<uui-table-head-cell style="width: 40px;"></uui-table-head-cell>
-					<uui-table-head-cell>Destination</uui-table-head-cell>
-					<uui-table-head-cell style="width: 100px;"></uui-table-head-cell>
-				</uui-table-head>
-				${mappings.map((mapping, index) => this.#renderMappingRow(mapping, index))}
-			</uui-table>
+			${groups.map((group) => this.#renderMappingGroup(group))}
 		`;
 	}
 
@@ -240,6 +355,36 @@ export class UpDocWorkflowMapViewElement extends UmbLitElement {
 			.mapping-count {
 				font-size: var(--uui-type-small-size);
 				color: var(--uui-color-text-alt);
+			}
+
+			.mapping-group {
+				margin-bottom: var(--uui-size-space-5);
+			}
+
+			.mapping-group:last-child {
+				margin-bottom: 0;
+			}
+
+			.mapping-group-header {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				padding: var(--uui-size-space-3) var(--uui-size-space-4);
+				background: var(--uui-color-surface-alt);
+				border-bottom: 1px solid var(--uui-color-border);
+			}
+
+			.mapping-group-label {
+				font-weight: 600;
+			}
+
+			.mapping-group-count {
+				font-size: var(--uui-type-small-size);
+				color: var(--uui-color-text-alt);
+				background: var(--uui-color-surface);
+				padding: 1px 8px;
+				border-radius: var(--uui-border-radius);
+				border: 1px solid var(--uui-color-border);
 			}
 
 			.source-cell {
