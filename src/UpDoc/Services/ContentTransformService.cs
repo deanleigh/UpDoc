@@ -43,7 +43,9 @@ public class ContentTransformService : IContentTransformService
                 }
             }
 
-            if (page.UnzonedContent != null)
+            // Only process unzoned content when no zones exist on this page.
+            // If zones are defined, content outside all zones is noise and should be discarded.
+            if (page.UnzonedContent != null && page.Zones.Count == 0)
             {
                 foreach (var section in page.UnzonedContent.Sections)
                 {

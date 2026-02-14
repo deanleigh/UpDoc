@@ -121,13 +121,11 @@ export class UpDocEntityAction extends UmbEntityActionBase<never> {
 				return;
 			}
 
-			const { name, mediaUnique, extractedSections, sectionLookup, config } = modalValue;
+			const { name, mediaUnique, sectionLookup, config } = modalValue;
 
 			if (!mediaUnique || !name || !config) {
 				return;
 			}
-
-			console.log('Creating document with:', { name, sections: Object.keys(extractedSections) });
 
 			// Step 6: Scaffold from the selected blueprint
 			const scaffoldResponse = await fetch(
@@ -160,40 +158,25 @@ export class UpDocEntityAction extends UmbEntityActionBase<never> {
 				? JSON.parse(JSON.stringify(scaffold.values))
 				: [];
 
-			console.log('Extracted sections available:', Object.keys(extractedSections).length, 'elements');
-			console.log('Mappings to apply:', config.map.mappings.map(m => `${m.source} -> ${m.destinations.map(d => d.target).join(', ')}`));
-
 			// Track which fields have been written by our mappings.
 			// First write replaces the blueprint default; subsequent writes concatenate.
 			const mappedFields = new Set<string>();
 
 			// Apply each mapping from the config
 			for (const mapping of config.map.mappings) {
-				if (mapping.enabled === false) {
-					console.log(`Skipping disabled mapping for source: ${mapping.source}`);
-					continue;
-				}
+				if (mapping.enabled === false) continue;
 
-				const sectionValue = sectionLookup?.[mapping.source] ?? extractedSections[mapping.source];
-				if (!sectionValue) {
-					console.log(`No extracted value for source: "${mapping.source}"`);
-					continue;
-				}
-
-				console.log(`Applying mapping for "${mapping.source}" (${sectionValue.length} chars)`);
+				const sectionValue = sectionLookup[mapping.source];
+				if (!sectionValue) continue;
 
 				for (const dest of mapping.destinations) {
 					this.#applyDestinationMapping(values, dest, sectionValue, config, mappedFields);
 				}
 			}
 
-			console.log('Values after all mappings applied:');
-			for (const v of values) {
-				const preview = typeof v.value === 'string'
-					? v.value.substring(0, 60)
-					: typeof v.value === 'object' ? '[object]' : v.value;
-				console.log(`  ${v.alias}: ${preview}`);
-			}
+			// Convert richText fields: markdown → HTML → RTE value object.
+			// Done as a post-mapping pass so concatenation happens on raw strings first.
+			this.#convertRichTextFields(values, config, mappedFields);
 
 			// Build the create request
 			const createRequest = {
@@ -303,16 +286,14 @@ export class UpDocEntityAction extends UmbEntityActionBase<never> {
 		config: DocumentTypeConfig,
 		mappedFields: Set<string>
 	) {
-		// Apply transforms to the value
-		let transformedValue = sectionValue;
-		const shouldConvertMarkdown = dest.transforms?.some((t) => t.type === 'convertMarkdownToHtml');
+		const transformedValue = sectionValue;
 
 		// Block property with blockKey — find the specific block instance
 		if (dest.blockKey) {
 			for (const grid of config.destination.blockGrids ?? []) {
 				const block = grid.blocks.find((b) => b.key === dest.blockKey);
 				if (block?.identifyBy) {
-					this.#applyBlockGridValue(values, grid.alias, block.identifyBy, dest.target, transformedValue, shouldConvertMarkdown, mappedFields);
+					this.#applyBlockGridValue(values, grid.alias, block.identifyBy, dest.target, transformedValue, mappedFields);
 					return;
 				}
 			}
@@ -341,7 +322,6 @@ export class UpDocEntityAction extends UmbEntityActionBase<never> {
 				values.push({ alias, value: transformedValue });
 			}
 			mappedFields.add(alias);
-			console.log(`Set ${alias} = "${String(existing?.value ?? transformedValue).substring(0, 80)}"`);
 		} else if (pathParts.length === 3) {
 			// Block grid mapping: "contentGrid.itineraryBlock.richTextContent"
 			const [gridKey, blockKey, propertyKey] = pathParts;
@@ -350,21 +330,15 @@ export class UpDocEntityAction extends UmbEntityActionBase<never> {
 			const blockGrid = config.destination.blockGrids?.find((g) => g.key === gridKey);
 			const block = blockGrid?.blocks.find((b) => b.key === blockKey);
 
-			if (!blockGrid || !block) {
-				console.log(`Block path ${dest.target} not found in destination config`);
-				return;
-			}
+			if (!blockGrid || !block) return;
 
 			const gridAlias = blockGrid.alias;
 			const targetProperty = block.properties?.find((p) => p.key === propertyKey)?.alias ?? propertyKey;
 			const blockSearch = block.identifyBy;
 
-			if (!blockSearch) {
-				console.log(`No identifyBy for block ${blockKey}`);
-				return;
-			}
+			if (!blockSearch) return;
 
-			this.#applyBlockGridValue(values, gridAlias, blockSearch, targetProperty, transformedValue, shouldConvertMarkdown, mappedFields);
+			this.#applyBlockGridValue(values, gridAlias, blockSearch, targetProperty, transformedValue, mappedFields);
 		}
 	}
 
@@ -379,7 +353,6 @@ export class UpDocEntityAction extends UmbEntityActionBase<never> {
 		blockSearch: { property: string; value: string },
 		targetProperty: string,
 		value: string,
-		convertMarkdown: boolean | undefined,
 		mappedFields: Set<string>
 	) {
 		const contentGridValue = values.find((v) => v.alias === gridAlias);
@@ -443,6 +416,65 @@ export class UpDocEntityAction extends UmbEntityActionBase<never> {
 			contentGridValue.value = wasString ? JSON.stringify(contentGrid) : contentGrid;
 		} catch (error) {
 			console.error(`Failed to apply block mapping to ${gridAlias}:`, error);
+		}
+	}
+
+	/**
+	 * Post-mapping pass: converts richText fields from markdown to HTML + RTE value object.
+	 * Uses destination.json field types to auto-detect which fields need conversion.
+	 * Only converts fields that were written by our mappings (tracked by mappedFields).
+	 */
+	#convertRichTextFields(
+		values: Array<{ alias: string; value: unknown }>,
+		config: DocumentTypeConfig,
+		mappedFields: Set<string>
+	) {
+		// Convert top-level richText fields
+		for (const field of config.destination.fields) {
+			if (field.type === 'richText' && mappedFields.has(field.alias)) {
+				const val = values.find((v) => v.alias === field.alias);
+				if (val && typeof val.value === 'string') {
+					val.value = buildRteValue(markdownToHtml(val.value));
+				}
+			}
+		}
+
+		// Convert block grid richText properties
+		for (const grid of config.destination.blockGrids ?? []) {
+			const gridVal = values.find((v) => v.alias === grid.alias);
+			if (!gridVal?.value) continue;
+
+			const wasString = typeof gridVal.value === 'string';
+			const gridData = wasString ? JSON.parse(gridVal.value as string) : gridVal.value;
+			const contentData = gridData.contentData as Array<{
+				key: string;
+				values: Array<{ alias: string; value: unknown }>;
+			}> | undefined;
+			if (!contentData) continue;
+
+			for (const block of contentData) {
+				for (const destBlock of grid.blocks) {
+					if (!destBlock.identifyBy) continue;
+					const searchVal = block.values?.find((v) => v.alias === destBlock.identifyBy!.property);
+					if (
+						searchVal &&
+						typeof searchVal.value === 'string' &&
+						searchVal.value.toLowerCase().includes(destBlock.identifyBy.value.toLowerCase())
+					) {
+						for (const prop of destBlock.properties ?? []) {
+							if (prop.type === 'richText' && mappedFields.has(`${block.key}:${prop.alias}`)) {
+								const blockVal = block.values?.find((v) => v.alias === prop.alias);
+								if (blockVal && typeof blockVal.value === 'string') {
+									blockVal.value = buildRteValue(markdownToHtml(blockVal.value as string));
+								}
+							}
+						}
+						break;
+					}
+				}
+			}
+
+			gridVal.value = wasString ? JSON.stringify(gridData) : gridData;
 		}
 	}
 }

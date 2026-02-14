@@ -1,6 +1,6 @@
 import type { UmbUpDocModalData, UmbUpDocModalValue, SourceType } from './up-doc-modal.token.js';
 import type { DocumentTypeConfig } from './workflow.types.js';
-import { extractRich, fetchConfig, transformAdhoc } from './workflow.service.js';
+import { fetchConfig, transformAdhoc } from './workflow.service.js';
 import { getDestinationTabs, resolveDestinationTab, resolveBlockLabel } from './destination-utils.js';
 import { html, customElement, css, state, nothing } from '@umbraco-cms/backoffice/external/lit';
 import { UmbTextStyles } from '@umbraco-cms/backoffice/style';
@@ -40,9 +40,6 @@ export class UpDocModalElement extends UmbModalBaseElement<
 	private _selectedMediaUnique: string | null = null;
 
 	@state()
-	private _extractedSections: Record<string, string> = {};
-
-	@state()
 	private _sectionLookup: Record<string, string> = {};
 
 	@state()
@@ -68,7 +65,6 @@ export class UpDocModalElement extends UmbModalBaseElement<
 		this._sourceType = '';
 		this._sourceUrl = '';
 		this._selectedMediaUnique = null;
-		this._extractedSections = {};
 		this._sectionLookup = {};
 		this._config = null;
 		this._contentActiveTab = '';
@@ -111,7 +107,6 @@ export class UpDocModalElement extends UmbModalBaseElement<
 		if (newSourceType !== this._sourceType) {
 			this._selectedMediaUnique = null;
 			this._sourceUrl = '';
-			this._extractedSections = {};
 			this._sectionLookup = {};
 			this._extractionError = null;
 			this._contentActiveTab = '';
@@ -128,7 +123,6 @@ export class UpDocModalElement extends UmbModalBaseElement<
 		if (this._selectedMediaUnique) {
 			await this.#extractFromSource(this._selectedMediaUnique);
 		} else {
-			this._extractedSections = {};
 			this._sectionLookup = {};
 			this._documentName = '';
 			this._extractionError = null;
@@ -143,46 +137,39 @@ export class UpDocModalElement extends UmbModalBaseElement<
 			const authContext = await this.getContext(UMB_AUTH_CONTEXT);
 			const token = await authContext.getLatestToken();
 
-			// Use rich extraction — returns elements with IDs matching map.json
-			const extraction = await extractRich(mediaUnique, token);
+			if (!this._config?.folderPath) {
+				this._extractionError = 'No workflow configured for this blueprint';
+				return;
+			}
 
-			if (!extraction?.elements?.length) {
+			const workflowName = this._config.folderPath.replace(/\\/g, '/').split('/').pop() ?? '';
+			if (!workflowName) {
+				this._extractionError = 'Could not determine workflow name';
+				return;
+			}
+
+			// Run zone-aware transform — produces section IDs matching map.json
+			const transformResult = await transformAdhoc(workflowName, mediaUnique, token);
+
+			if (!transformResult?.sections?.length) {
 				this._extractionError = 'Failed to extract content from source';
 				return;
 			}
 
-			// Build element ID → text lookup (same key format as map.json sources)
-			const elementLookup: Record<string, string> = {};
-			for (const element of extraction.elements) {
-				elementLookup[element.id] = element.text;
-			}
-
-			this._extractedSections = elementLookup;
-
-			// Run adhoc transform to build section-based lookup
-			if (this._config?.folderPath) {
-				const workflowName = this._config.folderPath.replace(/\\/g, '/').split('/').pop() ?? '';
-				if (workflowName) {
-					const transformResult = await transformAdhoc(workflowName, mediaUnique, token);
-					if (transformResult?.sections) {
-						const sectionLookup: Record<string, string> = {};
-						for (const section of transformResult.sections) {
-							if (!section.included) continue;
-							if (section.heading) {
-								sectionLookup[`${section.id}.heading`] = section.heading;
-							}
-							sectionLookup[`${section.id}.content`] = section.content;
-						}
-						this._sectionLookup = sectionLookup;
-					}
+			// Build section ID → text lookup (e.g., "features.heading", "features.content")
+			const sectionLookup: Record<string, string> = {};
+			for (const section of transformResult.sections) {
+				if (!section.included) continue;
+				if (section.heading) {
+					sectionLookup[`${section.id}.heading`] = section.heading;
 				}
+				sectionLookup[`${section.id}.content`] = section.content;
 			}
+			this._sectionLookup = sectionLookup;
 
-			// Pre-fill document name from mapped title elements
-			// Try section lookup first, fall back to element lookup
-			const combinedLookup = { ...elementLookup, ...this._sectionLookup };
+			// Pre-fill document name from mapped title sections
 			if (!this._documentName && this._config) {
-				this.#prefillDocumentName(combinedLookup);
+				this.#prefillDocumentName(sectionLookup);
 			}
 		} catch (error) {
 			this._extractionError = 'Failed to connect to extraction service';
@@ -229,22 +216,11 @@ export class UpDocModalElement extends UmbModalBaseElement<
 	}
 
 	#handleSave() {
-		// === DEBUG: Log what we're passing to the action ===
-		console.log('=== CREATE BUTTON CLICKED ===');
-		console.log('Document name:', this._documentName);
-		console.log('Extracted sections being passed:');
-		for (const [key, value] of Object.entries(this._extractedSections)) {
-			console.log(`  ${key}: ${value ? `${value.length} chars` : '(empty)'}`);
-		}
-		console.log('Config being passed:', this._config ? 'yes' : 'no');
-		console.log('=== END CREATE DEBUG ===');
-
 		this.value = {
 			name: this._documentName,
 			sourceType: this._sourceType as SourceType,
 			mediaUnique: this._selectedMediaUnique,
 			sourceUrl: this._sourceUrl || null,
-			extractedSections: this._extractedSections,
 			sectionLookup: this._sectionLookup,
 			config: this._config,
 		};
@@ -339,7 +315,7 @@ export class UpDocModalElement extends UmbModalBaseElement<
 	}
 
 	#hasExtractedContent(): boolean {
-		return Object.keys(this._extractedSections).length > 0;
+		return Object.keys(this._sectionLookup).length > 0;
 	}
 
 	#handleTabClick(tab: TabType) {
@@ -364,7 +340,7 @@ export class UpDocModalElement extends UmbModalBaseElement<
 			</div>`;
 		}
 
-		const hasContent = Object.values(this._extractedSections).some((v) => v.length > 0);
+		const hasContent = Object.values(this._sectionLookup).some((v) => v.length > 0);
 		if (hasContent) {
 			return html`<div class="extraction-status success">
 				<uui-icon name="icon-check"></uui-icon>
@@ -473,7 +449,7 @@ export class UpDocModalElement extends UmbModalBaseElement<
 
 		for (const mapping of this._config.map.mappings) {
 			if (mapping.enabled === false) continue;
-			const text = this._sectionLookup[mapping.source] ?? this._extractedSections[mapping.source];
+			const text = this._sectionLookup[mapping.source];
 			if (!text) continue;
 			for (const dest of mapping.destinations) {
 				const compoundKey = dest.blockKey ? `${dest.blockKey}:${dest.target}` : dest.target;
@@ -619,35 +595,18 @@ export class UpDocModalElement extends UmbModalBaseElement<
 
 		const activeGroup = grouped.find((g) => g.tabId === this._contentActiveTab) ?? grouped[0];
 
-		// If only one tab, don't render the tab bar — just show the content directly
-		if (grouped.length === 1) {
-			return html`
-				<div class="content-editor">
-					<p class="content-editor-intro">
-						Review the content that will be mapped to the document.
-					</p>
-					${this.#renderContentGroupItems(activeGroup)}
-				</div>
-			`;
-		}
-
 		return html`
-			<div class="content-editor">
-				<p class="content-editor-intro">
-					Review the content that will be mapped to the document.
-				</p>
-				<uui-tab-group class="content-inner-tabs">
-					${grouped.map((group) => html`
-						<uui-tab
-							label=${group.tabLabel}
-							?active=${this._contentActiveTab === group.tabId}
-							@click=${() => { this._contentActiveTab = group.tabId; }}>
-							${group.tabLabel}
-						</uui-tab>
-					`)}
-				</uui-tab-group>
-				${this.#renderContentGroupItems(activeGroup)}
-			</div>
+			<uui-tab-group class="content-inner-tabs">
+				${grouped.map((group) => html`
+					<uui-tab
+						label=${group.tabLabel}
+						?active=${this._contentActiveTab === group.tabId}
+						@click=${() => { this._contentActiveTab = group.tabId; }}>
+						${group.tabLabel}
+					</uui-tab>
+				`)}
+			</uui-tab-group>
+			${this.#renderContentGroupItems(activeGroup)}
 		`;
 	}
 
@@ -809,10 +768,13 @@ export class UpDocModalElement extends UmbModalBaseElement<
 				overflow-y: auto;
 			}
 
-			/* Content tab inner tabs */
+			/* Content tab inner tabs — bleed edge-to-edge past outer body layout padding */
 			.content-inner-tabs {
+				margin: calc(var(--uui-size-layout-1) * -1);
 				margin-bottom: var(--uui-size-space-4);
+				background: var(--uui-color-surface);
 				--uui-tab-background: var(--uui-color-surface);
+				border-bottom: 1px solid var(--uui-color-border);
 			}
 
 			.block-group-header {

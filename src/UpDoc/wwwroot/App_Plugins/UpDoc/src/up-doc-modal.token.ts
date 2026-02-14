@@ -15,7 +15,6 @@ export interface UmbUpDocModalValue {
 	sourceType: SourceType;
 	mediaUnique: string | null;
 	sourceUrl: string | null;
-	extractedSections: Record<string, string>;
 	sectionLookup: Record<string, string>;
 	config: DocumentTypeConfig | null;
 }

@@ -83,3 +83,101 @@ Both the Create from Source sidebar and the Map tab can read this structure to d
 - Changing the actual mapping data structure in `map.json` — this is purely a presentation change
 - Destination-driven mapping UI (covered in `DESTINATION_DRIVEN_MAPPING.md`)
 - Editable content in the preview (future feature)
+
+---
+
+## Pipeline Audit: Content Formatting & Zone Filtering (Feb 2026)
+
+### The Extraction Funnel (Intended Design)
+
+The workflow author progressively refines what content flows through the pipeline. Each step narrows the surface area; the next step only operates on what survived.
+
+```
+Step 1: Choose source PDF
+  └── Reference document representing the structure of all similar PDFs.
+      Initial extraction reads the full document — no choice here,
+      PdfPig needs to read it all.
+
+Step 2: Choose pages
+  └── First refinement. "Content I care about is on pages 1-2."
+      Pages 3-4 (terms, booking forms) are discarded.
+      Everything downstream only processes selected pages.
+
+Step 3: Define areas (zones)
+  └── Second refinement. Spatial zones drawn on the selected pages.
+      "Main Content here, Organiser Info there, Page Header here."
+      Content outside ALL defined zones is noise and should be
+      DISCARDED ENTIRELY.
+
+Step 4: Sections (automatic)
+  └── Within each zone, PdfPig groups content by heading structure.
+      Font size changes define section boundaries. General rules
+      (heading threshold) guide this, but it's automatic based on
+      the PDF's own typographic structure.
+```
+
+### Zone Extraction Accuracy
+
+PdfPig's spatial filtering is precise — PDFs store exact glyph coordinates (points, 1/72 inch). The zone check computes each word's center point and tests whether it falls inside the zone rectangle. This is geometry, not heuristics.
+
+- **Words filtered before line grouping** — each zone gets independent line extraction, preventing cross-zone text merging (e.g., sidebar words can't merge with main column words)
+- **Center-point test** — a word straddling a zone boundary is included/excluded based on where its center falls. Rarely an issue in practice since text sits well inside zones.
+- **First-claim assignment** — a word can only belong to one zone. If zones overlap, first zone (left-to-right order) wins.
+
+The accuracy bottleneck is NOT PdfPig's spatial extraction — it's the downstream steps (section grouping, markdown assembly, and writing to Umbraco).
+
+### Problem 1: Unzoned Content Leaks Through
+
+**Rule violation:** After zones are defined, nothing outside those zones should exist in the pipeline.
+
+**Current behaviour:** `ContentTransformService.Transform()` processes `page.UnzonedContent` unconditionally — content outside all defined zones gets transformed into sections, defaults to `Included = true`, and becomes available for mapping.
+
+**Where it happens:**
+- `ContentTransformService.cs` lines 46-55: processes `page.UnzonedContent` identically to zoned content
+- `TransformedSection.Included` defaults to `true` — new sections from a different PDF that don't match the stored `transform.json` silently pass through
+
+**Fix:** When a zone template exists, skip `page.UnzonedContent` entirely. Only zoned content should enter the transform.
+
+### Problem 2: Redundant Full Extraction in Create from Source
+
+**Current behaviour:** The Create from Source modal runs TWO extractions:
+1. `extractRich()` — full raw dump of every element on every page, no zone filtering (~544 elements). Stored as `_extractedSections` keyed by positional element IDs (`p1-e17`).
+2. `transformAdhoc()` — zone-aware extraction using the workflow's zone template and page selection. Stored as `_sectionLookup` keyed by section IDs (`features.content`).
+
+The first extraction is entirely redundant. All mappings in `map.json` now use section IDs, so `_extractedSections` is never matched. It exists only as a fallback for legacy element-ID mappings that no longer exist.
+
+**Fix:** Remove the `extractRich()` call from the Create from Source path. Only `transformAdhoc()` is needed.
+
+### Problem 3: Markdown Not Converted to HTML for Rich Text Fields
+
+**Current behaviour:** The transform layer correctly produces markdown:
+- Bullets: `"- 4* central Liverpool hotel"`
+- Sub-headings: `"## Day 1"`
+- Paragraphs joined with `\n\n`
+
+But the bridge code writes this raw markdown directly into Umbraco properties without conversion:
+- `richTextContent` fields receive plain markdown strings instead of HTML wrapped in an RTE value object (`{blocks: {...}, markup: '<html>'}`)
+- `markdownToHtml()` and `buildRteValue()` exist in `transforms.ts` but are never called
+- The `shouldConvertMarkdown` flag is computed from `dest.transforms` but (a) all transforms are `null` in map.json, and (b) the flag is never acted on even when true
+
+**What the user sees:** Wall-of-text in the created document. Bullets render as `- item` inline text. Headings render as `## Day 1` plain text. No HTML structure.
+
+**Fix:** The bridge code should auto-convert based on destination field type from `destination.json`:
+- `type: "richText"` → `markdownToHtml()` → `buildRteValue()` → set as RTE object
+- `type: "textArea"` or `type: "text"` → keep as plain string
+
+This is generic/package-appropriate — it uses the field type metadata that `destination.json` already provides. No site-specific rules needed. No explicit `transforms` in `map.json` required.
+
+**Affected files (both must be updated in sync):**
+- `up-doc-collection-action.element.ts` — collection action (primary Create from Source path)
+- `up-doc-action.ts` — entity action (tree context menu path)
+
+### Summary of Fixes Required
+
+| # | Issue | Location | Impact |
+|---|-------|----------|--------|
+| 1 | Unzoned content leaks through | `ContentTransformService.cs` | Wrong content available for mapping |
+| 2 | Redundant `extractRich()` call | `up-doc-modal.element.ts` | Wasted processing, legacy fallback no longer needed |
+| 3 | Markdown not converted to HTML | `up-doc-collection-action.element.ts`, `up-doc-action.ts` | Broken formatting in created documents |
+
+All three are pipeline correctness issues, not UI/presentation. They should be fixed before any further UI work (destination preview consistency, map tab grouping, etc.).
