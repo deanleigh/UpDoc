@@ -38,6 +38,21 @@ export class UpDocWorkflowWorkspaceContext extends UmbContextBase {
 	readonly unique = this.#data.asObservablePart((data) => data?.unique);
 	readonly name = this.#data.asObservablePart((data) => data?.name);
 
+	/** Callback registered by the active workspace view to handle save. */
+	#saveHandler: (() => Promise<void>) | null = null;
+
+	/** Register a save handler (called by workspace views like Source). */
+	setSaveHandler(handler: (() => Promise<void>) | null) {
+		this.#saveHandler = handler;
+	}
+
+	/** Called by the workspace action (Save button). Delegates to the registered handler. */
+	async save(): Promise<void> {
+		if (this.#saveHandler) {
+			await this.#saveHandler();
+		}
+	}
+
 	readonly routes = new UmbWorkspaceRouteManager(this);
 
 	constructor(host: UmbControllerHost) {

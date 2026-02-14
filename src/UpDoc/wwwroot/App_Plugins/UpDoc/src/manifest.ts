@@ -164,6 +164,29 @@ export const manifests: Array<UmbExtensionManifest> = [
 	},
 
 	// =====================================================================
+	// Workspace Action — Save button in workflow workspace footer
+	// =====================================================================
+	{
+		type: 'workspaceAction',
+		kind: 'default',
+		alias: 'UpDoc.WorkflowWorkspace.Save',
+		name: 'Save',
+		api: () => import('./up-doc-save.action.js'),
+		weight: 100,
+		meta: {
+			label: 'Save',
+			look: 'primary',
+			color: 'positive',
+		},
+		conditions: [
+			{
+				alias: 'Umb.Condition.WorkspaceAlias',
+				match: 'UpDoc.WorkflowWorkspace',
+			},
+		],
+	},
+
+	// =====================================================================
 	// Settings sidebar — UpDoc under uSync's "Synchronisation" group,
 	// with fallback to its own group when uSync is not installed
 	// =====================================================================

@@ -1,4 +1,4 @@
-import { d as _t, g as Le, b as vt, h as $t, i as yt, j as zt, s as St, k as Rt, l as Tt, m as Ct, n as Pt, u as At } from "./workflow.service-T0TEyrPt.js";
+import { d as vt, g as Le, b as _t, h as $t, i as yt, j as zt, k as St, l as Tt, s as Rt, m as Ct, n as Pt, u as At } from "./workflow.service-T0TEyrPt.js";
 import { UmbModalToken as Be, UMB_MODAL_MANAGER_CONTEXT as ue } from "@umbraco-cms/backoffice/modal";
 import { html as d, nothing as w, css as Et, state as $, customElement as Mt } from "@umbraco-cms/backoffice/external/lit";
 import { UmbLitElement as It } from "@umbraco-cms/backoffice/lit-element";
@@ -154,16 +154,16 @@ ${p}` : p;
         let f = a.at(-1);
         if (f?.type === "code") break;
         if (f?.type === "blockquote") {
-          let v = f, x = v.raw + `
+          let _ = f, x = _.raw + `
 ` + s.join(`
 `), S = this.blockquote(x);
-          a[a.length - 1] = S, n = n.substring(0, n.length - v.raw.length) + S.raw, i = i.substring(0, i.length - v.text.length) + S.text;
+          a[a.length - 1] = S, n = n.substring(0, n.length - _.raw.length) + S.raw, i = i.substring(0, i.length - _.text.length) + S.text;
           break;
         } else if (f?.type === "list") {
-          let v = f, x = v.raw + `
+          let _ = f, x = _.raw + `
 ` + s.join(`
 `), S = this.list(x);
-          a[a.length - 1] = S, n = n.substring(0, n.length - f.raw.length) + S.raw, i = i.substring(0, i.length - v.raw.length) + S.raw, s = x.substring(a.at(-1).raw.length).split(`
+          a[a.length - 1] = S, n = n.substring(0, n.length - f.raw.length) + S.raw, i = i.substring(0, i.length - _.raw.length) + S.raw, s = x.substring(a.at(-1).raw.length).split(`
 `);
           continue;
         }
@@ -183,22 +183,22 @@ ${p}` : p;
         h = e[0], t = t.substring(h.length);
         let k = e[2].split(`
 `, 1)[0].replace(this.rules.other.listReplaceTabs, (S) => " ".repeat(3 * S.length)), f = t.split(`
-`, 1)[0], v = !k.trim(), x = 0;
-        if (this.options.pedantic ? (x = 2, p = k.trimStart()) : v ? x = e[1].length + 1 : (x = e[2].search(this.rules.other.nonSpaceChar), x = x > 4 ? 1 : x, p = k.slice(x), x += e[1].length), v && this.rules.other.blankLine.test(f) && (h += f + `
+`, 1)[0], _ = !k.trim(), x = 0;
+        if (this.options.pedantic ? (x = 2, p = k.trimStart()) : _ ? x = e[1].length + 1 : (x = e[2].search(this.rules.other.nonSpaceChar), x = x > 4 ? 1 : x, p = k.slice(x), x += e[1].length), _ && this.rules.other.blankLine.test(f) && (h += f + `
 `, t = t.substring(f.length + 1), l = !0), !l) {
-          let S = this.rules.other.nextBulletRegex(x), Se = this.rules.other.hrRegex(x), Re = this.rules.other.fencesBeginRegex(x), Te = this.rules.other.headingBeginRegex(x), wt = this.rules.other.htmlBeginRegex(x);
+          let S = this.rules.other.nextBulletRegex(x), Se = this.rules.other.hrRegex(x), Te = this.rules.other.fencesBeginRegex(x), Re = this.rules.other.headingBeginRegex(x), wt = this.rules.other.htmlBeginRegex(x);
           for (; t; ) {
             let te = t.split(`
 `, 1)[0], L;
-            if (f = te, this.options.pedantic ? (f = f.replace(this.rules.other.listReplaceNesting, "  "), L = f) : L = f.replace(this.rules.other.tabCharGlobal, "    "), Re.test(f) || Te.test(f) || wt.test(f) || S.test(f) || Se.test(f)) break;
+            if (f = te, this.options.pedantic ? (f = f.replace(this.rules.other.listReplaceNesting, "  "), L = f) : L = f.replace(this.rules.other.tabCharGlobal, "    "), Te.test(f) || Re.test(f) || wt.test(f) || S.test(f) || Se.test(f)) break;
             if (L.search(this.rules.other.nonSpaceChar) >= x || !f.trim()) p += `
 ` + L.slice(x);
             else {
-              if (v || k.replace(this.rules.other.tabCharGlobal, "    ").search(this.rules.other.nonSpaceChar) >= 4 || Re.test(k) || Te.test(k) || Se.test(k)) break;
+              if (_ || k.replace(this.rules.other.tabCharGlobal, "    ").search(this.rules.other.nonSpaceChar) >= 4 || Te.test(k) || Re.test(k) || Se.test(k)) break;
               p += `
 ` + f;
             }
-            !v && !f.trim() && (v = !0), h += te + `
+            !_ && !f.trim() && (_ = !0), h += te + `
 `, t = t.substring(te.length + 1), k = L.slice(x);
           }
         }
@@ -334,8 +334,8 @@ ${p}` : p;
         r = Math.min(r, r + o + l);
         let p = [...n[0]][0].length, k = t.slice(0, i + n.index + p + r);
         if (Math.min(i, r) % 2) {
-          let v = k.slice(1, -1);
-          return { type: "em", raw: k, text: v, tokens: this.lexer.inlineTokens(v) };
+          let _ = k.slice(1, -1);
+          return { type: "em", raw: k, text: _, tokens: this.lexer.inlineTokens(_) };
         }
         let f = k.slice(2, -2);
         return { type: "strong", raw: k, text: f, tokens: this.lexer.inlineTokens(f) };
@@ -386,7 +386,7 @@ ${p}` : p;
       return { type: "text", raw: e[0], text: e[0], escaped: s };
     }
   }
-}, R = class ie {
+}, T = class ie {
   tokens;
   options;
   state;
@@ -573,8 +573,8 @@ ${p}` : p;
       let h = e;
       if (this.options.extensions?.startInline) {
         let p = 1 / 0, k = e.slice(1), f;
-        this.options.extensions.startInline.forEach((v) => {
-          f = v.call({ lexer: this }, k), typeof f == "number" && f >= 0 && (p = Math.min(p, f));
+        this.options.extensions.startInline.forEach((_) => {
+          f = _.call({ lexer: this }, k), typeof f == "number" && f >= 0 && (p = Math.min(p, f));
         }), p < 1 / 0 && p >= 0 && (h = e.substring(0, p + 1));
       }
       if (l = this.tokenizer.inlineText(h)) {
@@ -741,7 +741,7 @@ ${t}</tr>
   checkbox({ raw: t }) {
     return t;
   }
-}, T = class ne {
+}, R = class ne {
   options;
   renderer;
   textRenderer;
@@ -911,20 +911,20 @@ ${t}</tr>
     return t;
   }
   provideLexer() {
-    return this.block ? R.lex : R.lexInline;
+    return this.block ? T.lex : T.lexInline;
   }
   provideParser() {
-    return this.block ? T.parse : T.parseInline;
+    return this.block ? R.parse : R.parseInline;
   }
 }, ws = class {
   defaults = pe();
   options = this.setOptions;
   parse = this.parseMarkdown(!0);
   parseInline = this.parseMarkdown(!1);
-  Parser = T;
+  Parser = R;
   Renderer = W;
   TextRenderer = be;
-  Lexer = R;
+  Lexer = T;
   Tokenizer = j;
   Hooks = Z;
   constructor(...t) {
@@ -1037,10 +1037,10 @@ ${t}</tr>
     return this.defaults = { ...this.defaults, ...t }, this;
   }
   lexer(t, e) {
-    return R.lex(t, e ?? this.defaults);
+    return T.lex(t, e ?? this.defaults);
   }
   parser(t, e) {
-    return T.parse(t, e ?? this.defaults);
+    return R.parse(t, e ?? this.defaults);
   }
   parseMarkdown(t) {
     return (e, s) => {
@@ -1049,16 +1049,16 @@ ${t}</tr>
       if (typeof e > "u" || e === null) return a(new Error("marked(): input parameter is undefined or null"));
       if (typeof e != "string") return a(new Error("marked(): input parameter is of type " + Object.prototype.toString.call(e) + ", string expected"));
       if (i.hooks && (i.hooks.options = i, i.hooks.block = t), i.async) return (async () => {
-        let r = i.hooks ? await i.hooks.preprocess(e) : e, o = await (i.hooks ? await i.hooks.provideLexer() : t ? R.lex : R.lexInline)(r, i), l = i.hooks ? await i.hooks.processAllTokens(o) : o;
+        let r = i.hooks ? await i.hooks.preprocess(e) : e, o = await (i.hooks ? await i.hooks.provideLexer() : t ? T.lex : T.lexInline)(r, i), l = i.hooks ? await i.hooks.processAllTokens(o) : o;
         i.walkTokens && await Promise.all(this.walkTokens(l, i.walkTokens));
-        let h = await (i.hooks ? await i.hooks.provideParser() : t ? T.parse : T.parseInline)(l, i);
+        let h = await (i.hooks ? await i.hooks.provideParser() : t ? R.parse : R.parseInline)(l, i);
         return i.hooks ? await i.hooks.postprocess(h) : h;
       })().catch(a);
       try {
         i.hooks && (e = i.hooks.preprocess(e));
-        let r = (i.hooks ? i.hooks.provideLexer() : t ? R.lex : R.lexInline)(e, i);
+        let r = (i.hooks ? i.hooks.provideLexer() : t ? T.lex : T.lexInline)(e, i);
         i.hooks && (r = i.hooks.processAllTokens(r)), i.walkTokens && this.walkTokens(r, i.walkTokens);
-        let o = (i.hooks ? i.hooks.provideParser() : t ? T.parse : T.parseInline)(r, i);
+        let o = (i.hooks ? i.hooks.provideParser() : t ? R.parse : R.parseInline)(r, i);
         return i.hooks && (o = i.hooks.postprocess(o)), o;
       } catch (r) {
         return a(r);
@@ -1092,12 +1092,12 @@ m.walkTokens = function(t, e) {
   return A.walkTokens(t, e);
 };
 m.parseInline = A.parseInline;
-m.Parser = T;
-m.parser = T.parse;
+m.Parser = R;
+m.parser = R.parse;
 m.Renderer = W;
 m.TextRenderer = be;
-m.Lexer = R;
-m.lexer = R.lex;
+m.Lexer = T;
+m.lexer = T.lex;
 m.Tokenizer = j;
 m.Hooks = Z;
 m.parse = m;
@@ -1106,9 +1106,9 @@ m.setOptions;
 m.use;
 m.walkTokens;
 m.parseInline;
-T.parse;
-R.lex;
-function _s(t) {
+R.parse;
+T.lex;
+function vs(t) {
   if (!t) return "";
   try {
     const e = m.parse(t, {
@@ -1120,7 +1120,7 @@ function _s(t) {
     return console.error("Markdown conversion failed:", e), `<p>${t.replace(/\n\n/g, "</p><p>").replace(/\n/g, "<br>")}</p>`;
   }
 }
-function vs(t) {
+function _s(t) {
   return t.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 }
 const $s = new Be("UpDoc.DestinationPickerModal", {
@@ -1139,20 +1139,20 @@ const $s = new Be("UpDoc.DestinationPickerModal", {
 );
 var zs = Object.defineProperty, Ss = Object.getOwnPropertyDescriptor, Ke = (t) => {
   throw TypeError(t);
-}, _ = (t, e, s, n) => {
+}, v = (t, e, s, n) => {
   for (var i = n > 1 ? void 0 : n ? Ss(e, s) : e, a = t.length - 1, r; a >= 0; a--)
     (r = t[a]) && (i = (n ? r(e, s, i) : r(i)) || i);
   return n && i && zs(e, s, i), i;
-}, we = (t, e, s) => e.has(t) || Ke("Cannot " + s), C = (t, e, s) => (we(t, e, "read from private field"), s ? s.call(t) : e.get(t)), De = (t, e, s) => e.has(t) ? Ke("Cannot add the same private member more than once") : e instanceof WeakSet ? e.add(t) : e.set(t, s), Rs = (t, e, s, n) => (we(t, e, "write to private field"), e.set(t, s), s), u = (t, e, s) => (we(t, e, "access private method"), s), z, c, Xe, I, M, Je, Ye, et, Q, tt, st, Y, _e, O, F, it, nt, ee, ae, ve, $e, U, D, at, re, le, K, rt, lt, oe, ye, ze, ot, ct, ut, pt, ht, dt, gt, ft, mt, ce, kt, xt, bt;
+}, we = (t, e, s) => e.has(t) || Ke("Cannot " + s), C = (t, e, s) => (we(t, e, "read from private field"), s ? s.call(t) : e.get(t)), De = (t, e, s) => e.has(t) ? Ke("Cannot add the same private member more than once") : e instanceof WeakSet ? e.add(t) : e.set(t, s), Ts = (t, e, s, n) => (we(t, e, "write to private field"), e.set(t, s), s), u = (t, e, s) => (we(t, e, "access private method"), s), z, c, Xe, I, M, Je, Ye, et, Q, tt, st, Y, ve, O, F, it, nt, ee, ae, _e, $e, U, D, at, re, le, K, rt, lt, oe, ye, ze, ot, ct, ut, pt, ht, dt, gt, ft, mt, ce, kt, xt, bt;
 let b = class extends It {
   constructor() {
     super(...arguments), De(this, c), this._extraction = null, this._zoneDetection = null, this._config = null, this._workflowName = null, this._loading = !0, this._extracting = !1, this._error = null, this._successMessage = null, this._collapsed = /* @__PURE__ */ new Set(), this._transformResult = null, this._viewMode = "elements", this._sourceConfig = null, this._pageMode = "all", this._pageInputValue = "", this._collapsePopoverOpen = !1, this._excludedAreas = /* @__PURE__ */ new Set(), this._zoneTemplate = null, De(this, z, "");
   }
   connectedCallback() {
     super.connectedCallback(), this.consumeContext(Lt, (t) => {
-      t && this.observe(t.unique, (e) => {
+      t && (t.setSaveHandler(() => u(this, c, _e).call(this)), this.observe(t.unique, (e) => {
         e && (this._workflowName = decodeURIComponent(e), u(this, c, Xe).call(this));
-      });
+      }));
     });
   }
   render() {
@@ -1181,11 +1181,11 @@ Xe = async function() {
     this._loading = !0, this._error = null;
     try {
       const t = await this.getContext(Ne);
-      Rs(this, z, await t.getLatestToken());
+      Ts(this, z, await t.getLatestToken());
       const [e, s, n, i, a, r] = await Promise.all([
-        _t(this._workflowName, C(this, z)),
-        Le(this._workflowName, C(this, z)),
         vt(this._workflowName, C(this, z)),
+        Le(this._workflowName, C(this, z)),
+        _t(this._workflowName, C(this, z)),
         $t(this._workflowName, C(this, z)),
         yt(this._workflowName, C(this, z)),
         zt(this._workflowName, C(this, z))
@@ -1266,7 +1266,7 @@ Y = async function() {
   const t = u(this, c, Je).call(this);
   await Ct(this._workflowName, t, C(this, z));
 };
-_e = function(t) {
+ve = function(t) {
   if (!this._zoneDetection) return [];
   const e = [];
   for (const s of this._zoneDetection.pages) {
@@ -1278,11 +1278,11 @@ _e = function(t) {
   return e;
 };
 O = function(t) {
-  const e = u(this, c, _e).call(this, t);
+  const e = u(this, c, ve).call(this, t);
   return e.length > 0 && e.every((s) => this._collapsed.has(s));
 };
 F = function(t) {
-  const e = u(this, c, _e).call(this, t), s = u(this, c, O).call(this, t), n = new Set(this._collapsed);
+  const e = u(this, c, ve).call(this, t), s = u(this, c, O).call(this, t), n = new Set(this._collapsed);
   for (const i of e)
     s ? n.delete(i) : n.add(i);
   this._collapsed = n;
@@ -1316,13 +1316,13 @@ ae = async function() {
   try {
     const s = await e.onSubmit();
     if (s?.template) {
-      const n = await St(this._workflowName, s.template, C(this, z));
-      n && (this._zoneTemplate = n, await u(this, c, ve).call(this));
+      const n = await Rt(this._workflowName, s.template, C(this, z));
+      n && (this._zoneTemplate = n, await u(this, c, _e).call(this));
     }
   } catch {
   }
 };
-ve = async function() {
+_e = async function() {
   const t = this._extraction?.source.mediaKey;
   if (!t)
     return u(this, c, ee).call(this);
@@ -1333,7 +1333,7 @@ $e = async function(t) {
     this._extracting = !0, this._error = null;
     try {
       const s = await (await this.getContext(Ne)).getLatestToken(), [n, i] = await Promise.all([
-        Rt(this._workflowName, t, s),
+        St(this._workflowName, t, s),
         Tt(this._workflowName, t, s)
       ]);
       if (n && (this._extraction = n), i) {
@@ -1434,7 +1434,7 @@ oe = function(t) {
 		`;
 };
 ye = function(t, e, s, n) {
-  const i = u(this, c, U).call(this, e), a = t.heading ? vs(t.heading.text) : n >= 0 ? `preamble-p${s}-z${n}` : `preamble-p${s}-unzoned`, r = u(this, c, at).call(this, a);
+  const i = u(this, c, U).call(this, e), a = t.heading ? _s(t.heading.text) : n >= 0 ? `preamble-p${s}-z${n}` : `preamble-p${s}-unzoned`, r = u(this, c, at).call(this, a);
   if (!t.heading)
     return d`
 				<div class="zone-section ${r ? "" : "excluded"}">
@@ -1620,10 +1620,6 @@ ft = function() {
 						<uui-icon name="icon-document" class="box-icon"></uui-icon>
 						<span class="box-subtitle">${h}</span>
 						<div class="box-buttons">
-							<uui-button look="primary" color="positive" label="Re-extract" @click=${u(this, c, ve)} ?disabled=${this._extracting}>
-								<uui-icon name="icon-refresh"></uui-icon>
-								Re-extract
-							</uui-button>
 							<uui-button look="primary" color="default" label="Change PDF" @click=${u(this, c, ee)} ?disabled=${this._extracting}>
 								<uui-icon name="icon-page-add"></uui-icon>
 								Change PDF
@@ -1735,7 +1731,7 @@ kt = function(t) {
 					<span class="meta-badge">${t.childCount} item${t.childCount !== 1 ? "s" : ""}</span>
 					${t.heading ? u(this, c, ce).call(this, s) : w}
 				</div>
-				<div class="transformed-content" .innerHTML=${_s(t.content)}></div>
+				<div class="transformed-content" .innerHTML=${vs(t.content)}></div>
 				<div class="section-mapping-actions">
 					<span class="mapping-label">Content:</span>
 					${u(this, c, ce).call(this, n)}
@@ -1749,7 +1745,7 @@ xt = function() {
 				<div class="empty-state">
 					<uui-icon name="icon-lab" style="font-size: 48px; color: var(--uui-color-text-alt);"></uui-icon>
 					<h3>No transform result</h3>
-					<p>Re-extract content to generate the transformed view.</p>
+					<p>Save to extract content and generate the transformed view.</p>
 				</div>
 			`;
   const t = this._transformResult.sections.filter((s) => s.included), e = this._transformResult.sections.length;
@@ -2238,58 +2234,58 @@ b.styles = [
 			}
 		`
 ];
-_([
+v([
   $()
 ], b.prototype, "_extraction", 2);
-_([
+v([
   $()
 ], b.prototype, "_zoneDetection", 2);
-_([
+v([
   $()
 ], b.prototype, "_config", 2);
-_([
+v([
   $()
 ], b.prototype, "_workflowName", 2);
-_([
+v([
   $()
 ], b.prototype, "_loading", 2);
-_([
+v([
   $()
 ], b.prototype, "_extracting", 2);
-_([
+v([
   $()
 ], b.prototype, "_error", 2);
-_([
+v([
   $()
 ], b.prototype, "_successMessage", 2);
-_([
+v([
   $()
 ], b.prototype, "_collapsed", 2);
-_([
+v([
   $()
 ], b.prototype, "_transformResult", 2);
-_([
+v([
   $()
 ], b.prototype, "_viewMode", 2);
-_([
+v([
   $()
 ], b.prototype, "_sourceConfig", 2);
-_([
+v([
   $()
 ], b.prototype, "_pageMode", 2);
-_([
+v([
   $()
 ], b.prototype, "_pageInputValue", 2);
-_([
+v([
   $()
 ], b.prototype, "_collapsePopoverOpen", 2);
-_([
+v([
   $()
 ], b.prototype, "_excludedAreas", 2);
-_([
+v([
   $()
 ], b.prototype, "_zoneTemplate", 2);
-b = _([
+b = v([
   Mt("up-doc-workflow-source-view")
 ], b);
 const Ls = b;
@@ -2297,4 +2293,4 @@ export {
   b as UpDocWorkflowSourceViewElement,
   Ls as default
 };
-//# sourceMappingURL=up-doc-workflow-source-view.element-Bgm4yBCq.js.map
+//# sourceMappingURL=up-doc-workflow-source-view.element-BbN7IcMq.js.map

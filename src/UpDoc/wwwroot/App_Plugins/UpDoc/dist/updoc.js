@@ -99,7 +99,7 @@ const o = [
     kind: "routable",
     alias: "UpDoc.WorkflowWorkspace",
     name: "UpDoc Workflow Workspace",
-    api: () => import("./up-doc-workflow-workspace.context-Bj1gxX1X.js"),
+    api: () => import("./up-doc-workflow-workspace.context-i68dTIdp.js"),
     meta: {
       entityType: "updoc-workflow"
     }
@@ -126,7 +126,7 @@ const o = [
     type: "workspaceView",
     alias: "UpDoc.WorkflowWorkspaceView.Source",
     name: "UpDoc Workflow Source View",
-    element: () => import("./up-doc-workflow-source-view.element-Bgm4yBCq.js"),
+    element: () => import("./up-doc-workflow-source-view.element-BbN7IcMq.js"),
     weight: 200,
     meta: {
       label: "Source",
@@ -150,6 +150,28 @@ const o = [
       label: "Map",
       pathname: "map",
       icon: "icon-nodes"
+    },
+    conditions: [
+      {
+        alias: "Umb.Condition.WorkspaceAlias",
+        match: "UpDoc.WorkflowWorkspace"
+      }
+    ]
+  },
+  // =====================================================================
+  // Workspace Action — Save button in workflow workspace footer
+  // =====================================================================
+  {
+    type: "workspaceAction",
+    kind: "default",
+    alias: "UpDoc.WorkflowWorkspace.Save",
+    name: "Save",
+    api: () => import("./up-doc-save.action-DGb0pvq-.js"),
+    weight: 100,
+    meta: {
+      label: "Save",
+      look: "primary",
+      color: "positive"
     },
     conditions: [
       {

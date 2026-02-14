@@ -37,6 +37,8 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		super.connectedCallback();
 		this.consumeContext(UMB_WORKSPACE_CONTEXT, (context) => {
 			if (!context) return;
+			// Register save handler so the workspace Save button triggers re-extraction
+			(context as any).setSaveHandler(() => this.#onReExtract());
 			this.observe((context as any).unique, (unique: string | null) => {
 				if (unique) {
 					this._workflowName = decodeURIComponent(unique);
@@ -717,10 +719,6 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 						<uui-icon name="icon-document" class="box-icon"></uui-icon>
 						<span class="box-subtitle">${extractedDate}</span>
 						<div class="box-buttons">
-							<uui-button look="primary" color="positive" label="Re-extract" @click=${this.#onReExtract} ?disabled=${this._extracting}>
-								<uui-icon name="icon-refresh"></uui-icon>
-								Re-extract
-							</uui-button>
 							<uui-button look="primary" color="default" label="Change PDF" @click=${this.#onPickMedia} ?disabled=${this._extracting}>
 								<uui-icon name="icon-page-add"></uui-icon>
 								Change PDF
@@ -865,7 +863,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				<div class="empty-state">
 					<uui-icon name="icon-lab" style="font-size: 48px; color: var(--uui-color-text-alt);"></uui-icon>
 					<h3>No transform result</h3>
-					<p>Re-extract content to generate the transformed view.</p>
+					<p>Save to extract content and generate the transformed view.</p>
 				</div>
 			`;
 		}
