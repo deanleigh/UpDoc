@@ -491,11 +491,11 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		const isIncluded = this.#isSectionIncluded(sectionId);
 
 		if (!section.heading) {
-			// Preamble section (no heading) — render with toggle
+			// No-heading section — render with toggle
 			return html`
 				<div class="zone-section ${!isIncluded ? 'excluded' : ''}">
 					<div class="section-heading preamble" @click=${() => this.#toggleCollapse(sectionKey)}>
-						<span class="heading-text preamble-label">Preamble</span>
+						<span class="heading-text preamble-label">Content</span>
 						<span class="header-spacer"></span>
 						<span class="group-count">${section.children.length} text${section.children.length !== 1 ? 's' : ''}</span>
 						<uui-toggle
@@ -838,7 +838,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		const hasContentMapping = this.#getMappedTargets(contentKey).length > 0;
 		const isMapped = hasHeadingMapping || hasContentMapping;
 
-		const headline = section.heading ?? 'Preamble';
+		const headline = section.heading ?? 'Content';
 		return html`
 			<uui-box headline=${headline} class="transformed-section ${isMapped ? 'section-mapped' : ''}">
 				<div slot="header-actions" class="transformed-header-badges">

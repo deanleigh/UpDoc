@@ -4,10 +4,11 @@
   "source": {
     "fileName": "TTM5085 Kingston Liverpool lo.pdf",
     "mediaKey": "80d48fd4-5a0a-4369-b663-65a644291968",
-    "extractedDate": "2026-02-13T20:30:07.2633194Z",
+    "extractedDate": "2026-02-14T07:02:09.2809629Z",
     "totalPages": 4,
     "extractedPages": [
-      1
+      1,
+      2
     ]
   },
   "elements": [
@@ -1105,6 +1106,1066 @@
         "boundingBox": {
           "left": 21,
           "top": 22,
+          "width": 553.4,
+          "height": 6.8
+        },
+        "color": "#CC161E"
+      }
+    },
+    {
+      "id": "p2-e56",
+      "page": 2,
+      "text": "The Arts Society Kingston presents",
+      "metadata": {
+        "fontSize": 10.2,
+        "fontName": "GHEALO\u002BHelveticaNeue",
+        "position": {
+          "x": 210.3,
+          "y": 807.5
+        },
+        "boundingBox": {
+          "left": 210.3,
+          "top": 807.5,
+          "width": 187.7,
+          "height": 7.5
+        },
+        "color": "#FFD200"
+      }
+    },
+    {
+      "id": "p2-e57",
+      "page": 2,
+      "text": "The Art \u0026 History of Liverpool",
+      "metadata": {
+        "fontSize": 30,
+        "fontName": "GHEALP\u002BClarendon",
+        "position": {
+          "x": 210.3,
+          "y": 788.5
+        },
+        "boundingBox": {
+          "left": 210.3,
+          "top": 788.5,
+          "width": 295.8,
+          "height": 51.2
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p2-e58",
+      "page": 2,
+      "text": "5 days from \u00A3814 Departing 5th October 2026",
+      "metadata": {
+        "fontSize": 14.4,
+        "fontName": "GHEALM\u002BHelveticaNeue-Medium",
+        "position": {
+          "x": 209.8,
+          "y": 716
+        },
+        "boundingBox": {
+          "left": 209.8,
+          "top": 716,
+          "width": 307.4,
+          "height": 10.5
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p2-e59",
+      "page": 2,
+      "text": "WHAT WE WILL SEE",
+      "metadata": {
+        "fontSize": 12,
+        "fontName": "GHEALP\u002BClarendon",
+        "position": {
+          "x": 30,
+          "y": 707.9
+        },
+        "boundingBox": {
+          "left": 30,
+          "top": 707.9,
+          "width": 127.2,
+          "height": 8.2
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p2-e60",
+      "page": 2,
+      "text": "Little Moreton Hall",
+      "metadata": {
+        "fontSize": 11,
+        "fontName": "GHEALO\u002BHelveticaNeue",
+        "position": {
+          "x": 31.2,
+          "y": 690.9
+        },
+        "boundingBox": {
+          "left": 31.2,
+          "top": 690.9,
+          "width": 89.8,
+          "height": 7.9
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p2-e61",
+      "page": 2,
+      "text": "Day 1",
+      "metadata": {
+        "fontSize": 10.5,
+        "fontName": "GHEALM\u002BHelveticaNeue-Medium",
+        "position": {
+          "x": 212,
+          "y": 693.6
+        },
+        "boundingBox": {
+          "left": 212,
+          "top": 693.6,
+          "width": 27.6,
+          "height": 7.5
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p2-e62",
+      "page": 2,
+      "text": "We depart in our private executive coach from our designated pick up",
+      "metadata": {
+        "fontSize": 10.5,
+        "fontName": "GHEALO\u002BHelveticaNeue",
+        "position": {
+          "x": 212,
+          "y": 682.5
+        },
+        "boundingBox": {
+          "left": 212,
+          "top": 682.5,
+          "width": 326.9,
+          "height": 7.6
+        },
+        "color": "#221F1F"
+      }
+    },
+    {
+      "id": "p2-e63",
+      "page": 2,
+      "text": "Guided tour of Liverpool",
+      "metadata": {
+        "fontSize": 11,
+        "fontName": "GHEALO\u002BHelveticaNeue",
+        "position": {
+          "x": 31.2,
+          "y": 677.8
+        },
+        "boundingBox": {
+          "left": 31.2,
+          "top": 677.8,
+          "width": 119.4,
+          "height": 8
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p2-e64",
+      "page": 2,
+      "text": "points. En route to our hotel we visit the National Trust\u2019s Little Moreton",
+      "metadata": {
+        "fontSize": 10.5,
+        "fontName": "GHEALO\u002BHelveticaNeue",
+        "position": {
+          "x": 212,
+          "y": 671.2
+        },
+        "boundingBox": {
+          "left": 212,
+          "top": 671.2,
+          "width": 329.1,
+          "height": 7.5
+        },
+        "color": "#221F1F"
+      }
+    },
+    {
+      "id": "p2-e65",
+      "page": 2,
+      "text": "Metropolitan Roman Catholic Hall in Cheshire. Begun in 1504 and completed 100 years later, Little Cathedral",
+      "metadata": {
+        "fontSize": 11,
+        "fontName": "GHEALO\u002BHelveticaNeue",
+        "position": {
+          "x": 31.2,
+          "y": 664.4
+        },
+        "boundingBox": {
+          "left": 31.2,
+          "top": 664.4,
+          "width": 501,
+          "height": 18.5
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p2-e66",
+      "page": 2,
+      "text": "Moreton Hall is regarded as the finest example of a timber-framed",
+      "metadata": {
+        "fontSize": 10.5,
+        "fontName": "GHEALO\u002BHelveticaNeue",
+        "position": {
+          "x": 212,
+          "y": 648.8
+        },
+        "boundingBox": {
+          "left": 212,
+          "top": 648.8,
+          "width": 308.3,
+          "height": 7.6
+        },
+        "color": "#221F1F"
+      }
+    },
+    {
+      "id": "p2-e67",
+      "page": 2,
+      "text": "Liverpool Cathedral",
+      "metadata": {
+        "fontSize": 11,
+        "fontName": "GHEALO\u002BHelveticaNeue",
+        "position": {
+          "x": 31.2,
+          "y": 640.6
+        },
+        "boundingBox": {
+          "left": 31.2,
+          "top": 640.6,
+          "width": 96.2,
+          "height": 8
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p2-e68",
+      "page": 2,
+      "text": "moated house in the country. We continue to the centrally located 4*",
+      "metadata": {
+        "fontSize": 10.5,
+        "fontName": "GHEALO\u002BHelveticaNeue",
+        "position": {
+          "x": 212,
+          "y": 637.5
+        },
+        "boundingBox": {
+          "left": 212,
+          "top": 637.5,
+          "width": 320.1,
+          "height": 7.5
+        },
+        "color": "#221F1F"
+      }
+    },
+    {
+      "id": "p2-e69",
+      "page": 2,
+      "text": "Walker Art Gallery",
+      "metadata": {
+        "fontSize": 11,
+        "fontName": "GHEALO\u002BHelveticaNeue",
+        "position": {
+          "x": 31.2,
+          "y": 627.2
+        },
+        "boundingBox": {
+          "left": 31.2,
+          "top": 627.2,
+          "width": 88,
+          "height": 8
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p2-e70",
+      "page": 2,
+      "text": "Marriott Hotel in Liverpool for a four night stay. A welcome dinner is",
+      "metadata": {
+        "fontSize": 10.5,
+        "fontName": "GHEALO\u002BHelveticaNeue",
+        "position": {
+          "x": 212,
+          "y": 626.4
+        },
+        "boundingBox": {
+          "left": 212,
+          "top": 626.4,
+          "width": 315.6,
+          "height": 7.6
+        },
+        "color": "#221F1F"
+      }
+    },
+    {
+      "id": "p2-e71",
+      "page": 2,
+      "text": "Antony Gormley\u2019s \u2018Another",
+      "metadata": {
+        "fontSize": 11,
+        "fontName": "GHEALO\u002BHelveticaNeue",
+        "position": {
+          "x": 31.2,
+          "y": 613.9
+        },
+        "boundingBox": {
+          "left": 31.2,
+          "top": 613.9,
+          "width": 131.8,
+          "height": 8
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p2-e72",
+      "page": 2,
+      "text": "included in our hotel this evening.",
+      "metadata": {
+        "fontSize": 10.5,
+        "fontName": "GHEALO\u002BHelveticaNeue",
+        "position": {
+          "x": 212,
+          "y": 615.1
+        },
+        "boundingBox": {
+          "left": 212,
+          "top": 615.1,
+          "width": 157.5,
+          "height": 7.5
+        },
+        "color": "#221F1F"
+      }
+    },
+    {
+      "id": "p2-e73",
+      "page": 2,
+      "text": "Place\u2019 at Crosby Beach",
+      "metadata": {
+        "fontSize": 11,
+        "fontName": "GHEALO\u002BHelveticaNeue",
+        "position": {
+          "x": 31.2,
+          "y": 603.4
+        },
+        "boundingBox": {
+          "left": 31.2,
+          "top": 603.4,
+          "width": 115.5,
+          "height": 8
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p2-e74",
+      "page": 2,
+      "text": "Day 2",
+      "metadata": {
+        "fontSize": 10.5,
+        "fontName": "GHEALM\u002BHelveticaNeue-Medium",
+        "position": {
+          "x": 212,
+          "y": 598.2
+        },
+        "boundingBox": {
+          "left": 212,
+          "top": 598.2,
+          "width": 27,
+          "height": 7.5
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p2-e75",
+      "page": 2,
+      "text": "Museum of Liverpool",
+      "metadata": {
+        "fontSize": 11,
+        "fontName": "GHEALO\u002BHelveticaNeue",
+        "position": {
+          "x": 31.2,
+          "y": 590
+        },
+        "boundingBox": {
+          "left": 31.2,
+          "top": 590,
+          "width": 103.5,
+          "height": 7.9
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p2-e76",
+      "page": 2,
+      "text": "With our Blue Badge guide we tour Liverpool this morning taking in the",
+      "metadata": {
+        "fontSize": 10.5,
+        "fontName": "GHEALO\u002BHelveticaNeue",
+        "position": {
+          "x": 212,
+          "y": 587
+        },
+        "boundingBox": {
+          "left": 212,
+          "top": 587,
+          "width": 331.8,
+          "height": 7.5
+        },
+        "color": "#221F1F"
+      }
+    },
+    {
+      "id": "p2-e77",
+      "page": 2,
+      "text": "Cruise on the River Mersey",
+      "metadata": {
+        "fontSize": 11,
+        "fontName": "GHEALO\u002BHelveticaNeue",
+        "position": {
+          "x": 31.2,
+          "y": 576.7
+        },
+        "boundingBox": {
+          "left": 31.2,
+          "top": 576.7,
+          "width": 132.8,
+          "height": 8
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p2-e78",
+      "page": 2,
+      "text": "splendour of the Metropolitan Roman Catholic Cathedral with its modern",
+      "metadata": {
+        "fontSize": 10.5,
+        "fontName": "GHEALO\u002BHelveticaNeue",
+        "position": {
+          "x": 212,
+          "y": 575.9
+        },
+        "boundingBox": {
+          "left": 212,
+          "top": 575.9,
+          "width": 340.9,
+          "height": 7.7
+        },
+        "color": "#221F1F"
+      }
+    },
+    {
+      "id": "p2-e79",
+      "page": 2,
+      "text": "Albert Dock",
+      "metadata": {
+        "fontSize": 11,
+        "fontName": "GHEALO\u002BHelveticaNeue",
+        "position": {
+          "x": 31.2,
+          "y": 563.2
+        },
+        "boundingBox": {
+          "left": 31.2,
+          "top": 563.2,
+          "width": 57.9,
+          "height": 7.9
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p2-e80",
+      "page": 2,
+      "text": "circular design and glorious multi coloured windows and Liverpool",
+      "metadata": {
+        "fontSize": 10.5,
+        "fontName": "GHEALO\u002BHelveticaNeue",
+        "position": {
+          "x": 212,
+          "y": 564.5
+        },
+        "boundingBox": {
+          "left": 212,
+          "top": 564.5,
+          "width": 310.2,
+          "height": 7.5
+        },
+        "color": "#221F1F"
+      }
+    },
+    {
+      "id": "p2-e81",
+      "page": 2,
+      "text": "Liverpool",
+      "metadata": {
+        "fontSize": 11,
+        "fontName": "GHEALO\u002BHelveticaNeue",
+        "position": {
+          "x": 31.2,
+          "y": 549.9
+        },
+        "boundingBox": {
+          "left": 31.2,
+          "top": 549.9,
+          "width": 45.2,
+          "height": 7.9
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p2-e82",
+      "page": 2,
+      "text": "Cathedral, one of the most iconic buildings of the city. This afternoon we enjoy a guided tour of the Walker Art Gallery, introducing us to one of the",
+      "metadata": {
+        "fontSize": 10.5,
+        "fontName": "GHEALO\u002BHelveticaNeue",
+        "position": {
+          "x": 212,
+          "y": 553.5
+        },
+        "boundingBox": {
+          "left": 212,
+          "top": 553.5,
+          "width": 341.3,
+          "height": 18.9
+        },
+        "color": "#221F1F"
+      }
+    },
+    {
+      "id": "p2-e83",
+      "page": 2,
+      "text": "Princes Road Synagogue",
+      "metadata": {
+        "fontSize": 11,
+        "fontName": "GHEALO\u002BHelveticaNeue",
+        "position": {
+          "x": 31.2,
+          "y": 536.7
+        },
+        "boundingBox": {
+          "left": 31.2,
+          "top": 536.7,
+          "width": 124.7,
+          "height": 8
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p2-e84",
+      "page": 2,
+      "text": "finest collections of fine and decorative art in Europe with works by",
+      "metadata": {
+        "fontSize": 10.5,
+        "fontName": "GHEALO\u002BHelveticaNeue",
+        "position": {
+          "x": 212,
+          "y": 530.9
+        },
+        "boundingBox": {
+          "left": 212,
+          "top": 530.9,
+          "width": 314,
+          "height": 7.6
+        },
+        "color": "#221F1F"
+      }
+    },
+    {
+      "id": "p2-e85",
+      "page": 2,
+      "text": "Speke Hall",
+      "metadata": {
+        "fontSize": 11,
+        "fontName": "GHEALO\u002BHelveticaNeue",
+        "position": {
+          "x": 31.2,
+          "y": 523.4
+        },
+        "boundingBox": {
+          "left": 31.2,
+          "top": 523.4,
+          "width": 53,
+          "height": 8
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p2-e86",
+      "page": 2,
+      "text": "Rembrandt, Poussin and Degas, 20th century works by artists such as",
+      "metadata": {
+        "fontSize": 10.5,
+        "fontName": "GHEALO\u002BHelveticaNeue",
+        "position": {
+          "x": 212,
+          "y": 519.6
+        },
+        "boundingBox": {
+          "left": 212,
+          "top": 519.6,
+          "width": 330.1,
+          "height": 7.5
+        },
+        "color": "#221F1F"
+      }
+    },
+    {
+      "id": "p2-e87",
+      "page": 2,
+      "text": "Tate Liverpool at Riba North,",
+      "metadata": {
+        "fontSize": 11,
+        "fontName": "GHEALO\u002BHelveticaNeue",
+        "position": {
+          "x": 31.2,
+          "y": 509.9
+        },
+        "boundingBox": {
+          "left": 31.2,
+          "top": 509.9,
+          "width": 140.2,
+          "height": 7.9
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p2-e88",
+      "page": 2,
+      "text": "Lucian Freud, David Hockney and Gilbert and George as well as one of",
+      "metadata": {
+        "fontSize": 10.5,
+        "fontName": "GHEALO\u002BHelveticaNeue",
+        "position": {
+          "x": 212,
+          "y": 508.6
+        },
+        "boundingBox": {
+          "left": 212,
+          "top": 508.6,
+          "width": 332.2,
+          "height": 7.7
+        },
+        "color": "#221F1F"
+      }
+    },
+    {
+      "id": "p2-e89",
+      "page": 2,
+      "text": "Mann Island",
+      "metadata": {
+        "fontSize": 11,
+        "fontName": "GHEALO\u002BHelveticaNeue",
+        "position": {
+          "x": 31.2,
+          "y": 499.4
+        },
+        "boundingBox": {
+          "left": 31.2,
+          "top": 499.4,
+          "width": 60.1,
+          "height": 7.9
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p2-e90",
+      "page": 2,
+      "text": "the most important sculpture collections outside London. Dinner is",
+      "metadata": {
+        "fontSize": 10.5,
+        "fontName": "GHEALO\u002BHelveticaNeue",
+        "position": {
+          "x": 212,
+          "y": 497.2
+        },
+        "boundingBox": {
+          "left": 212,
+          "top": 497.2,
+          "width": 312,
+          "height": 7.5
+        },
+        "color": "#221F1F"
+      }
+    },
+    {
+      "id": "p2-e91",
+      "page": 2,
+      "text": "Quarry Bank Mill \u0026 Styal Estate included in our hotel this evening.",
+      "metadata": {
+        "fontSize": 11,
+        "fontName": "GHEALO\u002BHelveticaNeue",
+        "position": {
+          "x": 31.2,
+          "y": 486.2
+        },
+        "boundingBox": {
+          "left": 31.2,
+          "top": 486.2,
+          "width": 338.3,
+          "height": 8
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p2-e92",
+      "page": 2,
+      "text": "Day 3",
+      "metadata": {
+        "fontSize": 10.5,
+        "fontName": "GHEALM\u002BHelveticaNeue-Medium",
+        "position": {
+          "x": 212,
+          "y": 469.1
+        },
+        "boundingBox": {
+          "left": 212,
+          "top": 469.1,
+          "width": 27,
+          "height": 7.5
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p2-e93",
+      "page": 2,
+      "text": "With our Blue Badge guide this morning we visit Crosby Beach to see the internationally acclaimed artist Antony Gormley\u2019s work \u2018Another Place\u2019. Best known for his controversial sculpture \u2018Angel of the North\u2019, \u2018Another Place\u2019 are massive installations of 100 cast iron figures, moulded from the artist\u2019s own body in the style that has become synonymous with his work. We continue to the Museum of Liverpool. Opened in 2011, the museum depicts the story of Liverpool and its",
+      "metadata": {
+        "fontSize": 10.5,
+        "fontName": "GHEALO\u002BHelveticaNeue",
+        "position": {
+          "x": 212,
+          "y": 458
+        },
+        "boundingBox": {
+          "left": 212,
+          "top": 458,
+          "width": 328.6,
+          "height": 75
+        },
+        "color": "#221F1F"
+      }
+    },
+    {
+      "id": "p2-e94",
+      "page": 2,
+      "text": "Little Moreton Hall",
+      "metadata": {
+        "fontSize": 9,
+        "fontName": "GHEALM\u002BHelveticaNeue-Medium",
+        "position": {
+          "x": 34.9,
+          "y": 380.9
+        },
+        "boundingBox": {
+          "left": 34.9,
+          "top": 380.9,
+          "width": 78.6,
+          "height": 6.4
+        },
+        "color": "#FFFFFF"
+      }
+    },
+    {
+      "id": "p2-e95",
+      "page": 2,
+      "text": "people, and reflects the city\u2019s global significance. This afternoon we enjoy an included cruise on the River Mersey to see the city from a different perspective. The rest of the day is at leisure in Liverpool, and you may choose to further explore the Albert Dock, Liverpool\u2019s most visited attraction situated in a stunning World Heritage waterfront setting.",
+      "metadata": {
+        "fontSize": 10.5,
+        "fontName": "GHEALO\u002BHelveticaNeue",
+        "position": {
+          "x": 212,
+          "y": 379.4
+        },
+        "boundingBox": {
+          "left": 212,
+          "top": 379.4,
+          "width": 341.9,
+          "height": 52.5
+        },
+        "color": "#221F1F"
+      }
+    },
+    {
+      "id": "p2-e96",
+      "page": 2,
+      "text": "Day 4",
+      "metadata": {
+        "fontSize": 10.5,
+        "fontName": "GHEALM\u002BHelveticaNeue-Medium",
+        "position": {
+          "x": 212,
+          "y": 317.5
+        },
+        "boundingBox": {
+          "left": 212,
+          "top": 317.5,
+          "width": 27,
+          "height": 7.5
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p2-e97",
+      "page": 2,
+      "text": "We spend some time at leisure in Liverpool this morning. Later this morning we enjoy a guided tour of the Princes Road Synagogue. Built in 1874 to the design of W and G Audsley, the interior is laid out like a Gothic Basilica, and the Bimah was constructed from alabaster and",
+      "metadata": {
+        "fontSize": 10.5,
+        "fontName": "GHEALO\u002BHelveticaNeue",
+        "position": {
+          "x": 212,
+          "y": 306.3
+        },
+        "boundingBox": {
+          "left": 212,
+          "top": 306.3,
+          "width": 338.2,
+          "height": 41.2
+        },
+        "color": "#221F1F"
+      }
+    },
+    {
+      "id": "p2-e98",
+      "page": 2,
+      "text": "Liverpool Cathedral",
+      "metadata": {
+        "fontSize": 9,
+        "fontName": "GHEALM\u002BHelveticaNeue-Medium",
+        "position": {
+          "x": 34.9,
+          "y": 257.3
+        },
+        "boundingBox": {
+          "left": 34.9,
+          "top": 257.3,
+          "width": 84,
+          "height": 6.6
+        },
+        "color": "#FFFFFF"
+      }
+    },
+    {
+      "id": "p2-e99",
+      "page": 2,
+      "text": "marble. We continue with our Blue Badge guide to the National Trust\u2019s Speke Hall, one of the country\u2019s most famous timbered houses. Originally built in 1530, its Great Hall and priest hole date from Tudor times. There is also fine Jacobean plasterwork and intricately carved furniture. A farewell dinner is included in our hotel this evening.",
+      "metadata": {
+        "fontSize": 10.5,
+        "fontName": "GHEALO\u002BHelveticaNeue",
+        "position": {
+          "x": 212,
+          "y": 261.4
+        },
+        "boundingBox": {
+          "left": 212,
+          "top": 261.4,
+          "width": 328.3,
+          "height": 52.4
+        },
+        "color": "#221F1F"
+      }
+    },
+    {
+      "id": "p2-e100",
+      "page": 2,
+      "text": "Day 5",
+      "metadata": {
+        "fontSize": 10.5,
+        "fontName": "GHEALM\u002BHelveticaNeue-Medium",
+        "position": {
+          "x": 212,
+          "y": 199.6
+        },
+        "boundingBox": {
+          "left": 212,
+          "top": 199.6,
+          "width": 27,
+          "height": 7.5
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p2-e101",
+      "page": 2,
+      "text": "After checking out of our hotel and before returning home we visit Tate Liverpool, currently located at Riba North, Mann Island whilst their Royal Albert Dock home is temporarily closed for a huge redevelopment. This",
+      "metadata": {
+        "fontSize": 10.5,
+        "fontName": "GHEALO\u002BHelveticaNeue",
+        "position": {
+          "x": 212,
+          "y": 188.5
+        },
+        "boundingBox": {
+          "left": 212,
+          "top": 188.5,
+          "width": 338.8,
+          "height": 30
+        },
+        "color": "#221F1F"
+      }
+    },
+    {
+      "id": "p2-e102",
+      "page": 2,
+      "text": "Walker Art Gallery\u2019",
+      "metadata": {
+        "fontSize": 9,
+        "fontName": "GHEALM\u002BHelveticaNeue-Medium",
+        "position": {
+          "x": 34.9,
+          "y": 159.4
+        },
+        "boundingBox": {
+          "left": 34.9,
+          "top": 159.4,
+          "width": 79.5,
+          "height": 6.6
+        },
+        "color": "#FFFFFF"
+      }
+    },
+    {
+      "id": "p2-e103",
+      "page": 2,
+      "text": "new space is much smaller, but still offers two small galleries. We continue to the National Trust\u2019s Quarry Bank Mill and Styal Estate near Wilmslow. This restored Georgian cotton mill tells the story of \u2018King Cotton\u2019 from a bale of raw cotton to finished cloth, and the original Apprentice House recreates the 1830s atmosphere of the lives of child workers. Taking carefully selected comfort stops en route, we return back to our original pick up points.",
+      "metadata": {
+        "fontSize": 10.5,
+        "fontName": "GHEALO\u002BHelveticaNeue",
+        "position": {
+          "x": 212,
+          "y": 154.8
+        },
+        "boundingBox": {
+          "left": 212,
+          "top": 154.8,
+          "width": 329.3,
+          "height": 74.9
+        },
+        "color": "#221F1F"
+      }
+    },
+    {
+      "id": "p2-e104",
+      "page": 2,
+      "text": "NB:- Please note we reserve the right to alter the above itinerary if required for operational",
+      "metadata": {
+        "fontSize": 8,
+        "fontName": "GHEALM\u002BHelveticaNeue-Medium",
+        "position": {
+          "x": 212.3,
+          "y": 69.6
+        },
+        "boundingBox": {
+          "left": 212.3,
+          "top": 69.6,
+          "width": 324.7,
+          "height": 5.7
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p2-e105",
+      "page": 2,
+      "text": "reasons. Given the historic nature of the places visited, a certain degree of walking will",
+      "metadata": {
+        "fontSize": 8,
+        "fontName": "GHEALM\u002BHelveticaNeue-Medium",
+        "position": {
+          "x": 230.8,
+          "y": 61.7
+        },
+        "boundingBox": {
+          "left": 230.8,
+          "top": 61.7,
+          "width": 311.6,
+          "height": 5.8
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p2-e106",
+      "page": 2,
+      "text": "Quarry Bank Mill",
+      "metadata": {
+        "fontSize": 9,
+        "fontName": "GHEALM\u002BHelveticaNeue-Medium",
+        "position": {
+          "x": 34.9,
+          "y": 55.5
+        },
+        "boundingBox": {
+          "left": 34.9,
+          "top": 55.5,
+          "width": 70.9,
+          "height": 6.6
+        },
+        "color": "#FFFFFF"
+      }
+    },
+    {
+      "id": "p2-e107",
+      "page": 2,
+      "text": "be involved, and this tour may not be suitable for those with mobility problems.",
+      "metadata": {
+        "fontSize": 8,
+        "fontName": "GHEALM\u002BHelveticaNeue-Medium",
+        "position": {
+          "x": 230.8,
+          "y": 53.6
+        },
+        "boundingBox": {
+          "left": 230.8,
+          "top": 53.6,
+          "width": 285.2,
+          "height": 5.7
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p2-e108",
+      "page": 2,
+      "text": "Vie w a nd sha r e this to u r o nlin e - click o n Vie w Yo u r To u r at w w w.tailo r ed-tr a v el. c o . uk a nd qu ote kngd261",
+      "metadata": {
+        "fontSize": 9.5,
+        "fontName": "GHEELJ\u002BSwiss721BT-Bold",
+        "position": {
+          "x": 21,
+          "y": 21.1
+        },
+        "boundingBox": {
+          "left": 21,
+          "top": 21.1,
           "width": 553.4,
           "height": 6.8
         },

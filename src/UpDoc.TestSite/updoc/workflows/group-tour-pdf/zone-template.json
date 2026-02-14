@@ -5,7 +5,7 @@
     "width": 595,
     "height": 841.89
   },
-  "createdAt": "2026-02-13T20:20:36.089Z",
+  "createdAt": "2026-02-14T05:45:40.487Z",
   "zones": [
     {
       "name": "Page Header",
@@ -51,6 +51,22 @@
         "height": 558
       },
       "color": "#3185fc",
+      "headingFont": "",
+      "expectedSections": [],
+      "notes": ""
+    },
+    {
+      "name": "Itinery",
+      "property": "",
+      "page": 2,
+      "type": "",
+      "bounds": {
+        "x": 206,
+        "y": 74.9,
+        "width": 353,
+        "height": 625
+      },
+      "color": "#8338ec",
       "headingFont": "",
       "expectedSections": [],
       "notes": ""

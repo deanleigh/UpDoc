@@ -121,6 +121,18 @@
       ],
       "enabled": true,
       "comment": null
+    },
+    {
+      "source": "preamble-p2-z0.content",
+      "destinations": [
+        {
+          "target": "richTextContent",
+          "blockKey": "67f05ceb-217a-4a21-8c98-b2557ba1cc88",
+          "transforms": null
+        }
+      ],
+      "enabled": true,
+      "comment": null
     }
   ]
 }
