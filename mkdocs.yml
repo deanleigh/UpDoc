@@ -63,6 +63,8 @@ nav:
     - destination-utils.ts: source-files/destination-utils.md
     - up-doc-pdf-thumbnail.element.ts: source-files/up-doc-pdf-thumbnail-element.md
     - up-doc-pdf-picker.element.ts: source-files/up-doc-pdf-picker-element.md
+    - page-picker-modal.element.ts: source-files/page-picker-modal-element.md
+    - page-picker-modal.token.ts: source-files/page-picker-modal-token.md
     - up-doc-usync-fallback.condition.ts: source-files/up-doc-usync-fallback-condition.md
   - Backend (C#):
     - backend/index.md
