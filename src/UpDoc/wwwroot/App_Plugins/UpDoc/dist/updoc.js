@@ -71,7 +71,7 @@ const o = [
     type: "modal",
     alias: "UpDoc.CreateWorkflowSidebar",
     name: "Create Workflow Sidebar",
-    element: () => import("./create-workflow-sidebar.element-C1lwaBNk.js")
+    element: () => import("./create-workflow-sidebar.element-DCR5ifQV.js")
   },
   {
     type: "modal",

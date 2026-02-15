@@ -29,8 +29,9 @@ export class CreateWorkflowSidebarElement extends UmbModalBaseElement<
 	@state() private _selectedMediaUnique: string | null = null;
 	@state() private _sourceUrl = '';
 	@state() private _extracting = false;
-	@state() private _successMessage: string | null = null;
 	@state() private _totalPages = 0;
+	@state() private _elementCount = 0;
+	@state() private _fileName = '';
 	@state() private _selectedPages: number[] | null = null;
 	private _nameManuallyEdited = false;
 
@@ -48,7 +49,6 @@ export class CreateWorkflowSidebarElement extends UmbModalBaseElement<
 		if (newSourceType !== this._sourceType) {
 			this._selectedMediaUnique = null;
 			this._sourceUrl = '';
-			this._successMessage = null;
 		}
 
 		this._sourceType = newSourceType;
@@ -64,8 +64,9 @@ export class CreateWorkflowSidebarElement extends UmbModalBaseElement<
 	async #handlePdfPickerChange(e: CustomEvent) {
 		const detail = e.detail as { mediaKey: string | null };
 		this._selectedMediaUnique = detail?.mediaKey ?? null;
-		this._successMessage = null;
 		this._totalPages = 0;
+		this._elementCount = 0;
+		this._fileName = '';
 		this._selectedPages = null;
 
 		if (this._selectedMediaUnique) {
@@ -76,7 +77,8 @@ export class CreateWorkflowSidebarElement extends UmbModalBaseElement<
 				const result = await extractRich(this._selectedMediaUnique, token);
 				if (result) {
 					this._totalPages = result.source.totalPages;
-					this._successMessage = `Content extracted — ${result.elements.length} elements from ${result.source.totalPages} pages`;
+					this._elementCount = result.elements.length;
+					this._fileName = result.source.fileName;
 				}
 			} catch {
 				// Extraction preview failed — not critical, will retry on Create
@@ -108,7 +110,6 @@ export class CreateWorkflowSidebarElement extends UmbModalBaseElement<
 		const target = e.target as UmbInputMediaElement;
 		const selection = target.selection;
 		this._selectedMediaUnique = selection.length > 0 ? selection[0] : null;
-		this._successMessage = null;
 	}
 
 	#handleNameInput(e: UUIInputEvent) {
@@ -167,72 +168,83 @@ export class CreateWorkflowSidebarElement extends UmbModalBaseElement<
 		`;
 	}
 
-	#renderSourceUI() {
+	#renderExtractionStats() {
+		if (!this._fileName) return nothing;
+
+		return html`
+			<div class="extraction-stats">
+				<span class="extraction-filename">${this._fileName}</span>
+				<div class="extraction-meta">
+					<span><uui-icon name="icon-thumbnails-small"></uui-icon> ${this._totalPages} pages</span>
+					<span><uui-icon name="icon-list"></uui-icon> ${this._elementCount} elements</span>
+				</div>
+			</div>
+		`;
+	}
+
+	#renderDocumentBox() {
 		switch (this._sourceType) {
 			case 'pdf':
 				return html`
-					<umb-property-layout label="Sample PDF" description="Choose a representative PDF to use as a reference when building mapping rules." orientation="vertical">
-						<div slot="editor">
-							<up-doc-pdf-picker @change=${this.#handlePdfPickerChange}></up-doc-pdf-picker>
-						</div>
-					</umb-property-layout>
+					<uui-box headline="Sample Document">
+						<up-doc-pdf-picker @change=${this.#handlePdfPickerChange}></up-doc-pdf-picker>
+						${this._extracting ? html`<uui-loader-bar></uui-loader-bar>` : nothing}
+						${this.#renderExtractionStats()}
+					</uui-box>
 				`;
 			case 'markdown':
 				return html`
-					<umb-property-layout label="Sample Markdown File" description="Choose a representative Markdown file to use as a reference when building mapping rules." orientation="vertical">
-						<div slot="editor">
-							<umb-input-media max="1" @change=${this.#handleMediaChange}></umb-input-media>
-						</div>
-					</umb-property-layout>
+					<uui-box headline="Sample File">
+						<umb-input-media max="1" @change=${this.#handleMediaChange}></umb-input-media>
+					</uui-box>
 				`;
 			case 'web':
 				return html`
-					<umb-property-layout label="Sample Web Page URL" description="Enter a representative URL to use as a reference when building mapping rules." orientation="vertical">
-						<div slot="editor">
-							<uui-input
-								label="URL"
-								placeholder="https://example.com/page"
-								.value=${this._sourceUrl}
-								@input=${(e: UUIInputEvent) => (this._sourceUrl = e.target.value as string)}>
-							</uui-input>
-						</div>
-					</umb-property-layout>
+					<uui-box headline="Sample URL">
+						<uui-input
+							label="URL"
+							placeholder="https://example.com/page"
+							.value=${this._sourceUrl}
+							@input=${(e: UUIInputEvent) => (this._sourceUrl = e.target.value as string)}>
+						</uui-input>
+					</uui-box>
 				`;
 			case 'doc':
 				return html`
-					<umb-property-layout label="Sample Word Document" description="Choose a representative Word document to use as a reference when building mapping rules." orientation="vertical">
-						<div slot="editor">
-							<umb-input-media max="1" @change=${this.#handleMediaChange}></umb-input-media>
-						</div>
-					</umb-property-layout>
+					<uui-box headline="Sample Document">
+						<umb-input-media max="1" @change=${this.#handleMediaChange}></umb-input-media>
+					</uui-box>
 				`;
 			default:
 				return nothing;
 		}
 	}
 
-	#renderPageSelection() {
+	#renderPagesBox() {
+		if (this._totalPages === 0) return nothing;
+
 		const label = this._selectedPages
 			? `${this._selectedPages.length} of ${this._totalPages} pages`
 			: `All ${this._totalPages} pages`;
 
 		return html`
-			<div class="page-selection-row">
-				<div class="page-selection-info">
+			<uui-box headline="Pages">
+				<span class="page-selection-label">${label}</span>
+				<uui-button
+					look="outline"
+					label="Choose Pages"
+					@click=${this.#onOpenPagePicker}
+					class="full-width-button">
 					<uui-icon name="icon-thumbnails-small"></uui-icon>
-					<span class="page-selection-label">${label}</span>
-				</div>
-				<uui-button look="outline" compact label="Choose Pages" @click=${this.#onOpenPagePicker}>
 					Choose Pages
 				</uui-button>
-			</div>
+			</uui-box>
 		`;
 	}
 
 	#renderSourceTab() {
 		return html`
 			<uui-box headline="Workflow Name">
-				<p>A unique name for this workflow. Used as the folder name on disk.</p>
 				<uui-input
 					id="name"
 					label="name"
@@ -242,28 +254,22 @@ export class CreateWorkflowSidebarElement extends UmbModalBaseElement<
 				</uui-input>
 			</uui-box>
 
-			<uui-box headline="Source">
-				<umb-property-layout label="Source Type" orientation="vertical">
-					<div slot="editor">
-						<uui-select
-							label="Select source type"
-							.options=${[
-								{ name: 'Choose a source...', value: '', selected: this._sourceType === '' },
-								...SOURCE_TYPE_OPTIONS.map((st) => ({
-									...st,
-									selected: this._sourceType === st.value,
-								})),
-							]}
-							@change=${this.#handleSourceTypeChange}>
-						</uui-select>
-					</div>
-				</umb-property-layout>
-
-				${this.#renderSourceUI()}
-				${this._extracting ? html`<uui-loader-bar></uui-loader-bar>` : nothing}
-				${this._successMessage ? html`<div class="success-banner"><uui-icon name="icon-check"></uui-icon> ${this._successMessage}</div>` : nothing}
-				${this._totalPages > 0 ? this.#renderPageSelection() : nothing}
+			<uui-box headline="Format">
+				<uui-select
+					label="Select source format"
+					.options=${[
+						{ name: 'Choose a format...', value: '', selected: this._sourceType === '' },
+						...SOURCE_TYPE_OPTIONS.map((st) => ({
+							...st,
+							selected: this._sourceType === st.value,
+						})),
+					]}
+					@change=${this.#handleSourceTypeChange}>
+				</uui-select>
 			</uui-box>
+
+			${this.#renderDocumentBox()}
+			${this.#renderPagesBox()}
 		`;
 	}
 
@@ -341,47 +347,50 @@ export class CreateWorkflowSidebarElement extends UmbModalBaseElement<
 				margin-bottom: var(--uui-size-space-4);
 			}
 
-			p {
-				margin-bottom: var(--uui-size-space-4);
-			}
-
 			.tab-content {
 				display: flex;
 				flex-direction: column;
 			}
 
-			.page-selection-row {
-				display: flex;
-				align-items: center;
-				justify-content: space-between;
+			.extraction-stats {
 				margin-top: var(--uui-size-space-3);
 				padding: var(--uui-size-space-3);
 				border-radius: var(--uui-border-radius);
 				background: var(--uui-color-surface-alt);
 			}
 
-			.page-selection-info {
+			.extraction-filename {
+				display: block;
+				font-weight: 600;
+				font-size: var(--uui-type-small-size);
+				margin-bottom: var(--uui-size-space-2);
+				word-break: break-all;
+			}
+
+			.extraction-meta {
+				display: flex;
+				gap: var(--uui-size-space-4);
+				font-size: var(--uui-type-small-size);
+				color: var(--uui-color-text-alt);
+			}
+
+			.extraction-meta span {
 				display: flex;
 				align-items: center;
-				gap: var(--uui-size-space-2);
+				gap: var(--uui-size-space-1);
 			}
 
 			.page-selection-label {
+				display: block;
 				font-size: var(--uui-type-small-size);
-				font-weight: 500;
+				color: var(--uui-color-text-alt);
+				margin-bottom: var(--uui-size-space-3);
 			}
 
-			.success-banner {
-				display: flex;
-				align-items: center;
-				gap: var(--uui-size-space-2);
-				margin-top: var(--uui-size-space-3);
-				padding: var(--uui-size-space-2);
-				border-radius: var(--uui-border-radius);
-				background-color: var(--uui-color-positive-emphasis);
-				color: var(--uui-color-positive-contrast);
-				font-size: var(--uui-type-small-size);
+			.full-width-button {
+				width: 100%;
 			}
+
 		`,
 	];
 }
