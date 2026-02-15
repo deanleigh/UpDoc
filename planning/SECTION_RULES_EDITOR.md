@@ -1,6 +1,6 @@
 # Plan: Section Rules Editor ("Edit Sections")
 
-## Status: PLANNING
+## Status: PLANNING — Implementation plan ready, not started
 
 ---
 
@@ -64,18 +64,21 @@ The role names are user-defined (free text), not a fixed vocabulary. The Map tab
 
 Rules use conditions based on element metadata to assign roles automatically across all PDFs in the workflow (not just the sample):
 
-| Condition Type | Example | Source Types |
-|---------------|---------|-------------|
-| Text begins with | "Tel:", "Email:", "Day " | All |
-| Text ends with | ".com", ".co.uk" | All |
-| Text contains | "phone", "@" | All |
-| Text matches pattern | `\d{3,4}\s\d{3,4}\s\d{4}` (phone) | All |
-| Font size equals/above/below | ≥ 20pt (heading), ≤ 10pt (fine print) | PDF |
-| Font name/style | "Helvetica-Bold", "Clarendon" | PDF |
-| Color | #FFD200 (gold heading) | PDF |
-| Position | First element, Last element | All |
-| Heading level | h1, h2, h3 | Markdown, Word |
-| CSS selector | `.contact-name` | Web |
+| Condition Type | Code Name | Example | Source Types |
+|---------------|-----------|---------|-------------|
+| Text begins with | `textBeginsWith` | "Tel:", "Email:", "Day " | All |
+| Text ends with | `textEndsWith` | ".com", ".co.uk" | All |
+| Text contains | `textContains` | "phone", "@" | All |
+| Text matches pattern | `textMatchesPattern` | `\d{3,4}\s\d{3,4}\s\d{4}` (phone) | All |
+| Font size equals | `fontSizeEquals` | 20pt (heading) | PDF |
+| Font size above | `fontSizeAbove` | ≥ 20pt | PDF |
+| Font size below | `fontSizeBelow` | ≤ 10pt (fine print) | PDF |
+| Font name contains | `fontNameContains` | "Helvetica-Bold", "Clarendon" | PDF |
+| Color equals | `colorEquals` | #FFD200 (gold heading) | PDF |
+| Position first | `positionFirst` | First element in section | All |
+| Position last | `positionLast` | Last element in section | All |
+| Heading level | *(future)* | h1, h2, h3 | Markdown, Word |
+| CSS selector | *(future)* | `.contact-name` | Web |
 
 ### 4. Outlook rules pattern for the UI
 
@@ -133,8 +136,10 @@ Section: Organiser Info                    [6 elements]
 Key UI features:
 - **Live matching** — as you define conditions, the matched element from the sample extraction is shown immediately
 - **Unmatched elements** — elements not claimed by any rule are listed at the bottom (can be ignored or assigned)
-- **Auto-populate** — clicking an element in the section pre-fills conditions from its metadata (like Outlook pre-fills "From = sender" when you create a rule from an email)
+- **Auto-populate** — clicking an unmatched element pre-fills conditions from its metadata (like Outlook pre-fills "From = sender" when you create a rule from an email). Heuristic: include font size if unusual vs section peers, color if unusual, text prefix if contains ":"
 - **Add another condition** — multiple conditions AND together (element must match all)
+- **"Create rule from this"** — shortcut on unmatched elements to start a new rule with auto-populated conditions
+- **First-match-wins ordering** — rules evaluated top-to-bottom; an element claimed by one rule is excluded from later rules
 
 ### 5. Auto-population from sample extraction
 
@@ -146,6 +151,8 @@ When the user clicks an element to create a rule, conditions auto-populate from 
 - Color: #FFD200
 
 The user reviews these, keeps what's useful, removes what's too specific (maybe font name varies but color is consistent), and names the role.
+
+**"Unusual" heuristic:** Compare the clicked element's metadata against other elements in the same section. If font size differs from the majority, add `fontSizeEquals`. If color differs, add `colorEquals`. If text contains ":", add `textBeginsWith` with the prefix.
 
 ### 6. Rules are portable across PDFs
 
@@ -220,20 +227,19 @@ The section rules don't know or care about the destination. They just create nam
 
 ## Storage
 
-Section rules are stored in the source config file (e.g., `source.json`) as part of each section's definition:
+Section rules are stored in `source.json` as a top-level `sectionRules` dictionary, keyed by transform section ID:
 
 ```json
 {
-  "sections": [
-    {
-      "key": "organiser-info",
-      "heading": "Organiser Info",
+  "sourceType": "pdf",
+  "sectionRules": {
+    "preamble-p1-z1": {
       "rules": [
         {
           "role": "organiser-name",
           "conditions": [
-            { "type": "fontSize", "operator": "equals", "value": 20 },
-            { "type": "color", "operator": "equals", "value": "#FFD200" }
+            { "type": "fontSizeEquals", "value": 20 },
+            { "type": "colorEquals", "value": "#FFD200" }
           ]
         },
         {
@@ -250,37 +256,171 @@ Section rules are stored in the source config file (e.g., `source.json`) as part
         }
       ]
     }
-  ]
+  }
 }
 ```
+
+**Why a dictionary (not nested in sections array):** The old `sections` array in source.json is vestigial extraction strategies from an earlier architecture. Section rules are keyed by transform section ID (e.g., `"preamble-p1-z1"`, `"features"`) and live alongside existing source config without modifying the old structure.
 
 Rules live in the source config because they are source-type-specific (PDF conditions differ from Web conditions). The map.json references roles by name, agnostic of how they were identified.
 
 ---
 
-## Implementation Sequence
+## Resolved Design Questions
+
+| Question | Decision |
+|----------|----------|
+| Multiple matches per rule | Take first match, show warning if ambiguous |
+| Rule ordering | First-match-wins across rules (element claimed = excluded from later rules) |
+| Transform interaction | Layer on top — parent section keeps full content, sub-parts are additional entries |
+| Unmatched elements | Remain in parent section's Content, visible in rules editor |
+| Testing across PDFs | Defer to Phase C (future) |
+
+---
+
+## Implementation Plan
 
 ### Prerequisites
 - Zone detection and transform layer working (COMPLETE)
 - Sample extraction stored in workflow folder (COMPLETE)
 - Edit Areas UI working (COMPLETE)
 
-### Steps
-1. **Sections stat box + Edit Sections button** — Add to Source tab stat boxes
-2. **Section rules editor UI** — Outlook-rules-pattern modal/panel
-3. **Auto-populate from element click** — Pre-fill conditions from metadata
-4. **Live matching** — Show matched elements as conditions are defined
-5. **Source config schema update** — Add `rules` array to section definitions
-6. **Rule evaluation engine** — Apply rules to extraction output, produce named sub-parts
-7. **Map tab integration** — Show section sub-parts as mappable sources
-8. **Bridge integration** — Apply rules during Create from Source to split content
+### Phase A: Rules Editor (UI + Storage)
+
+#### A1. C# Models — `src/UpDoc/Models/SectionRules.cs` (NEW)
+
+```
+SectionRuleSet         → { rules: SectionRule[] }
+SectionRule            → { role: string, conditions: RuleCondition[] }
+RuleCondition          → { type: string, value: string|number }
+```
+
+Condition types: `textBeginsWith`, `textEndsWith`, `textContains`, `textMatchesPattern`, `fontSizeEquals`, `fontSizeAbove`, `fontSizeBelow`, `fontNameContains`, `colorEquals`, `positionFirst`, `positionLast`
+
+#### A2. SourceConfig change — `src/UpDoc/Models/SourceConfig.cs` (MODIFY)
+
+Add property:
+```csharp
+[JsonPropertyName("sectionRules")]
+public Dictionary<string, SectionRuleSet>? SectionRules { get; set; }
+```
+
+Keyed by transform section ID (e.g., `"preamble-p1-z1"`, `"features"`). Lives in source.json alongside existing config.
+
+#### A3. API Endpoint — `src/UpDoc/Controllers/WorkflowController.cs` (MODIFY)
+
+One new endpoint:
+
+- **PUT `{name}/section-rules`** — Accepts `Dictionary<string, SectionRuleSet>`, patches source.json's `sectionRules` key, saves.
+
+No evaluate endpoint needed — rule evaluation is client-side in Phase A (condition matching against elements already loaded in the modal).
+
+#### A4. TypeScript Types — `src/UpDoc/wwwroot/App_Plugins/UpDoc/src/workflow.types.ts` (MODIFY)
+
+Add section rules types and update `SourceConfig` interface with optional `sectionRules` property.
+
+#### A5. Workflow Service — `src/UpDoc/wwwroot/App_Plugins/UpDoc/src/workflow.service.ts` (MODIFY)
+
+Add `saveSectionRules(workflowName, sectionRules, token)` function.
+
+#### A6. Modal Token — `section-rules-editor-modal.token.ts` (NEW)
+
+```typescript
+Data: { workflowName, sectionId, sectionHeading, elements: ZoneElement[], existingRules }
+Value: { rules: SectionRuleSet }
+```
+
+Type: sidebar, size: medium. Elements passed in from the Source tab (already loaded in `_zoneDetection` state).
+
+#### A7. Modal Element — `section-rules-editor-modal.element.ts` (NEW)
+
+The rules editor UI using the Outlook rules pattern:
+
+- **Rule cards**: Role name input + condition rows (type dropdown + value input + remove) + live matched element preview
+- **Auto-populate**: Click an unmatched element → new rule card with conditions pre-filled from its metadata (font size if unusual, color if unusual, text prefix if contains ":")
+- **Client-side evaluation**: As conditions change, re-evaluate all rules against the elements in memory. Show matched element per rule (green) or "No match" (amber). Unmatched elements listed at bottom.
+- **"Add another rule"** button and **"Create rule from this"** on unmatched elements
+- **Rule ordering**: First-match-wins. An element claimed by one rule cannot match subsequent rules. Rules evaluated top-to-bottom.
+
+#### A8. Manifest — `src/UpDoc/wwwroot/App_Plugins/UpDoc/src/manifest.ts` (MODIFY)
+
+Register the new modal.
+
+#### A9. Source Tab — `src/UpDoc/wwwroot/App_Plugins/UpDoc/src/up-doc-workflow-source-view.element.ts` (MODIFY)
+
+Entry point: **per-section settings icon** on Transformed view section cards. Sections with rules show a "N rules" badge. Click opens the rules editor directly for that section.
+
+**Section → Elements lookup**: The source view already has `_zoneDetection` loaded. To find elements for a transform section:
+- Sections with headings: search zone detection for a section whose heading text normalizes to the same kebab-case ID (`NormalizeToKebabCase` logic replicated in TS)
+- Preamble sections: parse `preamble-p{page}-z{zoneIndex}` from the ID
+
+**Note:** The Sections stat box "Edit Sections" button (a second entry point via section picker popover) is deferred. The per-section icon is the natural entry point — adding the stat box path later if needed avoids unnecessary UX complexity.
+
+### Phase B: Pipeline Integration (deferred to next branch)
+
+#### B1. TransformedSection model — add `parentSectionId?: string` and `roleLabel?: string`
+
+#### B2. ContentTransformService — accept section rules, produce sub-part entries
+
+After assembling a standard section, if rules exist for that section ID:
+- Run evaluation against the DetectedSection's children
+- For each matched rule, emit an additional TransformedSection with:
+  - `Id` = `{parentId}.{role}` (e.g., `preamble-p1-z1.organiser-name`)
+  - `Content` = matched element text
+  - `Pattern` = `"ruleMatch"`
+  - `ParentSectionId` = parent's ID
+
+#### B3. C# Rule Evaluator — `SectionRuleEvaluator.cs` (NEW)
+
+Same condition matching logic as the client-side TS version, for use by the transform service.
+
+#### B4. Transform endpoints — pass section rules through
+
+#### B5. Source tab Transformed view — render sub-parts nested under parent sections
+
+#### B6. Bridge — no changes needed (sub-parts are regular TransformedSections, appear naturally in sectionLookup)
 
 ---
 
-## Open Questions
+## Critical Files
 
-1. **Multiple matches** — What if a rule matches more than one element? (e.g., two lines start with "Tel:"). Take first? Concatenate? Show warning?
-2. **Rule ordering** — Do rules evaluate in order (first match wins)? Or can an element match multiple rules?
-3. **Transform interaction** — Rules run AFTER the current transform (zone detection → section assembly). Should they replace parts of the transform, or layer on top?
-4. **Unmatched element default** — Elements not matching any rule: silently dropped, grouped as "other", or flagged for attention?
-5. **Rule testing across PDFs** — Ability to test rules against multiple sample PDFs to verify they work consistently?
+| File | Action | Phase |
+|------|--------|-------|
+| `src/UpDoc/Models/SectionRules.cs` | NEW | A |
+| `src/UpDoc/Models/SourceConfig.cs` | MODIFY (add SectionRules property) | A |
+| `src/UpDoc/Controllers/WorkflowController.cs` | MODIFY (PUT section-rules endpoint) | A |
+| `src/UpDoc/wwwroot/.../workflow.types.ts` | MODIFY (add TS types) | A |
+| `src/UpDoc/wwwroot/.../workflow.service.ts` | MODIFY (add save function) | A |
+| `src/UpDoc/wwwroot/.../section-rules-editor-modal.token.ts` | NEW | A |
+| `src/UpDoc/wwwroot/.../section-rules-editor-modal.element.ts` | NEW | A |
+| `src/UpDoc/wwwroot/.../manifest.ts` | MODIFY (register modal) | A |
+| `src/UpDoc/wwwroot/.../up-doc-workflow-source-view.element.ts` | MODIFY (per-section edit icon) | A |
+| `docs/source-files/section-rules-editor-modal-element.md` | NEW | A |
+| `docs/source-files/section-rules-editor-modal-token.md` | NEW | A |
+| `src/UpDoc/Models/TransformResult.cs` | MODIFY | B |
+| `src/UpDoc/Services/ContentTransformService.cs` | MODIFY | B |
+| `src/UpDoc/Services/SectionRuleEvaluator.cs` | NEW | B |
+
+---
+
+## Verification (Phase A)
+
+1. Open a workflow → Source tab → Transformed view
+2. Click the settings icon on a section card (e.g., the Organiser Info preamble)
+3. Rules editor modal opens with the section's elements listed
+4. Click an element → new rule auto-populates with conditions from its metadata
+5. Name the role (e.g., "organiser-name") → live preview shows the matched element
+6. Add more rules for other elements in the section
+7. Save → rules persisted in source.json under `sectionRules`
+8. Close and re-open → rules load correctly
+9. Verify unmatched elements remain visible at the bottom of the editor
+
+---
+
+## Pre-implementation Notes
+
+1. **Section → Elements lookup** — RESOLVED: Refactor zone detection to consume ExtractionElement instead of re-extracting. One element type through the whole pipeline. Zone detection adds structure (zones, sections) without reshaping element data. This eliminates the need for reverse-lookup by kebab-case normalization.
+2. **Auto-populate heuristics** — "unusual" needs defining. Compare against other elements in the same section (e.g., if clicked element's font size differs from the majority in that section, add a fontSizeEquals condition).
+3. **Re-extraction stability** — Rules are keyed by section ID. If sections shift after re-extraction (different PDF, changed zone settings), rules could become orphaned. Need orphan detection/warning.
+4. **Entry points** — Start with per-section icon only (A9). The stat box "Edit Sections" button is deferred to avoid two paths into the same modal adding unnecessary complexity.
+5. **Condition type naming** — `textMatchesPattern` is regex. Document that clearly in UI (e.g., "Text matches regex pattern"). Consider a friendlier label but keep regex power.
