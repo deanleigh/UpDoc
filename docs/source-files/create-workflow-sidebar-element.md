@@ -15,7 +15,7 @@ Provides a sidebar with two tabs for configuring a new workflow:
 2. User selects a source type from the dropdown (PDF, Markdown, Web Page, Word Document)
 3. Workflow name auto-generates as `{kebab-case-blueprint-name}-{sourceType}` (user can override)
 4. Conditional source-specific UI appears below the dropdown:
-   - **PDF** — `umb-input-media` picker for a sample PDF document
+   - **PDF** — `up-doc-pdf-picker` with PDF.js thumbnail preview (page 1 rendered as real image inside `uui-card-media`)
    - **Markdown** — `umb-input-media` picker for a sample Markdown file
    - **Web** — URL text input for a sample web page
    - **Word Document** — `umb-input-media` picker for a sample Word document

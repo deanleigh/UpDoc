@@ -71,7 +71,7 @@ const o = [
     type: "modal",
     alias: "UpDoc.CreateWorkflowSidebar",
     name: "Create Workflow Sidebar",
-    element: () => import("./create-workflow-sidebar.element-v83pQY9F.js")
+    element: () => import("./create-workflow-sidebar.element-XPCSn6Rq.js")
   },
   {
     type: "modal",
@@ -89,7 +89,7 @@ const o = [
     type: "modal",
     alias: "UpDoc.ZoneEditorModal",
     name: "Zone Editor Modal",
-    element: () => import("./pdf-zone-editor-modal.element-B92kq8rK.js")
+    element: () => import("./pdf-zone-editor-modal.element-DIMwrePF.js")
   },
   // =====================================================================
   // Workflow Workspace — full page for editing individual workflows

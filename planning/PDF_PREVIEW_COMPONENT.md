@@ -17,7 +17,7 @@ A Lit web component that renders a single PDF page as a thumbnail using PDF.js.
 - `page` — page number to render (default: 1)
 - `width` — thumbnail width in pixels (default: 300)
 
-**Output:** A `<canvas>` element rendered at the specified width, aspect ratio preserved from the PDF page dimensions.
+**Output:** An `<img>` element with a data URL (PNG). Rendered via offscreen canvas + `toDataURL()`, so it works inside any standard component.
 
 **Caching:** Once a page is rendered, cache the canvas data so re-renders don't re-fetch the PDF.
 
@@ -71,19 +71,24 @@ PDF.js is a Mozilla library for rendering PDFs in the browser.
 
 ## Implementation Sequence
 
-### Step 1: POC — `up-doc-pdf-thumbnail` component
+### Step 1: POC — `up-doc-pdf-thumbnail` component — COMPLETE
 
-Standalone Lit component. Given a media key and page number, renders the page as a canvas thumbnail. Test it in isolation — just drop it on a page and verify it renders.
+Standalone Lit component. Given a media key and page number, renders the page as an image thumbnail.
 
-### Step 2: Custom media picker with preview
+**Key technique:** Renders to an offscreen canvas via PDF.js, then converts to a PNG data URL with `canvas.toDataURL('image/png')`. The result is a standard `<img>` that works inside any component (`uui-card-media`, etc.) — no canvas in the DOM, no shadow DOM hacking.
+
+**Concurrency fix:** PDF.js throws if `pdfPage.render()` is called while another render is in progress. Fixed with `_currentRenderTask` tracking (cancel before re-render) and `_rendering` boolean guard.
+
+### Step 2: Custom media picker with preview — COMPLETE
 
 New component `up-doc-pdf-picker` that:
-- Has a "+ Choose" button that opens Umbraco's media picker modal
-- After selection, renders a `uui-card-media` with `up-doc-pdf-thumbnail` inside
-- Emits the same change events as `umb-input-media`
-- Supports remove (clear selection)
+- Uses `<uui-button look="placeholder">` for the empty state (matches Umbraco's standard media picker)
+- Opens `UMB_MEDIA_PICKER_MODAL` for browsing/selecting
+- After selection, renders a `uui-card-media` with `up-doc-pdf-thumbnail` page 1 preview
+- Fetches media item name via management API (shows file name, not GUID)
+- Remove/Change buttons in `<uui-action-bar slot="actions">`
 
-Replace `umb-input-media` in the Create Workflow sidebar with this.
+Replaced `umb-input-media` in the Create Workflow sidebar for the PDF source type.
 
 ### Step 3: Page picker sidebar
 

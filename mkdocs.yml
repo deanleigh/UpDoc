@@ -61,6 +61,8 @@ nav:
     - transforms.ts: source-files/transforms.md
     - up-doc-collection-action.element.ts: source-files/up-doc-collection-action-element.md
     - destination-utils.ts: source-files/destination-utils.md
+    - up-doc-pdf-thumbnail.element.ts: source-files/up-doc-pdf-thumbnail-element.md
+    - up-doc-pdf-picker.element.ts: source-files/up-doc-pdf-picker-element.md
     - up-doc-usync-fallback.condition.ts: source-files/up-doc-usync-fallback-condition.md
   - Backend (C#):
     - backend/index.md

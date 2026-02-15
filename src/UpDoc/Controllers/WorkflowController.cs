@@ -499,6 +499,24 @@ public class WorkflowController : ControllerBase
         return Ok(template);
     }
 
+    [HttpGet("media-pdf")]
+    public IActionResult GetMediaPdf([FromQuery] Guid mediaKey)
+    {
+        if (mediaKey == Guid.Empty)
+        {
+            return BadRequest(new { error = "Media key is required." });
+        }
+
+        var absolutePath = ResolveMediaFilePath(mediaKey);
+        if (absolutePath == null)
+        {
+            return NotFound(new { error = "Media item not found or file not on disk." });
+        }
+
+        var fileStream = new FileStream(absolutePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+        return File(fileStream, "application/pdf");
+    }
+
     [HttpGet("{name}/pdf")]
     public IActionResult GetPdf(string name, [FromQuery] Guid? mediaKey = null)
     {

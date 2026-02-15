@@ -1,5 +1,6 @@
 import type { CreateWorkflowSidebarData, CreateWorkflowSidebarValue } from './create-workflow-sidebar.token.js';
 import { extractRich } from './workflow.service.js';
+import './up-doc-pdf-picker.element.js';
 import { html, customElement, css, state, nothing } from '@umbraco-cms/backoffice/external/lit';
 import { UmbTextStyles } from '@umbraco-cms/backoffice/style';
 import { UmbModalBaseElement } from '@umbraco-cms/backoffice/modal';
@@ -57,13 +58,12 @@ export class CreateWorkflowSidebarElement extends UmbModalBaseElement<
 		this.requestUpdate();
 	}
 
-	async #handleMediaChange(e: CustomEvent) {
-		const target = e.target as UmbInputMediaElement;
-		const selection = target.selection;
-		this._selectedMediaUnique = selection.length > 0 ? selection[0] : null;
+	async #handlePdfPickerChange(e: CustomEvent) {
+		const detail = e.detail as { mediaKey: string | null };
+		this._selectedMediaUnique = detail?.mediaKey ?? null;
 		this._successMessage = null;
 
-		if (this._selectedMediaUnique && this._sourceType === 'pdf') {
+		if (this._selectedMediaUnique) {
 			this._extracting = true;
 			try {
 				const authContext = await this.getContext(UMB_AUTH_CONTEXT);
@@ -78,6 +78,13 @@ export class CreateWorkflowSidebarElement extends UmbModalBaseElement<
 				this._extracting = false;
 			}
 		}
+	}
+
+	async #handleMediaChange(e: CustomEvent) {
+		const target = e.target as UmbInputMediaElement;
+		const selection = target.selection;
+		this._selectedMediaUnique = selection.length > 0 ? selection[0] : null;
+		this._successMessage = null;
 	}
 
 	#handleNameInput(e: UUIInputEvent) {
@@ -141,7 +148,7 @@ export class CreateWorkflowSidebarElement extends UmbModalBaseElement<
 				return html`
 					<umb-property-layout label="Sample PDF" description="Choose a representative PDF to use as a reference when building mapping rules." orientation="vertical">
 						<div slot="editor">
-							<umb-input-media max="1" @change=${this.#handleMediaChange}></umb-input-media>
+							<up-doc-pdf-picker @change=${this.#handlePdfPickerChange}></up-doc-pdf-picker>
 						</div>
 					</umb-property-layout>
 				`;
