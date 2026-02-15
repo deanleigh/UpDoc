@@ -90,17 +90,6 @@
       "Included": true
     },
     {
-      "Id": "preamble-p1-unzoned",
-      "OriginalHeading": null,
-      "Heading": null,
-      "Content": "g n d i l i u B e r v i L e h T\n\nTailored Travel\u2019s ATOL number is 5605\n\nSpeke Hall\n\nVie w a nd sha r e this to u r o nlin e - click o n Vie w Yo u r To u r at w w w.tailo r ed-tr a v el. c o . uk a nd qu ote kngd261",
-      "Pattern": "paragraph",
-      "Page": 1,
-      "ZoneColor": null,
-      "ChildCount": 4,
-      "Included": true
-    },
-    {
       "Id": "preamble-p2-z0",
       "OriginalHeading": null,
       "Heading": null,
@@ -110,79 +99,13 @@
       "ZoneColor": "#8338ec",
       "ChildCount": 10,
       "Included": true
-    },
-    {
-      "Id": "the-arts-society-kingston-presents",
-      "OriginalHeading": "The Arts Society Kingston presents",
-      "Heading": "The Arts Society Kingston presents",
-      "Content": "",
-      "Pattern": "preamble",
-      "Page": 2,
-      "ZoneColor": null,
-      "ChildCount": 0,
-      "Included": true
-    },
-    {
-      "Id": "the-art-history-of-liverpool-2",
-      "OriginalHeading": "The Art \u0026 History of Liverpool",
-      "Heading": "The Art \u0026 History of Liverpool",
-      "Content": "",
-      "Pattern": "preamble",
-      "Page": 2,
-      "ZoneColor": null,
-      "ChildCount": 0,
-      "Included": true
-    },
-    {
-      "Id": "5-days-from-814-departing-5th-october-2026-2",
-      "OriginalHeading": "5 days from \u00A3814 Departing 5th October 2026",
-      "Heading": "5 days from \u00A3814 Departing 5th October 2026",
-      "Content": "",
-      "Pattern": "preamble",
-      "Page": 2,
-      "ZoneColor": null,
-      "ChildCount": 0,
-      "Included": true
-    },
-    {
-      "Id": "what-we-will-see-2",
-      "OriginalHeading": "WHAT WE WILL SEE",
-      "Heading": "What We Will See",
-      "Content": "",
-      "Pattern": "preamble",
-      "Page": 2,
-      "ZoneColor": null,
-      "ChildCount": 0,
-      "Included": true
-    },
-    {
-      "Id": "little-moreton-hall-guided-tour-of-liverpool-metropolitan-roman-catholic-cathedral-liverpool-cathedral-walker-art-gallery-antony-gormley-s-another-place-at-crosby-beach-museum-of-liverpool-cruise-on-the-river-mersey-albert-dock-liverpool-princes-road-synagogue-speke-hall-tate-liverpool-at-riba-north-mann-island-quarry-bank-mill-styal-estate",
-      "OriginalHeading": "Little Moreton Hall Guided tour of Liverpool Metropolitan Roman Catholic Cathedral Liverpool Cathedral Walker Art Gallery Antony Gormley\u2019s \u2018Another Place\u2019 at Crosby Beach Museum of Liverpool Cruise on the River Mersey Albert Dock Liverpool Princes Road Synagogue Speke Hall Tate Liverpool at Riba North, Mann Island Quarry Bank Mill \u0026 Styal Estate",
-      "Heading": "Little Moreton Hall Guided tour of Liverpool Metropolitan Roman Catholic Cathedral Liverpool Cathedral Walker Art Gallery Antony Gormley\u2019s \u2018Another Place\u2019 at Crosby Beach Museum of Liverpool Cruise on the River Mersey Albert Dock Liverpool Princes Road Synagogue Speke Hall Tate Liverpool at Riba North, Mann Island Quarry Bank Mill \u0026 Styal Estate",
-      "Content": "## Little Moreton Hall Liverpool Cathedral Walker Art Gallery\u2019\r\nNB:- Please note we reserve the right to alter the above itinerary if required for operational\r\nreasons. Given the historic nature of the places visited, a certain degree of walking will\r\n\r\n## Quarry Bank Mill\r\nbe involved, and this tour may not be suitable for those with mobility problems.",
-      "Pattern": "subHeaded",
-      "Page": 2,
-      "ZoneColor": null,
-      "ChildCount": 5,
-      "Included": true
-    },
-    {
-      "Id": "vie-w-a-nd-sha-r-e-this-to-u-r-o-nlin-e-click-o-n-vie-w-yo-u-r-to-u-r-at-w-w-w-tailo-r-ed-tr-a-v-el-c-o-uk-a-nd-qu-ote-kngd261",
-      "OriginalHeading": "Vie w a nd sha r e this to u r o nlin e - click o n Vie w Yo u r To u r at w w w.tailo r ed-tr a v el. c o . uk a nd qu ote kngd261",
-      "Heading": "Vie w a nd sha r e this to u r o nlin e - click o n Vie w Yo u r To u r at w w w.tailo r ed-tr a v el. c o . uk a nd qu ote kngd261",
-      "Content": "",
-      "Pattern": "preamble",
-      "Page": 2,
-      "ZoneColor": null,
-      "ChildCount": 0,
-      "Included": true
     }
   ],
   "Diagnostics": {
-    "TotalSections": 16,
+    "TotalSections": 9,
     "BulletListSections": 3,
-    "ParagraphSections": 5,
-    "SubHeadedSections": 1,
-    "PreambleSections": 7
+    "ParagraphSections": 4,
+    "SubHeadedSections": 0,
+    "PreambleSections": 2
   }
 }
