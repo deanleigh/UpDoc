@@ -94,6 +94,12 @@ export const manifests: Array<UmbExtensionManifest> = [
 		name: 'Zone Editor Modal',
 		element: () => import('./pdf-zone-editor-modal.element.js'),
 	},
+	{
+		type: 'modal',
+		alias: 'UpDoc.PagePickerModal',
+		name: 'Page Picker Modal',
+		element: () => import('./page-picker-modal.element.js'),
+	},
 
 	// =====================================================================
 	// Workflow Workspace — full page for editing individual workflows

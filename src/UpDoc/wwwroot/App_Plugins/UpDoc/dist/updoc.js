@@ -71,7 +71,7 @@ const o = [
     type: "modal",
     alias: "UpDoc.CreateWorkflowSidebar",
     name: "Create Workflow Sidebar",
-    element: () => import("./create-workflow-sidebar.element-XPCSn6Rq.js")
+    element: () => import("./create-workflow-sidebar.element-DWlVaHFe.js")
   },
   {
     type: "modal",
@@ -90,6 +90,12 @@ const o = [
     alias: "UpDoc.ZoneEditorModal",
     name: "Zone Editor Modal",
     element: () => import("./pdf-zone-editor-modal.element-DIMwrePF.js")
+  },
+  {
+    type: "modal",
+    alias: "UpDoc.PagePickerModal",
+    name: "Page Picker Modal",
+    element: () => import("./page-picker-modal.element-Frt23MRc.js")
   },
   // =====================================================================
   // Workflow Workspace — full page for editing individual workflows
@@ -126,7 +132,7 @@ const o = [
     type: "workspaceView",
     alias: "UpDoc.WorkflowWorkspaceView.Source",
     name: "UpDoc Workflow Source View",
-    element: () => import("./up-doc-workflow-source-view.element-DypHLdhO.js"),
+    element: () => import("./up-doc-workflow-source-view.element-DryAd420.js"),
     weight: 200,
     meta: {
       label: "Source",

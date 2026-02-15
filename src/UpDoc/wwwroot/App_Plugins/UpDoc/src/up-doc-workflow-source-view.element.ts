@@ -3,6 +3,7 @@ import { fetchSampleExtraction, triggerSampleExtraction, fetchWorkflowByName, fe
 import { markdownToHtml, normalizeToKebabCase } from './transforms.js';
 import { UMB_DESTINATION_PICKER_MODAL } from './destination-picker-modal.token.js';
 import { UMB_ZONE_EDITOR_MODAL } from './pdf-zone-editor-modal.token.js';
+import { UMB_PAGE_PICKER_MODAL } from './page-picker-modal.token.js';
 import { html, css, state, nothing } from '@umbraco-cms/backoffice/external/lit';
 import { customElement } from '@umbraco-cms/backoffice/external/lit';
 import { UmbLitElement } from '@umbraco-cms/backoffice/lit-element';
@@ -309,6 +310,35 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		} catch {
 			// Modal was cancelled — do nothing
 		}
+	}
+
+	/** Opens the page picker modal with PDF thumbnails. */
+	async #onOpenPagePicker() {
+		const mediaKey = this._extraction?.source.mediaKey;
+		if (!mediaKey) return;
+
+		const totalPages = this._zoneDetection?.totalPages ?? this._extraction?.source.totalPages ?? 0;
+		if (totalPages === 0) return;
+
+		const selectedPages = this.#getSelectedPages();
+
+		const modalManager = await this.getContext(UMB_MODAL_MANAGER_CONTEXT);
+		const modal = modalManager.open(this, UMB_PAGE_PICKER_MODAL, {
+			data: { mediaKey, totalPages, selectedPages },
+		});
+
+		const result = await modal.onSubmit().catch(() => null);
+		if (result === null) return; // cancelled
+
+		// Update local state from the modal result
+		if (result.selectedPages === null) {
+			this._pageMode = 'all';
+			this._pageInputValue = '';
+		} else {
+			this._pageMode = 'custom';
+			this._pageInputValue = this.#pagesToRangeString(result.selectedPages);
+		}
+		await this.#savePageSelection();
 	}
 
 	/** Re-extract using the previously stored media key (after page selection change). */
@@ -732,6 +762,12 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 						<span class="box-stat">${pagesLabel}</span>
 						<div class="page-selection">
 							${this.#renderPageSelection()}
+						</div>
+						<div class="box-buttons">
+							<uui-button look="primary" color="default" label="Choose Pages" @click=${this.#onOpenPagePicker}>
+								<uui-icon name="icon-thumbnails-small"></uui-icon>
+								Choose Pages
+							</uui-button>
 						</div>
 					</div>
 				</uui-box>
