@@ -1,31 +1,24 @@
-import { d as ve, g as Z, b as _e, h as be, i as xe, j as $e, k as we, l as ye, s as ze, m as ke, n as Ce, u as Me } from "./workflow.service-T0TEyrPt.js";
+import { d as ve, g as F, b as _e, h as be, i as xe, j as $e, k as we, l as ye, s as ze, m as ke, n as Ce, u as Me } from "./workflow.service-T0TEyrPt.js";
 import { m as Pe, n as Ee } from "./transforms-deUehta3.js";
-import { UmbModalToken as R, UMB_MODAL_MANAGER_CONTEXT as P } from "@umbraco-cms/backoffice/modal";
-import { html as c, nothing as h, css as Se, state as f, customElement as De } from "@umbraco-cms/backoffice/external/lit";
-import { UmbLitElement as Te } from "@umbraco-cms/backoffice/lit-element";
-import { UmbTextStyles as Ie } from "@umbraco-cms/backoffice/style";
+import { UmbModalToken as Z, UMB_MODAL_MANAGER_CONTEXT as P } from "@umbraco-cms/backoffice/modal";
+import { U as Se } from "./page-picker-modal.token-B0CgP9f1.js";
+import { html as c, nothing as h, css as De, state as f, customElement as Te } from "@umbraco-cms/backoffice/external/lit";
+import { UmbLitElement as Ie } from "@umbraco-cms/backoffice/lit-element";
+import { UmbTextStyles as Ae } from "@umbraco-cms/backoffice/style";
 import { UMB_AUTH_CONTEXT as W } from "@umbraco-cms/backoffice/auth";
-import { UMB_WORKSPACE_CONTEXT as Ae } from "@umbraco-cms/backoffice/workspace";
-import { UMB_MEDIA_PICKER_MODAL as Ne } from "@umbraco-cms/backoffice/media";
-const Re = new R("UpDoc.DestinationPickerModal", {
+import { UMB_WORKSPACE_CONTEXT as Ne } from "@umbraco-cms/backoffice/workspace";
+import { UMB_MEDIA_PICKER_MODAL as Re } from "@umbraco-cms/backoffice/media";
+const Le = new Z("UpDoc.DestinationPickerModal", {
   modal: {
     type: "sidebar",
     size: "small"
   }
-}), Le = new R(
+}), Ve = new Z(
   "UpDoc.ZoneEditorModal",
   {
     modal: {
       type: "sidebar",
       size: "full"
-    }
-  }
-), Ve = new R(
-  "UpDoc.PagePickerModal",
-  {
-    modal: {
-      type: "sidebar",
-      size: "medium"
     }
   }
 );
@@ -35,14 +28,14 @@ var Oe = Object.defineProperty, Ue = Object.getOwnPropertyDescriptor, G = (e) =>
   for (var n = o > 1 ? void 0 : o ? Ue(t, a) : t, l = e.length - 1, r; l >= 0; l--)
     (r = e[l]) && (n = (o ? r(t, a, n) : r(n)) || n);
   return o && n && Oe(t, a, n), n;
-}, L = (e, t, a) => t.has(e) || G("Cannot " + a), _ = (e, t, a) => (L(e, t, "read from private field"), a ? a.call(e) : t.get(e)), F = (e, t, a) => t.has(e) ? G("Cannot add the same private member more than once") : t instanceof WeakSet ? t.add(e) : t.set(e, a), Be = (e, t, a, o) => (L(e, t, "write to private field"), t.set(e, a), a), s = (e, t, a) => (L(e, t, "access private method"), a), m, i, X, x, b, V, j, q, k, J, Q, y, O, w, C, Y, ee, E, D, te, U, B, z, $, ae, T, I, M, ie, se, A, H, K, oe, ne, le, re, ce, ue, de, pe, he, N, ge, fe, me;
-let d = class extends Te {
+}, R = (e, t, a) => t.has(e) || G("Cannot " + a), _ = (e, t, a) => (R(e, t, "read from private field"), a ? a.call(e) : t.get(e)), K = (e, t, a) => t.has(e) ? G("Cannot add the same private member more than once") : t instanceof WeakSet ? t.add(e) : t.set(e, a), Be = (e, t, a, o) => (R(e, t, "write to private field"), t.set(e, a), a), s = (e, t, a) => (R(e, t, "access private method"), a), m, i, X, x, b, L, j, q, k, J, Q, y, V, w, C, Y, ee, E, D, te, O, U, z, $, ae, T, I, M, ie, se, A, B, H, oe, ne, le, re, ce, ue, de, pe, he, N, ge, fe, me;
+let d = class extends Ie {
   constructor() {
-    super(...arguments), F(this, i), this._extraction = null, this._zoneDetection = null, this._config = null, this._workflowName = null, this._loading = !0, this._extracting = !1, this._error = null, this._successMessage = null, this._collapsed = /* @__PURE__ */ new Set(), this._transformResult = null, this._viewMode = "elements", this._sourceConfig = null, this._pageMode = "all", this._pageInputValue = "", this._collapsePopoverOpen = !1, this._excludedAreas = /* @__PURE__ */ new Set(), this._zoneTemplate = null, F(this, m, "");
+    super(...arguments), K(this, i), this._extraction = null, this._zoneDetection = null, this._config = null, this._workflowName = null, this._loading = !0, this._extracting = !1, this._error = null, this._successMessage = null, this._collapsed = /* @__PURE__ */ new Set(), this._transformResult = null, this._viewMode = "elements", this._sourceConfig = null, this._pageMode = "all", this._pageInputValue = "", this._collapsePopoverOpen = !1, this._excludedAreas = /* @__PURE__ */ new Set(), this._zoneTemplate = null, K(this, m, "");
   }
   connectedCallback() {
-    super.connectedCallback(), this.consumeContext(Ae, (e) => {
-      e && (e.setSaveHandler(() => s(this, i, U).call(this)), this.observe(e.unique, (t) => {
+    super.connectedCallback(), this.consumeContext(Ne, (e) => {
+      e && (e.setSaveHandler(() => s(this, i, O).call(this)), this.observe(e.unique, (t) => {
         t && (this._workflowName = decodeURIComponent(t), s(this, i, X).call(this));
       }));
     });
@@ -76,7 +69,7 @@ X = async function() {
       Be(this, m, await e.getLatestToken());
       const [t, a, o, n, l, r] = await Promise.all([
         ve(this._workflowName, _(this, m)),
-        Z(this._workflowName, _(this, m)),
+        F(this._workflowName, _(this, m)),
         _e(this._workflowName, _(this, m)),
         be(this._workflowName, _(this, m)),
         xe(this._workflowName, _(this, m)),
@@ -112,7 +105,7 @@ b = function(e) {
     t[l] === n + 1 || (a.push(o === n ? `${o}` : `${o}-${n}`), o = t[l]), n = t[l];
   return a.push(o === n ? `${o}` : `${o}-${n}`), a.join(", ");
 };
-V = function() {
+L = function() {
   if (this._pageMode === "all") return null;
   const e = s(this, i, x).call(this, this._pageInputValue);
   return e.length > 0 ? e : null;
@@ -155,10 +148,10 @@ Q = async function() {
 };
 y = async function() {
   if (!this._workflowName) return;
-  const e = s(this, i, V).call(this);
+  const e = s(this, i, L).call(this);
   await ke(this._workflowName, e, _(this, m));
 };
-O = function(e) {
+V = function(e) {
   if (!this._zoneDetection) return [];
   const t = [];
   for (const a of this._zoneDetection.pages) {
@@ -170,11 +163,11 @@ O = function(e) {
   return t;
 };
 w = function(e) {
-  const t = s(this, i, O).call(this, e);
+  const t = s(this, i, V).call(this, e);
   return t.length > 0 && t.every((a) => this._collapsed.has(a));
 };
 C = function(e) {
-  const t = s(this, i, O).call(this, e), a = s(this, i, w).call(this, e), o = new Set(this._collapsed);
+  const t = s(this, i, V).call(this, e), a = s(this, i, w).call(this, e), o = new Set(this._collapsed);
   for (const n of t)
     a ? o.delete(n) : o.add(n);
   this._collapsed = o;
@@ -187,18 +180,18 @@ ee = function(e) {
 };
 E = async function() {
   if (!this._workflowName) return;
-  const a = await (await this.getContext(P)).open(this, Ne, {
+  const a = await (await this.getContext(P)).open(this, Re, {
     data: {
       multiple: !1
     }
   }).onSubmit().catch(() => null);
   if (!a?.selection?.length) return;
   const o = a.selection[0];
-  o && await s(this, i, B).call(this, o);
+  o && await s(this, i, U).call(this, o);
 };
 D = async function() {
   if (!this._workflowName) return;
-  const t = (await this.getContext(P)).open(this, Le, {
+  const t = (await this.getContext(P)).open(this, Ve, {
     data: {
       workflowName: this._workflowName,
       existingTemplate: this._zoneTemplate,
@@ -209,7 +202,7 @@ D = async function() {
     const a = await t.onSubmit();
     if (a?.template) {
       const o = await ze(this._workflowName, a.template, _(this, m));
-      o && (this._zoneTemplate = o, await s(this, i, U).call(this));
+      o && (this._zoneTemplate = o, await s(this, i, O).call(this));
     }
   } catch {
   }
@@ -219,18 +212,18 @@ te = async function() {
   if (!e) return;
   const t = this._zoneDetection?.totalPages ?? this._extraction?.source.totalPages ?? 0;
   if (t === 0) return;
-  const a = s(this, i, V).call(this), l = await (await this.getContext(P)).open(this, Ve, {
+  const a = s(this, i, L).call(this), l = await (await this.getContext(P)).open(this, Se, {
     data: { mediaKey: e, totalPages: t, selectedPages: a }
   }).onSubmit().catch(() => null);
   l !== null && (l.selectedPages === null ? (this._pageMode = "all", this._pageInputValue = "") : (this._pageMode = "custom", this._pageInputValue = s(this, i, b).call(this, l.selectedPages)), await s(this, i, y).call(this));
 };
-U = async function() {
+O = async function() {
   const e = this._extraction?.source.mediaKey;
   if (!e)
     return s(this, i, E).call(this);
-  await s(this, i, B).call(this, e);
+  await s(this, i, U).call(this, e);
 };
-B = async function(e) {
+U = async function(e) {
   if (this._workflowName) {
     this._extracting = !0, this._error = null;
     try {
@@ -240,7 +233,7 @@ B = async function(e) {
       ]);
       if (o && (this._extraction = o), n) {
         this._transformResult = n;
-        const l = await Z(this._workflowName, a);
+        const l = await F(this._workflowName, a);
         this._zoneDetection = l;
         const r = n.diagnostics;
         this._successMessage = `Content extracted — ${r.totalSections} sections (${r.bulletListSections} bullet, ${r.paragraphSections} paragraph, ${r.subHeadedSections} sub-headed)`, setTimeout(() => {
@@ -273,7 +266,7 @@ T = async function(e, t) {
 };
 I = async function(e) {
   if (!this._config?.destination || !this._workflowName) return;
-  const o = await (await this.getContext(P)).open(this, Re, {
+  const o = await (await this.getContext(P)).open(this, Le, {
     data: { destination: this._config.destination }
   }).onSubmit().catch(() => null);
   if (!o?.selectedTargets?.length) return;
@@ -335,7 +328,7 @@ A = function(e) {
 			</div>
 		`;
 };
-H = function(e, t, a, o) {
+B = function(e, t, a, o) {
   const n = s(this, i, z).call(this, t), l = e.heading ? Ee(e.heading.text) : o >= 0 ? `preamble-p${a}-z${o}` : `preamble-p${a}-unzoned`, r = s(this, i, ae).call(this, l);
   if (!e.heading)
     return c`
@@ -385,7 +378,7 @@ H = function(e, t, a, o) {
 			</div>
 		`;
 };
-K = function(e) {
+H = function(e) {
   const t = new Set(this._excludedAreas);
   t.has(e) ? t.delete(e) : t.add(e), this._excludedAreas = t;
 };
@@ -401,13 +394,13 @@ oe = function(e, t, a) {
 						label="${l ? "Included" : "Excluded"}"
 						?checked=${l}
 						@click=${(u) => u.stopPropagation()}
-						@change=${() => s(this, i, K).call(this, o)}>
+						@change=${() => s(this, i, H).call(this, o)}>
 					</uui-toggle>
 					<uui-icon class="collapse-chevron" name="${n ? "icon-navigation-right" : "icon-navigation-down"}"></uui-icon>
 				</div>
 				${n ? h : c`
 					${e.sections.map(
-    (u, p) => s(this, i, H).call(this, u, `p${t}-a${a}-s${p}`, t, a)
+    (u, p) => s(this, i, B).call(this, u, `p${t}-a${a}-s${p}`, t, a)
   )}
 				`}
 			</div>
@@ -426,13 +419,13 @@ ne = function(e, t) {
 						label="${n ? "Included" : "Excluded"}"
 						?checked=${n}
 						@click=${(r) => r.stopPropagation()}
-						@change=${() => s(this, i, K).call(this, a)}>
+						@change=${() => s(this, i, H).call(this, a)}>
 					</uui-toggle>
 					<uui-icon class="collapse-chevron" name="${o ? "icon-navigation-right" : "icon-navigation-down"}"></uui-icon>
 				</div>
 				${o ? h : c`
 					${e.sections.map(
-    (r, u) => s(this, i, H).call(this, r, `p${t}-undefined-s${u}`, t, -1)
+    (r, u) => s(this, i, B).call(this, r, `p${t}-undefined-s${u}`, t, -1)
   )}
 				`}
 			</div>
@@ -681,8 +674,8 @@ me = function() {
 		`;
 };
 d.styles = [
-  Ie,
-  Se`
+  Ae,
+  De`
 			:host {
 				display: block;
 				height: 100%;
@@ -1194,11 +1187,11 @@ g([
   f()
 ], d.prototype, "_zoneTemplate", 2);
 d = g([
-  De("up-doc-workflow-source-view")
+  Te("up-doc-workflow-source-view")
 ], d);
-const Je = d;
+const Qe = d;
 export {
   d as UpDocWorkflowSourceViewElement,
-  Je as default
+  Qe as default
 };
-//# sourceMappingURL=up-doc-workflow-source-view.element-DryAd420.js.map
+//# sourceMappingURL=up-doc-workflow-source-view.element-B54jc-6f.js.map

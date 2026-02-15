@@ -16,6 +16,8 @@ export interface CreateWorkflowSidebarValue {
 	documentTypeAlias: string;
 	blueprintId: string;
 	blueprintName: string;
+	/** Selected pages (1-based), or null for "all pages" */
+	selectedPages: number[] | null;
 }
 
 export const UMB_CREATE_WORKFLOW_SIDEBAR = new UmbModalToken<CreateWorkflowSidebarData, CreateWorkflowSidebarValue>(

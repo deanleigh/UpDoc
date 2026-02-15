@@ -1,9 +1,10 @@
 import type { CreateWorkflowSidebarData, CreateWorkflowSidebarValue } from './create-workflow-sidebar.token.js';
+import { UMB_PAGE_PICKER_MODAL } from './page-picker-modal.token.js';
 import { extractRich } from './workflow.service.js';
 import './up-doc-pdf-picker.element.js';
 import { html, customElement, css, state, nothing } from '@umbraco-cms/backoffice/external/lit';
 import { UmbTextStyles } from '@umbraco-cms/backoffice/style';
-import { UmbModalBaseElement } from '@umbraco-cms/backoffice/modal';
+import { UmbModalBaseElement, UMB_MODAL_MANAGER_CONTEXT } from '@umbraco-cms/backoffice/modal';
 import { UMB_AUTH_CONTEXT } from '@umbraco-cms/backoffice/auth';
 import type { UUIInputEvent } from '@umbraco-cms/backoffice/external/uui';
 import type { UmbInputMediaElement } from '@umbraco-cms/backoffice/media';
@@ -29,6 +30,8 @@ export class CreateWorkflowSidebarElement extends UmbModalBaseElement<
 	@state() private _sourceUrl = '';
 	@state() private _extracting = false;
 	@state() private _successMessage: string | null = null;
+	@state() private _totalPages = 0;
+	@state() private _selectedPages: number[] | null = null;
 	private _nameManuallyEdited = false;
 
 	#toKebabCase(value: string): string {
@@ -62,6 +65,8 @@ export class CreateWorkflowSidebarElement extends UmbModalBaseElement<
 		const detail = e.detail as { mediaKey: string | null };
 		this._selectedMediaUnique = detail?.mediaKey ?? null;
 		this._successMessage = null;
+		this._totalPages = 0;
+		this._selectedPages = null;
 
 		if (this._selectedMediaUnique) {
 			this._extracting = true;
@@ -70,7 +75,8 @@ export class CreateWorkflowSidebarElement extends UmbModalBaseElement<
 				const token = await authContext.getLatestToken();
 				const result = await extractRich(this._selectedMediaUnique, token);
 				if (result) {
-					this._successMessage = `Content extracted successfully — ${result.elements.length} elements from ${result.source.totalPages} pages`;
+					this._totalPages = result.source.totalPages;
+					this._successMessage = `Content extracted — ${result.elements.length} elements from ${result.source.totalPages} pages`;
 				}
 			} catch {
 				// Extraction preview failed — not critical, will retry on Create
@@ -78,6 +84,24 @@ export class CreateWorkflowSidebarElement extends UmbModalBaseElement<
 				this._extracting = false;
 			}
 		}
+	}
+
+	async #onOpenPagePicker() {
+		if (!this._selectedMediaUnique || this._totalPages === 0) return;
+
+		const modalManager = await this.getContext(UMB_MODAL_MANAGER_CONTEXT);
+		const modal = modalManager.open(this, UMB_PAGE_PICKER_MODAL, {
+			data: {
+				mediaKey: this._selectedMediaUnique,
+				totalPages: this._totalPages,
+				selectedPages: this._selectedPages,
+			},
+		});
+
+		const result = await modal.onSubmit().catch(() => null);
+		if (result === null) return; // cancelled
+
+		this._selectedPages = result.selectedPages;
 	}
 
 	async #handleMediaChange(e: CustomEvent) {
@@ -111,6 +135,7 @@ export class CreateWorkflowSidebarElement extends UmbModalBaseElement<
 			documentTypeAlias: this.data!.documentTypeAlias,
 			blueprintId: this.data!.blueprintUnique,
 			blueprintName: this.data!.blueprintName,
+			selectedPages: this._selectedPages,
 		};
 		this._submitModal();
 	}
@@ -186,6 +211,24 @@ export class CreateWorkflowSidebarElement extends UmbModalBaseElement<
 		}
 	}
 
+	#renderPageSelection() {
+		const label = this._selectedPages
+			? `${this._selectedPages.length} of ${this._totalPages} pages`
+			: `All ${this._totalPages} pages`;
+
+		return html`
+			<div class="page-selection-row">
+				<div class="page-selection-info">
+					<uui-icon name="icon-thumbnails-small"></uui-icon>
+					<span class="page-selection-label">${label}</span>
+				</div>
+				<uui-button look="outline" compact label="Choose Pages" @click=${this.#onOpenPagePicker}>
+					Choose Pages
+				</uui-button>
+			</div>
+		`;
+	}
+
 	#renderSourceTab() {
 		return html`
 			<uui-box headline="Workflow Name">
@@ -219,6 +262,7 @@ export class CreateWorkflowSidebarElement extends UmbModalBaseElement<
 				${this.#renderSourceUI()}
 				${this._extracting ? html`<uui-loader-bar></uui-loader-bar>` : nothing}
 				${this._successMessage ? html`<div class="success-banner"><uui-icon name="icon-check"></uui-icon> ${this._successMessage}</div>` : nothing}
+				${this._totalPages > 0 ? this.#renderPageSelection() : nothing}
 			</uui-box>
 		`;
 	}
@@ -304,6 +348,27 @@ export class CreateWorkflowSidebarElement extends UmbModalBaseElement<
 			.tab-content {
 				display: flex;
 				flex-direction: column;
+			}
+
+			.page-selection-row {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				margin-top: var(--uui-size-space-3);
+				padding: var(--uui-size-space-3);
+				border-radius: var(--uui-border-radius);
+				background: var(--uui-color-surface-alt);
+			}
+
+			.page-selection-info {
+				display: flex;
+				align-items: center;
+				gap: var(--uui-size-space-2);
+			}
+
+			.page-selection-label {
+				font-size: var(--uui-type-small-size);
+				font-weight: 500;
 			}
 
 			.success-banner {
