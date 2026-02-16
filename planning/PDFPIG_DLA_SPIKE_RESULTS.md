@@ -80,7 +80,7 @@ Dark blue boxes (`#16549D`) appear at consistent positions across all 4 test PDF
 
 **Pattern:** Blue header boxes are at nearly identical positions (within ~15pt). Blue footer box position varies slightly based on content length. Light blue sidebar (`#C6EAFA`) is always 186.4pt wide.
 
-This confirms: **filled rectangle detection is the right approach for template chrome exclusion**, and the positions are stable enough to define zone-based exclusion rules.
+This confirms: **filled rectangle detection is the right approach for template chrome exclusion**, and the positions are stable enough to define area-based exclusion rules.
 
 ### 4. Word Extraction: NearestNeighbour Gets More Words
 
@@ -169,4 +169,4 @@ May need tuning for the Tailored Travels layout. Test with defaults first.
 
 - **WhitespaceCoverExtractor** — not tested in this spike. Finds maximal empty rectangles on the page. Could help identify section gaps more precisely than font-size-based splitting. Worth testing separately.
 - **NearestNeighbourWordExtractor** — gets more words but unclear if the extras are useful. Worth comparing output quality with specific edge cases (hyphenated words, tight kerning).
-- **PDF.js Zone Editor** — standalone HTML tool built externally that renders PDFs and lets users draw zone rectangles. Outputs JSON with PDF point coordinates. Could serve as escape hatch for PDFs where automated detection fails. See screenshots from Feb 2026 conversation. This is a v5+ feature.
+- **PDF.js Area Editor** — standalone HTML tool built externally that renders PDFs and lets users draw area rectangles. Outputs JSON with PDF point coordinates. Could serve as escape hatch for PDFs where automated detection fails. See screenshots from Feb 2026 conversation. This is a v5+ feature.

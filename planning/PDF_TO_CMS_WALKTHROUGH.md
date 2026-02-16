@@ -19,7 +19,7 @@ These replace the previous POC terminology (Zone → Area, Section → Item/Sect
 
 ### Area 1 (9 cols, left side)
 
-**Item 1: Title + Description** (dark blue filled rect zone)
+**Item 1: Title + Description** (dark blue filled rect area)
 | PDF Source | Destination | Tab |
 |---|---|---|
 | "The Arts Society Wensum presents" | Organiser (new field needed) | Page Properties |
@@ -44,7 +44,7 @@ These replace the previous POC terminology (Zone → Area, Section → Item/Sect
 - Tour Organiser feature block in Page Content reads from these tab properties (no block config needed — same pattern as Page Header)
 - Text patterns (phone numbers, email addresses) aid identification
 
-### Area 2 (3 cols, right side — light blue sidebar zone)
+### Area 2 (3 cols, right side — light blue sidebar area)
 
 Each section in the blue sidebar becomes **one Block Grid feature** with a title and content field:
 
@@ -167,6 +167,6 @@ Some tab properties feed into Block Grid features that read from them (e.g., Pag
 ## Detection Considerations
 
 - **Page 1 has two detected areas** (filled rectangles): dark blue title area + light blue sidebar
-- **Page 2 may have fewer filled rectangles** — itinerary area might be white/unzoned, but heading detection (Day 1, Day 2...) still provides section structure
+- **Page 2 may have fewer filled rectangles** — itinerary area might be white/undefined, but heading detection (Day 1, Day 2...) still provides section structure
 - **Element metadata** (font size, font name, color, position) within an area naturally distinguishes roles — no explicit UI grouping needed
 - **PdfPig `ExperimentalAccess.Paths`** detects filled rectangles → areas. Center-point containment assigns elements to areas.

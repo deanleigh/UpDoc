@@ -4,7 +4,7 @@
 
 UpDoc's PDF extraction pipeline in `PdfPagePropertiesService.cs` uses custom code for column detection (projection profile histogram), line grouping (Y-tolerance matching), and continuation line merging (font metadata matching). A spike test (`tools/PdfPigSpike/`) proved that PdfPig's built-in `RecursiveXYCut` page segmenter produces significantly cleaner content blocks — section headings isolated, body content properly grouped, image captions separated — with zero custom code. See `planning/PDFPIG_DLA_SPIKE_RESULTS.md` for full results.
 
-The goal is to replace the custom extraction with RecursiveXYCut while keeping what already works (filled rectangle zone detection, font-size heading detection).
+The goal is to replace the custom extraction with RecursiveXYCut while keeping what already works (filled rectangle area detection, font-size heading detection).
 
 ## Branch
 
@@ -20,9 +20,9 @@ git checkout main && git checkout -b feature/recursive-xy-cut
 | `src/UpDoc/Services/PdfPagePropertiesService.cs` | New extraction methods, refactor two code paths |
 
 **No changes needed:**
-- `ContentTransformService.cs` — consumes `ZoneDetectionResult`, shape preserved
+- `ContentTransformService.cs` — consumes `AreaDetectionResult`, shape preserved
 - `WorkflowController.cs` — calls extraction methods, same signatures
-- Models (`ZoneDetectionResult.cs`, `RichExtractionResult.cs`) — same output shapes
+- Models (`AreaDetectionResult.cs`, `RichExtractionResult.cs`) — same output shapes
 - Frontend TypeScript — reads same JSON format
 - Legacy strategy methods (`ExtractSectionsFromDocument`, etc.) — keep using `ExtractTextLines()` untouched
 
@@ -43,7 +43,7 @@ Page
   ├── Convert TextBlock → ContentBlock (add font metadata from first letter)
   │
   ├── [Rich Extraction] ContentBlock → ExtractionElement → RichExtractionResult
-  └── [Zone Detection]  ContentBlock → ZoneElement → assign to zones → GroupIntoSections()
+  └── [Area Detection]  ContentBlock → AreaElement → assign to areas → GroupIntoSections()
 ```
 
 ## Implementation Steps
@@ -62,7 +62,7 @@ Same shape as existing `RichTextLine` — mirrors the fields downstream code nee
 
 ### Step 3: New `FilterChromeWords()` Method
 
-Takes all words + filled rectangles. For each word, center-point containment test (same math as existing zone assignment at line 321). Returns two lists: content words, chrome words.
+Takes all words + filled rectangles. For each word, center-point containment test (same math as existing area assignment at line 321). Returns two lists: content words, chrome words.
 
 ### Step 4: New `ExtractContentBlocks(Page page)` Method
 
@@ -87,22 +87,22 @@ var blocks = ExtractContentBlocks(page);  // NEW
 
 Element creation loop stays the same shape — reads Text, FontSize, FontName, Color, BoundingBox from ContentBlock instead of RichTextLine. Element IDs (`p{n}-e{n}`) assigned the same way.
 
-### Step 6: Refactor `DetectZonesFromDocument` (line 260)
+### Step 6: Refactor `DetectAreasFromDocument` (line 260)
 
 Replace:
 ```csharp
 var lines = ExtractRichTextLines(page);  // OLD
-// ... build ZoneElements from lines
+// ... build AreaElements from lines
 ```
 With:
 ```csharp
 var blocks = ExtractContentBlocks(page);  // NEW
-// ... build ZoneElements from blocks
+// ... build AreaElements from blocks
 ```
 
-Zone assignment (center-point containment) and `GroupIntoSections()` (font-size heading detection) stay unchanged — they operate on `ZoneElement` objects regardless of source.
+Area assignment (center-point containment) and `GroupIntoSections()` (font-size heading detection) stay unchanged — they operate on `AreaElement` objects regardless of source.
 
-**Chrome zone handling:** Content blocks are already filtered (no chrome words). For zones to still show their contained text, optionally run a second RecursiveXYCut pass on chrome words grouped per rectangle. Can defer this — zones currently show text, but the include/exclude toggle means empty chrome zones are acceptable for now.
+**Chrome area handling:** Content blocks are already filtered (no chrome words). For areas to still show their contained text, optionally run a second RecursiveXYCut pass on chrome words grouped per rectangle. Can defer this — areas currently show text, but the include/exclude toggle means empty chrome areas are acceptable for now.
 
 ### Step 7: Mark Old Code Obsolete
 
@@ -114,7 +114,7 @@ Zone assignment (center-point containment) and `GroupIntoSections()` (font-size 
 
 Run against all 5 test PDFs:
 1. POST `/updoc/workflows/{name}/sample-extraction` — verify elements are clean
-2. POST `/updoc/workflows/{name}/zone-detection` — verify zones + sections correct
+2. POST `/updoc/workflows/{name}/area-detection` — verify areas + sections correct
 3. POST `/updoc/workflows/{name}/transform` — verify Markdown sections assemble correctly
 4. Full Create from Source flow — verify mapped content populates document
 5. Page selection — verify `includePages` filter still works
@@ -130,7 +130,7 @@ Element IDs (`p1-e5`) will change because RecursiveXYCut produces different grou
 - API endpoints and JSON output shapes — preserved
 - Frontend TypeScript — reads same format
 - Legacy extraction methods (strategy-driven) — untouched, use old `ExtractTextLines()`
-- `ContentTransformService` — consumes same `ZoneDetectionResult` shape
+- `ContentTransformService` — consumes same `AreaDetectionResult` shape
 
 ## Verification
 
@@ -142,7 +142,7 @@ dotnet build UpDoc.sln
 dotnet run --project src/UpDoc.TestSite/UpDoc.TestSite.csproj
 
 # Test: upload a PDF, run extraction from workspace Source tab
-# Compare: zone detection areas should be cleaner
+# Compare: area detection results should be cleaner
 # Compare: transform should produce same/better Markdown sections
 # Test: Create from Source should still create documents correctly
 ```

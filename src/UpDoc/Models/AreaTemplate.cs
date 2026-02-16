@@ -3,11 +3,11 @@ using System.Text.Json.Serialization;
 namespace UpDoc.Models;
 
 /// <summary>
-/// A user-defined zone template for PDF extraction. Users draw rectangular zones
-/// on the PDF, name them, and save them. Extraction then runs only within these zones.
-/// Stored as zone-template.json in the workflow folder.
+/// A user-defined area template for PDF extraction. Users draw rectangular areas
+/// on the PDF, name them, and save them. Extraction then runs only within these areas.
+/// Stored as area-template.json in the workflow folder.
 /// </summary>
-public class ZoneTemplate
+public class AreaTemplate
 {
     [JsonPropertyName("templateName")]
     public string TemplateName { get; set; } = string.Empty;
@@ -21,15 +21,15 @@ public class ZoneTemplate
     [JsonPropertyName("createdAt")]
     public DateTime CreatedAt { get; set; }
 
-    [JsonPropertyName("zones")]
-    public List<ZoneDefinition> Zones { get; set; } = new();
+    [JsonPropertyName("areas")]
+    public List<AreaDefinition> Areas { get; set; } = new();
 }
 
 /// <summary>
-/// A single user-defined zone on a PDF page. Bounds are in PDF point space
+/// A single user-defined area on a PDF page. Bounds are in PDF point space
 /// (origin bottom-left, Y increases upward) — same coordinate system as PdfPig.
 /// </summary>
-public class ZoneDefinition
+public class AreaDefinition
 {
     [JsonPropertyName("name")]
     public string Name { get; set; } = string.Empty;
@@ -44,7 +44,7 @@ public class ZoneDefinition
     public string Type { get; set; } = string.Empty;
 
     [JsonPropertyName("bounds")]
-    public ZoneBounds Bounds { get; set; } = new();
+    public AreaBounds Bounds { get; set; } = new();
 
     [JsonPropertyName("color")]
     public string Color { get; set; } = string.Empty;
@@ -62,7 +62,7 @@ public class ZoneDefinition
 /// <summary>
 /// Rectangle bounds in PDF point space (origin bottom-left, Y increases upward).
 /// </summary>
-public class ZoneBounds
+public class AreaBounds
 {
     [JsonPropertyName("x")]
     public double X { get; set; }

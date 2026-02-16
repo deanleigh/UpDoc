@@ -63,7 +63,7 @@ When a source document is imported, UpDoc analyses its structure and organises t
 
 ```
 Page
-└── Zone
+└── Area
     └── Section
         └── Text
 ```
@@ -72,15 +72,15 @@ Page
 
 Each page of the source document is processed independently. Content is extracted page by page, preserving the original document order. For single-page sources (such as a web page), all content belongs to one page.
 
-### Zone
+### Area
 
-Within each page, UpDoc detects visually distinct areas that group content together. In a PDF, these are colored filled rectangles — background colors used to separate content into columns, sidebars, or feature panels. Each colored area becomes a zone.
+Within each page, UpDoc detects visually distinct areas that group content together. In a PDF, these are colored filled rectangles — background colors used to separate content into columns, sidebars, or feature panels. Each colored region becomes an area.
 
-Content that falls outside any detected zone is grouped as "unzoned" content.
+Content that falls outside any detected area is grouped as "undefined" content.
 
 ### Section
 
-Within each zone, UpDoc identifies sections by detecting headings. A section consists of a heading and all the content that follows it, up to the next heading or the end of the zone.
+Within each area, UpDoc identifies sections by detecting headings. A section consists of a heading and all the content that follows it, up to the next heading or the end of the area.
 
 Headings are identified by font size — text that is significantly larger than the surrounding body text is treated as a section heading.
 
@@ -100,8 +100,8 @@ At each level of the hierarchy, UpDoc provides summary counts so the workflow au
 
 | Level | Shows |
 |-------|-------|
-| Page | Number of zones detected |
-| Zone | Number of sections identified |
+| Page | Number of areas detected |
+| Area | Number of sections identified |
 | Section | Number of text items within the section |
 
 These counts help the workflow author identify whether the extraction has correctly understood the document's structure before proceeding to map content to destination fields.

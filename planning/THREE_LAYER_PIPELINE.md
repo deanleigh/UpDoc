@@ -17,11 +17,11 @@ Extract (raw dough)  →  Shape (proof)  →  Map (bake)
 
 ### Layer 1: Extract (Raw Output)
 
-**What:** Server-side extraction produces raw elements with full metadata (font size, position, color, page). Zone detection groups elements into spatial areas. The transform assembles children under headings into Markdown sections.
+**What:** Server-side extraction produces raw elements with full metadata (font size, position, color, page). Area detection groups elements into spatial areas. The transform assembles children under headings into Markdown sections.
 
-**Where it lives:** `sample-extraction.json`, `zone-detection.json`, `transform.json` — all auto-generated per PDF.
+**Where it lives:** `sample-extraction.json`, `area-detection.json`, `transform.json` — all auto-generated per PDF.
 
-**UI:** Source tab → **Elements** inner tab. Read-only view of raw extraction with zone grouping. The author uses this for debugging and understanding what the extraction produced.
+**UI:** Source tab → **Elements** inner tab. Read-only view of raw extraction with area grouping. The author uses this for debugging and understanding what the extraction produced.
 
 **What the author does here:** Include/exclude sections. The auto-transform proposes N sections. The author toggles which ones pass through to the shaped layer. Unwanted content (footer boilerplate, "OPTIONAL" supplements, preamble noise) gets excluded here so it never reaches the destination.
 

@@ -23,7 +23,7 @@ Without section rules, the entire section is one blob of content — mappable on
 ```
 Extract (raw elements with metadata)
     ↓
-Shape — Areas (spatial zones on PDF)     ← Edit Areas
+Shape — Areas (spatial areas on PDF)     ← Edit Areas
     ↓
 Shape — Sections (semantic grouping)     ← Edit Sections ★ THIS
     ↓
@@ -281,7 +281,7 @@ Rules live in the source config because they are source-type-specific (PDF condi
 ## Implementation Plan
 
 ### Prerequisites
-- Zone detection and transform layer working (COMPLETE)
+- Area detection and transform layer working (COMPLETE)
 - Sample extraction stored in workflow folder (COMPLETE)
 - Edit Areas UI working (COMPLETE)
 
@@ -326,11 +326,11 @@ Add `saveSectionRules(workflowName, sectionRules, token)` function.
 #### A6. Modal Token — `section-rules-editor-modal.token.ts` (NEW)
 
 ```typescript
-Data: { workflowName, sectionId, sectionHeading, elements: ZoneElement[], existingRules }
+Data: { workflowName, sectionId, sectionHeading, elements: AreaElement[], existingRules }
 Value: { rules: SectionRuleSet }
 ```
 
-Type: sidebar, size: medium. Elements passed in from the Source tab (already loaded in `_zoneDetection` state).
+Type: sidebar, size: medium. Elements passed in from the Source tab (already loaded in `_areaDetection` state).
 
 #### A7. Modal Element — `section-rules-editor-modal.element.ts` (NEW)
 
@@ -352,8 +352,8 @@ Entry point: **"Edit Sections" button** in the Sections stat box (matching the "
 
 Per-section settings icons on individual Transformed view section cards are a future shortcut, not needed for Phase A.
 
-**Section → Elements lookup**: The source view already has `_zoneDetection` loaded. To find elements for a transform section:
-- Sections with headings: search zone detection for a section whose heading text normalizes to the same kebab-case ID (`NormalizeToKebabCase` logic replicated in TS)
+**Section → Elements lookup**: The source view already has `_areaDetection` loaded. To find elements for a transform section:
+- Sections with headings: search area detection for a section whose heading text normalizes to the same kebab-case ID (`NormalizeToKebabCase` logic replicated in TS)
 - Preamble sections: parse `preamble-p{page}-z{zoneIndex}` from the ID
 
 **Also:** Remove the per-page include/exclude toggle in the Extracted view (the blue toggle next to "N sections, N areas" on each page row) — redundant now that the page picker modal handles page selection.
@@ -421,8 +421,8 @@ Same condition matching logic as the client-side TS version, for use by the tran
 
 ## Pre-implementation Notes
 
-1. **Section → Elements lookup** — RESOLVED: Refactor zone detection to consume ExtractionElement instead of re-extracting. One element type through the whole pipeline. Zone detection adds structure (zones, sections) without reshaping element data. This eliminates the need for reverse-lookup by kebab-case normalization.
+1. **Section → Elements lookup** — RESOLVED: Refactor area detection to consume ExtractionElement instead of re-extracting. One element type through the whole pipeline. Area detection adds structure (areas, sections) without reshaping element data. This eliminates the need for reverse-lookup by kebab-case normalization.
 2. **Auto-populate approach** — RESOLVED: Pre-populate **all** metadata from the clicked element (font size, font name, color, page, position, text prefix). No "unusual" heuristic needed — with only 4-5 fields per element, showing everything and letting the user trim is simpler and more predictable than code trying to guess significance. Follows the Outlook pattern exactly.
-3. **Re-extraction stability** — DEFERRED: Rules are keyed by section ID. If sections shift after re-extraction (different PDF, changed zone settings), rules could theoretically become orphaned. But we don't know if this actually happens in practice — zone detection may be stable enough across PDFs in the same workflow. Test with real examples first before building orphan detection.
+3. **Re-extraction stability** — DEFERRED: Rules are keyed by section ID. If sections shift after re-extraction (different PDF, changed area settings), rules could theoretically become orphaned. But we don't know if this actually happens in practice — area detection may be stable enough across PDFs in the same workflow. Test with real examples first before building orphan detection.
 4. **Entry points** — RESOLVED: Start with "Edit Sections" button in the Sections stat box (matching the "Edit Areas" pattern). Per-section settings icons on individual section cards can come later as a shortcut. The Source tab UI (toggles, expand/collapse) is messy — clean up after end-to-end flow is working. The per-page include/exclude toggle in the Extracted view is redundant now that the page picker modal handles page selection — remove it.
 5. **Condition type naming** — DEFERRED: Minor UI labelling decision. `textMatchesPattern` is regex — decide on friendly labels when building the dropdown.

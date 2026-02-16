@@ -3,40 +3,40 @@ using System.Text.Json.Serialization;
 namespace UpDoc.Models;
 
 /// <summary>
-/// Result of zone detection from a PDF. Contains the full hierarchy:
-/// Pages → Zones → Sections → Elements.
-/// Zone detection is destination-agnostic — it produces a complete structural
+/// Result of area detection from a PDF. Contains the full hierarchy:
+/// Pages → Areas → Sections → Elements.
+/// Area detection is destination-agnostic — it produces a complete structural
 /// representation of the source PDF regardless of mapping configuration.
 /// </summary>
-public class ZoneDetectionResult
+public class AreaDetectionResult
 {
     [JsonPropertyName("totalPages")]
     public int TotalPages { get; set; }
 
     [JsonPropertyName("pages")]
-    public List<PageZones> Pages { get; set; } = new();
+    public List<PageAreas> Pages { get; set; } = new();
 
     [JsonPropertyName("diagnostics")]
-    public ZoneDiagnosticInfo Diagnostics { get; set; } = new();
+    public AreaDiagnosticInfo Diagnostics { get; set; } = new();
 }
 
 /// <summary>
-/// All detected zones (areas) for a single page.
+/// All detected areas for a single page.
 /// </summary>
-public class PageZones
+public class PageAreas
 {
     [JsonPropertyName("page")]
     public int Page { get; set; }
 
-    [JsonPropertyName("zones")]
-    public List<DetectedZone> Zones { get; set; } = new();
+    [JsonPropertyName("areas")]
+    public List<DetectedArea> Areas { get; set; } = new();
 }
 
 /// <summary>
-/// A spatial zone detected from a filled rectangle in the PDF.
-/// Contains sections (heading groups) within the zone.
+/// A spatial area detected from a filled rectangle in the PDF.
+/// Contains sections (heading groups) within the area.
 /// </summary>
-public class DetectedZone
+public class DetectedArea
 {
     [JsonPropertyName("name")]
     public string? Name { get; set; }
@@ -58,23 +58,23 @@ public class DetectedZone
 }
 
 /// <summary>
-/// A section within a zone, defined by a heading and its children.
+/// A section within an area, defined by a heading and its children.
 /// Heading is null for preamble content (elements before the first heading).
 /// </summary>
 public class DetectedSection
 {
     [JsonPropertyName("heading")]
-    public ZoneElement? Heading { get; set; }
+    public AreaElement? Heading { get; set; }
 
     [JsonPropertyName("children")]
-    public List<ZoneElement> Children { get; set; } = new();
+    public List<AreaElement> Children { get; set; } = new();
 }
 
 /// <summary>
-/// A text element within a zone, carrying enough metadata to understand
+/// A text element within an area, carrying enough metadata to understand
 /// the element in its hierarchical context without cross-referencing.
 /// </summary>
-public class ZoneElement
+public class AreaElement
 {
     [JsonPropertyName("id")]
     public string Id { get; set; } = string.Empty;
@@ -96,10 +96,10 @@ public class ZoneElement
 }
 
 /// <summary>
-/// Diagnostic information about the zone detection process.
+/// Diagnostic information about the area detection process.
 /// Useful for debugging and understanding what the detector found.
 /// </summary>
-public class ZoneDiagnosticInfo
+public class AreaDiagnosticInfo
 {
     [JsonPropertyName("totalPathsFound")]
     public int TotalPathsFound { get; set; }
@@ -107,9 +107,9 @@ public class ZoneDiagnosticInfo
     [JsonPropertyName("pathsAfterFiltering")]
     public int PathsAfterFiltering { get; set; }
 
-    [JsonPropertyName("zonesDetected")]
-    public int ZonesDetected { get; set; }
+    [JsonPropertyName("areasDetected")]
+    public int AreasDetected { get; set; }
 
-    [JsonPropertyName("elementsZoned")]
-    public int ElementsZoned { get; set; }
+    [JsonPropertyName("elementsInAreas")]
+    public int ElementsInAreas { get; set; }
 }

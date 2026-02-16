@@ -3,7 +3,7 @@ import { UmbLitElement } from '@umbraco-cms/backoffice/lit-element';
 import * as pdfjsLib from 'pdfjs-dist';
 import type { RenderTask } from 'pdfjs-dist';
 
-// Configure PDF.js worker (same path as zone editor)
+// Configure PDF.js worker (same path as area editor)
 pdfjsLib.GlobalWorkerOptions.workerSrc = '/App_Plugins/UpDoc/dist/pdf.worker.min.mjs';
 
 // Simple in-memory cache: mediaKey → PDFDocumentProxy

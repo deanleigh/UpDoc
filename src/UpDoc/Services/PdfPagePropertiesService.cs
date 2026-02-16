@@ -35,15 +35,15 @@ public interface IPdfPagePropertiesService
     RichExtractionResult ExtractRichDump(string filePath, List<int>? includePages = null);
 
     /// <summary>
-    /// Detects spatial zones from filled rectangles in the PDF and groups text elements
-    /// into a hierarchy: Page → Zone → Section → Elements.
-    /// Zone detection is destination-agnostic — it produces a complete structural
+    /// Detects spatial areas from filled rectangles in the PDF and groups text elements
+    /// into a hierarchy: Page → Area → Section → Elements.
+    /// Area detection is destination-agnostic — it produces a complete structural
     /// representation of the source PDF.
     /// </summary>
     /// <param name="filePath">Path to the PDF file.</param>
     /// <param name="includePages">Optional list of page numbers to extract. Null = all pages.</param>
-    /// <param name="zoneTemplate">Optional user-defined zone template. When provided, uses template zones instead of auto-detecting from filled rectangles.</param>
-    ZoneDetectionResult DetectZones(string filePath, List<int>? includePages = null, ZoneTemplate? zoneTemplate = null);
+    /// <param name="areaTemplate">Optional user-defined area template. When provided, uses template areas instead of auto-detecting from filled rectangles.</param>
+    AreaDetectionResult DetectAreas(string filePath, List<int>? includePages = null, AreaTemplate? areaTemplate = null);
 }
 
 /// <summary>
@@ -239,18 +239,18 @@ public class PdfPagePropertiesService : IPdfPagePropertiesService
         }
     }
 
-    public ZoneDetectionResult DetectZones(string filePath, List<int>? includePages = null, ZoneTemplate? zoneTemplate = null)
+    public AreaDetectionResult DetectAreas(string filePath, List<int>? includePages = null, AreaTemplate? areaTemplate = null)
     {
         try
         {
             using var document = PdfDocument.Open(filePath);
-            return DetectZonesFromDocument(document, includePages, zoneTemplate);
+            return DetectAreasFromDocument(document, includePages, areaTemplate);
         }
         catch (Exception)
         {
-            return new ZoneDetectionResult
+            return new AreaDetectionResult
             {
-                Diagnostics = new ZoneDiagnosticInfo
+                Diagnostics = new AreaDiagnosticInfo
                 {
                     TotalPathsFound = -1 // signals error
                 }
@@ -258,10 +258,10 @@ public class PdfPagePropertiesService : IPdfPagePropertiesService
         }
     }
 
-    private static ZoneDetectionResult DetectZonesFromDocument(PdfDocument document, List<int>? includePages = null, ZoneTemplate? zoneTemplate = null)
+    private static AreaDetectionResult DetectAreasFromDocument(PdfDocument document, List<int>? includePages = null, AreaTemplate? areaTemplate = null)
     {
-        var result = new ZoneDetectionResult { TotalPages = document.NumberOfPages };
-        var diagnostics = new ZoneDiagnosticInfo();
+        var result = new AreaDetectionResult { TotalPages = document.NumberOfPages };
+        var diagnostics = new AreaDiagnosticInfo();
         var totalElementIndex = 0;
 
         for (int pageNum = 1; pageNum <= document.NumberOfPages; pageNum++)
@@ -271,65 +271,65 @@ public class PdfPagePropertiesService : IPdfPagePropertiesService
                 continue;
             var page = document.GetPage(pageNum);
 
-            // Step 1: Build zones — from template if provided, otherwise auto-detect from filled rectangles
-            List<DetectedZone> zones;
-            if (zoneTemplate != null)
+            // Step 1: Build areas — from template if provided, otherwise auto-detect from filled rectangles
+            List<DetectedArea> areas;
+            if (areaTemplate != null)
             {
-                zones = zoneTemplate.Zones
-                    .Where(z => z.Page == pageNum)
-                    .Select(z => new DetectedZone
+                areas = areaTemplate.Areas
+                    .Where(a => a.Page == pageNum)
+                    .Select(a => new DetectedArea
                     {
-                        Name = z.Name,
-                        Color = z.Color,
+                        Name = a.Name,
+                        Color = a.Color,
                         Page = pageNum,
                         BoundingBox = new ElementBoundingBox
                         {
-                            Left = z.Bounds.X,
-                            Top = z.Bounds.Y + z.Bounds.Height, // Convert from bottom-left origin Y to Top
-                            Width = z.Bounds.Width,
-                            Height = z.Bounds.Height
+                            Left = a.Bounds.X,
+                            Top = a.Bounds.Y + a.Bounds.Height, // Convert from bottom-left origin Y to Top
+                            Width = a.Bounds.Width,
+                            Height = a.Bounds.Height
                         }
                     })
-                    .OrderBy(z => z.BoundingBox.Left)
+                    .OrderBy(a => a.BoundingBox.Left)
                     .ToList();
             }
             else
             {
-                zones = DetectPageFilledRects(page, pageNum, diagnostics)
-                    .OrderBy(z => z.BoundingBox.Left)
+                areas = DetectPageFilledRects(page, pageNum, diagnostics)
+                    .OrderBy(a => a.BoundingBox.Left)
                     .ToList();
             }
 
             // Step 2: Get all words from the page
             var allWords = page.GetWords().ToList();
 
-            // Step 3: Extract text per zone.
-            // When user-defined zones exist (template), filter words INTO each zone
+            // Step 3: Extract text per area.
+            // When user-defined areas exist (template), filter words INTO each area
             // BEFORE line grouping. This prevents cross-column text merging — words
             // from image captions can't merge with itinerary text if they're filtered
-            // out before grouping. Without a template (auto-detected zones from filled
+            // out before grouping. Without a template (auto-detected areas from filled
             // rects), fall back to the original center-point assignment of finished lines.
-            var zonedElements = new Dictionary<int, List<ZoneElement>>();
+            var areaElements = new Dictionary<int, List<AreaElement>>();
 
-            for (int i = 0; i < zones.Count; i++)
-                zonedElements[i] = new List<ZoneElement>();
+            for (int i = 0; i < areas.Count; i++)
+                areaElements[i] = new List<AreaElement>();
 
-            if (zoneTemplate != null)
+            if (areaTemplate != null)
             {
-                // Template path: filter words per zone, then group into lines per zone.
-                // Each zone gets its own independent line extraction — no cross-zone merging.
+                // Template path: filter words per area, then group into lines per area.
+                // Each area gets its own independent line extraction — no cross-area merging.
                 var assignedWordIndices = new HashSet<int>();
 
-                for (int i = 0; i < zones.Count; i++)
+                for (int i = 0; i < areas.Count; i++)
                 {
-                    var zb = zones[i].BoundingBox;
-                    var zoneLeft = zb.Left;
-                    var zoneRight = zb.Left + zb.Width;
-                    var zoneBottom = zb.Top - zb.Height;
-                    var zoneTop = zb.Top;
+                    var ab = areas[i].BoundingBox;
+                    var areaLeft = ab.Left;
+                    var areaRight = ab.Left + ab.Width;
+                    var areaBottom = ab.Top - ab.Height;
+                    var areaTop = ab.Top;
 
-                    // Filter words whose center falls within this zone
-                    var zoneWords = new List<Word>();
+                    // Filter words whose center falls within this area
+                    var areaWords = new List<Word>();
                     for (int wi = 0; wi < allWords.Count; wi++)
                     {
                         if (assignedWordIndices.Contains(wi))
@@ -339,20 +339,20 @@ public class PdfPagePropertiesService : IPdfPagePropertiesService
                         var wcx = (word.BoundingBox.Left + word.BoundingBox.Right) / 2;
                         var wcy = (word.BoundingBox.Bottom + word.BoundingBox.Top) / 2;
 
-                        if (wcx >= zoneLeft && wcx <= zoneRight && wcy >= zoneBottom && wcy <= zoneTop)
+                        if (wcx >= areaLeft && wcx <= areaRight && wcy >= areaBottom && wcy <= areaTop)
                         {
-                            zoneWords.Add(word);
+                            areaWords.Add(word);
                             assignedWordIndices.Add(wi);
                         }
                     }
 
-                    // Group filtered words into lines (independent per zone)
-                    var zoneLines = ExtractRichTextLines(zoneWords);
+                    // Group filtered words into lines (independent per area)
+                    var areaLines = ExtractRichTextLines(areaWords);
 
-                    foreach (var line in zoneLines)
+                    foreach (var line in areaLines)
                     {
                         totalElementIndex++;
-                        zonedElements[i].Add(new ZoneElement
+                        areaElements[i].Add(new AreaElement
                         {
                             Id = $"p{pageNum}-e{totalElementIndex}",
                             Text = line.Text,
@@ -370,20 +370,20 @@ public class PdfPagePropertiesService : IPdfPagePropertiesService
                     }
                 }
 
-                // Template path: content outside drawn zones is intentionally excluded.
-                // The user defines zones explicitly — anything outside is not wanted.
+                // Template path: content outside drawn areas is intentionally excluded.
+                // The user defines areas explicitly — anything outside is not wanted.
             }
             else
             {
-                // Auto-detect path: extract all lines first, then assign to zones
+                // Auto-detect path: extract all lines first, then assign to areas
                 // by center-point containment (original behaviour).
                 var lines = ExtractRichTextLines(allWords);
 
-                var pageElements = new List<(ZoneElement Element, double CenterX, double CenterY)>();
+                var pageElements = new List<(AreaElement Element, double CenterX, double CenterY)>();
                 foreach (var line in lines)
                 {
                     totalElementIndex++;
-                    var element = new ZoneElement
+                    var element = new AreaElement
                     {
                         Id = $"p{pageNum}-e{totalElementIndex}",
                         Text = line.Text,
@@ -407,17 +407,17 @@ public class PdfPagePropertiesService : IPdfPagePropertiesService
                 foreach (var (element, cx, cy) in pageElements)
                 {
                     var assigned = false;
-                    for (int i = 0; i < zones.Count; i++)
+                    for (int i = 0; i < areas.Count; i++)
                     {
-                        var zb = zones[i].BoundingBox;
-                        var zoneLeft = zb.Left;
-                        var zoneRight = zb.Left + zb.Width;
-                        var zoneBottom = zb.Top - zb.Height;
-                        var zoneTop = zb.Top;
+                        var ab = areas[i].BoundingBox;
+                        var areaLeft = ab.Left;
+                        var areaRight = ab.Left + ab.Width;
+                        var areaBottom = ab.Top - ab.Height;
+                        var areaTop = ab.Top;
 
-                        if (cx >= zoneLeft && cx <= zoneRight && cy >= zoneBottom && cy <= zoneTop)
+                        if (cx >= areaLeft && cx <= areaRight && cy >= areaBottom && cy <= areaTop)
                         {
-                            zonedElements[i].Add(element);
+                            areaElements[i].Add(element);
                             assigned = true;
                             break;
                         }
@@ -426,27 +426,27 @@ public class PdfPagePropertiesService : IPdfPagePropertiesService
                 }
             }
 
-            // Step 4: Group elements into sections within each zone
-            var populatedZones = new List<DetectedZone>();
-            for (int i = 0; i < zones.Count; i++)
+            // Step 4: Group elements into sections within each area
+            var populatedAreas = new List<DetectedArea>();
+            for (int i = 0; i < areas.Count; i++)
             {
-                var zoneElems = zonedElements[i];
-                zones[i].TotalElements = zoneElems.Count;
-                zones[i].Sections = GroupIntoSections(zoneElems);
-                diagnostics.ElementsZoned += zoneElems.Count;
+                var elems = areaElements[i];
+                areas[i].TotalElements = elems.Count;
+                areas[i].Sections = GroupIntoSections(elems);
+                diagnostics.ElementsInAreas += elems.Count;
 
-                if (zoneElems.Count > 0)
-                    populatedZones.Add(zones[i]);
+                if (elems.Count > 0)
+                    populatedAreas.Add(areas[i]);
             }
-            zones = populatedZones;
+            areas = populatedAreas;
 
-            result.Pages.Add(new PageZones
+            result.Pages.Add(new PageAreas
             {
                 Page = pageNum,
-                Zones = zones
+                Areas = areas
             });
 
-            diagnostics.ZonesDetected += zones.Count;
+            diagnostics.AreasDetected += areas.Count;
         }
 
         result.Diagnostics = diagnostics;
@@ -457,9 +457,9 @@ public class PdfPagePropertiesService : IPdfPagePropertiesService
     /// Detects significant filled rectangles on a page using PdfPig's ExperimentalAccess.Paths.
     /// Filters out page-covering backgrounds and small decorative shapes.
     /// </summary>
-    private static List<DetectedZone> DetectPageFilledRects(Page page, int pageNum, ZoneDiagnosticInfo diagnostics)
+    private static List<DetectedArea> DetectPageFilledRects(Page page, int pageNum, AreaDiagnosticInfo diagnostics)
     {
-        var zones = new List<DetectedZone>();
+        var areas = new List<DetectedArea>();
 
         var paths = page.ExperimentalAccess.Paths;
         diagnostics.TotalPathsFound += paths.Count;
@@ -482,8 +482,8 @@ public class PdfPagePropertiesService : IPdfPagePropertiesService
             var rectWidth = r.Width;
             var rectHeight = r.Height;
 
-            // Rule 3: Zone noise filtering — stricter thresholds to reduce
-            // decorative rectangles being detected as content zones.
+            // Rule 3: Area noise filtering — stricter thresholds to reduce
+            // decorative rectangles being detected as content areas.
             var rectArea = rectWidth * rectHeight;
 
             // Filter: too small — must be at least 2% of page area
@@ -499,7 +499,7 @@ public class PdfPagePropertiesService : IPdfPagePropertiesService
             if (rectArea > pageArea * 0.9)
                 continue;
 
-            zones.Add(new DetectedZone
+            areas.Add(new DetectedArea
             {
                 Color = ConvertColorToHex(path.FillColor),
                 Page = pageNum,
@@ -513,8 +513,8 @@ public class PdfPagePropertiesService : IPdfPagePropertiesService
             });
         }
 
-        diagnostics.PathsAfterFiltering += zones.Count;
-        return zones;
+        diagnostics.PathsAfterFiltering += areas.Count;
+        return areas;
     }
 
     /// <summary>
@@ -523,7 +523,7 @@ public class PdfPagePropertiesService : IPdfPagePropertiesService
     /// prevent false positives from minor font size variations (e.g., 11pt vs 10.5pt = 4.8%).
     /// Real headings are typically 40%+ larger (e.g., 12pt vs 8.5pt = 41%).
     /// </summary>
-    private static List<DetectedSection> GroupIntoSections(List<ZoneElement> elements)
+    private static List<DetectedSection> GroupIntoSections(List<AreaElement> elements)
     {
         if (elements.Count == 0)
             return new List<DetectedSection>();
@@ -548,7 +548,7 @@ public class PdfPagePropertiesService : IPdfPagePropertiesService
             // No headings — everything is one section with no heading
             return new List<DetectedSection>
             {
-                new DetectedSection { Heading = null, Children = new List<ZoneElement>(elements) }
+                new DetectedSection { Heading = null, Children = new List<AreaElement>(elements) }
             };
         }
 
@@ -565,7 +565,7 @@ public class PdfPagePropertiesService : IPdfPagePropertiesService
                 if (current.Heading != null || current.Children.Count > 0)
                     sections.Add(current);
 
-                current = new DetectedSection { Heading = el, Children = new List<ZoneElement>() };
+                current = new DetectedSection { Heading = el, Children = new List<AreaElement>() };
             }
             else
             {

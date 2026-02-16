@@ -3,7 +3,7 @@
   "pages": [
     {
       "page": 1,
-      "zones": [
+      "areas": [
         {
           "name": "Page Header",
           "color": "#e84855",
@@ -628,7 +628,7 @@
     },
     {
       "page": 2,
-      "zones": [
+      "areas": [
         {
           "name": "Itinery",
           "color": "#8338ec",
@@ -784,7 +784,7 @@
   "diagnostics": {
     "totalPathsFound": 0,
     "pathsAfterFiltering": 0,
-    "zonesDetected": 4,
-    "elementsZoned": 52
+    "areasDetected": 4,
+    "elementsInAreas": 52
   }
 }

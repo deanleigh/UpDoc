@@ -86,7 +86,7 @@ Both the Create from Source sidebar and the Map tab can read this structure to d
 
 ---
 
-## Pipeline Audit: Content Formatting & Zone Filtering (Feb 2026)
+## Pipeline Audit: Content Formatting & Area Filtering (Feb 2026)
 
 ### The Extraction Funnel (Intended Design)
 
@@ -103,46 +103,46 @@ Step 2: Choose pages
       Pages 3-4 (terms, booking forms) are discarded.
       Everything downstream only processes selected pages.
 
-Step 3: Define areas (zones)
-  └── Second refinement. Spatial zones drawn on the selected pages.
+Step 3: Define areas
+  └── Second refinement. Spatial areas drawn on the selected pages.
       "Main Content here, Organiser Info there, Page Header here."
-      Content outside ALL defined zones is noise and should be
+      Content outside ALL defined areas is noise and should be
       DISCARDED ENTIRELY.
 
 Step 4: Sections (automatic)
-  └── Within each zone, PdfPig groups content by heading structure.
+  └── Within each area, PdfPig groups content by heading structure.
       Font size changes define section boundaries. General rules
       (heading threshold) guide this, but it's automatic based on
       the PDF's own typographic structure.
 ```
 
-### Zone Extraction Accuracy
+### Area Extraction Accuracy
 
-PdfPig's spatial filtering is precise — PDFs store exact glyph coordinates (points, 1/72 inch). The zone check computes each word's center point and tests whether it falls inside the zone rectangle. This is geometry, not heuristics.
+PdfPig's spatial filtering is precise — PDFs store exact glyph coordinates (points, 1/72 inch). The area check computes each word's center point and tests whether it falls inside the area rectangle. This is geometry, not heuristics.
 
-- **Words filtered before line grouping** — each zone gets independent line extraction, preventing cross-zone text merging (e.g., sidebar words can't merge with main column words)
-- **Center-point test** — a word straddling a zone boundary is included/excluded based on where its center falls. Rarely an issue in practice since text sits well inside zones.
-- **First-claim assignment** — a word can only belong to one zone. If zones overlap, first zone (left-to-right order) wins.
+- **Words filtered before line grouping** — each area gets independent line extraction, preventing cross-area text merging (e.g., sidebar words can't merge with main column words)
+- **Center-point test** — a word straddling an area boundary is included/excluded based on where its center falls. Rarely an issue in practice since text sits well inside areas.
+- **First-claim assignment** — a word can only belong to one area. If areas overlap, first area (left-to-right order) wins.
 
 The accuracy bottleneck is NOT PdfPig's spatial extraction — it's the downstream steps (section grouping, markdown assembly, and writing to Umbraco).
 
-### Problem 1: Unzoned Content Leaks Through
+### Problem 1: Content Outside Areas Leaks Through
 
-**Rule violation:** After zones are defined, nothing outside those zones should exist in the pipeline.
+**Rule violation:** After areas are defined, nothing outside those areas should exist in the pipeline.
 
-**Current behaviour:** `ContentTransformService.Transform()` processes `page.UnzonedContent` unconditionally — content outside all defined zones gets transformed into sections, defaults to `Included = true`, and becomes available for mapping.
+**Current behaviour:** `ContentTransformService.Transform()` processes `page.UnzonedContent` unconditionally — content outside all defined areas gets transformed into sections, defaults to `Included = true`, and becomes available for mapping.
 
 **Where it happens:**
-- `ContentTransformService.cs` lines 46-55: processes `page.UnzonedContent` identically to zoned content
+- `ContentTransformService.cs` lines 46-55: processes `page.UnzonedContent` identically to area content
 - `TransformedSection.Included` defaults to `true` — new sections from a different PDF that don't match the stored `transform.json` silently pass through
 
-**Fix:** When a zone template exists, skip `page.UnzonedContent` entirely. Only zoned content should enter the transform.
+**Fix:** When an area template exists, skip `page.UnzonedContent` entirely. Only area content should enter the transform.
 
 ### Problem 2: Redundant Full Extraction in Create from Source
 
 **Current behaviour:** The Create from Source modal runs TWO extractions:
-1. `extractRich()` — full raw dump of every element on every page, no zone filtering (~544 elements). Stored as `_extractedSections` keyed by positional element IDs (`p1-e17`).
-2. `transformAdhoc()` — zone-aware extraction using the workflow's zone template and page selection. Stored as `_sectionLookup` keyed by section IDs (`features.content`).
+1. `extractRich()` — full raw dump of every element on every page, no area filtering (~544 elements). Stored as `_extractedSections` keyed by positional element IDs (`p1-e17`).
+2. `transformAdhoc()` — area-aware extraction using the workflow's area template and page selection. Stored as `_sectionLookup` keyed by section IDs (`features.content`).
 
 The first extraction is entirely redundant. All mappings in `map.json` now use section IDs, so `_extractedSections` is never matched. It exists only as a fallback for legacy element-ID mappings that no longer exist.
 
@@ -176,7 +176,7 @@ This is generic/package-appropriate — it uses the field type metadata that `de
 
 | # | Issue | Location | Impact |
 |---|-------|----------|--------|
-| 1 | Unzoned content leaks through | `ContentTransformService.cs` | Wrong content available for mapping |
+| 1 | Content outside areas leaks through | `ContentTransformService.cs` | Wrong content available for mapping |
 | 2 | Redundant `extractRich()` call | `up-doc-modal.element.ts` | Wasted processing, legacy fallback no longer needed |
 | 3 | Markdown not converted to HTML | `up-doc-collection-action.element.ts`, `up-doc-action.ts` | Broken formatting in created documents |
 

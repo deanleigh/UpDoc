@@ -1,5 +1,5 @@
 import type { SectionRulesEditorModalData, SectionRulesEditorModalValue } from './section-rules-editor-modal.token.js';
-import type { SectionRule, RuleCondition, RuleConditionType, ZoneElement } from './workflow.types.js';
+import type { SectionRule, RuleCondition, RuleConditionType, AreaElement } from './workflow.types.js';
 import { html, css, state, nothing } from '@umbraco-cms/backoffice/external/lit';
 import { customElement } from '@umbraco-cms/backoffice/external/lit';
 import { UmbModalBaseElement } from '@umbraco-cms/backoffice/modal';
@@ -42,7 +42,7 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 		}
 	}
 
-	get #elements(): ZoneElement[] {
+	get #elements(): AreaElement[] {
 		return this.data?.elements ?? [];
 	}
 
@@ -74,11 +74,11 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 		return claimed;
 	}
 
-	#elementMatchesAllConditions(el: ZoneElement, conditions: RuleCondition[], index: number, total: number): boolean {
+	#elementMatchesAllConditions(el: AreaElement, conditions: RuleCondition[], index: number, total: number): boolean {
 		return conditions.every((c) => this.#elementMatchesCondition(el, c, index, total));
 	}
 
-	#elementMatchesCondition(el: ZoneElement, condition: RuleCondition, index: number, total: number): boolean {
+	#elementMatchesCondition(el: AreaElement, condition: RuleCondition, index: number, total: number): boolean {
 		const val = String(condition.value ?? '');
 		const numVal = Number(condition.value);
 
@@ -112,7 +112,7 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 
 	// ===== Auto-populate conditions from an element =====
 
-	#autoPopulateConditions(el: ZoneElement, elIndex: number, total: number): RuleCondition[] {
+	#autoPopulateConditions(el: AreaElement, elIndex: number, total: number): RuleCondition[] {
 		const conditions: RuleCondition[] = [];
 
 		// Font size
@@ -154,7 +154,7 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 		this._rules = this._rules.filter((_, i) => i !== ruleIdx);
 	}
 
-	#createRuleFromElement(el: ZoneElement, elIndex: number) {
+	#createRuleFromElement(el: AreaElement, elIndex: number) {
 		const conditions = this.#autoPopulateConditions(el, elIndex, this.#elements.length);
 		// Derive a role name suggestion from text (kebab-case first few words)
 		const roleSuggestion = el.text
@@ -256,7 +256,7 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 		`;
 	}
 
-	#renderRuleCard(rule: SectionRule, ruleIdx: number, matchedElement: ZoneElement | null) {
+	#renderRuleCard(rule: SectionRule, ruleIdx: number, matchedElement: AreaElement | null) {
 		return html`
 			<div class="rule-card">
 				<div class="rule-header">
@@ -337,7 +337,7 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 		const claimed = this.#evaluateRules();
 
 		// Build ruleIdx -> matched element lookup
-		const ruleMatches = new Map<number, ZoneElement>();
+		const ruleMatches = new Map<number, AreaElement>();
 		for (const [elId, ruleIdx] of claimed) {
 			if (!ruleMatches.has(ruleIdx)) {
 				const el = this.#elements.find((e) => e.id === elId);

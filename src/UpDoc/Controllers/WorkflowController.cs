@@ -277,8 +277,8 @@ public class WorkflowController : ControllerBase
         return Ok(result);
     }
 
-    [HttpPost("detect-zones")]
-    public IActionResult DetectZones([FromBody] SampleExtractionRequest request)
+    [HttpPost("detect-areas")]
+    public IActionResult DetectAreas([FromBody] SampleExtractionRequest request)
     {
         var absolutePath = ResolveMediaFilePath(request.MediaKey);
         if (absolutePath == null)
@@ -286,18 +286,18 @@ public class WorkflowController : ControllerBase
             return NotFound(new { error = "Media item not found or file not on disk" });
         }
 
-        var result = _pdfPagePropertiesService.DetectZones(absolutePath);
+        var result = _pdfPagePropertiesService.DetectAreas(absolutePath);
 
         _logger.LogInformation(
-            "Zone detection complete: {Zones} zones detected, {Elements} elements extracted",
-            result.Diagnostics.ZonesDetected,
-            result.Diagnostics.ElementsZoned);
+            "Area detection complete: {Areas} areas detected, {Elements} elements extracted",
+            result.Diagnostics.AreasDetected,
+            result.Diagnostics.ElementsInAreas);
 
         return Ok(result);
     }
 
-    [HttpPost("{name}/zone-detection")]
-    public IActionResult ExtractZoneDetection(string name, [FromBody] SampleExtractionRequest request)
+    [HttpPost("{name}/area-detection")]
+    public IActionResult ExtractAreaDetection(string name, [FromBody] SampleExtractionRequest request)
     {
         var absolutePath = ResolveMediaFilePath(request.MediaKey);
         if (absolutePath == null)
@@ -305,35 +305,35 @@ public class WorkflowController : ControllerBase
             return NotFound(new { error = "Media item not found or file not on disk" });
         }
 
-        // Read page selection and zone template from workflow
+        // Read page selection and area template from workflow
         var sourceConfig = _workflowService.GetSourceConfig(name);
         var includePages = ResolveIncludePages(absolutePath, sourceConfig);
-        var zoneTemplate = _workflowService.GetZoneTemplate(name);
+        var areaTemplate = _workflowService.GetAreaTemplate(name);
 
-        var result = _pdfPagePropertiesService.DetectZones(absolutePath, includePages, zoneTemplate);
+        var result = _pdfPagePropertiesService.DetectAreas(absolutePath, includePages, areaTemplate);
 
         try
         {
-            _workflowService.SaveZoneDetection(name, result);
+            _workflowService.SaveAreaDetection(name, result);
         }
         catch (DirectoryNotFoundException)
         {
             return NotFound(new { error = $"Workflow '{name}' not found." });
         }
 
-        _logger.LogInformation("Zone detection saved for workflow '{Name}': {Zones} zones, {Elements} elements extracted",
-            name, result.Diagnostics.ZonesDetected, result.Diagnostics.ElementsZoned);
+        _logger.LogInformation("Area detection saved for workflow '{Name}': {Areas} areas, {Elements} elements extracted",
+            name, result.Diagnostics.AreasDetected, result.Diagnostics.ElementsInAreas);
 
         return Ok(result);
     }
 
-    [HttpGet("{name}/zone-detection")]
-    public IActionResult GetZoneDetection(string name)
+    [HttpGet("{name}/area-detection")]
+    public IActionResult GetAreaDetection(string name)
     {
-        var result = _workflowService.GetZoneDetection(name);
+        var result = _workflowService.GetAreaDetection(name);
         if (result == null)
         {
-            return NotFound(new { error = $"No zone detection found for workflow '{name}'." });
+            return NotFound(new { error = $"No area detection found for workflow '{name}'." });
         }
 
         return Ok(result);
@@ -348,26 +348,26 @@ public class WorkflowController : ControllerBase
             return NotFound(new { error = "Media item not found or file not on disk" });
         }
 
-        // Read page selection and zone template from workflow
+        // Read page selection and area template from workflow
         var sourceConfig = _workflowService.GetSourceConfig(name);
         var includePages = ResolveIncludePages(absolutePath, sourceConfig);
-        var zoneTemplate = _workflowService.GetZoneTemplate(name);
+        var areaTemplate = _workflowService.GetAreaTemplate(name);
 
-        // Step 1: Run zone detection (with page filtering and optional zone template)
-        var zoneResult = _pdfPagePropertiesService.DetectZones(absolutePath, includePages, zoneTemplate);
+        // Step 1: Run area detection (with page filtering and optional area template)
+        var areaResult = _pdfPagePropertiesService.DetectAreas(absolutePath, includePages, areaTemplate);
 
         try
         {
-            _workflowService.SaveZoneDetection(name, zoneResult);
+            _workflowService.SaveAreaDetection(name, areaResult);
         }
         catch (DirectoryNotFoundException)
         {
             return NotFound(new { error = $"Workflow '{name}' not found." });
         }
 
-        // Step 2: Run transform on zone detection output, preserving existing include/exclude state
+        // Step 2: Run transform on area detection output, preserving existing include/exclude state
         var previousTransform = _workflowService.GetTransformResult(name);
-        var transformResult = _contentTransformService.Transform(zoneResult, previousTransform);
+        var transformResult = _contentTransformService.Transform(areaResult, previousTransform);
         _workflowService.SaveTransformResult(name, transformResult);
 
         _logger.LogInformation(
@@ -404,14 +404,14 @@ public class WorkflowController : ControllerBase
 
         try
         {
-            // Read page selection and zone template from workflow
+            // Read page selection and area template from workflow
             var sourceConfig = _workflowService.GetSourceConfig(name);
             var includePages = ResolveIncludePages(absolutePath, sourceConfig);
-            var zoneTemplate = _workflowService.GetZoneTemplate(name);
+            var areaTemplate = _workflowService.GetAreaTemplate(name);
 
-            var zoneResult = _pdfPagePropertiesService.DetectZones(absolutePath, includePages, zoneTemplate);
+            var areaResult = _pdfPagePropertiesService.DetectAreas(absolutePath, includePages, areaTemplate);
             var previousTransform = _workflowService.GetTransformResult(name);
-            var result = _contentTransformService.Transform(zoneResult, previousTransform);
+            var result = _contentTransformService.Transform(areaResult, previousTransform);
             return Ok(result);
         }
         catch (Exception ex)
@@ -490,12 +490,12 @@ public class WorkflowController : ControllerBase
         return Ok(sourceConfig);
     }
 
-    [HttpPut("{name}/zone-template")]
-    public IActionResult UpdateZoneTemplate(string name, [FromBody] ZoneTemplate template)
+    [HttpPut("{name}/area-template")]
+    public IActionResult UpdateAreaTemplate(string name, [FromBody] AreaTemplate template)
     {
         try
         {
-            _workflowService.SaveZoneTemplate(name, template);
+            _workflowService.SaveAreaTemplate(name, template);
             return Ok(template);
         }
         catch (DirectoryNotFoundException)
@@ -504,13 +504,13 @@ public class WorkflowController : ControllerBase
         }
     }
 
-    [HttpGet("{name}/zone-template")]
-    public IActionResult GetZoneTemplate(string name)
+    [HttpGet("{name}/area-template")]
+    public IActionResult GetAreaTemplate(string name)
     {
-        var template = _workflowService.GetZoneTemplate(name);
+        var template = _workflowService.GetAreaTemplate(name);
         if (template == null)
         {
-            return NotFound(new { error = $"No zone template found for workflow '{name}'." });
+            return NotFound(new { error = $"No area template found for workflow '{name}'." });
         }
 
         return Ok(template);

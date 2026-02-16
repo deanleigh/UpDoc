@@ -1,8 +1,8 @@
-import type { RichExtractionResult, DocumentTypeConfig, MappingDestination, ZoneDetectionResult, DetectedZone, DetectedSection, ZoneElement, TransformResult, TransformedSection, SourceConfig, ZoneTemplate, SectionRuleSet } from './workflow.types.js';
-import { fetchSampleExtraction, triggerSampleExtraction, fetchWorkflowByName, fetchZoneDetection, triggerTransform, fetchTransformResult, updateSectionInclusion, saveMapConfig, savePageSelection, fetchSourceConfig, fetchZoneTemplate, saveZoneTemplate, saveSectionRules } from './workflow.service.js';
+import type { RichExtractionResult, DocumentTypeConfig, MappingDestination, AreaDetectionResult, DetectedArea, DetectedSection, AreaElement, TransformResult, TransformedSection, SourceConfig, AreaTemplate, SectionRuleSet } from './workflow.types.js';
+import { fetchSampleExtraction, triggerSampleExtraction, fetchWorkflowByName, fetchAreaDetection, triggerTransform, fetchTransformResult, updateSectionInclusion, saveMapConfig, savePageSelection, fetchSourceConfig, fetchAreaTemplate, saveAreaTemplate, saveSectionRules } from './workflow.service.js';
 import { markdownToHtml, normalizeToKebabCase } from './transforms.js';
 import { UMB_DESTINATION_PICKER_MODAL } from './destination-picker-modal.token.js';
-import { UMB_ZONE_EDITOR_MODAL } from './pdf-zone-editor-modal.token.js';
+import { UMB_AREA_EDITOR_MODAL } from './pdf-area-editor-modal.token.js';
 import { UMB_PAGE_PICKER_MODAL } from './page-picker-modal.token.js';
 import { UMB_SECTION_RULES_EDITOR_MODAL } from './section-rules-editor-modal.token.js';
 import { html, css, state, nothing } from '@umbraco-cms/backoffice/external/lit';
@@ -17,7 +17,7 @@ import { UMB_MEDIA_PICKER_MODAL } from '@umbraco-cms/backoffice/media';
 @customElement('up-doc-workflow-source-view')
 export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 	@state() private _extraction: RichExtractionResult | null = null;
-	@state() private _zoneDetection: ZoneDetectionResult | null = null;
+	@state() private _areaDetection: AreaDetectionResult | null = null;
 	@state() private _config: DocumentTypeConfig | null = null;
 	@state() private _workflowName: string | null = null;
 	@state() private _loading = true;
@@ -32,7 +32,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 	@state() private _pageInputValue = '';
 	@state() private _collapsePopoverOpen = false;
 	@state() private _excludedAreas = new Set<string>();
-	@state() private _zoneTemplate: ZoneTemplate | null = null;
+	@state() private _areaTemplate: AreaTemplate | null = null;
 	@state() private _sectionPickerOpen = false;
 	#token = '';
 
@@ -60,20 +60,20 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		try {
 			const authContext = await this.getContext(UMB_AUTH_CONTEXT);
 			this.#token = await authContext.getLatestToken();
-			const [extraction, zoneDetection, config, transformResult, sourceConfig, zoneTemplate] = await Promise.all([
+			const [extraction, areaDetection, config, transformResult, sourceConfig, areaTemplate] = await Promise.all([
 				fetchSampleExtraction(this._workflowName, this.#token),
-				fetchZoneDetection(this._workflowName, this.#token),
+				fetchAreaDetection(this._workflowName, this.#token),
 				fetchWorkflowByName(this._workflowName, this.#token),
 				fetchTransformResult(this._workflowName, this.#token),
 				fetchSourceConfig(this._workflowName, this.#token),
-				fetchZoneTemplate(this._workflowName, this.#token),
+				fetchAreaTemplate(this._workflowName, this.#token),
 			]);
 			this._extraction = extraction;
-			this._zoneDetection = zoneDetection;
+			this._areaDetection = areaDetection;
 			this._config = config;
 			this._transformResult = transformResult;
 			this._sourceConfig = sourceConfig;
-			this._zoneTemplate = zoneTemplate;
+			this._areaTemplate = areaTemplate;
 
 			// Initialize page selection state from source config
 			if (sourceConfig?.pages && Array.isArray(sourceConfig.pages) && sourceConfig.pages.length > 0) {
@@ -145,7 +145,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 
 	/** Toggle a page on/off and update the text input. */
 	#togglePage(pageNum: number) {
-		const totalPages = this._zoneDetection?.totalPages ?? this._extraction?.source.totalPages ?? 0;
+		const totalPages = this._areaDetection?.totalPages ?? this._extraction?.source.totalPages ?? 0;
 		if (totalPages === 0) return;
 
 		if (this._pageMode === 'all') {
@@ -211,18 +211,18 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 
 	/** Get all collapse keys for a given level. */
 	#getKeysForLevel(level: 'pages' | 'areas' | 'sections'): string[] {
-		if (!this._zoneDetection) return [];
+		if (!this._areaDetection) return [];
 		const keys: string[] = [];
-		for (const page of this._zoneDetection.pages) {
+		for (const page of this._areaDetection.pages) {
 			const pageNum = page.page;
 			if (level === 'pages') {
 				keys.push(`page-${pageNum}`);
 			}
 			if (level === 'areas') {
-				page.zones.forEach((_z, aIdx) => keys.push(`area-p${pageNum}-a${aIdx}`));
+				page.areas.forEach((_z, aIdx) => keys.push(`area-p${pageNum}-a${aIdx}`));
 			}
 			if (level === 'sections') {
-				page.zones.forEach((_z, aIdx) => {
+				page.areas.forEach((_z, aIdx) => {
 					_z.sections.forEach((_s, sIdx) => keys.push(`p${pageNum}-a${aIdx}-s${sIdx}`));
 				});
 			}
@@ -279,15 +279,15 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		await this.#runExtraction(mediaKey);
 	}
 
-	/** Opens the zone editor modal to define/edit extraction areas. */
+	/** Opens the area editor modal to define/edit extraction areas. */
 	async #onEditAreas() {
 		if (!this._workflowName) return;
 
 		const modalManager = await this.getContext(UMB_MODAL_MANAGER_CONTEXT);
-		const modal = modalManager.open(this, UMB_ZONE_EDITOR_MODAL, {
+		const modal = modalManager.open(this, UMB_AREA_EDITOR_MODAL, {
 			data: {
 				workflowName: this._workflowName,
-				existingTemplate: this._zoneTemplate,
+				existingTemplate: this._areaTemplate,
 				selectedPages: this._sourceConfig?.pages && Array.isArray(this._sourceConfig.pages)
 					? this._sourceConfig.pages
 					: null,
@@ -297,11 +297,11 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		try {
 			const result = await modal.onSubmit();
 			if (result?.template) {
-				// Save the zone template
-				const saved = await saveZoneTemplate(this._workflowName, result.template, this.#token);
+				// Save the area template
+				const saved = await saveAreaTemplate(this._workflowName, result.template, this.#token);
 				if (saved) {
-					this._zoneTemplate = saved;
-					// Re-extract with the new zone template applied
+					this._areaTemplate = saved;
+					// Re-extract with the new area template applied
 					await this.#onReExtract();
 				}
 			}
@@ -310,11 +310,11 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		}
 	}
 
-	/** Builds a list of transform sections with their corresponding zone detection elements. */
-	#getTransformSectionsWithElements(): Array<{ id: string; heading: string; elements: ZoneElement[] }> {
-		if (!this._transformResult || !this._zoneDetection) return [];
+	/** Builds a list of transform sections with their corresponding area detection elements. */
+	#getTransformSectionsWithElements(): Array<{ id: string; heading: string; elements: AreaElement[] }> {
+		if (!this._transformResult || !this._areaDetection) return [];
 
-		const result: Array<{ id: string; heading: string; elements: ZoneElement[] }> = [];
+		const result: Array<{ id: string; heading: string; elements: AreaElement[] }> = [];
 
 		for (const section of this._transformResult.sections) {
 			if (!section.included) continue;
@@ -328,22 +328,22 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		return result;
 	}
 
-	/** Find zone detection elements that belong to a given transform section. */
-	#findElementsForSection(section: TransformedSection): ZoneElement[] {
-		if (!this._zoneDetection) return [];
+	/** Find area detection elements that belong to a given transform section. */
+	#findElementsForSection(section: TransformedSection): AreaElement[] {
+		if (!this._areaDetection) return [];
 
-		// Walk zone detection pages looking for the matching detected section
-		for (const page of this._zoneDetection.pages) {
+		// Walk area detection pages looking for the matching detected section
+		for (const page of this._areaDetection.pages) {
 			if (page.page !== section.page) continue;
 
-			for (const zone of page.zones) {
-				for (const detectedSection of zone.sections) {
+			for (const area of page.areas) {
+				for (const detectedSection of area.sections) {
 					const detectedId = detectedSection.heading
 						? normalizeToKebabCase(detectedSection.heading.text)
-						: this.#buildPreambleId(page.page, zone, page);
+						: this.#buildPreambleId(page.page, area, page);
 					if (detectedId === section.id) {
 						// Collect heading + children as element list
-						const elements: ZoneElement[] = [];
+						const elements: AreaElement[] = [];
 						if (detectedSection.heading) elements.push(detectedSection.heading);
 						elements.push(...detectedSection.children);
 						return elements;
@@ -355,9 +355,9 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 	}
 
 	/** Build a preamble section ID matching the transform layer's convention. */
-	#buildPreambleId(pageNum: number, zone: DetectedZone, pageZones: { zones: DetectedZone[] }): string {
-		const zoneIdx = pageZones.zones.indexOf(zone);
-		return `preamble-p${pageNum}-z${zoneIdx}`;
+	#buildPreambleId(pageNum: number, area: DetectedArea, pageAreas: { areas: DetectedArea[] }): string {
+		const areaIdx = pageAreas.areas.indexOf(area);
+		return `preamble-p${pageNum}-z${areaIdx}`;
 	}
 
 	#onSectionPickerToggle(event: ToggleEvent) {
@@ -365,7 +365,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 	}
 
 	/** Opens the rules editor modal for a specific transform section. */
-	async #onEditSectionRules(sectionId: string, sectionHeading: string, elements: ZoneElement[]) {
+	async #onEditSectionRules(sectionId: string, sectionHeading: string, elements: AreaElement[]) {
 		if (!this._workflowName) return;
 
 		const existingRules = this._sourceConfig?.sectionRules?.[sectionId] ?? null;
@@ -411,7 +411,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		const mediaKey = this._extraction?.source.mediaKey;
 		if (!mediaKey) return;
 
-		const totalPages = this._zoneDetection?.totalPages ?? this._extraction?.source.totalPages ?? 0;
+		const totalPages = this._areaDetection?.totalPages ?? this._extraction?.source.totalPages ?? 0;
 		if (totalPages === 0) return;
 
 		const selectedPages = this.#getSelectedPages();
@@ -455,7 +455,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 			const authContext = await this.getContext(UMB_AUTH_CONTEXT);
 			const token = await authContext.getLatestToken();
 
-			// Trigger sample extraction and transform (which includes zone detection) in parallel
+			// Trigger sample extraction and transform (which includes area detection) in parallel
 			const [extraction, transformResult] = await Promise.all([
 				triggerSampleExtraction(this._workflowName, mediaKey, token),
 				triggerTransform(this._workflowName, mediaKey, token),
@@ -466,9 +466,9 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 			}
 			if (transformResult) {
 				this._transformResult = transformResult;
-				// Transform endpoint also saved zone detection — fetch it
-				const zoneDetection = await fetchZoneDetection(this._workflowName, token);
-				this._zoneDetection = zoneDetection;
+				// Transform endpoint also saved area detection — fetch it
+				const areaDetection = await fetchAreaDetection(this._workflowName, token);
+				this._areaDetection = areaDetection;
 				const d = transformResult.diagnostics;
 				this._successMessage = `Content extracted — ${d.totalSections} sections (${d.bulletListSections} bullet, ${d.paragraphSections} paragraph, ${d.subHeadedSections} sub-headed)`;
 				setTimeout(() => { this._successMessage = null; }, 5000);
@@ -579,7 +579,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		return dest.target;
 	}
 
-	// --- Zone-based rendering ---
+	// --- Area-based rendering ---
 
 	#classifyText(text: string): 'list' | 'paragraph' {
 		const trimmed = text.trimStart();
@@ -588,7 +588,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		return 'paragraph';
 	}
 
-	#renderZoneElement(element: ZoneElement, role?: 'heading') {
+	#renderAreaElement(element: AreaElement, role?: 'heading') {
 		const textType = role === 'heading' ? 'heading' : this.#classifyText(element.text);
 		const badgeLabel = textType === 'heading' ? 'Heading' : textType === 'list' ? 'List Item' : 'Paragraph';
 		return html`
@@ -607,19 +607,19 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		`;
 	}
 
-	#renderSection(section: DetectedSection, sectionKey: string, pageNum: number, zoneIndex: number) {
+	#renderSection(section: DetectedSection, sectionKey: string, pageNum: number, areaIndex: number) {
 		const isCollapsed = this.#isCollapsed(sectionKey);
 
 		// Compute the section ID matching transform.json
 		const sectionId = section.heading
 			? normalizeToKebabCase(section.heading.text)
-			: `preamble-p${pageNum}-z${zoneIndex}`;
+			: `preamble-p${pageNum}-a${areaIndex}`;
 		const isIncluded = this.#isSectionIncluded(sectionId);
 
 		if (!section.heading) {
 			// No-heading section — render with toggle
 			return html`
-				<div class="zone-section ${!isIncluded ? 'excluded' : ''}">
+				<div class="area-section ${!isIncluded ? 'excluded' : ''}">
 					<div class="section-heading preamble" @click=${() => this.#toggleCollapse(sectionKey)}>
 						<uui-icon class="collapse-chevron" name="${isCollapsed ? 'icon-navigation-right' : 'icon-navigation-down'}"></uui-icon>
 						<span class="heading-text preamble-label">Content</span>
@@ -633,7 +633,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 						</uui-toggle>
 					</div>
 					${isIncluded && !isCollapsed ? html`
-						${section.children.map((el) => this.#renderZoneElement(el))}
+						${section.children.map((el) => this.#renderAreaElement(el))}
 					` : nothing}
 				</div>
 			`;
@@ -643,7 +643,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		const elementCount = section.children.length + 1; // +1 for heading element
 
 		return html`
-			<div class="zone-section ${!isIncluded ? 'excluded' : ''}">
+			<div class="area-section ${!isIncluded ? 'excluded' : ''}">
 				<div class="section-heading" @click=${() => this.#toggleCollapse(sectionKey)}>
 					<uui-icon class="collapse-chevron" name="${isCollapsed ? 'icon-navigation-right' : 'icon-navigation-down'}"></uui-icon>
 					<span class="section-label">Section</span>
@@ -660,8 +660,8 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				</div>
 				${!isCollapsed && isIncluded ? html`
 					<div class="section-children">
-						${this.#renderZoneElement(heading, 'heading')}
-						${section.children.map((el) => this.#renderZoneElement(el))}
+						${this.#renderAreaElement(heading, 'heading')}
+						${section.children.map((el) => this.#renderAreaElement(el))}
 					</div>
 				` : nothing}
 			</div>
@@ -678,16 +678,16 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		this._excludedAreas = next;
 	}
 
-	#renderArea(zone: DetectedZone, pageNum: number, areaIndex: number) {
+	#renderArea(area: DetectedArea, pageNum: number, areaIndex: number) {
 		const areaKey = `area-p${pageNum}-a${areaIndex}`;
 		const isCollapsed = this.#isCollapsed(areaKey);
 		const isIncluded = !this._excludedAreas.has(areaKey);
-		const sectionCount = zone.sections.length;
+		const sectionCount = area.sections.length;
 		return html`
-			<div class="zone-area ${!isIncluded ? 'area-excluded' : ''}" style="border-left-color: ${zone.color};">
+			<div class="detected-area ${!isIncluded ? 'area-excluded' : ''}" style="border-left-color: ${area.color};">
 				<div class="area-header" @click=${() => this.#toggleCollapse(areaKey)}>
 					<uui-icon class="collapse-chevron" name="${isCollapsed ? 'icon-navigation-right' : 'icon-navigation-down'}"></uui-icon>
-					<span class="area-name">${zone.name || `Area ${areaIndex + 1}`}</span>
+					<span class="area-name">${area.name || `Area ${areaIndex + 1}`}</span>
 					<span class="header-spacer"></span>
 					<span class="group-count">${sectionCount} section${sectionCount !== 1 ? 's' : ''}</span>
 					<uui-toggle
@@ -698,7 +698,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 					</uui-toggle>
 				</div>
 				${!isCollapsed ? html`
-					${zone.sections.map((section, sIdx) =>
+					${area.sections.map((section, sIdx) =>
 						this.#renderSection(section, `p${pageNum}-a${areaIndex}-s${sIdx}`, pageNum, areaIndex)
 					)}
 				` : nothing}
@@ -706,11 +706,11 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		`;
 	}
 
-	#renderZonePage(pageNum: number, zones: DetectedZone[]) {
+	#renderAreaPage(pageNum: number, areas: DetectedArea[]) {
 		const pageKey = `page-${pageNum}`;
 		const isCollapsed = this.#isCollapsed(pageKey);
-		const areaCount = zones.length;
-		const sectionCount = zones.reduce((sum, z) => sum + z.sections.length, 0);
+		const areaCount = areas.length;
+		const sectionCount = areas.reduce((sum, a) => sum + a.sections.length, 0);
 		const isIncluded = this.#isPageIncluded(pageNum);
 		return html`
 			<uui-box class="page-box ${!isIncluded ? 'page-excluded' : ''}">
@@ -728,30 +728,30 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 					</uui-toggle>
 				</div>
 				${!isCollapsed ? html`
-					${zones.map((zone, idx) => this.#renderArea(zone, pageNum, idx))}
+					${areas.map((area, idx) => this.#renderArea(area, pageNum, idx))}
 				` : nothing}
 			</uui-box>
 		`;
 	}
 
-	#renderZoneDetection() {
-		if (!this._zoneDetection) return nothing;
+	#renderAreaDetection() {
+		if (!this._areaDetection) return nothing;
 
 		return html`
-			${this._zoneDetection.pages.map((page) =>
-				this.#renderZonePage(page.page, page.zones)
+			${this._areaDetection.pages.map((page) =>
+				this.#renderAreaPage(page.page, page.areas)
 			)}
 		`;
 	}
 
 	#computeSectionCount(): number {
-		if (!this._zoneDetection) return 0;
-		return this._zoneDetection.pages.reduce((sum, page) =>
-			sum + page.zones.reduce((zSum, zone) => zSum + zone.sections.length, 0), 0);
+		if (!this._areaDetection) return 0;
+		return this._areaDetection.pages.reduce((sum, page) =>
+			sum + page.areas.reduce((aSum, area) => aSum + area.sections.length, 0), 0);
 	}
 
 	#renderPageSelection() {
-		const totalPages = this._zoneDetection?.totalPages ?? this._extraction?.source.totalPages ?? 0;
+		const totalPages = this._areaDetection?.totalPages ?? this._extraction?.source.totalPages ?? 0;
 		if (totalPages === 0) return nothing;
 
 		return html`
@@ -789,17 +789,17 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 	}
 
 	#renderInfoBoxes() {
-		const hasZones = this._zoneDetection !== null;
+		const hasAreas = this._areaDetection !== null;
 		const hasExtraction = this._extraction !== null;
 
-		if (!hasZones && !hasExtraction) return nothing;
+		if (!hasAreas && !hasExtraction) return nothing;
 
-		const totalPages = this._zoneDetection?.totalPages ?? (hasExtraction ? this._extraction!.source.totalPages : 0);
-		const extractedPageCount = hasZones ? this._zoneDetection!.pages.length : totalPages;
+		const totalPages = this._areaDetection?.totalPages ?? (hasExtraction ? this._extraction!.source.totalPages : 0);
+		const extractedPageCount = hasAreas ? this._areaDetection!.pages.length : totalPages;
 		const isFiltered = extractedPageCount < totalPages;
 		const pagesLabel = isFiltered ? `${extractedPageCount} of ${totalPages}` : `${totalPages}`;
-		const areas = hasZones ? this._zoneDetection!.diagnostics.zonesDetected : 0;
-		const sections = hasZones ? this.#computeSectionCount() : 0;
+		const areas = hasAreas ? this._areaDetection!.diagnostics.areasDetected : 0;
+		const sections = hasAreas ? this.#computeSectionCount() : 0;
 		const fileName = hasExtraction ? this._extraction!.source.fileName : '';
 		const extractedDate = hasExtraction
 			? new Date(this._extraction!.source.extractedDate).toLocaleString()
@@ -838,9 +838,9 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 
 				<uui-box headline="Areas" class="info-box-item">
 					<div class="box-content">
-						<span class="box-stat">${this._zoneTemplate ? this._zoneTemplate.zones.length : areas}</span>
+						<span class="box-stat">${this._areaTemplate ? this._areaTemplate.areas.length : areas}</span>
 						<div class="box-buttons">
-							${this._zoneTemplate
+							${this._areaTemplate
 								? html`<uui-button look="primary" color="positive" label="Edit Areas" @click=${this.#onEditAreas}>
 									<uui-icon name="icon-edit"></uui-icon>
 									Edit Areas
@@ -856,7 +856,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				<uui-box headline="Sections" class="info-box-item">
 					<div class="box-content">
 						<span class="box-stat">${sections}</span>
-						${this._transformResult && this._zoneDetection ? html`
+						${this._transformResult && this._areaDetection ? html`
 							<div class="box-buttons">
 								<uui-button
 									look="primary"
@@ -891,7 +891,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				</uui-box>
 			</div>
 
-			${hasZones ? html`
+			${hasAreas ? html`
 				<div class="collapse-row">
 					<uui-button
 						look="outline"
@@ -934,9 +934,9 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 	}
 
 	#renderExtractionContent() {
-		const hasZones = this._zoneDetection !== null;
+		const hasAreas = this._areaDetection !== null;
 		return this._viewMode === 'elements'
-			? (hasZones ? this.#renderZoneDetection() : nothing)
+			? (hasAreas ? this.#renderAreaDetection() : nothing)
 			: this.#renderTransformed();
 	}
 
@@ -975,7 +975,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				<div slot="header-actions" class="transformed-header-badges">
 					<span class="pattern-badge ${section.pattern}">${patternLabels[section.pattern] ?? section.pattern}</span>
 					<span class="meta-badge">p${section.page}</span>
-					${section.zoneColor ? html`<span class="area-color-swatch" style="background: ${section.zoneColor};"></span>` : nothing}
+					${section.areaColor ? html`<span class="area-color-swatch" style="background: ${section.areaColor};"></span>` : nothing}
 					<span class="meta-badge">${section.childCount} item${section.childCount !== 1 ? 's' : ''}</span>
 					${section.heading ? this.#renderMappingBadges(headingKey) : nothing}
 				</div>
@@ -1041,7 +1041,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				</umb-body-layout>`;
 		}
 
-		const hasContent = this._zoneDetection !== null || this._extraction !== null;
+		const hasContent = this._areaDetection !== null || this._extraction !== null;
 
 		return html`
 			<umb-body-layout header-fit-height>
@@ -1258,14 +1258,14 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				font-size: 12px;
 			}
 
-			/* Zone areas (Level 2) */
-			.zone-area {
+			/* Detected areas (Level 2) */
+			.detected-area {
 				border-left: 4px solid var(--uui-color-border);
 				margin: var(--uui-size-space-4) 0;
 				margin-left: var(--uui-size-space-3);
 			}
 
-			.zone-area.area-excluded {
+			.detected-area.area-excluded {
 				opacity: 0.4;
 			}
 
@@ -1298,12 +1298,12 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				color: var(--uui-color-text);
 			}
 
-			/* Sections within areas (Level 3) */
-			.zone-section {
+			/* Sections within detected areas (Level 3) */
+			.area-section {
 				margin-left: var(--uui-size-space-3);
 			}
 
-			.zone-section + .zone-section {
+			.area-section + .area-section {
 				border-top: 1px solid var(--uui-color-border);
 			}
 
@@ -1352,7 +1352,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 			}
 
 			/* Excluded sections */
-			.zone-section.excluded {
+			.area-section.excluded {
 				opacity: 0.4;
 			}
 

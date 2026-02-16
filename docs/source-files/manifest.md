@@ -173,18 +173,18 @@ All are conditioned on `Umb.Condition.WorkspaceAlias` matching `UpDoc.WorkflowWo
 
 A sidebar modal for selecting destination fields when creating mappings from the Source tab.
 
-## Zone Editor Modal
+## Area Editor Modal
 
 ```typescript
 {
     type: 'modal',
-    alias: 'UpDoc.ZoneEditorModal',
-    name: 'Zone Editor Modal',
-    element: () => import('./pdf-zone-editor-modal.element.js'),
+    alias: 'UpDoc.AreaEditorModal',
+    name: 'Area Editor Modal',
+    element: () => import('./pdf-area-editor-modal.element.js'),
 }
 ```
 
-Full-screen modal for drawing and naming rectangular zones on a PDF. Uses PDF.js for rendering and canvas overlay for zone drawing. Zones define extraction areas — only content within defined zones is extracted.
+Full-screen modal for drawing and naming rectangular areas on a PDF. Uses PDF.js for rendering and canvas overlay for area drawing. Areas define extraction regions — only content within defined areas is extracted.
 
 ## Settings Sidebar, Tree, and Workspace
 

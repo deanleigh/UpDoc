@@ -1,4 +1,4 @@
-import type { DocumentTypeConfig, ExtractSectionsResponse, MapConfig, RichExtractionResult, SectionRuleSet, TransformResult, ZoneDetectionResult, ZoneTemplate } from './workflow.types.js';
+import type { DocumentTypeConfig, ExtractSectionsResponse, MapConfig, RichExtractionResult, SectionRuleSet, TransformResult, AreaDetectionResult, AreaTemplate } from './workflow.types.js';
 
 const configCache = new Map<string, DocumentTypeConfig>();
 
@@ -204,14 +204,14 @@ export async function extractRich(
 }
 
 /**
- * Fetches the zone detection result for a workflow, if it exists.
+ * Fetches the area detection result for a workflow, if it exists.
  */
-export async function fetchZoneDetection(
+export async function fetchAreaDetection(
 	workflowName: string,
 	token: string
-): Promise<ZoneDetectionResult | null> {
+): Promise<AreaDetectionResult | null> {
 	const response = await fetch(
-		`/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(workflowName)}/zone-detection`,
+		`/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(workflowName)}/area-detection`,
 		{
 			method: 'GET',
 			headers: {
@@ -226,16 +226,16 @@ export async function fetchZoneDetection(
 }
 
 /**
- * Triggers zone detection for a workflow from a media item (PDF).
- * The result is saved to zone-detection.json in the workflow folder.
+ * Triggers area detection for a workflow from a media item (PDF).
+ * The result is saved to area-detection.json in the workflow folder.
  */
-export async function triggerZoneDetection(
+export async function triggerAreaDetection(
 	workflowName: string,
 	mediaKey: string,
 	token: string
-): Promise<ZoneDetectionResult | null> {
+): Promise<AreaDetectionResult | null> {
 	const response = await fetch(
-		`/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(workflowName)}/zone-detection`,
+		`/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(workflowName)}/area-detection`,
 		{
 			method: 'POST',
 			headers: {
@@ -248,7 +248,7 @@ export async function triggerZoneDetection(
 
 	if (!response.ok) {
 		const error = await response.json();
-		console.error('Zone detection failed:', error);
+		console.error('Area detection failed:', error);
 		return null;
 	}
 
@@ -278,8 +278,8 @@ export async function fetchTransformResult(
 }
 
 /**
- * Triggers zone detection + transform for a workflow from a media item (PDF).
- * The result is saved to transform.json (and zone-detection.json) in the workflow folder.
+ * Triggers area detection + transform for a workflow from a media item (PDF).
+ * The result is saved to transform.json (and area-detection.json) in the workflow folder.
  */
 export async function triggerTransform(
 	workflowName: string,
@@ -308,7 +308,7 @@ export async function triggerTransform(
 }
 
 /**
- * Runs zone detection + transform on a media item without saving to disk.
+ * Runs area detection + transform on a media item without saving to disk.
  * Returns a TransformResult with include/exclude state from the stored transform.
  */
 export async function transformAdhoc(
@@ -438,14 +438,14 @@ export async function fetchSourceConfig(
 }
 
 /**
- * Fetches the zone template for a workflow, if it exists.
+ * Fetches the area template for a workflow, if it exists.
  */
-export async function fetchZoneTemplate(
+export async function fetchAreaTemplate(
 	workflowName: string,
 	token: string
-): Promise<ZoneTemplate | null> {
+): Promise<AreaTemplate | null> {
 	const response = await fetch(
-		`/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(workflowName)}/zone-template`,
+		`/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(workflowName)}/area-template`,
 		{
 			headers: {
 				Authorization: `Bearer ${token}`,
@@ -458,15 +458,15 @@ export async function fetchZoneTemplate(
 }
 
 /**
- * Saves a zone template for a workflow.
+ * Saves an area template for a workflow.
  */
-export async function saveZoneTemplate(
+export async function saveAreaTemplate(
 	workflowName: string,
-	template: ZoneTemplate,
+	template: AreaTemplate,
 	token: string
-): Promise<ZoneTemplate | null> {
+): Promise<AreaTemplate | null> {
 	const response = await fetch(
-		`/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(workflowName)}/zone-template`,
+		`/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(workflowName)}/area-template`,
 		{
 			method: 'PUT',
 			headers: {
@@ -479,7 +479,7 @@ export async function saveZoneTemplate(
 
 	if (!response.ok) {
 		const error = await response.json();
-		console.error('Save zone template failed:', error);
+		console.error('Save area template failed:', error);
 		return null;
 	}
 

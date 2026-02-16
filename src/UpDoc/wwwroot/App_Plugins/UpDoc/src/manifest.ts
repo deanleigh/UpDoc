@@ -90,9 +90,9 @@ export const manifests: Array<UmbExtensionManifest> = [
 	},
 	{
 		type: 'modal',
-		alias: 'UpDoc.ZoneEditorModal',
-		name: 'Zone Editor Modal',
-		element: () => import('./pdf-zone-editor-modal.element.js'),
+		alias: 'UpDoc.AreaEditorModal',
+		name: 'Area Editor Modal',
+		element: () => import('./pdf-area-editor-modal.element.js'),
 	},
 	{
 		type: 'modal',

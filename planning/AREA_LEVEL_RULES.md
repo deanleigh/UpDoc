@@ -16,7 +16,7 @@ The fix: apply rules at the **area level** to control how elements within each a
 
 ### Headings doing double duty
 
-Currently, when zone detection finds a heading (largest font in the area), it becomes the collapsible section header in the UI:
+Currently, when area detection finds a heading (largest font in the area), it becomes the collapsible section header in the UI:
 
 ```
 v  FEATURES                        7 texts  [toggle]
@@ -32,7 +32,7 @@ Because it's used as structure, it can't have a `HEADING` badge — it's not ren
 
 ### Invisible rules
 
-The zone detection algorithm silently decides "FEATURES is a heading because it has the largest font size in this area." This decision is invisible to the user. They see `12pt Clarendon #16549D UPPERCASE` but have to infer WHY it was classified as a heading.
+The area detection algorithm silently decides "FEATURES is a heading because it has the largest font size in this area." This decision is invisible to the user. They see `12pt Clarendon #16549D UPPERCASE` but have to infer WHY it was classified as a heading.
 
 In the Page Header area, the same algorithm creates false hierarchy — "The Arts Society of Kingston Presents" gets shoved into a "Content" group under an imaginary heading, when it's actually a standalone line.
 
@@ -129,7 +129,7 @@ Section rules  →  "Within a section, what role does each element play?"
 
 Both use the same condition vocabulary (font size, color, text patterns, etc.). Both are defined using the Outlook rules pattern. They just operate at different levels.
 
-### Edit Areas (ZONE_EDITOR.md)
+### Edit Areas (AREA_EDITOR.md)
 
 Currently, Edit Areas defines spatial boundaries and names. Area-level rules extend this: alongside "where is this area?" and "what's it called?", you also define "how should elements within it be structured?"
 
@@ -173,11 +173,11 @@ The current transform layer uses the hard-coded "largest font = heading" heurist
 2. **How does "whole area" differ from "no heading rule"?** In both cases there are no section boundaries. The distinction is in mapping: "no heading rule" means each element maps independently; "whole area" means everything concatenates into one field. This might be a mapping concern, not a structure concern — in which case the area only needs "has heading rule" or "no heading rule", and "whole vs individual" is decided at map time.
 
 3. **Storage location?** Area-level rules could live in:
-   - Zone detection config (alongside area boundaries) — natural fit
+   - Area detection config (alongside area boundaries) — natural fit
    - Source config (alongside section rules) — keeps all rules together
-   - Need to check what structure `zone-detection.json` currently has
+   - Need to check what structure `area-detection.json` currently has
 
-4. **Re-extraction behaviour?** When rules change for an area, does the Extracted view update immediately (client-side re-grouping) or require a server-side re-extract? Since zone detection is server-side, rule changes probably trigger a re-detect call.
+4. **Re-extraction behaviour?** When rules change for an area, does the Extracted view update immediately (client-side re-grouping) or require a server-side re-extract? Since area detection is server-side, rule changes probably trigger a re-detect call.
 
 ---
 
@@ -185,5 +185,5 @@ The current transform layer uses the hard-coded "largest font = heading" heurist
 
 - **SECTION_RULES_EDITOR.md** — Section rules (within-section roles). Operates one level below area rules.
 - **THREE_LAYER_PIPELINE.md** — Extract → Shape → Map. Area rules are part of the Shape layer.
-- **ZONE_EDITOR.md** — Edit Areas defines area boundaries. Area rules extend this.
+- **AREA_EDITOR.md** — Edit Areas defines area boundaries. Area rules extend this.
 - **DESTINATION_DRIVEN_MAPPING.md** — Bidirectional mapping. Area rules don't change mapping — they change what the mappable units are.

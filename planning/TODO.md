@@ -25,14 +25,14 @@ Install `gh` CLI (`winget install GitHub.cli`) and authenticate (`gh auth login`
 ### Node name uses page description instead of page title
 **Priority:** Medium | **Type:** Bug
 
-When creating a document via "Create from Source", the node name is set from the page description field rather than the page title. Observed during zone editor testing with Liverpool PDF.
+When creating a document via "Create from Source", the node name is set from the page description field rather than the page title. Observed during area editor testing with Liverpool PDF.
 
 ---
 
 ### Bullet list Markdown-to-HTML formatting
 **Priority:** Medium | **Type:** Bug
 
-Bullet list conversion from extracted content to Markdown to HTML appears incorrect in created documents. Observed during zone editor testing.
+Bullet list conversion from extracted content to Markdown to HTML appears incorrect in created documents. Observed during area editor testing.
 
 ---
 

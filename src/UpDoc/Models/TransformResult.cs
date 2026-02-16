@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 namespace UpDoc.Models;
 
 /// <summary>
-/// Result of transforming zone detection output into assembled Markdown sections.
+/// Result of transforming area detection output into assembled Markdown sections.
 /// Each detected section's children are assembled into a single Markdown string
 /// using the appropriate pattern (bullet list, paragraph, sub-headed content).
 /// </summary>
@@ -21,7 +21,7 @@ public class TransformedSection
 {
     /// <summary>
     /// Semantic ID derived from heading text: "features", "what-we-will-see".
-    /// For preamble sections (no heading): "preamble-p{page}-z{zoneIndex}".
+    /// For preamble sections (no heading): "preamble-p{page}-z{areaIndex}".
     /// </summary>
     public string Id { get; set; } = string.Empty;
 
@@ -41,7 +41,7 @@ public class TransformedSection
     public int Page { get; set; }
 
     /// <summary>Hex color of the area this section belongs to.</summary>
-    public string? ZoneColor { get; set; }
+    public string? AreaColor { get; set; }
 
     /// <summary>Number of children that were assembled.</summary>
     public int ChildCount { get; set; }

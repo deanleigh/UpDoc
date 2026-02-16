@@ -30,9 +30,9 @@ The extraction pipeline has **17+ hard-coded rules** baked into C#. These fall i
 | Column min gap | `PdfPagePropertiesService:885` | `8.0` pts | Column detection |
 | Margin exclusion | `PdfPagePropertiesService:881` | `5%` of page width | Column detection |
 | Max column boundaries | `PdfPagePropertiesService:923` | `3` | Column detection |
-| Zone min area | `PdfPagePropertiesService:489-492` | `2%` of page | Zone filtering |
-| Zone min dimensions | `PdfPagePropertiesService:495-496` | `80×40` pts | Zone filtering |
-| Zone max area | `PdfPagePropertiesService:499-500` | `90%` of page | Background filter |
+| Area min area | `PdfPagePropertiesService:489-492` | `2%` of page | Area filtering |
+| Area min dimensions | `PdfPagePropertiesService:495-496` | `80×40` pts | Area filtering |
+| Area max area | `PdfPagePropertiesService:499-500` | `90%` of page | Background filter |
 | Bullet character set | `ContentTransformService:19-22` | 12 Unicode chars | Bullet detection |
 | Bullet list threshold | `ContentTransformService:128` | `> 50%` bullets | Pattern classification |
 | Sub-heading detection | `ContentTransformService:155-162` | `≥ 2`, not majority | Pattern classification |
@@ -40,14 +40,14 @@ The extraction pipeline has **17+ hard-coded rules** baked into C#. These fall i
 
 ### Legacy methods (still in codebase, from old extraction path)
 
-These exist in `PdfPagePropertiesService.cs` from the pre-zone-detection era:
+These exist in `PdfPagePropertiesService.cs` from the pre-area-detection era:
 
 - `ExtractAsMarkdown()` (line ~1390) — old pipeline with hardcoded day/description/stop patterns
 - `ExtractSectionFromDocument()` (line ~1520) — old strategy-based extraction
 - `ExtractTitleAndDescription()` (line ~1794) — hardcoded title/description patterns
 - `DetectMainColumnStart()` (line ~1740) — hardcoded sidebar width assumption
 
-The current pipeline uses `DetectZones()` → `GroupIntoSections()` → `ContentTransformService.Transform()`. The legacy methods may still have callers (bridge code) but should be migrated to the new pipeline.
+The current pipeline uses `DetectAreas()` → `GroupIntoSections()` → `ContentTransformService.Transform()`. The legacy methods may still have callers (bridge code) but should be migrated to the new pipeline.
 
 ---
 
@@ -57,18 +57,18 @@ The current pipeline uses `DetectZones()` → `GroupIntoSections()` → `Content
 
 | Level | What it controls | How the user defines it | Storage |
 |-------|-----------------|------------------------|---------|
-| **Structure** (grouping) | Which elements belong to which section | Drag-and-drop per area | `ZoneDefinition.headingRule` in zone template |
+| **Structure** (grouping) | Which elements belong to which section | Drag-and-drop per area | `AreaDefinition.headingRule` in area template |
 | **Semantics** (roles) | What role each element plays within a section | Edit Sections modal | `source.json` sectionRules |
 
 These are independent. Structure answers "how are elements grouped?" Semantics answers "within a group, what does each element mean?"
 
 ### How it works
 
-1. **Zone detection runs** → produces raw elements per area using generic PDF rules
+1. **Area detection runs** → produces raw elements per area using generic PDF rules
 2. **Heading rules applied** → per-area heading rules group elements into sections
 3. **Transform runs** → applies pattern detection + assembly to produce Markdown
 4. **User sees result** in Extracted tab, corrects via drag-and-drop if needed
-5. **Corrections infer rules** → saved to zone template → re-detection reflects corrections
+5. **Corrections infer rules** → saved to area template → re-detection reflects corrections
 
 ### Heading rules replace the hard-coded 1.15 threshold
 
@@ -121,8 +121,8 @@ Following Umbraco's Block Grid Editor sort mode pattern:
    - System examines what the user chose as headings
    - Reads their metadata (font size, font name, color, uppercase)
    - Infers a heading rule from the common pattern
-   - Saves heading rule to `ZoneDefinition.headingRule` in zone template
-   - Re-runs zone detection with the new rule
+   - Saves heading rule to `AreaDefinition.headingRule` in area template
+   - Re-runs area detection with the new rule
    - Extracted tab updates to show corrected grouping
    - Transformed tab reflects the changes
 
@@ -191,12 +191,12 @@ This correctly identifies the Day headings that the hard-coded 1.15 threshold mi
 
 ## Storage
 
-### Zone template gets heading rules
+### Area template gets heading rules
 
-`ZoneDefinition` already has an unused `headingFont` field. Replace it with a richer `headingRule` property:
+`AreaDefinition` already has an unused `headingFont` field. Replace it with a richer `headingRule` property:
 
 ```csharp
-// ZoneTemplate.cs — ZoneDefinition
+// AreaTemplate.cs — AreaDefinition
 [JsonPropertyName("headingRule")]
 public HeadingRule? HeadingRule { get; set; }
 
@@ -241,10 +241,10 @@ The `RuleCondition` class already exists in `SectionRules.cs` and can be reused.
       "columnMinGap": 8.0,
       "marginExclusionPercent": 0.05,
       "maxColumnBoundaries": 3,
-      "zoneMinAreaPercent": 0.02,
-      "zoneMinWidth": 80,
-      "zoneMinHeight": 40,
-      "zoneMaxAreaPercent": 0.9,
+      "areaMinAreaPercent": 0.02,
+      "areaMinWidth": 80,
+      "areaMinHeight": 40,
+      "areaMaxAreaPercent": 0.9,
       "autoHeadingThreshold": 1.15
     },
     "transform": {
@@ -268,13 +268,13 @@ All values have sensible defaults (matching current hard-coded values). Users ov
 
 Current signature:
 ```csharp
-private static List<DetectedSection> GroupIntoSections(List<ZoneElement> elements)
+private static List<DetectedSection> GroupIntoSections(List<AreaElement> elements)
 ```
 
 New signature:
 ```csharp
 private static List<DetectedSection> GroupIntoSections(
-    List<ZoneElement> elements,
+    List<AreaElement> elements,
     HeadingRule? headingRule = null)
 ```
 
@@ -285,17 +285,17 @@ Logic:
 
 The auto-detect threshold (`1.15`) moves to source.json globals (`autoHeadingThreshold`), passed as a parameter.
 
-### Phase 2: Wire zone template heading rules into detection
+### Phase 2: Wire area template heading rules into detection
 
-In `DetectZones()`, after extracting elements per zone, pass the zone's heading rule to `GroupIntoSections`:
+In `DetectAreas()`, after extracting elements per area, pass the area's heading rule to `GroupIntoSections`:
 
 ```csharp
-// Find matching zone definition from template (if any)
-var zoneDef = zoneTemplate?.Zones.FirstOrDefault(z => /* match by bounds or name */);
-var headingRule = zoneDef?.HeadingRule;
+// Find matching area definition from template (if any)
+var areaDef = areaTemplate?.Areas.FirstOrDefault(a => /* match by bounds or name */);
+var headingRule = areaDef?.HeadingRule;
 
 // Group with heading rule
-zone.Sections = GroupIntoSections(zonedElements[i], headingRule);
+area.Sections = GroupIntoSections(areaElements[i], headingRule);
 ```
 
 ### Phase 3: Remove legacy hardcoded methods
@@ -305,11 +305,11 @@ Once the new pipeline handles all cases:
 - Delete `ExtractSectionFromDocument()`
 - Delete `ExtractTitleAndDescription()`
 - Delete `DetectMainColumnStart()`
-- Update any callers (bridge code) to use the zone detection pipeline
+- Update any callers (bridge code) to use the area detection pipeline
 
 ### Phase 4: Move generic defaults to source.json
 
-- Read `SourceGlobals.Pdf` config in `DetectZones()` and pass values to helper methods
+- Read `SourceGlobals.Pdf` config in `DetectAreas()` and pass values to helper methods
 - Add `PdfDefaults` model to `SourceConfig.cs`
 - All current magic numbers become `config?.Pdf?.YTolerance ?? 5.0` patterns
 - Existing behaviour preserved — only the source of values changes
@@ -318,14 +318,14 @@ Once the new pipeline handles all cases:
 
 ## Frontend Changes
 
-### Phase 5: Heading rule on zone template (Define Areas)
+### Phase 5: Heading rule on area template (Define Areas)
 
-Extend `ZoneDefinition` TypeScript type:
+Extend `AreaDefinition` TypeScript type:
 
 ```typescript
-interface ZoneDefinition {
+interface AreaDefinition {
   name: string;
-  bounds: ZoneBounds;
+  bounds: AreaBounds;
   color: string;
   headingRule?: HeadingRule;  // replaces headingFont
   expectedSections: string[];
@@ -338,7 +338,7 @@ interface HeadingRule {
 }
 ```
 
-Remove `headingFont` from all TypeScript types and the zone editor modal.
+Remove `headingFont` from all TypeScript types and the area editor modal.
 
 ### Phase 6: Grouping modal
 
@@ -352,7 +352,7 @@ interface SectionGroupingModalData {
   workflowName: string;
   areaName: string;
   areaIndex: number;
-  elements: ZoneElement[];           // all elements in this area
+  elements: AreaElement[];           // all elements in this area
   currentSections: DetectedSection[];  // current grouping
   currentHeadingRule?: HeadingRule;    // current rule (if any)
 }
@@ -390,8 +390,8 @@ v  Tour details                                    33 elements   [Group Elements
 Clicking opens the grouping modal for that specific area.
 
 After the modal saves:
-1. Heading rule saved to zone template via PUT `/updoc/workflows/{name}/zone-template`
-2. Zone detection re-runs via POST `/updoc/workflows/{name}/zone-detection`
+1. Heading rule saved to area template via PUT `/updoc/workflows/{name}/area-template`
+2. Area detection re-runs via POST `/updoc/workflows/{name}/area-detection`
 3. Transform re-runs via POST `/updoc/workflows/{name}/transform`
 4. Source tab refreshes with updated data
 
@@ -420,7 +420,7 @@ Define Areas stays focused on spatial boundaries. Heading rules are set via Grou
 
 ### Transformed tab
 
-The Transformed tab shows the OUTPUT after all rules are applied. It benefits from better grouping but doesn't need changes — it already consumes the zone detection result.
+The Transformed tab shows the OUTPUT after all rules are applied. It benefits from better grouping but doesn't need changes — it already consumes the area detection result.
 
 ---
 
@@ -451,7 +451,7 @@ The Transformed tab shows the OUTPUT after all rules are applied. It benefits fr
 | Phase | What | Scope | Dependencies |
 |-------|------|-------|-------------|
 | **1** | Backend: `GroupIntoSections` accepts `HeadingRule` | C# only | None |
-| **2** | Backend: Wire zone template rules into detection | C# only | Phase 1 |
+| **2** | Backend: Wire area template rules into detection | C# only | Phase 1 |
 | **3** | Frontend: Replace `headingFont` with `headingRule` type | TS types | Phase 2 |
 | **4** | Frontend: "Group Elements" button on Extracted tab | Source view | Phase 3 |
 | **5** | Frontend: Grouping modal (drag-and-drop) | New modal | Phase 4 |
@@ -484,17 +484,17 @@ The Transformed tab shows the OUTPUT after all rules are applied. It benefits fr
 - **Areas are still spatial** — drawn on the PDF page in Define Areas
 - **Section rules still work** — Edit Sections for within-section semantic roles
 - **Map tab wiring** — sections are wired to destination fields, same as today
-- **Transform service** — consumes zone detection output, benefits from better grouping
+- **Transform service** — consumes area detection output, benefits from better grouping
 - **Bridge code** — reads transform output for document creation, unaffected
-- **Zone detection output format** — same JSON structure (pages → zones → sections → elements)
+- **Area detection output format** — same JSON structure (pages → areas → sections → elements)
 
 ---
 
 ## Verification
 
-1. **Phase 1-2:** Run zone detection on Group Tour PDF. With no explicit heading rules, behaviour matches current (auto-detect with 1.15 threshold). With `mode: "none"` on Page Header zone, all 3 elements become one flat section (no false headings).
+1. **Phase 1-2:** Run area detection on Group Tour PDF. With no explicit heading rules, behaviour matches current (auto-detect with 1.15 threshold). With `mode: "none"` on Page Header area, all 3 elements become one flat section (no false headings).
 
-2. **Phase 5-6:** Open Group Elements modal for Tour Details area. Drag FEATURES, WHAT WE WILL SEE, ACCOMMODATION, EXTRAS into heading positions. Save. Verify heading rule is inferred and saved. Verify zone detection re-runs and produces 4 correct sections.
+2. **Phase 5-6:** Open Group Elements modal for Tour Details area. Drag FEATURES, WHAT WE WILL SEE, ACCOMMODATION, EXTRAS into heading positions. Save. Verify heading rule is inferred and saved. Verify area detection re-runs and produces 4 correct sections.
 
 3. **Phase 5-6:** Open Group Elements modal for Itinerary area. Mark Day 1-5 as headings. Save. Verify the system infers `fontNameContains: "Medium"` (not font size, since all are 10.5pt). Verify 5 sections produced.
 

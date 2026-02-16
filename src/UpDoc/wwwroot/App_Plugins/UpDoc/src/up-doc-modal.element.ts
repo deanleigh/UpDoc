@@ -148,7 +148,7 @@ export class UpDocModalElement extends UmbModalBaseElement<
 				return;
 			}
 
-			// Run zone-aware transform — produces section IDs matching map.json
+			// Run area-aware transform — produces section IDs matching map.json
 			const transformResult = await transformAdhoc(workflowName, mediaUnique, token);
 
 			if (!transformResult?.sections?.length) {

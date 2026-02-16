@@ -298,21 +298,21 @@ export interface VisualGroup {
 }
 
 // ============================================================================
-// Zone Detection Types (zone-detection.json — area-based hierarchical extraction)
+// Area Detection Types (area-detection.json — area-based hierarchical extraction)
 // ============================================================================
 
-export interface ZoneDetectionResult {
+export interface AreaDetectionResult {
 	totalPages: number;
-	pages: PageZones[];
-	diagnostics: ZoneDiagnosticInfo;
+	pages: PageAreas[];
+	diagnostics: AreaDiagnosticInfo;
 }
 
-export interface PageZones {
+export interface PageAreas {
 	page: number;
-	zones: DetectedZone[];
+	areas: DetectedArea[];
 }
 
-export interface DetectedZone {
+export interface DetectedArea {
 	name?: string;
 	color: string;
 	boundingBox: { left: number; top: number; width: number; height: number };
@@ -322,11 +322,11 @@ export interface DetectedZone {
 }
 
 export interface DetectedSection {
-	heading: ZoneElement | null;
-	children: ZoneElement[];
+	heading: AreaElement | null;
+	children: AreaElement[];
 }
 
-export interface ZoneElement {
+export interface AreaElement {
 	id: string;
 	text: string;
 	fontSize: number;
@@ -335,11 +335,11 @@ export interface ZoneElement {
 	boundingBox: { left: number; top: number; width: number; height: number };
 }
 
-export interface ZoneDiagnosticInfo {
+export interface AreaDiagnosticInfo {
 	totalPathsFound: number;
 	pathsAfterFiltering: number;
-	zonesDetected: number;
-	elementsZoned: number;
+	areasDetected: number;
+	elementsInAreas: number;
 }
 
 // ============================================================================
@@ -359,7 +359,7 @@ export interface TransformedSection {
 	content: string;
 	pattern: 'bulletList' | 'paragraph' | 'subHeaded' | 'preamble' | 'mixed';
 	page: number;
-	zoneColor: string | null;
+	areaColor: string | null;
 	childCount: number;
 	included: boolean;
 }
@@ -373,30 +373,30 @@ export interface TransformDiagnostics {
 }
 
 // ============================================================================
-// Zone Template Types (zone-template.json — user-defined extraction zones)
+// Area Template Types (area-template.json — user-defined extraction areas)
 // ============================================================================
 
-export interface ZoneTemplate {
+export interface AreaTemplate {
 	templateName: string;
 	sourceFile: string;
 	pageSize: { width: number; height: number };
 	createdAt: string;
-	zones: ZoneDefinition[];
+	areas: AreaDefinition[];
 }
 
-export interface ZoneDefinition {
+export interface AreaDefinition {
 	name: string;
 	property: string;
 	page: number;
 	type: string;
-	bounds: ZoneBounds;
+	bounds: AreaBounds;
 	color: string;
 	headingFont: string;
 	expectedSections: string[];
 	notes: string;
 }
 
-export interface ZoneBounds {
+export interface AreaBounds {
 	x: number;
 	y: number;
 	width: number;

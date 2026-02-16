@@ -115,8 +115,8 @@ This component work naturally leads into the pipeline refactor (Section Rules Ed
 
 1. PDF chosen → **full extraction** runs (all pages, all elements, all metadata)
 2. Page picker shows thumbnails → user selects pages
-3. Zone detection **consumes the existing extraction** (filtered to selected pages) — no re-extraction
-4. Transform consumes zone detection → sections assembled
+3. Area detection **consumes the existing extraction** (filtered to selected pages) — no re-extraction
+4. Transform consumes area detection → sections assembled
 5. Section rules editor works on those sections
 
 The `up-doc-pdf-thumbnail` component is UI-only — it doesn't affect the data pipeline. But the page picker's "save and re-filter" behaviour connects to the pipeline refactor.

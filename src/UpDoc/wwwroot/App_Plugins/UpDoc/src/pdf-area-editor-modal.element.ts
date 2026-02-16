@@ -1,5 +1,5 @@
-import type { ZoneEditorModalData, ZoneEditorModalValue } from './pdf-zone-editor-modal.token.js';
-import type { ZoneDefinition, ZoneTemplate } from './workflow.types.js';
+import type { AreaEditorModalData, AreaEditorModalValue } from './pdf-area-editor-modal.token.js';
+import type { AreaDefinition, AreaTemplate } from './workflow.types.js';
 import { fetchPdfBlob } from './workflow.service.js';
 import { html, customElement, css, state, nothing } from '@umbraco-cms/backoffice/external/lit';
 import { UmbTextStyles } from '@umbraco-cms/backoffice/style';
@@ -10,13 +10,13 @@ import * as pdfjsLib from 'pdfjs-dist';
 // Configure PDF.js worker
 pdfjsLib.GlobalWorkerOptions.workerSrc = '/App_Plugins/UpDoc/dist/pdf.worker.min.mjs';
 
-// Zone colors — cycling palette
-const ZONE_COLORS = [
+// Area colors — cycling palette
+const AREA_COLORS = [
 	'#e84855', '#f9dc5c', '#3185fc', '#5bba6f', '#e56399',
 	'#8338ec', '#ff6d00', '#06d6a0', '#118ab2', '#ef476f',
 ];
 
-interface EditorZone {
+interface EditorArea {
 	id: string;
 	name: string;
 	property: string;
@@ -34,24 +34,24 @@ interface EditorZone {
 
 type EditorMode = 'draw' | 'select';
 
-@customElement('pdf-zone-editor-modal')
-export class PdfZoneEditorModalElement extends UmbModalBaseElement<
-	ZoneEditorModalData,
-	ZoneEditorModalValue
+@customElement('pdf-area-editor-modal')
+export class PdfAreaEditorModalElement extends UmbModalBaseElement<
+	AreaEditorModalData,
+	AreaEditorModalValue
 > {
 	// PDF state
 	@state() private _pdfDoc: pdfjsLib.PDFDocumentProxy | null = null;
 	@state() private _currentPage = 1;
 	@state() private _totalPages = 0;
-	/** Pages available for zone editing — filtered by prior page selection. */
+	/** Pages available for area editing — filtered by prior page selection. */
 	private _availablePages: number[] = [];
 	@state() private _scale = 1.0;
 	@state() private _loading = true;
 	@state() private _error = '';
 
-	// Zone state
-	@state() private _zones: EditorZone[] = [];
-	@state() private _selectedZoneId: string | null = null;
+	// Area state
+	@state() private _areas: EditorArea[] = [];
+	@state() private _selectedAreaId: string | null = null;
 	@state() private _mode: EditorMode = 'draw';
 	@state() private _pageWidth = 0;
 	@state() private _pageHeight = 0;
@@ -66,13 +66,13 @@ export class PdfZoneEditorModalElement extends UmbModalBaseElement<
 	private _isResizing = false;
 	private _resizeHandle = '';
 	private _dragStart = { x: 0, y: 0 };
-	private _dragZoneStart = { x: 0, y: 0, w: 0, h: 0 };
+	private _dragAreaStart = { x: 0, y: 0, w: 0, h: 0 };
 
 	// Canvas refs
 	private _canvas: HTMLCanvasElement | null = null;
 	private _overlay: HTMLCanvasElement | null = null;
 
-	// Next zone ID counter
+	// Next area ID counter
 	private _nextId = 1;
 
 	override async firstUpdated() {
@@ -115,24 +115,24 @@ export class PdfZoneEditorModalElement extends UmbModalBaseElement<
 			}
 			this._currentPage = this._availablePages[0] ?? 1;
 
-			// Load existing template zones if provided
-			if (this.data?.existingTemplate?.zones?.length) {
-				this._zones = this.data.existingTemplate.zones.map((z, i) => ({
-					id: `zone-${i + 1}`,
-					name: z.name,
-					property: z.property,
-					page: z.page,
-					type: z.type,
-					x: z.bounds.x,
-					y: z.bounds.y,
-					w: z.bounds.width,
-					h: z.bounds.height,
-					color: z.color || ZONE_COLORS[i % ZONE_COLORS.length],
-					headingFont: z.headingFont,
-					expectedSections: z.expectedSections,
-					notes: z.notes,
+			// Load existing template areas if provided
+			if (this.data?.existingTemplate?.areas?.length) {
+				this._areas = this.data.existingTemplate.areas.map((a, i) => ({
+					id: `area-${i + 1}`,
+					name: a.name,
+					property: a.property,
+					page: a.page,
+					type: a.type,
+					x: a.bounds.x,
+					y: a.bounds.y,
+					w: a.bounds.width,
+					h: a.bounds.height,
+					color: a.color || AREA_COLORS[i % AREA_COLORS.length],
+					headingFont: a.headingFont,
+					expectedSections: a.expectedSections,
+					notes: a.notes,
 				}));
-				this._nextId = this._zones.length + 1;
+				this._nextId = this._areas.length + 1;
 			}
 
 			this._loading = false;
@@ -188,7 +188,7 @@ export class PdfZoneEditorModalElement extends UmbModalBaseElement<
 	}
 
 	// =========================================================================
-	// Overlay drawing — zones rendered as colored rectangles
+	// Overlay drawing — areas rendered as colored rectangles
 	// =========================================================================
 
 	#drawOverlay() {
@@ -196,31 +196,31 @@ export class PdfZoneEditorModalElement extends UmbModalBaseElement<
 		const ctx = this._overlay.getContext('2d')!;
 		ctx.clearRect(0, 0, this._overlay.width, this._overlay.height);
 
-		// Draw existing zones for current page
-		for (const zone of this._zones) {
-			if (zone.page !== this._currentPage) continue;
+		// Draw existing areas for current page
+		for (const area of this._areas) {
+			if (area.page !== this._currentPage) continue;
 
-			const topLeft = this.#pdfToCanvas(zone.x, zone.y + zone.h);
-			const bottomRight = this.#pdfToCanvas(zone.x + zone.w, zone.y);
+			const topLeft = this.#pdfToCanvas(area.x, area.y + area.h);
+			const bottomRight = this.#pdfToCanvas(area.x + area.w, area.y);
 			const w = bottomRight.cx - topLeft.cx;
 			const h = bottomRight.cy - topLeft.cy;
 
 			// Fill
-			ctx.fillStyle = zone.color + '30'; // 30 = ~19% opacity
+			ctx.fillStyle = area.color + '30'; // 30 = ~19% opacity
 			ctx.fillRect(topLeft.cx, topLeft.cy, w, h);
 
 			// Border
-			ctx.strokeStyle = zone.color;
-			ctx.lineWidth = zone.id === this._selectedZoneId ? 3 : 2;
+			ctx.strokeStyle = area.color;
+			ctx.lineWidth = area.id === this._selectedAreaId ? 3 : 2;
 			ctx.strokeRect(topLeft.cx, topLeft.cy, w, h);
 
 			// Label
-			ctx.fillStyle = zone.color;
+			ctx.fillStyle = area.color;
 			ctx.font = 'bold 12px sans-serif';
-			ctx.fillText(zone.name || 'Unnamed', topLeft.cx + 4, topLeft.cy + 14);
+			ctx.fillText(area.name || 'Unnamed', topLeft.cx + 4, topLeft.cy + 14);
 
-			// Resize handles for selected zone
-			if (zone.id === this._selectedZoneId) {
+			// Resize handles for selected area
+			if (area.id === this._selectedAreaId) {
 				const handleSize = 8;
 				const handles = [
 					{ x: topLeft.cx, y: topLeft.cy }, // top-left
@@ -228,7 +228,7 @@ export class PdfZoneEditorModalElement extends UmbModalBaseElement<
 					{ x: topLeft.cx, y: topLeft.cy + h }, // bottom-left
 					{ x: topLeft.cx + w, y: topLeft.cy + h }, // bottom-right
 				];
-				ctx.fillStyle = zone.color;
+				ctx.fillStyle = area.color;
 				for (const h of handles) {
 					ctx.fillRect(h.x - handleSize / 2, h.y - handleSize / 2, handleSize, handleSize);
 				}
@@ -242,7 +242,7 @@ export class PdfZoneEditorModalElement extends UmbModalBaseElement<
 			const w = Math.abs(this._drawCurrent.x - this._drawStart.x);
 			const h = Math.abs(this._drawCurrent.y - this._drawStart.y);
 
-			ctx.strokeStyle = ZONE_COLORS[this._zones.length % ZONE_COLORS.length];
+			ctx.strokeStyle = AREA_COLORS[this._areas.length % AREA_COLORS.length];
 			ctx.lineWidth = 2;
 			ctx.setLineDash([5, 5]);
 			ctx.strokeRect(x, y, w, h);
@@ -260,21 +260,21 @@ export class PdfZoneEditorModalElement extends UmbModalBaseElement<
 		return { x: e.clientX - rect.left, y: e.clientY - rect.top };
 	}
 
-	#findZoneAtPos(cx: number, cy: number): EditorZone | null {
-		for (const zone of this._zones) {
-			if (zone.page !== this._currentPage) continue;
-			const topLeft = this.#pdfToCanvas(zone.x, zone.y + zone.h);
-			const bottomRight = this.#pdfToCanvas(zone.x + zone.w, zone.y);
+	#findAreaAtPos(cx: number, cy: number): EditorArea | null {
+		for (const area of this._areas) {
+			if (area.page !== this._currentPage) continue;
+			const topLeft = this.#pdfToCanvas(area.x, area.y + area.h);
+			const bottomRight = this.#pdfToCanvas(area.x + area.w, area.y);
 			if (cx >= topLeft.cx && cx <= bottomRight.cx && cy >= topLeft.cy && cy <= bottomRight.cy) {
-				return zone;
+				return area;
 			}
 		}
 		return null;
 	}
 
-	#findResizeHandle(zone: EditorZone, cx: number, cy: number): string {
-		const topLeft = this.#pdfToCanvas(zone.x, zone.y + zone.h);
-		const bottomRight = this.#pdfToCanvas(zone.x + zone.w, zone.y);
+	#findResizeHandle(area: EditorArea, cx: number, cy: number): string {
+		const topLeft = this.#pdfToCanvas(area.x, area.y + area.h);
+		const bottomRight = this.#pdfToCanvas(area.x + area.w, area.y);
 		const threshold = 10;
 
 		const nearLeft = Math.abs(cx - topLeft.cx) < threshold;
@@ -300,25 +300,25 @@ export class PdfZoneEditorModalElement extends UmbModalBaseElement<
 		}
 
 		// Select mode
-		const zone = this.#findZoneAtPos(pos.x, pos.y);
-		if (zone) {
-			this._selectedZoneId = zone.id;
+		const area = this.#findAreaAtPos(pos.x, pos.y);
+		if (area) {
+			this._selectedAreaId = area.id;
 			this.#drawOverlay();
 
 			// Check for resize handle
-			const handle = this.#findResizeHandle(zone, pos.x, pos.y);
+			const handle = this.#findResizeHandle(area, pos.x, pos.y);
 			if (handle) {
 				this._isResizing = true;
 				this._resizeHandle = handle;
 				this._dragStart = pos;
-				this._dragZoneStart = { x: zone.x, y: zone.y, w: zone.w, h: zone.h };
+				this._dragAreaStart = { x: area.x, y: area.y, w: area.w, h: area.h };
 			} else {
 				this._isDragging = true;
 				this._dragStart = pos;
-				this._dragZoneStart = { x: zone.x, y: zone.y, w: zone.w, h: zone.h };
+				this._dragAreaStart = { x: area.x, y: area.y, w: area.w, h: area.h };
 			}
 		} else {
-			this._selectedZoneId = null;
+			this._selectedAreaId = null;
 			this.#drawOverlay();
 		}
 	}
@@ -332,60 +332,60 @@ export class PdfZoneEditorModalElement extends UmbModalBaseElement<
 			return;
 		}
 
-		if (this._isDragging && this._selectedZoneId) {
-			const zone = this._zones.find(z => z.id === this._selectedZoneId);
-			if (!zone) return;
+		if (this._isDragging && this._selectedAreaId) {
+			const area = this._areas.find(a => a.id === this._selectedAreaId);
+			if (!area) return;
 
 			const dx = (pos.x - this._dragStart.x) / this._scale;
 			const dy = -(pos.y - this._dragStart.y) / this._scale; // invert Y
 
-			zone.x = this._dragZoneStart.x + dx;
-			zone.y = this._dragZoneStart.y + dy;
-			this._zones = [...this._zones]; // trigger reactive update
+			area.x = this._dragAreaStart.x + dx;
+			area.y = this._dragAreaStart.y + dy;
+			this._areas = [...this._areas]; // trigger reactive update
 			this.#drawOverlay();
 			return;
 		}
 
-		if (this._isResizing && this._selectedZoneId) {
-			const zone = this._zones.find(z => z.id === this._selectedZoneId);
-			if (!zone) return;
+		if (this._isResizing && this._selectedAreaId) {
+			const area = this._areas.find(a => a.id === this._selectedAreaId);
+			if (!area) return;
 
 			const dx = (pos.x - this._dragStart.x) / this._scale;
 			const dy = -(pos.y - this._dragStart.y) / this._scale;
-			const { x, y, w, h } = this._dragZoneStart;
+			const { x, y, w, h } = this._dragAreaStart;
 
 			switch (this._resizeHandle) {
 				case 'br':
-					zone.w = Math.max(20, w + dx);
-					zone.y = y + dy;
-					zone.h = Math.max(20, h - dy);
+					area.w = Math.max(20, w + dx);
+					area.y = y + dy;
+					area.h = Math.max(20, h - dy);
 					break;
 				case 'bl':
-					zone.x = x + dx;
-					zone.w = Math.max(20, w - dx);
-					zone.y = y + dy;
-					zone.h = Math.max(20, h - dy);
+					area.x = x + dx;
+					area.w = Math.max(20, w - dx);
+					area.y = y + dy;
+					area.h = Math.max(20, h - dy);
 					break;
 				case 'tr':
-					zone.w = Math.max(20, w + dx);
-					zone.h = Math.max(20, h + dy);
+					area.w = Math.max(20, w + dx);
+					area.h = Math.max(20, h + dy);
 					break;
 				case 'tl':
-					zone.x = x + dx;
-					zone.w = Math.max(20, w - dx);
-					zone.h = Math.max(20, h + dy);
+					area.x = x + dx;
+					area.w = Math.max(20, w - dx);
+					area.h = Math.max(20, h + dy);
 					break;
 			}
-			this._zones = [...this._zones];
+			this._areas = [...this._areas];
 			this.#drawOverlay();
 			return;
 		}
 
 		// Update cursor
 		if (this._mode === 'select' && this._overlay) {
-			const zone = this.#findZoneAtPos(pos.x, pos.y);
-			if (zone && this._selectedZoneId === zone.id) {
-				const handle = this.#findResizeHandle(zone, pos.x, pos.y);
+			const area = this.#findAreaAtPos(pos.x, pos.y);
+			if (area && this._selectedAreaId === area.id) {
+				const handle = this.#findResizeHandle(area, pos.x, pos.y);
 				if (handle === 'tl' || handle === 'br') {
 					this._overlay.style.cursor = 'nwse-resize';
 				} else if (handle === 'tr' || handle === 'bl') {
@@ -393,7 +393,7 @@ export class PdfZoneEditorModalElement extends UmbModalBaseElement<
 				} else {
 					this._overlay.style.cursor = 'move';
 				}
-			} else if (zone) {
+			} else if (area) {
 				this._overlay.style.cursor = 'pointer';
 			} else {
 				this._overlay.style.cursor = 'default';
@@ -420,9 +420,9 @@ export class PdfZoneEditorModalElement extends UmbModalBaseElement<
 					Math.max(this._drawStart.y, pos.y)
 				);
 
-				const newZone: EditorZone = {
-					id: `zone-${this._nextId++}`,
-					name: `Area ${this._zones.filter(z => z.page === this._currentPage).length + 1}`,
+				const newArea: EditorArea = {
+					id: `area-${this._nextId++}`,
+					name: `Area ${this._areas.filter(a => a.page === this._currentPage).length + 1}`,
 					property: '',
 					page: this._currentPage,
 					type: '',
@@ -430,14 +430,14 @@ export class PdfZoneEditorModalElement extends UmbModalBaseElement<
 					y: bottomRight.py,
 					w: bottomRight.px - topLeft.px,
 					h: topLeft.py - bottomRight.py,
-					color: ZONE_COLORS[(this._zones.length) % ZONE_COLORS.length],
+					color: AREA_COLORS[(this._areas.length) % AREA_COLORS.length],
 					headingFont: '',
 					expectedSections: [],
 					notes: '',
 				};
 
-				this._zones = [...this._zones, newZone];
-				this._selectedZoneId = newZone.id;
+				this._areas = [...this._areas, newArea];
+				this._selectedAreaId = newArea.id;
 				this._mode = 'select';
 			}
 			this.#drawOverlay();
@@ -455,7 +455,7 @@ export class PdfZoneEditorModalElement extends UmbModalBaseElement<
 	async #goToPage(page: number) {
 		if (!this._availablePages.includes(page)) return;
 		this._currentPage = page;
-		this._selectedZoneId = null;
+		this._selectedAreaId = null;
 		await this.updateComplete;
 		await this.#renderPage();
 	}
@@ -472,34 +472,34 @@ export class PdfZoneEditorModalElement extends UmbModalBaseElement<
 	}
 
 	// =========================================================================
-	// Zone management
+	// Area management
 	// =========================================================================
 
-	#selectZone(id: string) {
-		this._selectedZoneId = id;
+	#selectArea(id: string) {
+		this._selectedAreaId = id;
 		this._mode = 'select';
-		// Navigate to the zone's page if different
-		const zone = this._zones.find(z => z.id === id);
-		if (zone && zone.page !== this._currentPage) {
-			this.#goToPage(zone.page);
+		// Navigate to the area's page if different
+		const area = this._areas.find(a => a.id === id);
+		if (area && area.page !== this._currentPage) {
+			this.#goToPage(area.page);
 		} else {
 			this.#drawOverlay();
 		}
 	}
 
-	#deleteZone(id: string) {
-		this._zones = this._zones.filter(z => z.id !== id);
-		if (this._selectedZoneId === id) {
-			this._selectedZoneId = null;
+	#deleteArea(id: string) {
+		this._areas = this._areas.filter(a => a.id !== id);
+		if (this._selectedAreaId === id) {
+			this._selectedAreaId = null;
 		}
 		this.#drawOverlay();
 	}
 
-	#onZoneNameChange(id: string, name: string) {
-		const zone = this._zones.find(z => z.id === id);
-		if (zone) {
-			zone.name = name;
-			this._zones = [...this._zones];
+	#onAreaNameChange(id: string, name: string) {
+		const area = this._areas.find(a => a.id === id);
+		if (area) {
+			area.name = name;
+			this._areas = [...this._areas];
 			this.#drawOverlay();
 		}
 	}
@@ -509,29 +509,29 @@ export class PdfZoneEditorModalElement extends UmbModalBaseElement<
 	// =========================================================================
 
 	#onSave() {
-		const template: ZoneTemplate = {
-			templateName: this.data?.existingTemplate?.templateName || this.data?.workflowName || 'Zone Template',
+		const template: AreaTemplate = {
+			templateName: this.data?.existingTemplate?.templateName || this.data?.workflowName || 'Area Template',
 			sourceFile: this.data?.existingTemplate?.sourceFile || '',
 			pageSize: {
 				width: this._pageWidth / this._scale,
 				height: this._pageHeight / this._scale,
 			},
 			createdAt: new Date().toISOString(),
-			zones: this._zones.map(z => ({
-				name: z.name,
-				property: z.property,
-				page: z.page,
-				type: z.type,
+			areas: this._areas.map(a => ({
+				name: a.name,
+				property: a.property,
+				page: a.page,
+				type: a.type,
 				bounds: {
-					x: Math.round(z.x * 10) / 10,
-					y: Math.round(z.y * 10) / 10,
-					width: Math.round(z.w * 10) / 10,
-					height: Math.round(z.h * 10) / 10,
+					x: Math.round(a.x * 10) / 10,
+					y: Math.round(a.y * 10) / 10,
+					width: Math.round(a.w * 10) / 10,
+					height: Math.round(a.h * 10) / 10,
 				},
-				color: z.color,
-				headingFont: z.headingFont,
-				expectedSections: z.expectedSections,
-				notes: z.notes,
+				color: a.color,
+				headingFont: a.headingFont,
+				expectedSections: a.expectedSections,
+				notes: a.notes,
 			})),
 		};
 
@@ -547,12 +547,12 @@ export class PdfZoneEditorModalElement extends UmbModalBaseElement<
 	// Render
 	// =========================================================================
 
-	get #selectedZone(): EditorZone | null {
-		return this._zones.find(z => z.id === this._selectedZoneId) ?? null;
+	get #selectedArea(): EditorArea | null {
+		return this._areas.find(a => a.id === this._selectedAreaId) ?? null;
 	}
 
-	get #currentPageZones(): EditorZone[] {
-		return this._zones.filter(z => z.page === this._currentPage);
+	get #currentPageAreas(): EditorArea[] {
+		return this._areas.filter(a => a.page === this._currentPage);
 	}
 
 	override render() {
@@ -618,11 +618,11 @@ export class PdfZoneEditorModalElement extends UmbModalBaseElement<
 					</div>
 
 					<!-- Right: Pages + Areas -->
-					<div class="zone-panel">
+					<div class="area-panel">
 						${this._availablePages.length > 1 ? html`
 							<uui-box headline="Pages">
 								${this._availablePages.map(page => {
-									const areaCount = this._zones.filter(z => z.page === page).length;
+									const areaCount = this._areas.filter(a => a.page === page).length;
 									const isActive = page === this._currentPage;
 									return html`
 										<div class="page-item ${isActive ? 'active' : ''}"
@@ -638,30 +638,30 @@ export class PdfZoneEditorModalElement extends UmbModalBaseElement<
 						` : nothing}
 
 						<uui-box headline="Areas on this page" style="${this._availablePages.length > 1 ? 'margin-top: var(--uui-size-space-4)' : ''}">
-							${this.#currentPageZones.length === 0
+							${this.#currentPageAreas.length === 0
 								? html`<p class="empty-hint">Draw an area on the PDF to get started.</p>`
-								: this.#currentPageZones.map(zone => html`
-									<div class="zone-item ${zone.id === this._selectedZoneId ? 'selected' : ''}"
-										@click=${() => this.#selectZone(zone.id)}>
-										<span class="zone-color" style="background: ${zone.color}"></span>
-										<span class="zone-name">${zone.name || 'Unnamed'}</span>
+								: this.#currentPageAreas.map(area => html`
+									<div class="area-item ${area.id === this._selectedAreaId ? 'selected' : ''}"
+										@click=${() => this.#selectArea(area.id)}>
+										<span class="area-color" style="background: ${area.color}"></span>
+										<span class="area-name">${area.name || 'Unnamed'}</span>
 										<uui-button compact look="secondary" label="Delete"
-											@click=${(e: Event) => { e.stopPropagation(); this.#deleteZone(zone.id); }}>
+											@click=${(e: Event) => { e.stopPropagation(); this.#deleteArea(area.id); }}>
 											<uui-icon name="icon-trash"></uui-icon>
 										</uui-button>
 									</div>
 								`)}
 						</uui-box>
 
-						${this.#selectedZone ? html`
+						${this.#selectedArea ? html`
 							<uui-box headline="Edit Area" style="margin-top: var(--uui-size-space-4)">
 								<div class="edit-form">
 									<label>Name</label>
 									<uui-input
-										.value=${this.#selectedZone.name}
+										.value=${this.#selectedArea.name}
 										@change=${(e: Event) => {
-											this.#onZoneNameChange(
-												this._selectedZoneId!,
+											this.#onAreaNameChange(
+												this._selectedAreaId!,
 												(e.target as HTMLInputElement).value
 											);
 										}}>
@@ -669,13 +669,13 @@ export class PdfZoneEditorModalElement extends UmbModalBaseElement<
 
 									<label>Color</label>
 									<div class="color-swatches">
-										${ZONE_COLORS.map(c => html`
+										${AREA_COLORS.map(c => html`
 											<button
-												class="color-swatch ${c === this.#selectedZone!.color ? 'active' : ''}"
+												class="color-swatch ${c === this.#selectedArea!.color ? 'active' : ''}"
 												style="background: ${c}"
 												@click=${() => {
-													const zone = this._zones.find(z => z.id === this._selectedZoneId);
-													if (zone) { zone.color = c; this._zones = [...this._zones]; this.#drawOverlay(); }
+													const area = this._areas.find(a => a.id === this._selectedAreaId);
+													if (area) { area.color = c; this._areas = [...this._areas]; this.#drawOverlay(); }
 												}}>
 											</button>
 										`)}
@@ -691,7 +691,7 @@ export class PdfZoneEditorModalElement extends UmbModalBaseElement<
 					look="primary"
 					color="positive"
 					label="Save"
-					?disabled=${this._zones.length === 0}
+					?disabled=${this._areas.length === 0}
 					@click=${this.#onSave}>
 					Save
 				</uui-button>
@@ -778,7 +778,7 @@ export class PdfZoneEditorModalElement extends UmbModalBaseElement<
 				left: 0;
 			}
 
-			.zone-panel {
+			.area-panel {
 				width: 300px;
 				flex-shrink: 0;
 				overflow-y: auto;
@@ -814,7 +814,7 @@ export class PdfZoneEditorModalElement extends UmbModalBaseElement<
 				color: var(--uui-color-text-alt);
 			}
 
-			.zone-item {
+			.area-item {
 				display: flex;
 				align-items: center;
 				gap: var(--uui-size-space-2);
@@ -824,23 +824,23 @@ export class PdfZoneEditorModalElement extends UmbModalBaseElement<
 				border: 1px solid transparent;
 			}
 
-			.zone-item:hover {
+			.area-item:hover {
 				background: var(--uui-color-surface-alt);
 			}
 
-			.zone-item.selected {
+			.area-item.selected {
 				background: var(--uui-color-selected);
 				border-color: var(--uui-color-selected-emphasis);
 			}
 
-			.zone-color {
+			.area-color {
 				width: 14px;
 				height: 14px;
 				border-radius: 3px;
 				flex-shrink: 0;
 			}
 
-			.zone-name {
+			.area-name {
 				flex: 1;
 				overflow: hidden;
 				text-overflow: ellipsis;
@@ -892,10 +892,10 @@ export class PdfZoneEditorModalElement extends UmbModalBaseElement<
 	];
 }
 
-export default PdfZoneEditorModalElement;
+export default PdfAreaEditorModalElement;
 
 declare global {
 	interface HTMLElementTagNameMap {
-		'pdf-zone-editor-modal': PdfZoneEditorModalElement;
+		'pdf-area-editor-modal': PdfAreaEditorModalElement;
 	}
 }

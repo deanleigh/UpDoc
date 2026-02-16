@@ -6,12 +6,12 @@ using UpDoc.Models;
 namespace UpDoc.Services;
 
 /// <summary>
-/// Transforms zone detection output into assembled Markdown sections.
-/// Pure function: ZoneDetectionResult → TransformResult.
+/// Transforms area detection output into assembled Markdown sections.
+/// Pure function: AreaDetectionResult → TransformResult.
 /// </summary>
 public interface IContentTransformService
 {
-    TransformResult Transform(ZoneDetectionResult zoneDetection, TransformResult? previous = null);
+    TransformResult Transform(AreaDetectionResult areaDetection, TransformResult? previous = null);
 }
 
 public class ContentTransformService : IContentTransformService
@@ -21,22 +21,22 @@ public class ContentTransformService : IContentTransformService
         '•', '●', '○', '■', '□', '▪', '▫', '◆', '◇', '►', '▸', '\u2022'
     };
 
-    public TransformResult Transform(ZoneDetectionResult zoneDetection, TransformResult? previous = null)
+    public TransformResult Transform(AreaDetectionResult areaDetection, TransformResult? previous = null)
     {
         var result = new TransformResult();
         var diagnostics = new TransformDiagnostics();
 
-        // Track seen IDs to deduplicate (same heading in multiple zones → same kebab ID)
+        // Track seen IDs to deduplicate (same heading in multiple areas → same kebab ID)
         var seenIds = new Dictionary<string, int>();
 
-        foreach (var page in zoneDetection.Pages)
+        foreach (var page in areaDetection.Pages)
         {
-            for (int zoneIndex = 0; zoneIndex < page.Zones.Count; zoneIndex++)
+            for (int areaIndex = 0; areaIndex < page.Areas.Count; areaIndex++)
             {
-                var zone = page.Zones[zoneIndex];
-                foreach (var section in zone.Sections)
+                var area = page.Areas[areaIndex];
+                foreach (var section in area.Sections)
                 {
-                    var transformed = TransformSection(section, page.Page, zone.Color, zoneIndex);
+                    var transformed = TransformSection(section, page.Page, area.Color, areaIndex);
                     DeduplicateId(transformed, seenIds);
                     result.Sections.Add(transformed);
                     UpdateDiagnostics(diagnostics, transformed.Pattern);
@@ -69,7 +69,7 @@ public class ContentTransformService : IContentTransformService
     }
 
     private static TransformedSection TransformSection(
-        DetectedSection section, int page, string? zoneColor, int zoneIndex)
+        DetectedSection section, int page, string? areaColor, int areaIndex)
     {
         var heading = section.Heading;
         var children = section.Children;
@@ -87,7 +87,7 @@ public class ContentTransformService : IContentTransformService
         }
         else
         {
-            id = $"preamble-p{page}-z{zoneIndex}";
+            id = $"preamble-p{page}-z{areaIndex}";
         }
 
         // Detect pattern and assemble Markdown
@@ -102,7 +102,7 @@ public class ContentTransformService : IContentTransformService
             Content = content,
             Pattern = pattern,
             Page = page,
-            ZoneColor = string.IsNullOrEmpty(zoneColor) ? null : zoneColor,
+            AreaColor = string.IsNullOrEmpty(areaColor) ? null : areaColor,
             ChildCount = children.Count,
         };
     }
@@ -110,7 +110,7 @@ public class ContentTransformService : IContentTransformService
     /// <summary>
     /// Detects which assembly pattern best fits the section children.
     /// </summary>
-    private static string DetectPattern(List<ZoneElement> children)
+    private static string DetectPattern(List<AreaElement> children)
     {
         if (children.Count == 0)
             return "preamble";
@@ -139,7 +139,7 @@ public class ContentTransformService : IContentTransformService
     /// Checks whether children contain sub-headings (e.g., Day 1, Day 2...).
     /// Uses the same mode font size algorithm as GroupIntoSections.
     /// </summary>
-    private static bool HasSubHeadings(List<ZoneElement> children)
+    private static bool HasSubHeadings(List<AreaElement> children)
     {
         var fontSizeCounts = new Dictionary<double, int>();
         foreach (var el in children)
@@ -165,7 +165,7 @@ public class ContentTransformService : IContentTransformService
     /// <summary>
     /// Assembles Markdown from section children based on the detected pattern.
     /// </summary>
-    private static string AssembleMarkdown(List<ZoneElement> children, string pattern)
+    private static string AssembleMarkdown(List<AreaElement> children, string pattern)
     {
         if (children.Count == 0)
             return string.Empty;
@@ -182,7 +182,7 @@ public class ContentTransformService : IContentTransformService
     /// <summary>
     /// Strips bullet chars and produces a Markdown bulleted list.
     /// </summary>
-    private static string AssembleBulletList(List<ZoneElement> children)
+    private static string AssembleBulletList(List<AreaElement> children)
     {
         var sb = new StringBuilder();
         foreach (var child in children)
@@ -197,7 +197,7 @@ public class ContentTransformService : IContentTransformService
     /// Assembles sub-headed content with ## headings and paragraph body text.
     /// Children with fontSize > mode become ## sub-headings.
     /// </summary>
-    private static string AssembleSubHeaded(List<ZoneElement> children)
+    private static string AssembleSubHeaded(List<AreaElement> children)
     {
         // Compute mode font size of children
         var fontSizeCounts = new Dictionary<double, int>();
@@ -235,7 +235,7 @@ public class ContentTransformService : IContentTransformService
     /// <summary>
     /// Joins children as paragraph text with double newlines between them.
     /// </summary>
-    private static string AssembleParagraph(List<ZoneElement> children)
+    private static string AssembleParagraph(List<AreaElement> children)
     {
         return string.Join("\n\n", children.Select(c => c.Text));
     }
@@ -243,7 +243,7 @@ public class ContentTransformService : IContentTransformService
     /// <summary>
     /// Preamble: joins children with single newlines.
     /// </summary>
-    private static string AssemblePreamble(List<ZoneElement> children)
+    private static string AssemblePreamble(List<AreaElement> children)
     {
         return string.Join("\n", children.Select(c => c.Text));
     }

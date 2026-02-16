@@ -64,12 +64,12 @@ Read-only display of the blueprint structure showing available mapping targets.
 
 ### up-doc-workflow-source-view
 
-The extraction and transformation view. Two modes: Extracted (zone detection hierarchy) and Transformed (assembled sections with pattern detection).
+The extraction and transformation view. Two modes: Extracted (area detection hierarchy) and Transformed (assembled sections with pattern detection).
 
 **Element:** `<up-doc-workflow-source-view>`
 **Source:** `up-doc-workflow-source-view.element.ts`
 
-**Layout:** `umb-body-layout header-fit-height` with a single `slot="header"` div containing `uui-tab-group` (left) and Re-extract button (right), following the Document Type editor pattern. Stat boxes (Pages, Zones, Sections, Source) are in the scrollable content area above the page hierarchy.
+**Layout:** `umb-body-layout header-fit-height` with a single `slot="header"` div containing `uui-tab-group` (left) and Re-extract button (right), following the Document Type editor pattern. Stat boxes (Pages, Areas, Sections, Source) are in the scrollable content area above the page hierarchy.
 
 **Hierarchy:** Four-level collapsible display: Page (`uui-box` with `header-actions` chevron) → Area ("Area 1", "Area 2", or "Undefined" for unclassified content) → Section (with include/exclude toggle) → Text (with type/metadata badges). All levels use a consistent `collapse-chevron` icon positioned rightmost in each row.
 
@@ -159,4 +159,4 @@ The content collection "Create [Type]" button at `documents/documents/collection
 
 ### No standard stat box / dashboard summary component
 
-There is no UUI or Umbraco component specifically designed for dashboard-style stat boxes (e.g., "4 Pages", "9 Zones", "15 Sections"). Packages like Merchello and uSync build these from `uui-box` with custom CSS. A dedicated `uui-stat-box` or `umb-dashboard-stat` component would standardise this common pattern.
+There is no UUI or Umbraco component specifically designed for dashboard-style stat boxes (e.g., "4 Pages", "9 Areas", "15 Sections"). Packages like Merchello and uSync build these from `uui-box` with custom CSS. A dedicated `uui-stat-box` or `umb-dashboard-stat` component would standardise this common pattern.

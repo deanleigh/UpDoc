@@ -6,7 +6,7 @@ Workspace view for the Source tab in the workflow workspace. Displays the four-l
 
 Displays the sample extraction for a workflow in two modes:
 
-- **Extracted** — zone detection hierarchy showing pages, areas (colour-coded), sections (with headings), and individual text elements with metadata
+- **Extracted** — area detection hierarchy showing pages, areas (colour-coded), sections (with headings), and individual text elements with metadata
 - **Transformed** — assembled sections with pattern detection (bullet list, paragraph, sub-headed, preamble) and mapping controls
 
 Users can include/exclude sections (via toggle), include/exclude pages, map sections to destination fields, collapse/expand any level, and re-extract from a different source PDF.
@@ -54,16 +54,16 @@ Users can filter which PDF pages are extracted. Stored in `source.json` as a `pa
 On load, the component:
 
 1. Consumes `UMB_WORKSPACE_CONTEXT` and observes the `unique` value (workflow name)
-2. Loads in parallel: sample extraction, zone detection, workflow config, transform result, source config
+2. Loads in parallel: sample extraction, area detection, workflow config, transform result, source config
 3. Initialises page selection state from source config
 4. Stores all in state for rendering
 
-### Extracted mode (zone detection hierarchy)
+### Extracted mode (area detection hierarchy)
 
 Elements are displayed in a four-level collapsible hierarchy:
 
 1. **Page** — `uui-box` with "Page N" headline, section/area counts, page include toggle, and collapse chevron in `header-actions` slot. Excluded pages are dimmed.
-2. **Area** — colour-coded left border with "Area N" label, colour swatch, section count, and collapse chevron. Areas without a detected zone are labelled "Undefined" (italic, dimmed).
+2. **Area** — colour-coded left border with "Area N" label, colour swatch, section count, and collapse chevron. Areas without a detected area are labelled "Undefined" (italic, dimmed).
 3. **Section** — structural label "Section – {name}" with include/exclude toggle, element count, and collapse chevron. The heading text from the PDF is rendered as the first child element (with a HEADING badge), not as the section header itself. This separates our structural UI from the actual PDF content. Preamble sections (no heading) show "Content" as the structural label.
 4. **Element** — individual elements with semantic role badge (Heading/List Item/Paragraph), font size, font name, and colour badges.
 
@@ -90,15 +90,15 @@ Each label dynamically flips based on current state (e.g., "Collapse Areas" → 
 Shows assembled sections from the transform pipeline with:
 
 - Pattern badges (Bullet List, Paragraph, Sub-Headed, Preamble)
-- Page and zone indicators
+- Page and area indicators
 - Mapping controls: "Map" button for unmapped sections, green badges for mapped ones
 - Markdown content rendered as HTML
 
 ### Section rules editing
 
-The "Edit Sections" button in the Sections info box opens a popover section picker. The picker lists all transform sections (built from zone detection data) as `uui-menu-item` entries. Selecting a section opens the `UMB_SECTION_RULES_EDITOR_MODAL` sidebar, passing the section's elements from zone detection. When the modal returns saved rules, they're persisted via the `saveSectionRules()` API.
+The "Edit Sections" button in the Sections info box opens a popover section picker. The picker lists all transform sections (built from area detection data) as `uui-menu-item` entries. Selecting a section opens the `UMB_SECTION_RULES_EDITOR_MODAL` sidebar, passing the section's elements from area detection. When the modal returns saved rules, they're persisted via the `saveSectionRules()` API.
 
-The section-to-element lookup walks zone detection pages to find elements belonging to each transform section, matching by section ID (kebab-case for headed sections, `preamble-p{page}-z{zone}` for preamble sections).
+The section-to-element lookup walks area detection pages to find elements belonging to each transform section, matching by section ID (kebab-case for headed sections, `preamble-p{page}-a{area}` for preamble sections).
 
 ### Mapping
 
@@ -112,7 +112,7 @@ When no sample extraction exists, shows a centered prompt with "Choose PDF" butt
 
 | Method | Purpose |
 |--------|---------|
-| `#loadData()` | Loads extraction, zone detection, config, transform, source config in parallel |
+| `#loadData()` | Loads extraction, area detection, config, transform, source config in parallel |
 | `#parsePageRange(input)` | Converts "1-3, 5" to `[1, 2, 3, 5]` |
 | `#pagesToRangeString(pages)` | Converts `[1, 2, 3, 5]` to "1-3, 5" |
 | `#togglePage(pageNum)` | Toggles a page on/off and updates the range input |
@@ -125,21 +125,21 @@ When no sample extraction exists, shows a centered prompt with "Choose PDF" butt
 | `#isLevelCollapsed(level)` | Checks if all items at a level are currently collapsed |
 | `#toggleLevel(level)` | Toggles all items at a given level (collapse ↔ expand) |
 | `#expandAll()` | Expands everything (clears collapsed set) |
-| `#onEditAreas()` | Opens zone editor modal for defining/editing extraction areas |
-| `#getTransformSectionsWithElements()` | Builds list of transform sections with their zone detection elements for the section picker |
-| `#findElementsForSection(sectionId)` | Walks zone detection pages to find elements matching a transform section by ID |
-| `#buildPreambleId(pageNum, zoneIdx)` | Constructs preamble section IDs matching the transform convention |
+| `#onEditAreas()` | Opens area editor modal for defining/editing extraction areas |
+| `#getTransformSectionsWithElements()` | Builds list of transform sections with their area detection elements for the section picker |
+| `#findElementsForSection(sectionId)` | Walks area detection pages to find elements matching a transform section by ID |
+| `#buildPreambleId(pageNum, areaIdx)` | Constructs preamble section IDs matching the transform convention |
 | `#onSectionPickerToggle(e)` | Handles popover open/close for the section picker |
 | `#onEditSectionRules(sectionId, heading, elements)` | Opens rules editor modal for a section, saves returned rules via API |
 | `#renderExtractionHeader()` | Tab group slotted into header |
 | `#renderInfoBoxes()` | Four equal-width uui-box cards (Source, Pages, Areas, Sections) |
 | `#renderPageSelection()` | Radio buttons (All/Choose) + range text input |
-| `#renderExtractionContent()` | Dispatches to zone detection or transformed view |
-| `#renderZonePage()` | Renders a page with toggle, area count, and collapse |
+| `#renderExtractionContent()` | Dispatches to area detection or transformed view |
+| `#renderAreaPage()` | Renders a page with toggle, area count, and collapse |
 | `#renderArea()` | Renders "Area N" with sections and collapse |
-| `#renderUnzonedContent()` | Renders "Undefined" area for unclassified content |
+| `#renderUndefinedArea()` | Renders "Undefined" area for unclassified content |
 | `#renderSection()` | Renders a section with toggle, heading, children, collapse |
-| `#renderZoneElement()` | Renders individual text element with type + metadata badges |
+| `#renderAreaElement()` | Renders individual text element with type + metadata badges |
 | `#classifyText()` | Classifies text as 'list' or 'paragraph' by leading pattern |
 | `#renderTransformedSection()` | Renders an assembled section with pattern badge and mapping |
 | `#renderMappingBadges()` | Shows Map button or green mapped-target badges |
@@ -147,8 +147,8 @@ When no sample extraction exists, shows a centered prompt with "Choose PDF" butt
 ## Imports
 
 ```typescript
-import type { RichExtractionResult, DocumentTypeConfig, MappingDestination, ZoneDetectionResult, DetectedZone, DetectedSection, ZoneElement, TransformResult, TransformedSection, SourceConfig, SectionRuleSet } from './workflow.types.js';
-import { fetchSampleExtraction, triggerSampleExtraction, fetchWorkflowByName, fetchZoneDetection, triggerTransform, fetchTransformResult, updateSectionInclusion, saveMapConfig, savePageSelection, fetchSourceConfig, saveSectionRules } from './workflow.service.js';
+import type { RichExtractionResult, DocumentTypeConfig, MappingDestination, AreaDetectionResult, DetectedArea, DetectedSection, AreaElement, TransformResult, TransformedSection, SourceConfig, SectionRuleSet } from './workflow.types.js';
+import { fetchSampleExtraction, triggerSampleExtraction, fetchWorkflowByName, fetchAreaDetection, triggerTransform, fetchTransformResult, updateSectionInclusion, saveMapConfig, savePageSelection, fetchSourceConfig, saveSectionRules } from './workflow.service.js';
 import { markdownToHtml, normalizeToKebabCase } from './transforms.js';
 import { UMB_DESTINATION_PICKER_MODAL } from './destination-picker-modal.token.js';
 import { UMB_SECTION_RULES_EDITOR_MODAL } from './section-rules-editor-modal.token.js';

@@ -94,7 +94,7 @@ async function d(o, n) {
 }
 async function h(o, n) {
   const e = await fetch(
-    `/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(o)}/zone-detection`,
+    `/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(o)}/area-detection`,
     {
       method: "GET",
       headers: {
@@ -213,7 +213,7 @@ async function $(o, n) {
 }
 async function T(o, n) {
   const e = await fetch(
-    `/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(o)}/zone-template`,
+    `/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(o)}/area-template`,
     {
       headers: {
         Authorization: `Bearer ${n}`
@@ -224,7 +224,7 @@ async function T(o, n) {
 }
 async function b(o, n, e) {
   const t = await fetch(
-    `/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(o)}/zone-template`,
+    `/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(o)}/area-template`,
     {
       method: "PUT",
       headers: {
@@ -236,7 +236,7 @@ async function b(o, n, e) {
   );
   if (!t.ok) {
     const a = await t.json();
-    return console.error("Save zone template failed:", a), null;
+    return console.error("Save area template failed:", a), null;
   }
   return t.json();
 }
@@ -293,4 +293,4 @@ export {
   g as t,
   k as u
 };
-//# sourceMappingURL=workflow.service-vjpy4ykG.js.map
+//# sourceMappingURL=workflow.service-CZ6YzcAN.js.map

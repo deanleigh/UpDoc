@@ -64,7 +64,7 @@ When uploading a sample PDF, show a page count and let the user pick pages befor
 **`PdfPagePropertiesService.cs`** — all three extraction methods need page filtering:
 
 1. `ExtractRichDump()` — filter `document.GetPages()` by page numbers
-2. `DetectZones()` — filter pages before zone detection
+2. `DetectAreas()` — filter pages before area detection
 3. `ExtractRichTextLines()` — already receives page data, filter at call sites
 
 The filtering should happen at the earliest possible point — before any text extraction runs on a page. This avoids wasting CPU on pages that will be discarded.

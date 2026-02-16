@@ -17,7 +17,7 @@ Data passed when opening the modal:
 | `workflowName` | `string` | Name of the workflow (for context, not used in modal) |
 | `sectionId` | `string` | Transform section ID (e.g., `"preamble-p1-z1"`, `"features"`) |
 | `sectionHeading` | `string` | Human-readable section heading for the modal title |
-| `elements` | `ZoneElement[]` | The elements belonging to this section (from zone detection) |
+| `elements` | `AreaElement[]` | The elements belonging to this section (from area detection) |
 | `existingRules` | `SectionRuleSet \| null` | Existing rules for this section, if any |
 
 ### `SectionRulesEditorModalValue`

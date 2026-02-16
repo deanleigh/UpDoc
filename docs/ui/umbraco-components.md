@@ -52,7 +52,7 @@ The primary layout component for all workspace views and modal contents. Provide
         </div>
     </div>
     <!-- stat boxes in scrollable content area -->
-    <div class="stat-boxes"><!-- Pages, Zones, Sections, Source --></div>
+    <div class="stat-boxes"><!-- Pages, Areas, Sections, Source --></div>
     <!-- page hierarchy content -->
 </umb-body-layout>
 ```

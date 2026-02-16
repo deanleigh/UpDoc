@@ -76,14 +76,15 @@ public interface IWorkflowService
     void SaveMapConfig(string workflowName, MapConfig config);
 
     /// <summary>
-    /// Saves a zone detection result as zone-detection.json in the workflow folder.
+    /// Saves an area detection result as area-detection.json in the workflow folder.
     /// </summary>
-    void SaveZoneDetection(string workflowName, ZoneDetectionResult result);
+    void SaveAreaDetection(string workflowName, AreaDetectionResult result);
 
     /// <summary>
-    /// Loads the stored zone-detection.json from a workflow folder, if it exists.
+    /// Loads the stored area-detection.json from a workflow folder, if it exists.
+    /// Falls back to zone-detection.json for backwards compatibility.
     /// </summary>
-    ZoneDetectionResult? GetZoneDetection(string workflowName);
+    AreaDetectionResult? GetAreaDetection(string workflowName);
 
     /// <summary>
     /// Saves a transform result as transform.json in the workflow folder.
@@ -112,14 +113,15 @@ public interface IWorkflowService
     void SaveSourceConfig(string workflowName, SourceConfig config);
 
     /// <summary>
-    /// Saves a zone template as zone-template.json in the workflow folder.
+    /// Saves an area template as area-template.json in the workflow folder.
     /// </summary>
-    void SaveZoneTemplate(string workflowName, ZoneTemplate template);
+    void SaveAreaTemplate(string workflowName, AreaTemplate template);
 
     /// <summary>
-    /// Loads the stored zone-template.json from a workflow folder, if it exists.
+    /// Loads the stored area-template.json from a workflow folder, if it exists.
+    /// Falls back to zone-template.json for backwards compatibility.
     /// </summary>
-    ZoneTemplate? GetZoneTemplate(string workflowName);
+    AreaTemplate? GetAreaTemplate(string workflowName);
 }
 
 /// <summary>
@@ -553,7 +555,7 @@ public class WorkflowService : IWorkflowService
         return JsonSerializer.Deserialize<RichExtractionResult>(json, JsonOptions);
     }
 
-    public void SaveZoneDetection(string workflowName, ZoneDetectionResult result)
+    public void SaveAreaDetection(string workflowName, AreaDetectionResult result)
     {
         var folderPath = GetWorkflowFolderPath(workflowName);
         if (!Directory.Exists(folderPath))
@@ -561,25 +563,33 @@ public class WorkflowService : IWorkflowService
             throw new DirectoryNotFoundException($"Workflow folder '{workflowName}' does not exist.");
         }
 
-        var filePath = Path.Combine(folderPath, "zone-detection.json");
+        var filePath = Path.Combine(folderPath, "area-detection.json");
         var writeOptions = new JsonSerializerOptions { WriteIndented = true };
         var json = JsonSerializer.Serialize(result, writeOptions);
         File.WriteAllText(filePath, json);
 
-        _logger.LogInformation("Saved zone detection to {Path} ({Zones} zones, {Elements} elements)",
-            filePath, result.Diagnostics.ZonesDetected, result.Diagnostics.ElementsZoned);
+        _logger.LogInformation("Saved area detection to {Path} ({Areas} areas, {Elements} elements)",
+            filePath, result.Diagnostics.AreasDetected, result.Diagnostics.ElementsInAreas);
     }
 
-    public ZoneDetectionResult? GetZoneDetection(string workflowName)
+    public AreaDetectionResult? GetAreaDetection(string workflowName)
     {
         var folderPath = GetWorkflowFolderPath(workflowName);
-        var filePath = Path.Combine(folderPath, "zone-detection.json");
+        var filePath = Path.Combine(folderPath, "area-detection.json");
 
         if (!File.Exists(filePath))
-            return null;
+        {
+            // Backwards compatibility: try old filename
+            var legacyPath = Path.Combine(folderPath, "zone-detection.json");
+            if (!File.Exists(legacyPath))
+                return null;
+
+            var legacyJson = File.ReadAllText(legacyPath);
+            return JsonSerializer.Deserialize<AreaDetectionResult>(legacyJson, JsonOptions);
+        }
 
         var json = File.ReadAllText(filePath);
-        return JsonSerializer.Deserialize<ZoneDetectionResult>(json, JsonOptions);
+        return JsonSerializer.Deserialize<AreaDetectionResult>(json, JsonOptions);
     }
 
     public void SaveTransformResult(string workflowName, TransformResult result)
@@ -659,7 +669,7 @@ public class WorkflowService : IWorkflowService
         ClearCache();
     }
 
-    public void SaveZoneTemplate(string workflowName, ZoneTemplate template)
+    public void SaveAreaTemplate(string workflowName, AreaTemplate template)
     {
         var folderPath = GetWorkflowFolderPath(workflowName);
         if (!Directory.Exists(folderPath))
@@ -667,25 +677,33 @@ public class WorkflowService : IWorkflowService
             throw new DirectoryNotFoundException($"Workflow folder '{workflowName}' does not exist.");
         }
 
-        var filePath = Path.Combine(folderPath, "zone-template.json");
+        var filePath = Path.Combine(folderPath, "area-template.json");
         var writeOptions = new JsonSerializerOptions { WriteIndented = true };
         var json = JsonSerializer.Serialize(template, writeOptions);
         File.WriteAllText(filePath, json);
 
-        _logger.LogInformation("Saved zone template to {Path} ({Count} zones)",
-            filePath, template.Zones.Count);
+        _logger.LogInformation("Saved area template to {Path} ({Count} areas)",
+            filePath, template.Areas.Count);
     }
 
-    public ZoneTemplate? GetZoneTemplate(string workflowName)
+    public AreaTemplate? GetAreaTemplate(string workflowName)
     {
         var folderPath = GetWorkflowFolderPath(workflowName);
-        var filePath = Path.Combine(folderPath, "zone-template.json");
+        var filePath = Path.Combine(folderPath, "area-template.json");
 
         if (!File.Exists(filePath))
-            return null;
+        {
+            // Backwards compatibility: try old filename
+            var legacyPath = Path.Combine(folderPath, "zone-template.json");
+            if (!File.Exists(legacyPath))
+                return null;
+
+            var legacyJson = File.ReadAllText(legacyPath);
+            return JsonSerializer.Deserialize<AreaTemplate>(legacyJson, JsonOptions);
+        }
 
         var json = File.ReadAllText(filePath);
-        return JsonSerializer.Deserialize<ZoneTemplate>(json, JsonOptions);
+        return JsonSerializer.Deserialize<AreaTemplate>(json, JsonOptions);
     }
 
     private string GetWorkflowFolderPath(string workflowName)
