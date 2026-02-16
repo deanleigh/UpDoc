@@ -64,8 +64,8 @@ Elements are displayed in a four-level collapsible hierarchy:
 
 1. **Page** — `uui-box` with "Page N" headline, section/area counts, page include toggle, and collapse chevron in `header-actions` slot. Excluded pages are dimmed.
 2. **Area** — colour-coded left border with "Area N" label, colour swatch, section count, and collapse chevron. Areas without a detected zone are labelled "Undefined" (italic, dimmed).
-3. **Section** — heading row with include/exclude toggle, heading text + meta badges, child count, and collapse chevron. Preamble sections (no heading) have the same collapse behaviour.
-4. **Text** — individual elements with text type badge (List/Paragraph), font size, font name, and colour badges.
+3. **Section** — structural label "Section – {name}" with include/exclude toggle, element count, and collapse chevron. The heading text from the PDF is rendered as the first child element (with a HEADING badge), not as the section header itself. This separates our structural UI from the actual PDF content. Preamble sections (no heading) show "Content" as the structural label.
+4. **Element** — individual elements with semantic role badge (Heading/List Item/Paragraph), font size, font name, and colour badges.
 
 ### Collapse behaviour
 

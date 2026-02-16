@@ -593,14 +593,15 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		return 'paragraph';
 	}
 
-	#renderZoneElement(element: ZoneElement) {
-		const textType = this.#classifyText(element.text);
+	#renderZoneElement(element: ZoneElement, role?: 'heading') {
+		const textType = role === 'heading' ? 'heading' : this.#classifyText(element.text);
+		const badgeLabel = textType === 'heading' ? 'Heading' : textType === 'list' ? 'List Item' : 'Paragraph';
 		return html`
 			<div class="element-item">
 				<div class="element-content">
 					<div class="element-text">${element.text}</div>
 					<div class="element-meta">
-						<span class="meta-badge text-type ${textType}">${textType === 'list' ? 'List' : 'Paragraph'}</span>
+						<span class="meta-badge text-type ${textType}">${badgeLabel}</span>
 						<span class="meta-badge font-size">${element.fontSize}pt</span>
 						<span class="meta-badge font-name">${element.fontName}</span>
 						<span class="meta-badge color" style="border-left: 3px solid ${element.color};">${element.color}</span>
@@ -628,7 +629,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 						<uui-icon class="collapse-chevron" name="${isCollapsed ? 'icon-navigation-right' : 'icon-navigation-down'}"></uui-icon>
 						<span class="heading-text preamble-label">Content</span>
 						<span class="header-spacer"></span>
-						<span class="group-count">${section.children.length} text${section.children.length !== 1 ? 's' : ''}</span>
+						<span class="group-count">${section.children.length} element${section.children.length !== 1 ? 's' : ''}</span>
 						<uui-toggle
 							label="${isIncluded ? 'Included' : 'Excluded'}"
 							?checked=${isIncluded}
@@ -644,21 +645,17 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		}
 
 		const heading = section.heading;
+		const elementCount = section.children.length + 1; // +1 for heading element
 
 		return html`
 			<div class="zone-section ${!isIncluded ? 'excluded' : ''}">
 				<div class="section-heading" @click=${() => this.#toggleCollapse(sectionKey)}>
 					<uui-icon class="collapse-chevron" name="${isCollapsed ? 'icon-navigation-right' : 'icon-navigation-down'}"></uui-icon>
-					<div class="heading-content">
-						<div class="heading-text">${heading.text}</div>
-						<div class="element-meta">
-							<span class="meta-badge font-size">${heading.fontSize}pt</span>
-							<span class="meta-badge font-name">${heading.fontName}</span>
-							<span class="meta-badge color" style="border-left: 3px solid ${heading.color};">${heading.color}</span>
-							${heading.text === heading.text.toUpperCase() && heading.text !== heading.text.toLowerCase() ? html`<span class="meta-badge text-case">UPPERCASE</span>` : nothing}
-						</div>
-					</div>
-					<span class="group-count">${section.children.length} text${section.children.length !== 1 ? 's' : ''}</span>
+					<span class="section-label">Section</span>
+					<span class="section-separator">–</span>
+					<span class="heading-text">${heading.text}</span>
+					<span class="header-spacer"></span>
+					<span class="group-count">${elementCount} element${elementCount !== 1 ? 's' : ''}</span>
 					<uui-toggle
 						label="${isIncluded ? 'Included' : 'Excluded'}"
 						?checked=${isIncluded}
@@ -668,6 +665,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				</div>
 				${!isCollapsed && isIncluded ? html`
 					<div class="section-children">
+						${this.#renderZoneElement(heading, 'heading')}
 						${section.children.map((el) => this.#renderZoneElement(el))}
 					</div>
 				` : nothing}
@@ -1375,14 +1373,20 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				color: var(--uui-color-text);
 			}
 
-			.heading-content {
-				flex: 1;
-				min-width: 0;
+			.section-label {
+				font-size: var(--uui-type-small-size);
+				color: var(--uui-color-text-alt);
+				text-transform: uppercase;
+				letter-spacing: 0.5px;
+				font-weight: 500;
+			}
+
+			.section-separator {
+				color: var(--uui-color-text-alt);
 			}
 
 			.heading-text {
 				font-weight: 600;
-				margin-bottom: var(--uui-size-space-1);
 			}
 
 			.group-count {
@@ -1452,6 +1456,10 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				text-transform: uppercase;
 				font-size: 10px;
 				letter-spacing: 0.5px;
+			}
+
+			.meta-badge.text-type.heading {
+				color: var(--uui-color-current);
 			}
 
 			.meta-badge.text-type.list {
