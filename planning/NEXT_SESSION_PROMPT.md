@@ -4,45 +4,55 @@ Copy and paste everything below the line into a new Claude Code chat.
 
 ---
 
-## Continue UpDoc Development — Playwright Testing & Section-Based Mapping
+## Continue UpDoc Development — Section Builder Phase 1
 
 ### Where we left off
 
-Main branch is up to date (commit `f0cdf3a`). Block property disambiguation is complete. The full end-to-end flow works with the sample PDF (Flemish Masters), but **fails with different PDFs** due to element-ID-based mappings being positional and fragile.
+Main branch is up to date (commit `0237608`). The area rules pipeline is complete and verified end-to-end:
 
-### The problem we're solving
+- **Define Areas** on PDF pages (spatial boundaries + names)
+- **Define Structure** within areas — rules match elements by conditions and assign role names
+- **Transform** produces individually-mappable sections from matched elements
+- **Map** sections to destination fields (source-driven mapping)
+- **Create from Source** correctly populates Page Title, Description, block content
 
-The current mapping system stores static wires from specific element IDs (`p1-e17`) to destination fields. When a different PDF is uploaded, element IDs shift and mappings pull wrong content — or worse, content from one section bleeds into another. Tested with the "Magical Andalucía" PDF: the FEATURES block contained its own bullets PLUS the "WHAT WE WILL SEE" heading and all its bullets concatenated in.
+The group-tour-pdf workflow has 3 area rules for Page Header (Organisation, Tour Title, Tour Description) with mappings to destination fields. Liverpool PDF tested successfully.
 
-The fix is **section-based grouping** — extraction identifies sections (heading + children) using font metadata, and mapping operates at the section level instead of individual elements. Full architecture documented in `planning/SECTION_BASED_MAPPING.md`.
+### Key insight: three concerns
 
-### Two tracks, in order
+Three separate concerns were being conflated in the rules editor:
+- **Markup** — semantic structure (heading, list, paragraph)
+- **Role** — content identity (tour title, features)
+- **Mapping** — CMS field wiring (pageTitle, richTextContent)
 
-#### Track 1: Playwright E2E Testing (do this first)
+Adding an **action** to each rule separates these. Full design in `planning/SECTION_BUILDER.md`.
 
-Set up Playwright browser automation to test the Create from Source workflow automatically. This replaces the manual click-through testing that has been consuming significant time.
+### What to do next
 
-**Why first:** The section-based mapping refactor is a large change. Having automated tests before we start means we can verify each step without manual testing. Tests will also document the current cross-PDF bug before we fix it.
+#### Phase 1: Add action dropdown (minimal, no behaviour change)
 
-**Full plan:** `planning/PLAYWRIGHT_TESTING.md`
+1. Add `action` field to `SectionRule` (C# + TS), default `"createSection"`, backward compatible
+2. Add action dropdown to rules editor modal — below conditions section
+3. Options: Create section (default), Set as heading, Add as content, Add as list item, Exclude
+4. No backend behaviour change — all actions still behave as `createSection`
 
-**Branch:** `feature/playwright-testing`
+This makes the rule structure complete (IF conditions THEN action) without breaking anything.
 
-#### Track 2: Section-Based Mapping (the main architectural work)
+#### Phase 1b: UI improvements
 
-Replace element-ID mappings with section-based rules. Server-side extraction groups elements into sections using font metadata. Mapping operates at section level. Individual element IDs still available for fine-grained overrides.
+5. Extracted tab should reflect rules — show composed sections instead of raw elements
+6. Remove "+ Add another rule" button (prevents blank rules with no conditions)
 
-**Phases:**
-0. Playwright testing (Track 1)
-1. Bridge refactor — extract shared logic into `document-creation.service.ts`
-2. Server-side section grouping in `PdfPagePropertiesService`
-3. Source tab & map tab UI updates
-4. map.json schema & bridge update
-5. Transforms (titleCase, bullet conversion, markdown-to-HTML)
+#### Phase 2: Fix createSection mapping semantics
 
-**Full plan:** `planning/SECTION_BASED_MAPPING.md`
+7. Role sections only expose `.content` in the Transformed view Map buttons (no `.heading` button)
+8. Existing `.heading` mappings for role sections already handled (bridge redirects to content)
 
-**Branch:** `feature/section-based-mapping` (with possible sub-branches per phase)
+#### Phase 3: setAsHeading support (solves itinerary heading detection)
+
+9. Transform layer: `setAsHeading` starts a new section, element text becomes heading
+10. `addAsContent`/`addAsList` append to current section
+11. State machine assembly logic in `ContentTransformService`
 
 ### Required reading
 
@@ -52,10 +62,15 @@ Before starting work, read these planning files (per CLAUDE.md session startup):
 3. `planning/CREATE_FROM_SOURCE_UI.md`
 4. `planning/DESTINATION_DRIVEN_MAPPING.md`
 
-And the two new planning documents:
-5. `planning/PLAYWRIGHT_TESTING.md`
-6. `planning/SECTION_BASED_MAPPING.md`
+And the key planning document for this work:
+5. `planning/SECTION_BUILDER.md` — the three-concern model and action-based section composition
+
+### Known issues (non-blocking)
+
+- Umbraco "object cache is corrupt" on document delete — Umbraco core issue, restart fixes
+- CS8602 warning in PdfPagePropertiesService.cs — nullable dereference
+- Strategy badge contrast — pink on pink
 
 ### First action
 
-Start with Track 1: create branch `feature/playwright-testing` from `main` and set up Playwright E2E testing using the Umbraco testing skills.
+Create branch `feature/section-builder` from `main` and implement Phase 1 (add action field + dropdown to rules editor).
