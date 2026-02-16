@@ -35,7 +35,7 @@ Four equal-width `<uui-box>` cards in a flex row with `flex-grow: 1`, following 
 1. **Source** — h2 filename, document icon, extraction date, Re-extract (green) and Change PDF (blue) buttons
 2. **Pages** — stat number (e.g., "2 of 4"), page selection controls (All/Choose radio + range input)
 3. **Areas** — stat number
-4. **Sections** — stat number
+4. **Sections** — stat number, "Edit Sections" button that opens a section picker popover listing all transform sections. Each menu item shows `icon-check` (green) if the section already has rules, or `icon-thumbnail-list` (default) if not. Clicking a section opens the Section Rules Editor modal.
 
 The Collapse All / Expand All button sits in its own row below the boxes, right-aligned.
 
@@ -94,6 +94,12 @@ Shows assembled sections from the transform pipeline with:
 - Mapping controls: "Map" button for unmapped sections, green badges for mapped ones
 - Markdown content rendered as HTML
 
+### Section rules editing
+
+The "Edit Sections" button in the Sections info box opens a popover section picker. The picker lists all transform sections (built from zone detection data) as `uui-menu-item` entries. Selecting a section opens the `UMB_SECTION_RULES_EDITOR_MODAL` sidebar, passing the section's elements from zone detection. When the modal returns saved rules, they're persisted via the `saveSectionRules()` API.
+
+The section-to-element lookup walks zone detection pages to find elements belonging to each transform section, matching by section ID (kebab-case for headed sections, `preamble-p{page}-z{zone}` for preamble sections).
+
 ### Mapping
 
 From the Transformed view, users can map section headings and content to destination fields. `#onMapSection(sourceKey)` opens the `UMB_DESTINATION_PICKER_MODAL` and saves results to `map.json`. Mapped sections show green badges and a green left border.
@@ -120,6 +126,11 @@ When no sample extraction exists, shows a centered prompt with "Choose PDF" butt
 | `#toggleLevel(level)` | Toggles all items at a given level (collapse ↔ expand) |
 | `#expandAll()` | Expands everything (clears collapsed set) |
 | `#onEditAreas()` | Opens zone editor modal for defining/editing extraction areas |
+| `#getTransformSectionsWithElements()` | Builds list of transform sections with their zone detection elements for the section picker |
+| `#findElementsForSection(sectionId)` | Walks zone detection pages to find elements matching a transform section by ID |
+| `#buildPreambleId(pageNum, zoneIdx)` | Constructs preamble section IDs matching the transform convention |
+| `#onSectionPickerToggle(e)` | Handles popover open/close for the section picker |
+| `#onEditSectionRules(sectionId, heading, elements)` | Opens rules editor modal for a section, saves returned rules via API |
 | `#renderExtractionHeader()` | Tab group slotted into header |
 | `#renderInfoBoxes()` | Four equal-width uui-box cards (Source, Pages, Areas, Sections) |
 | `#renderPageSelection()` | Radio buttons (All/Choose) + range text input |
@@ -136,10 +147,11 @@ When no sample extraction exists, shows a centered prompt with "Choose PDF" butt
 ## Imports
 
 ```typescript
-import type { RichExtractionResult, DocumentTypeConfig, MappingDestination, ZoneDetectionResult, DetectedZone, DetectedSection, ZoneElement, TransformResult, TransformedSection, SourceConfig } from './workflow.types.js';
-import { fetchSampleExtraction, triggerSampleExtraction, fetchWorkflowByName, fetchZoneDetection, triggerTransform, fetchTransformResult, updateSectionInclusion, saveMapConfig, savePageSelection, fetchSourceConfig } from './workflow.service.js';
+import type { RichExtractionResult, DocumentTypeConfig, MappingDestination, ZoneDetectionResult, DetectedZone, DetectedSection, ZoneElement, TransformResult, TransformedSection, SourceConfig, SectionRuleSet } from './workflow.types.js';
+import { fetchSampleExtraction, triggerSampleExtraction, fetchWorkflowByName, fetchZoneDetection, triggerTransform, fetchTransformResult, updateSectionInclusion, saveMapConfig, savePageSelection, fetchSourceConfig, saveSectionRules } from './workflow.service.js';
 import { markdownToHtml, normalizeToKebabCase } from './transforms.js';
 import { UMB_DESTINATION_PICKER_MODAL } from './destination-picker-modal.token.js';
+import { UMB_SECTION_RULES_EDITOR_MODAL } from './section-rules-editor-modal.token.js';
 import { UmbLitElement } from '@umbraco-cms/backoffice/lit-element';
 import { UMB_AUTH_CONTEXT } from '@umbraco-cms/backoffice/auth';
 import { UMB_WORKSPACE_CONTEXT } from '@umbraco-cms/backoffice/workspace';

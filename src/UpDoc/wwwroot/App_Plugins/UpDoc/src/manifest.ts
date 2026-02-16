@@ -100,6 +100,12 @@ export const manifests: Array<UmbExtensionManifest> = [
 		name: 'Page Picker Modal',
 		element: () => import('./page-picker-modal.element.js'),
 	},
+	{
+		type: 'modal',
+		alias: 'UpDoc.SectionRulesEditorModal',
+		name: 'Section Rules Editor Modal',
+		element: () => import('./section-rules-editor-modal.element.js'),
+	},
 
 	// =====================================================================
 	// Workflow Workspace — full page for editing individual workflows

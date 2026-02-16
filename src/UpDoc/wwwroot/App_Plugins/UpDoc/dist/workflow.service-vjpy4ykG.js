@@ -182,7 +182,7 @@ async function C(o, n, e) {
   }
   return i(), t.json();
 }
-async function $(o, n, e) {
+async function j(o, n, e) {
   const t = await fetch(
     `/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(o)}/pages`,
     {
@@ -200,7 +200,7 @@ async function $(o, n, e) {
   }
   return i(), !0;
 }
-async function j(o, n) {
+async function $(o, n) {
   const e = await fetch(
     `/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(o)}/source`,
     {
@@ -251,6 +251,24 @@ async function v(o, n) {
   );
   return e.ok ? e.blob() : null;
 }
+async function A(o, n, e) {
+  const t = await fetch(
+    `/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(o)}/section-rules`,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${e}`
+      },
+      body: JSON.stringify(n)
+    }
+  );
+  if (!t.ok) {
+    const a = await t.json();
+    return console.error("Save section rules failed:", a), null;
+  }
+  return i(), t.json();
+}
 function i() {
   c.clear(), r = null, s = null;
 }
@@ -263,15 +281,16 @@ export {
   u as f,
   h as g,
   w as h,
-  j as i,
+  $ as i,
   T as j,
   m as k,
   y as l,
-  $ as m,
-  C as n,
-  i as o,
+  A as m,
+  j as n,
+  C as o,
+  i as p,
   b as s,
   g as t,
   k as u
 };
-//# sourceMappingURL=workflow.service-T0TEyrPt.js.map
+//# sourceMappingURL=workflow.service-vjpy4ykG.js.map

@@ -136,7 +136,7 @@ Section: Organiser Info                    [6 elements]
 Key UI features:
 - **Live matching** — as you define conditions, the matched element from the sample extraction is shown immediately
 - **Unmatched elements** — elements not claimed by any rule are listed at the bottom (can be ignored or assigned)
-- **Auto-populate** — clicking an unmatched element pre-fills conditions from its metadata (like Outlook pre-fills "From = sender" when you create a rule from an email). Heuristic: include font size if unusual vs section peers, color if unusual, text prefix if contains ":"
+- **Auto-populate** — clicking an unmatched element pre-fills conditions from **all** its metadata (like Outlook pre-fills "From = sender" when you create a rule from an email). The user then removes conditions that are too specific, keeping only what's stable across PDFs
 - **Add another condition** — multiple conditions AND together (element must match all)
 - **"Create rule from this"** — shortcut on unmatched elements to start a new rule with auto-populated conditions
 - **First-match-wins ordering** — rules evaluated top-to-bottom; an element claimed by one rule is excluded from later rules
@@ -150,9 +150,9 @@ When the user clicks an element to create a rule, conditions auto-populate from 
 - Font name: GHEALP+Clarendon
 - Color: #FFD200
 
-The user reviews these, keeps what's useful, removes what's too specific (maybe font name varies but color is consistent), and names the role.
+The user reviews these, removes what's too specific, and keeps what's stable across PDFs. For example, font name might vary between PDFs but color and font size are consistent — so remove font name, keep the rest. Same pattern as Outlook: create a rule from an email, it fills in the full "From" address, you change it to "sender contains @company.com" to match the whole domain.
 
-**"Unusual" heuristic:** Compare the clicked element's metadata against other elements in the same section. If font size differs from the majority, add `fontSizeEquals`. If color differs, add `colorEquals`. If text contains ":", add `textBeginsWith` with the prefix.
+**No "unusual" heuristic needed.** With only 4-5 metadata fields per element, pre-populating everything is not overwhelming. The user makes the editorial decision about what matters — simpler and more reliable than code trying to guess which conditions are significant.
 
 ### 6. Rules are portable across PDFs
 
@@ -348,13 +348,15 @@ Register the new modal.
 
 #### A9. Source Tab — `src/UpDoc/wwwroot/App_Plugins/UpDoc/src/up-doc-workflow-source-view.element.ts` (MODIFY)
 
-Entry point: **per-section settings icon** on Transformed view section cards. Sections with rules show a "N rules" badge. Click opens the rules editor directly for that section.
+Entry point: **"Edit Sections" button** in the Sections stat box (matching the "Edit Areas" pattern). Opens a section picker → then the rules editor modal for the selected section.
+
+Per-section settings icons on individual Transformed view section cards are a future shortcut, not needed for Phase A.
 
 **Section → Elements lookup**: The source view already has `_zoneDetection` loaded. To find elements for a transform section:
 - Sections with headings: search zone detection for a section whose heading text normalizes to the same kebab-case ID (`NormalizeToKebabCase` logic replicated in TS)
 - Preamble sections: parse `preamble-p{page}-z{zoneIndex}` from the ID
 
-**Note:** The Sections stat box "Edit Sections" button (a second entry point via section picker popover) is deferred. The per-section icon is the natural entry point — adding the stat box path later if needed avoids unnecessary UX complexity.
+**Also:** Remove the per-page include/exclude toggle in the Extracted view (the blue toggle next to "N sections, N areas" on each page row) — redundant now that the page picker modal handles page selection.
 
 ### Phase B: Pipeline Integration (deferred to next branch)
 
@@ -420,7 +422,7 @@ Same condition matching logic as the client-side TS version, for use by the tran
 ## Pre-implementation Notes
 
 1. **Section → Elements lookup** — RESOLVED: Refactor zone detection to consume ExtractionElement instead of re-extracting. One element type through the whole pipeline. Zone detection adds structure (zones, sections) without reshaping element data. This eliminates the need for reverse-lookup by kebab-case normalization.
-2. **Auto-populate heuristics** — "unusual" needs defining. Compare against other elements in the same section (e.g., if clicked element's font size differs from the majority in that section, add a fontSizeEquals condition).
-3. **Re-extraction stability** — Rules are keyed by section ID. If sections shift after re-extraction (different PDF, changed zone settings), rules could become orphaned. Need orphan detection/warning.
-4. **Entry points** — Start with per-section icon only (A9). The stat box "Edit Sections" button is deferred to avoid two paths into the same modal adding unnecessary complexity.
-5. **Condition type naming** — `textMatchesPattern` is regex. Document that clearly in UI (e.g., "Text matches regex pattern"). Consider a friendlier label but keep regex power.
+2. **Auto-populate approach** — RESOLVED: Pre-populate **all** metadata from the clicked element (font size, font name, color, page, position, text prefix). No "unusual" heuristic needed — with only 4-5 fields per element, showing everything and letting the user trim is simpler and more predictable than code trying to guess significance. Follows the Outlook pattern exactly.
+3. **Re-extraction stability** — DEFERRED: Rules are keyed by section ID. If sections shift after re-extraction (different PDF, changed zone settings), rules could theoretically become orphaned. But we don't know if this actually happens in practice — zone detection may be stable enough across PDFs in the same workflow. Test with real examples first before building orphan detection.
+4. **Entry points** — RESOLVED: Start with "Edit Sections" button in the Sections stat box (matching the "Edit Areas" pattern). Per-section settings icons on individual section cards can come later as a shortcut. The Source tab UI (toggles, expand/collapse) is messy — clean up after end-to-end flow is working. The per-page include/exclude toggle in the Extracted view is redundant now that the page picker modal handles page selection — remove it.
+5. **Condition type naming** — DEFERRED: Minor UI labelling decision. `textMatchesPattern` is regex — decide on friendly labels when building the dropdown.

@@ -461,6 +461,24 @@ public class WorkflowController : ControllerBase
         return Ok(new { pages = sourceConfig.Pages });
     }
 
+    [HttpPut("{name}/section-rules")]
+    public IActionResult UpdateSectionRules(string name, [FromBody] Dictionary<string, SectionRuleSet> sectionRules)
+    {
+        var sourceConfig = _workflowService.GetSourceConfig(name);
+        if (sourceConfig == null)
+        {
+            return NotFound(new { error = $"Workflow '{name}' not found or has no source.json." });
+        }
+
+        sourceConfig.SectionRules = sectionRules;
+        _workflowService.SaveSourceConfig(name, sourceConfig);
+
+        _logger.LogInformation("Updated section rules for workflow '{Name}': {Count} sections with rules",
+            name, sectionRules.Count);
+
+        return Ok(sectionRules);
+    }
+
     [HttpGet("{name}/source")]
     public IActionResult GetSource(string name)
     {

@@ -32,6 +32,13 @@ public class SourceConfig
     public List<SourceSection> Sections { get; set; } = new();
 
     /// <summary>
+    /// Rules for breaking transform sections into individually-mappable roles.
+    /// Keyed by transform section ID (e.g., "preamble-p1-z1", "features").
+    /// </summary>
+    [JsonPropertyName("sectionRules")]
+    public Dictionary<string, SectionRuleSet>? SectionRules { get; set; }
+
+    /// <summary>
     /// Resolves the list of page numbers to process, given the total page count.
     /// Returns null if all pages should be processed.
     /// </summary>

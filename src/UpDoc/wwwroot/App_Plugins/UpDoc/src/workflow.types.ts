@@ -9,7 +9,40 @@ export interface SourceConfig {
 	/** Top-level page selection: "all" or array of page numbers. */
 	pages?: number[] | 'all';
 	sections: SourceSection[];
+	/** Rules for breaking transform sections into individually-mappable roles, keyed by section ID. */
+	sectionRules?: Record<string, SectionRuleSet>;
 }
+
+// ============================================================================
+// Section Rules Types (stored in source.json under sectionRules)
+// ============================================================================
+
+export interface SectionRuleSet {
+	rules: SectionRule[];
+}
+
+export interface SectionRule {
+	role: string;
+	conditions: RuleCondition[];
+}
+
+export interface RuleCondition {
+	type: RuleConditionType;
+	value?: string | number;
+}
+
+export type RuleConditionType =
+	| 'textBeginsWith'
+	| 'textEndsWith'
+	| 'textContains'
+	| 'textMatchesPattern'
+	| 'fontSizeEquals'
+	| 'fontSizeAbove'
+	| 'fontSizeBelow'
+	| 'fontNameContains'
+	| 'colorEquals'
+	| 'positionFirst'
+	| 'positionLast';
 
 export interface SourceGlobals {
 	columnDetection?: ColumnDetectionConfig;

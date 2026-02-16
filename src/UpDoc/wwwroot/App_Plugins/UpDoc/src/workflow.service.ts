@@ -1,4 +1,4 @@
-import type { DocumentTypeConfig, ExtractSectionsResponse, MapConfig, RichExtractionResult, TransformResult, ZoneDetectionResult, ZoneTemplate } from './workflow.types.js';
+import type { DocumentTypeConfig, ExtractSectionsResponse, MapConfig, RichExtractionResult, SectionRuleSet, TransformResult, ZoneDetectionResult, ZoneTemplate } from './workflow.types.js';
 
 const configCache = new Map<string, DocumentTypeConfig>();
 
@@ -505,6 +505,36 @@ export async function fetchPdfBlob(
 
 	if (!response.ok) return null;
 	return response.blob();
+}
+
+/**
+ * Saves section rules for a workflow. Patches source.json's sectionRules key.
+ */
+export async function saveSectionRules(
+	workflowName: string,
+	sectionRules: Record<string, SectionRuleSet>,
+	token: string
+): Promise<Record<string, SectionRuleSet> | null> {
+	const response = await fetch(
+		`/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(workflowName)}/section-rules`,
+		{
+			method: 'PUT',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${token}`,
+			},
+			body: JSON.stringify(sectionRules),
+		}
+	);
+
+	if (!response.ok) {
+		const error = await response.json();
+		console.error('Save section rules failed:', error);
+		return null;
+	}
+
+	clearConfigCache();
+	return response.json();
 }
 
 /**

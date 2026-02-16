@@ -1,4 +1,4 @@
-import { c as W } from "./workflow.service-T0TEyrPt.js";
+import { c as W } from "./workflow.service-vjpy4ykG.js";
 import { html as f, nothing as D, css as B, state as p, customElement as q } from "@umbraco-cms/backoffice/external/lit";
 import { UmbTextStyles as G } from "@umbraco-cms/backoffice/style";
 import { UmbModalBaseElement as X } from "@umbraco-cms/backoffice/modal";
@@ -622,4 +622,4 @@ export {
   c as PdfZoneEditorModalElement,
   nt as default
 };
-//# sourceMappingURL=pdf-zone-editor-modal.element-DIMwrePF.js.map
+//# sourceMappingURL=pdf-zone-editor-modal.element-BEBvEDOC.js.map
