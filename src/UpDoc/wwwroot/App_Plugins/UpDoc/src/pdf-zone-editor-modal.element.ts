@@ -43,6 +43,8 @@ export class PdfZoneEditorModalElement extends UmbModalBaseElement<
 	@state() private _pdfDoc: pdfjsLib.PDFDocumentProxy | null = null;
 	@state() private _currentPage = 1;
 	@state() private _totalPages = 0;
+	/** Pages available for zone editing — filtered by prior page selection. */
+	private _availablePages: number[] = [];
 	@state() private _scale = 1.0;
 	@state() private _loading = true;
 	@state() private _error = '';
@@ -103,6 +105,15 @@ export class PdfZoneEditorModalElement extends UmbModalBaseElement<
 			const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
 			this._pdfDoc = await loadingTask.promise;
 			this._totalPages = this._pdfDoc.numPages;
+
+			// Only show pages the user previously selected
+			const selected = this.data?.selectedPages;
+			if (selected && selected.length > 0) {
+				this._availablePages = selected.filter(p => p >= 1 && p <= this._totalPages).sort((a, b) => a - b);
+			} else {
+				this._availablePages = Array.from({ length: this._totalPages }, (_, i) => i + 1);
+			}
+			this._currentPage = this._availablePages[0] ?? 1;
 
 			// Load existing template zones if provided
 			if (this.data?.existingTemplate?.zones?.length) {
@@ -411,7 +422,7 @@ export class PdfZoneEditorModalElement extends UmbModalBaseElement<
 
 				const newZone: EditorZone = {
 					id: `zone-${this._nextId++}`,
-					name: `Zone ${this._zones.filter(z => z.page === this._currentPage).length + 1}`,
+					name: `Area ${this._zones.filter(z => z.page === this._currentPage).length + 1}`,
 					property: '',
 					page: this._currentPage,
 					type: '',
@@ -442,12 +453,13 @@ export class PdfZoneEditorModalElement extends UmbModalBaseElement<
 	// =========================================================================
 
 	async #goToPage(page: number) {
-		if (page < 1 || page > this._totalPages) return;
+		if (!this._availablePages.includes(page)) return;
 		this._currentPage = page;
 		this._selectedZoneId = null;
 		await this.updateComplete;
 		await this.#renderPage();
 	}
+
 
 	#onZoomIn() {
 		this._scale = Math.min(3.0, this._scale + 0.25);
@@ -588,18 +600,6 @@ export class PdfZoneEditorModalElement extends UmbModalBaseElement<
 							</div>
 
 							<div class="toolbar-group">
-								<uui-button compact label="Previous page" ?disabled=${this._currentPage <= 1}
-									@click=${() => this.#goToPage(this._currentPage - 1)}>
-									&laquo;
-								</uui-button>
-								<span class="page-info">Page ${this._currentPage} / ${this._totalPages}</span>
-								<uui-button compact label="Next page" ?disabled=${this._currentPage >= this._totalPages}
-									@click=${() => this.#goToPage(this._currentPage + 1)}>
-									&raquo;
-								</uui-button>
-							</div>
-
-							<div class="toolbar-group">
 								<uui-button compact label="Zoom out" @click=${this.#onZoomOut}>&minus;</uui-button>
 								<span class="zoom-info">${Math.round(this._scale * 100)}%</span>
 								<uui-button compact label="Zoom in" @click=${this.#onZoomIn}>+</uui-button>
@@ -617,11 +617,29 @@ export class PdfZoneEditorModalElement extends UmbModalBaseElement<
 						</div>
 					</div>
 
-					<!-- Right: Zone list + edit -->
+					<!-- Right: Pages + Areas -->
 					<div class="zone-panel">
-						<uui-box headline="Zones on this page">
+						${this._availablePages.length > 1 ? html`
+							<uui-box headline="Pages">
+								${this._availablePages.map(page => {
+									const areaCount = this._zones.filter(z => z.page === page).length;
+									const isActive = page === this._currentPage;
+									return html`
+										<div class="page-item ${isActive ? 'active' : ''}"
+											@click=${() => this.#goToPage(page)}>
+											<span class="page-item-label">Page ${page}</span>
+											${areaCount > 0 ? html`
+												<span class="page-item-count">${areaCount} area${areaCount !== 1 ? 's' : ''}</span>
+											` : nothing}
+										</div>
+									`;
+								})}
+							</uui-box>
+						` : nothing}
+
+						<uui-box headline="Areas on this page" style="${this._availablePages.length > 1 ? 'margin-top: var(--uui-size-space-4)' : ''}">
 							${this.#currentPageZones.length === 0
-								? html`<p class="empty-hint">Draw a zone on the PDF to get started.</p>`
+								? html`<p class="empty-hint">Draw an area on the PDF to get started.</p>`
 								: this.#currentPageZones.map(zone => html`
 									<div class="zone-item ${zone.id === this._selectedZoneId ? 'selected' : ''}"
 										@click=${() => this.#selectZone(zone.id)}>
@@ -636,7 +654,7 @@ export class PdfZoneEditorModalElement extends UmbModalBaseElement<
 						</uui-box>
 
 						${this.#selectedZone ? html`
-							<uui-box headline="Edit Zone" style="margin-top: var(--uui-size-space-4)">
+							<uui-box headline="Edit Area" style="margin-top: var(--uui-size-space-4)">
 								<div class="edit-form">
 									<label>Name</label>
 									<uui-input
@@ -663,19 +681,6 @@ export class PdfZoneEditorModalElement extends UmbModalBaseElement<
 										`)}
 									</div>
 								</div>
-							</uui-box>
-						` : nothing}
-
-						${this._zones.length > 0 && this._zones.some(z => z.page !== this._currentPage) ? html`
-							<uui-box headline="All zones" style="margin-top: var(--uui-size-space-4)">
-								${this._zones.map(zone => html`
-									<div class="zone-item ${zone.id === this._selectedZoneId ? 'selected' : ''}"
-										@click=${() => this.#selectZone(zone.id)}>
-										<span class="zone-color" style="background: ${zone.color}"></span>
-										<span class="zone-name">${zone.name || 'Unnamed'}</span>
-										<span class="zone-page">p${zone.page}</span>
-									</div>
-								`)}
 							</uui-box>
 						` : nothing}
 					</div>
@@ -751,7 +756,7 @@ export class PdfZoneEditorModalElement extends UmbModalBaseElement<
 				gap: var(--uui-size-space-2);
 			}
 
-			.page-info, .zoom-info {
+			.zoom-info {
 				font-size: var(--uui-type-small-size);
 				white-space: nowrap;
 			}
@@ -778,6 +783,35 @@ export class PdfZoneEditorModalElement extends UmbModalBaseElement<
 				flex-shrink: 0;
 				overflow-y: auto;
 				padding-right: var(--uui-size-space-2);
+			}
+
+			.page-item {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				padding: var(--uui-size-space-2) var(--uui-size-space-3);
+				cursor: pointer;
+				border-radius: var(--uui-border-radius);
+				border: 1px solid transparent;
+			}
+
+			.page-item:hover {
+				background: var(--uui-color-surface-alt);
+			}
+
+			.page-item.active {
+				background: var(--uui-color-surface-emphasis);
+				border-left: 3px solid var(--uui-color-current);
+				font-weight: 600;
+			}
+
+			.page-item-label {
+				flex: 1;
+			}
+
+			.page-item-count {
+				font-size: var(--uui-type-small-size);
+				color: var(--uui-color-text-alt);
 			}
 
 			.zone-item {
@@ -811,11 +845,6 @@ export class PdfZoneEditorModalElement extends UmbModalBaseElement<
 				overflow: hidden;
 				text-overflow: ellipsis;
 				white-space: nowrap;
-			}
-
-			.zone-page {
-				font-size: var(--uui-type-small-size);
-				color: var(--uui-color-text-alt);
 			}
 
 			.empty-hint {

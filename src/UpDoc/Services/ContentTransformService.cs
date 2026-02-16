@@ -43,18 +43,6 @@ public class ContentTransformService : IContentTransformService
                 }
             }
 
-            // Only process unzoned content when no zones exist on this page.
-            // If zones are defined, content outside all zones is noise and should be discarded.
-            if (page.UnzonedContent != null && page.Zones.Count == 0)
-            {
-                foreach (var section in page.UnzonedContent.Sections)
-                {
-                    var transformed = TransformSection(section, page.Page, null, -1);
-                    DeduplicateId(transformed, seenIds);
-                    result.Sections.Add(transformed);
-                    UpdateDiagnostics(diagnostics, transformed.Pattern);
-                }
-            }
         }
 
         // Preserve include/exclude state from previous transform
@@ -99,9 +87,7 @@ public class ContentTransformService : IContentTransformService
         }
         else
         {
-            id = zoneIndex >= 0
-                ? $"preamble-p{page}-z{zoneIndex}"
-                : $"preamble-p{page}-unzoned";
+            id = $"preamble-p{page}-z{zoneIndex}";
         }
 
         // Detect pattern and assemble Markdown

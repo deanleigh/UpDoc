@@ -16,7 +16,7 @@ export const UMB_ZONE_EDITOR_MODAL = new UmbModalToken<ZoneEditorModalData, Zone
 	{
 		modal: {
 			type: 'sidebar',
-			size: 'full',
+			size: 'large',
 		},
 	},
 );

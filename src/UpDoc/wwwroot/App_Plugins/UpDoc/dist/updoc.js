@@ -89,7 +89,7 @@ const o = [
     type: "modal",
     alias: "UpDoc.ZoneEditorModal",
     name: "Zone Editor Modal",
-    element: () => import("./pdf-zone-editor-modal.element-BEBvEDOC.js")
+    element: () => import("./pdf-zone-editor-modal.element-CKMRr8SU.js")
   },
   {
     type: "modal",
@@ -138,7 +138,7 @@ const o = [
     type: "workspaceView",
     alias: "UpDoc.WorkflowWorkspaceView.Source",
     name: "UpDoc Workflow Source View",
-    element: () => import("./up-doc-workflow-source-view.element-8r92oT2y.js"),
+    element: () => import("./up-doc-workflow-source-view.element-D-aTL8Kh.js"),
     weight: 200,
     meta: {
       label: "Source",

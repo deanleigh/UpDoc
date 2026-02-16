@@ -310,7 +310,6 @@ public class PdfPagePropertiesService : IPdfPagePropertiesService
             // out before grouping. Without a template (auto-detected zones from filled
             // rects), fall back to the original center-point assignment of finished lines.
             var zonedElements = new Dictionary<int, List<ZoneElement>>();
-            var unzonedElements = new List<ZoneElement>();
 
             for (int i = 0; i < zones.Count; i++)
                 zonedElements[i] = new List<ZoneElement>();
@@ -371,30 +370,8 @@ public class PdfPagePropertiesService : IPdfPagePropertiesService
                     }
                 }
 
-                // Unzoned: words not assigned to any zone
-                var unzonedWords = allWords
-                    .Where((_, idx) => !assignedWordIndices.Contains(idx))
-                    .ToList();
-                var unzonedLines = ExtractRichTextLines(unzonedWords);
-                foreach (var line in unzonedLines)
-                {
-                    totalElementIndex++;
-                    unzonedElements.Add(new ZoneElement
-                    {
-                        Id = $"p{pageNum}-e{totalElementIndex}",
-                        Text = line.Text,
-                        FontSize = Math.Round(line.FontSize, 1),
-                        FontName = line.FontName,
-                        Color = line.Color,
-                        BoundingBox = new ElementBoundingBox
-                        {
-                            Left = Math.Round(line.BoundingBoxLeft, 1),
-                            Top = Math.Round(line.BoundingBoxTop, 1),
-                            Width = Math.Round(line.BoundingBoxWidth, 1),
-                            Height = Math.Round(line.BoundingBoxHeight, 1)
-                        }
-                    });
-                }
+                // Template path: content outside drawn zones is intentionally excluded.
+                // The user defines zones explicitly — anything outside is not wanted.
             }
             else
             {
@@ -446,8 +423,6 @@ public class PdfPagePropertiesService : IPdfPagePropertiesService
                         }
                     }
 
-                    if (!assigned)
-                        unzonedElements.Add(element);
                 }
             }
 
@@ -465,25 +440,10 @@ public class PdfPagePropertiesService : IPdfPagePropertiesService
             }
             zones = populatedZones;
 
-            // Step 5: Build unzoned content (also grouped into sections)
-            DetectedZone? unzoned = null;
-            if (unzonedElements.Count > 0)
-            {
-                unzoned = new DetectedZone
-                {
-                    Color = string.Empty,
-                    Page = pageNum,
-                    TotalElements = unzonedElements.Count,
-                    Sections = GroupIntoSections(unzonedElements)
-                };
-                diagnostics.ElementsUnzoned += unzonedElements.Count;
-            }
-
             result.Pages.Add(new PageZones
             {
                 Page = pageNum,
-                Zones = zones,
-                UnzonedContent = unzoned
+                Zones = zones
             });
 
             diagnostics.ZonesDetected += zones.Count;

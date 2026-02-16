@@ -567,7 +567,7 @@ public class WorkflowService : IWorkflowService
         File.WriteAllText(filePath, json);
 
         _logger.LogInformation("Saved zone detection to {Path} ({Zones} zones, {Elements} elements)",
-            filePath, result.Diagnostics.ZonesDetected, result.Diagnostics.ElementsZoned + result.Diagnostics.ElementsUnzoned);
+            filePath, result.Diagnostics.ZonesDetected, result.Diagnostics.ElementsZoned);
     }
 
     public ZoneDetectionResult? GetZoneDetection(string workflowName)

@@ -220,15 +220,11 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 			}
 			if (level === 'areas') {
 				page.zones.forEach((_z, aIdx) => keys.push(`area-p${pageNum}-a${aIdx}`));
-				if (page.unzonedContent) keys.push(`area-p${pageNum}-undefined`);
 			}
 			if (level === 'sections') {
 				page.zones.forEach((_z, aIdx) => {
 					_z.sections.forEach((_s, sIdx) => keys.push(`p${pageNum}-a${aIdx}-s${sIdx}`));
 				});
-				if (page.unzonedContent) {
-					page.unzonedContent.sections.forEach((_s, sIdx) => keys.push(`p${pageNum}-undefined-s${sIdx}`));
-				}
 			}
 		}
 		return keys;
@@ -340,8 +336,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		for (const page of this._zoneDetection.pages) {
 			if (page.page !== section.page) continue;
 
-			const allZones = [...page.zones, ...(page.unzonedContent ? [page.unzonedContent] : [])];
-			for (const zone of allZones) {
+			for (const zone of page.zones) {
 				for (const detectedSection of zone.sections) {
 					const detectedId = detectedSection.heading
 						? normalizeToKebabCase(detectedSection.heading.text)
@@ -360,9 +355,9 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 	}
 
 	/** Build a preamble section ID matching the transform layer's convention. */
-	#buildPreambleId(pageNum: number, zone: DetectedZone, pageZones: { zones: DetectedZone[]; unzonedContent: DetectedZone | null }): string {
+	#buildPreambleId(pageNum: number, zone: DetectedZone, pageZones: { zones: DetectedZone[] }): string {
 		const zoneIdx = pageZones.zones.indexOf(zone);
-		return zoneIdx >= 0 ? `preamble-p${pageNum}-z${zoneIdx}` : `preamble-p${pageNum}-unzoned`;
+		return `preamble-p${pageNum}-z${zoneIdx}`;
 	}
 
 	#onSectionPickerToggle(event: ToggleEvent) {
@@ -618,7 +613,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		// Compute the section ID matching transform.json
 		const sectionId = section.heading
 			? normalizeToKebabCase(section.heading.text)
-			: (zoneIndex >= 0 ? `preamble-p${pageNum}-z${zoneIndex}` : `preamble-p${pageNum}-unzoned`);
+			: `preamble-p${pageNum}-z${zoneIndex}`;
 		const isIncluded = this.#isSectionIncluded(sectionId);
 
 		if (!section.heading) {
@@ -711,41 +706,11 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		`;
 	}
 
-	#renderUnzonedContent(zone: DetectedZone, pageNum: number) {
-		if (zone.totalElements === 0) return nothing;
-		const areaKey = `area-p${pageNum}-undefined`;
-		const isCollapsed = this.#isCollapsed(areaKey);
-		const isIncluded = !this._excludedAreas.has(areaKey);
-		const sectionCount = zone.sections.length;
-		return html`
-			<div class="zone-area undefined ${!isIncluded ? 'area-excluded' : ''}" style="border-left-color: var(--uui-color-border-standalone);">
-				<div class="area-header" @click=${() => this.#toggleCollapse(areaKey)}>
-					<uui-icon class="collapse-chevron" name="${isCollapsed ? 'icon-navigation-right' : 'icon-navigation-down'}"></uui-icon>
-					<span class="area-name undefined-name">Undefined</span>
-					<span class="header-spacer"></span>
-					<span class="group-count">${sectionCount} section${sectionCount !== 1 ? 's' : ''}</span>
-					<uui-toggle
-						label="${isIncluded ? 'Included' : 'Excluded'}"
-						?checked=${isIncluded}
-						@click=${(e: Event) => e.stopPropagation()}
-						@change=${() => this.#toggleAreaExclusion(areaKey)}>
-					</uui-toggle>
-				</div>
-				${!isCollapsed ? html`
-					${zone.sections.map((section, sIdx) =>
-						this.#renderSection(section, `p${pageNum}-undefined-s${sIdx}`, pageNum, -1)
-					)}
-				` : nothing}
-			</div>
-		`;
-	}
-
-	#renderZonePage(pageNum: number, zones: DetectedZone[], unzonedContent: DetectedZone | null) {
+	#renderZonePage(pageNum: number, zones: DetectedZone[]) {
 		const pageKey = `page-${pageNum}`;
 		const isCollapsed = this.#isCollapsed(pageKey);
-		const hasUnzoned = unzonedContent && unzonedContent.totalElements > 0;
-		const areaCount = zones.length + (hasUnzoned ? 1 : 0);
-		const sectionCount = zones.reduce((sum, z) => sum + z.sections.length, 0) + (unzonedContent?.sections.length ?? 0);
+		const areaCount = zones.length;
+		const sectionCount = zones.reduce((sum, z) => sum + z.sections.length, 0);
 		const isIncluded = this.#isPageIncluded(pageNum);
 		return html`
 			<uui-box class="page-box ${!isIncluded ? 'page-excluded' : ''}">
@@ -764,7 +729,6 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				</div>
 				${!isCollapsed ? html`
 					${zones.map((zone, idx) => this.#renderArea(zone, pageNum, idx))}
-					${hasUnzoned ? this.#renderUnzonedContent(unzonedContent!, pageNum) : nothing}
 				` : nothing}
 			</uui-box>
 		`;
@@ -775,7 +739,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 
 		return html`
 			${this._zoneDetection.pages.map((page) =>
-				this.#renderZonePage(page.page, page.zones, page.unzonedContent)
+				this.#renderZonePage(page.page, page.zones)
 			)}
 		`;
 	}
@@ -783,8 +747,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 	#computeSectionCount(): number {
 		if (!this._zoneDetection) return 0;
 		return this._zoneDetection.pages.reduce((sum, page) =>
-			sum + page.zones.reduce((zSum, zone) => zSum + zone.sections.length, 0)
-			+ (page.unzonedContent?.sections.length ?? 0), 0);
+			sum + page.zones.reduce((zSum, zone) => zSum + zone.sections.length, 0), 0);
 	}
 
 	#renderPageSelection() {
@@ -1302,10 +1265,6 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				margin-left: var(--uui-size-space-3);
 			}
 
-			.zone-area.undefined {
-				opacity: 0.75;
-			}
-
 			.zone-area.area-excluded {
 				opacity: 0.4;
 			}
@@ -1334,18 +1293,9 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				border: 1px solid var(--uui-color-border);
 			}
 
-			.area-color-swatch.undefined-swatch {
-				background: var(--uui-color-border-standalone);
-			}
-
 			.area-name {
 				font-weight: 600;
 				color: var(--uui-color-text);
-			}
-
-			.undefined-name {
-				color: var(--uui-color-text-alt);
-				font-style: italic;
 			}
 
 			/* Sections within areas (Level 3) */

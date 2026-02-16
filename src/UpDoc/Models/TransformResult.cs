@@ -40,7 +40,7 @@ public class TransformedSection
     /// <summary>Source page number.</summary>
     public int Page { get; set; }
 
-    /// <summary>Hex color of the zone this section belongs to. Null for unzoned content.</summary>
+    /// <summary>Hex color of the area this section belongs to.</summary>
     public string? ZoneColor { get; set; }
 
     /// <summary>Number of children that were assembled.</summary>

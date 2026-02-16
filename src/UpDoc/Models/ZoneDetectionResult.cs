@@ -21,7 +21,7 @@ public class ZoneDetectionResult
 }
 
 /// <summary>
-/// All detected zones for a single page, plus any unzoned content.
+/// All detected zones (areas) for a single page.
 /// </summary>
 public class PageZones
 {
@@ -30,13 +30,6 @@ public class PageZones
 
     [JsonPropertyName("zones")]
     public List<DetectedZone> Zones { get; set; } = new();
-
-    /// <summary>
-    /// Elements that don't fall within any detected zone, still grouped into sections.
-    /// Null if all elements are in zones.
-    /// </summary>
-    [JsonPropertyName("unzonedContent")]
-    public DetectedZone? UnzonedContent { get; set; }
 }
 
 /// <summary>
@@ -119,7 +112,4 @@ public class ZoneDiagnosticInfo
 
     [JsonPropertyName("elementsZoned")]
     public int ElementsZoned { get; set; }
-
-    [JsonPropertyName("elementsUnzoned")]
-    public int ElementsUnzoned { get; set; }
 }

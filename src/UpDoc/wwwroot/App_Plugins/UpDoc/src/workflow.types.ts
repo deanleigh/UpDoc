@@ -310,7 +310,6 @@ export interface ZoneDetectionResult {
 export interface PageZones {
 	page: number;
 	zones: DetectedZone[];
-	unzonedContent: DetectedZone | null;
 }
 
 export interface DetectedZone {
@@ -341,7 +340,6 @@ export interface ZoneDiagnosticInfo {
 	pathsAfterFiltering: number;
 	zonesDetected: number;
 	elementsZoned: number;
-	elementsUnzoned: number;
 }
 
 // ============================================================================

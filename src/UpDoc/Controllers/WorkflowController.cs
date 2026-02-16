@@ -289,10 +289,9 @@ public class WorkflowController : ControllerBase
         var result = _pdfPagePropertiesService.DetectZones(absolutePath);
 
         _logger.LogInformation(
-            "Zone detection complete: {Zones} zones detected, {Zoned} elements in zones, {Unzoned} unzoned",
+            "Zone detection complete: {Zones} zones detected, {Elements} elements extracted",
             result.Diagnostics.ZonesDetected,
-            result.Diagnostics.ElementsZoned,
-            result.Diagnostics.ElementsUnzoned);
+            result.Diagnostics.ElementsZoned);
 
         return Ok(result);
     }
@@ -322,8 +321,8 @@ public class WorkflowController : ControllerBase
             return NotFound(new { error = $"Workflow '{name}' not found." });
         }
 
-        _logger.LogInformation("Zone detection saved for workflow '{Name}': {Zones} zones, {Zoned} zoned, {Unzoned} unzoned",
-            name, result.Diagnostics.ZonesDetected, result.Diagnostics.ElementsZoned, result.Diagnostics.ElementsUnzoned);
+        _logger.LogInformation("Zone detection saved for workflow '{Name}': {Zones} zones, {Elements} elements extracted",
+            name, result.Diagnostics.ZonesDetected, result.Diagnostics.ElementsZoned);
 
         return Ok(result);
     }
