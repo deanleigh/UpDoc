@@ -161,7 +161,10 @@ export class UpDocModalElement extends UmbModalBaseElement<
 			for (const section of transformResult.sections) {
 				if (!section.included) continue;
 				if (section.heading) {
-					sectionLookup[`${section.id}.heading`] = section.heading;
+					// For role sections, heading is just a label (e.g., "Tour Title"), not document text.
+					// Map .heading to the content so existing mappings resolve to actual text.
+					sectionLookup[`${section.id}.heading`] =
+						section.pattern === 'role' ? section.content : section.heading;
 				}
 				sectionLookup[`${section.id}.content`] = section.content;
 			}

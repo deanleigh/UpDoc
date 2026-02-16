@@ -19,7 +19,9 @@
         "height": 139
       },
       "color": "#e84855",
-      "headingFont": "",
+      "sectionPattern": {
+        "conditions": []
+      },
       "expectedSections": [],
       "notes": ""
     },
@@ -35,7 +37,7 @@
         "height": 125
       },
       "color": "#f9dc5c",
-      "headingFont": "",
+      "sectionPattern": null,
       "expectedSections": [],
       "notes": ""
     },
@@ -51,7 +53,14 @@
         "height": 558
       },
       "color": "#3185fc",
-      "headingFont": "",
+      "sectionPattern": {
+        "conditions": [
+          {
+            "type": "fontNameContains",
+            "value": "Clarendon"
+          }
+        ]
+      },
       "expectedSections": [],
       "notes": ""
     },
@@ -67,7 +76,7 @@
         "height": 625
       },
       "color": "#8338ec",
-      "headingFont": "",
+      "sectionPattern": null,
       "expectedSections": [],
       "notes": ""
     }

@@ -27,7 +27,6 @@ interface EditorArea {
 	w: number;
 	h: number;
 	color: string;
-	headingFont: string;
 	expectedSections: string[];
 	notes: string;
 }
@@ -128,7 +127,6 @@ export class PdfAreaEditorModalElement extends UmbModalBaseElement<
 					w: a.bounds.width,
 					h: a.bounds.height,
 					color: a.color || AREA_COLORS[i % AREA_COLORS.length],
-					headingFont: a.headingFont,
 					expectedSections: a.expectedSections,
 					notes: a.notes,
 				}));
@@ -431,7 +429,6 @@ export class PdfAreaEditorModalElement extends UmbModalBaseElement<
 					w: bottomRight.px - topLeft.px,
 					h: topLeft.py - bottomRight.py,
 					color: AREA_COLORS[(this._areas.length) % AREA_COLORS.length],
-					headingFont: '',
 					expectedSections: [],
 					notes: '',
 				};
@@ -529,7 +526,6 @@ export class PdfAreaEditorModalElement extends UmbModalBaseElement<
 					height: Math.round(a.h * 10) / 10,
 				},
 				color: a.color,
-				headingFont: a.headingFont,
 				expectedSections: a.expectedSections,
 				notes: a.notes,
 			})),

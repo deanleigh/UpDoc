@@ -39,6 +39,15 @@ public class SourceConfig
     public Dictionary<string, SectionRuleSet>? SectionRules { get; set; }
 
     /// <summary>
+    /// Rules for breaking area elements into individually-mappable sections.
+    /// Keyed by area name in kebab-case (e.g., "page-header", "tour-details").
+    /// When a flat area has rules with roles, each role-matched element becomes
+    /// its own section in the transform output.
+    /// </summary>
+    [JsonPropertyName("areaRules")]
+    public Dictionary<string, SectionRuleSet>? AreaRules { get; set; }
+
+    /// <summary>
     /// Resolves the list of page numbers to process, given the total page count.
     /// Returns null if all pages should be processed.
     /// </summary>

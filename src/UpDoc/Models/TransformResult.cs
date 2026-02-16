@@ -64,4 +64,5 @@ public class TransformDiagnostics
     public int ParagraphSections { get; set; }
     public int SubHeadedSections { get; set; }
     public int PreambleSections { get; set; }
+    public int RoleSections { get; set; }
 }

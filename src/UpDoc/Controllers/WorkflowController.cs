@@ -367,16 +367,17 @@ public class WorkflowController : ControllerBase
 
         // Step 2: Run transform on area detection output, preserving existing include/exclude state
         var previousTransform = _workflowService.GetTransformResult(name);
-        var transformResult = _contentTransformService.Transform(areaResult, previousTransform);
+        var transformResult = _contentTransformService.Transform(areaResult, sourceConfig?.AreaRules, previousTransform);
         _workflowService.SaveTransformResult(name, transformResult);
 
         _logger.LogInformation(
-            "Transform saved for workflow '{Name}': {Sections} sections ({Bullets} bullet, {Paragraphs} paragraph, {SubHeaded} sub-headed, {Preambles} preamble)",
+            "Transform saved for workflow '{Name}': {Sections} sections ({Bullets} bullet, {Paragraphs} paragraph, {SubHeaded} sub-headed, {Preambles} preamble, {Roles} role)",
             name, transformResult.Diagnostics.TotalSections,
             transformResult.Diagnostics.BulletListSections,
             transformResult.Diagnostics.ParagraphSections,
             transformResult.Diagnostics.SubHeadedSections,
-            transformResult.Diagnostics.PreambleSections);
+            transformResult.Diagnostics.PreambleSections,
+            transformResult.Diagnostics.RoleSections);
 
         return Ok(transformResult);
     }
@@ -411,7 +412,7 @@ public class WorkflowController : ControllerBase
 
             var areaResult = _pdfPagePropertiesService.DetectAreas(absolutePath, includePages, areaTemplate);
             var previousTransform = _workflowService.GetTransformResult(name);
-            var result = _contentTransformService.Transform(areaResult, previousTransform);
+            var result = _contentTransformService.Transform(areaResult, sourceConfig?.AreaRules, previousTransform);
             return Ok(result);
         }
         catch (Exception ex)
@@ -476,6 +477,24 @@ public class WorkflowController : ControllerBase
             name, sectionRules.Count);
 
         return Ok(sectionRules);
+    }
+
+    [HttpPut("{name}/area-rules")]
+    public IActionResult UpdateAreaRules(string name, [FromBody] Dictionary<string, SectionRuleSet> areaRules)
+    {
+        var sourceConfig = _workflowService.GetSourceConfig(name);
+        if (sourceConfig == null)
+        {
+            return NotFound(new { error = $"Workflow '{name}' not found or has no source.json." });
+        }
+
+        sourceConfig.AreaRules = areaRules;
+        _workflowService.SaveSourceConfig(name, sourceConfig);
+
+        _logger.LogInformation("Updated area rules for workflow '{Name}': {Count} areas with rules",
+            name, areaRules.Count);
+
+        return Ok(areaRules);
     }
 
     [HttpGet("{name}/source")]

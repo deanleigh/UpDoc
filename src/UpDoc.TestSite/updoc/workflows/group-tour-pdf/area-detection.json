@@ -30,43 +30,40 @@
                     "width": 193.2,
                     "height": 7.9
                   }
+                },
+                {
+                  "id": "p1-e2",
+                  "text": "The Art \u0026 History of Liverpool",
+                  "fontSize": 30,
+                  "fontName": "GHEALP\u002BClarendon",
+                  "color": "#FFFFFF",
+                  "boundingBox": {
+                    "left": 33.2,
+                    "top": 794.6,
+                    "width": 295.8,
+                    "height": 51.2
+                  }
+                },
+                {
+                  "id": "p1-e3",
+                  "text": "5 days from \u00A3814 Departing 5th October 2026",
+                  "fontSize": 14.4,
+                  "fontName": "GHEALM\u002BHelveticaNeue-Medium",
+                  "color": "#FFD200",
+                  "boundingBox": {
+                    "left": 30.1,
+                    "top": 719.5,
+                    "width": 307.4,
+                    "height": 10.5
+                  }
                 }
               ]
-            },
-            {
-              "heading": {
-                "id": "p1-e2",
-                "text": "The Art \u0026 History of Liverpool",
-                "fontSize": 30,
-                "fontName": "GHEALP\u002BClarendon",
-                "color": "#FFFFFF",
-                "boundingBox": {
-                  "left": 33.2,
-                  "top": 794.6,
-                  "width": 295.8,
-                  "height": 51.2
-                }
-              },
-              "children": []
-            },
-            {
-              "heading": {
-                "id": "p1-e3",
-                "text": "5 days from \u00A3814 Departing 5th October 2026",
-                "fontSize": 14.4,
-                "fontName": "GHEALM\u002BHelveticaNeue-Medium",
-                "color": "#FFD200",
-                "boundingBox": {
-                  "left": 30.1,
-                  "top": 719.5,
-                  "width": 307.4,
-                  "height": 10.5
-                }
-              },
-              "children": []
             }
           ],
-          "totalElements": 3
+          "totalElements": 3,
+          "sectionPattern": {
+            "conditions": []
+          }
         },
         {
           "name": "Organiser Info",
@@ -622,7 +619,15 @@
               ]
             }
           ],
-          "totalElements": 33
+          "totalElements": 33,
+          "sectionPattern": {
+            "conditions": [
+              {
+                "type": "fontNameContains",
+                "value": "Clarendon"
+              }
+            ]
+          }
         }
       ]
     },

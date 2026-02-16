@@ -1,4 +1,4 @@
-import { a as Z, t as tt } from "./workflow.service-CZ6YzcAN.js";
+import { a as Z, t as tt } from "./workflow.service-D_fkSdCh.js";
 import { r as et, a as it, g as ot } from "./destination-utils-CEQ5Lbpg.js";
 import { html as s, css as at, state as h, customElement as nt, nothing as E } from "@umbraco-cms/backoffice/external/lit";
 import { UmbTextStyles as rt } from "@umbraco-cms/backoffice/style";
@@ -7,8 +7,8 @@ import { UMB_AUTH_CONTEXT as U } from "@umbraco-cms/backoffice/auth";
 var ct = Object.defineProperty, ut = Object.getOwnPropertyDescriptor, M = (t) => {
   throw TypeError(t);
 }, d = (t, i, e, a) => {
-  for (var r = a > 1 ? void 0 : a ? ut(i, e) : i, u = t.length - 1, l; u >= 0; u--)
-    (l = t[u]) && (r = (a ? l(i, e, r) : l(r)) || r);
+  for (var r = a > 1 ? void 0 : a ? ut(i, e) : i, l = t.length - 1, c; l >= 0; l--)
+    (c = t[l]) && (r = (a ? c(i, e, r) : c(r)) || r);
   return a && r && ct(i, e, r), r;
 }, lt = (t, i, e) => i.has(t) || M("Cannot " + e), dt = (t, i, e) => i.has(t) ? M("Cannot add the same private member more than once") : i instanceof WeakSet ? i.add(t) : i.set(t, e), n = (t, i, e) => (lt(t, i, "access private method"), e), o, L, D, $, N, A, I, P, q, O, K, F, W, C, x, z, j, G, B, w, R, Y, H, X, J, Q;
 const pt = {
@@ -17,7 +17,7 @@ const pt = {
   web: "Web Page",
   doc: "Word Document"
 };
-let c = class extends st {
+let u = class extends st {
   constructor() {
     super(...arguments), dt(this, o), this._activeTab = "source", this._documentName = "", this._sourceType = "", this._sourceUrl = "", this._selectedMediaUnique = null, this._sectionLookup = {}, this._config = null, this._isExtracting = !1, this._extractionError = null, this._contentActiveTab = "", this._availableSourceTypes = [], this._loadingSourceTypes = !0;
   }
@@ -91,10 +91,10 @@ N = async function(t) {
       this._extractionError = "Failed to extract content from source";
       return;
     }
-    const u = {};
-    for (const l of r.sections)
-      l.included && (l.heading && (u[`${l.id}.heading`] = l.heading), u[`${l.id}.content`] = l.content);
-    this._sectionLookup = u, !this._documentName && this._config && n(this, o, A).call(this, u);
+    const l = {};
+    for (const c of r.sections)
+      c.included && (c.heading && (l[`${c.id}.heading`] = c.pattern === "role" ? c.content : c.heading), l[`${c.id}.content`] = c.content);
+    this._sectionLookup = l, !this._documentName && this._config && n(this, o, A).call(this, l);
   } catch (i) {
     this._extractionError = "Failed to connect to extraction service", console.error("Extraction error:", i);
   } finally {
@@ -106,7 +106,7 @@ A = function(t) {
   let i = null;
   for (const a of this._config.map.mappings) {
     if (a.enabled === !1) continue;
-    const r = a.destinations.find((u) => !u.blockKey);
+    const r = a.destinations.find((l) => !l.blockKey);
     if (r) {
       i = r.target;
       break;
@@ -116,7 +116,7 @@ A = function(t) {
   const e = [];
   for (const a of this._config.map.mappings) {
     if (a.enabled === !1) continue;
-    a.destinations.some((u) => u.target === i && !u.blockKey) && t[a.source] && e.push(t[a.source]);
+    a.destinations.some((l) => l.target === i && !l.blockKey) && t[a.source] && e.push(t[a.source]);
   }
   e.length > 0 && (this._documentName = e.join(" "));
 };
@@ -336,13 +336,13 @@ B = function() {
       blockLabel: m ? it(m, t) ?? void 0 : void 0
     });
   }
-  const u = ot(t), l = [];
-  for (const p of u) {
+  const l = ot(t), c = [];
+  for (const p of l) {
     const v = a.get(p.id);
-    v?.length && (r.set(p.id, p.label), l.push({ tabId: p.id, tabLabel: p.label, items: v }));
+    v?.length && (r.set(p.id, p.label), c.push({ tabId: p.id, tabLabel: p.label, items: v }));
   }
   const S = a.get("other");
-  return S?.length && l.push({ tabId: "other", tabLabel: "Other", items: S }), l;
+  return S?.length && c.push({ tabId: "other", tabLabel: "Other", items: S }), c;
 };
 w = function(t, i) {
   return s`
@@ -459,7 +459,7 @@ Q = function() {
       return n(this, o, H).call(this);
   }
 };
-c.styles = [
+u.styles = [
   rt,
   at`
 			/* Navigation tabs */
@@ -632,46 +632,46 @@ c.styles = [
 ];
 d([
   h()
-], c.prototype, "_activeTab", 2);
+], u.prototype, "_activeTab", 2);
 d([
   h()
-], c.prototype, "_documentName", 2);
+], u.prototype, "_documentName", 2);
 d([
   h()
-], c.prototype, "_sourceType", 2);
+], u.prototype, "_sourceType", 2);
 d([
   h()
-], c.prototype, "_sourceUrl", 2);
+], u.prototype, "_sourceUrl", 2);
 d([
   h()
-], c.prototype, "_selectedMediaUnique", 2);
+], u.prototype, "_selectedMediaUnique", 2);
 d([
   h()
-], c.prototype, "_sectionLookup", 2);
+], u.prototype, "_sectionLookup", 2);
 d([
   h()
-], c.prototype, "_config", 2);
+], u.prototype, "_config", 2);
 d([
   h()
-], c.prototype, "_isExtracting", 2);
+], u.prototype, "_isExtracting", 2);
 d([
   h()
-], c.prototype, "_extractionError", 2);
+], u.prototype, "_extractionError", 2);
 d([
   h()
-], c.prototype, "_contentActiveTab", 2);
+], u.prototype, "_contentActiveTab", 2);
 d([
   h()
-], c.prototype, "_availableSourceTypes", 2);
+], u.prototype, "_availableSourceTypes", 2);
 d([
   h()
-], c.prototype, "_loadingSourceTypes", 2);
-c = d([
+], u.prototype, "_loadingSourceTypes", 2);
+u = d([
   nt("up-doc-modal")
-], c);
-const _t = c;
+], u);
+const _t = u;
 export {
-  c as UpDocModalElement,
+  u as UpDocModalElement,
   _t as default
 };
-//# sourceMappingURL=up-doc-modal.element-BrAC89CN.js.map
+//# sourceMappingURL=up-doc-modal.element-CCNO-clw.js.map

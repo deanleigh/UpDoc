@@ -619,9 +619,31 @@ public class PdfPagePropertiesService : IPdfPagePropertiesService
     }
 
     /// <summary>
+    /// Evaluates whether an element matches ALL conditions, with position context.
+    /// Supports positionFirst/positionLast conditions that need element index.
+    /// </summary>
+    internal static bool MatchesAllConditions(AreaElement element, List<RuleCondition> conditions, int index, int total)
+    {
+        foreach (var condition in conditions)
+        {
+            if (!MatchesCondition(element, condition, index, total))
+                return false;
+        }
+        return true;
+    }
+
+    /// <summary>
     /// Evaluates a single condition against an element.
     /// </summary>
     private static bool MatchesCondition(AreaElement element, RuleCondition condition)
+    {
+        return MatchesCondition(element, condition, -1, -1);
+    }
+
+    /// <summary>
+    /// Evaluates a single condition against an element, with optional position context.
+    /// </summary>
+    internal static bool MatchesCondition(AreaElement element, RuleCondition condition, int index, int total)
     {
         var valueStr = condition.Value?.ToString() ?? string.Empty;
 
@@ -645,6 +667,10 @@ public class PdfPagePropertiesService : IPdfPagePropertiesService
 
             // Color conditions
             "colorEquals" => element.Color.Equals(valueStr, StringComparison.OrdinalIgnoreCase),
+
+            // Position conditions (require index context)
+            "positionFirst" => index == 0,
+            "positionLast" => index >= 0 && index == total - 1,
 
             _ => false // Unknown condition type — does not match
         };

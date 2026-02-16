@@ -133,6 +133,35 @@
       ],
       "enabled": true,
       "comment": null
+    },
+    {
+      "source": "tour-title.heading",
+      "destinations": [
+        {
+          "target": "pageTitle",
+          "blockKey": null,
+          "transforms": null
+        },
+        {
+          "target": "pageTitleShort",
+          "blockKey": null,
+          "transforms": null
+        }
+      ],
+      "enabled": true,
+      "comment": null
+    },
+    {
+      "source": "5-days-from.heading",
+      "destinations": [
+        {
+          "target": "pageDescription",
+          "blockKey": null,
+          "transforms": null
+        }
+      ],
+      "enabled": true,
+      "comment": null
     }
   ]
 }

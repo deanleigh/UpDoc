@@ -7,7 +7,7 @@ var D = Object.defineProperty, V = Object.getOwnPropertyDescriptor, v = (e) => {
   for (var s = o > 1 ? void 0 : o ? V(t, i) : t, a = e.length - 1, d; a >= 0; a--)
     (d = e[a]) && (s = (o ? d(t, i, s) : d(s)) || s);
   return o && s && D(t, i, s), s;
-}, b = (e, t, i) => t.has(e) || v("Cannot " + i), l = (e, t, i) => (b(e, t, "read from private field"), i ? i.call(e) : t.get(e)), H = (e, t, i) => t.has(e) ? v("Cannot add the same private member more than once") : t instanceof WeakSet ? t.add(e) : t.set(e, i), r = (e, t, i) => (b(e, t, "access private method"), i), n, c, g, _, x, z, y, w, C, S, $, N, E, k, L, R, M, A, O, f, W;
+}, b = (e, t, i) => t.has(e) || v("Cannot " + i), l = (e, t, i) => (b(e, t, "read from private field"), i ? i.call(e) : t.get(e)), H = (e, t, i) => t.has(e) ? v("Cannot add the same private member more than once") : t instanceof WeakSet ? t.add(e) : t.set(e, i), r = (e, t, i) => (b(e, t, "access private method"), i), n, c, g, _, x, z, y, w, C, S, $, N, E, k, L, M, R, A, O, f, W;
 const J = {
   textBeginsWith: "Text begins with",
   textEndsWith: "Text ends with",
@@ -70,12 +70,12 @@ let p = class extends F {
 				</div>
 
 				<div slot="actions">
-					<uui-button label="Close" @click=${r(this, n, M)}>Close</uui-button>
+					<uui-button label="Close" @click=${r(this, n, R)}>Close</uui-button>
 					<uui-button
 						label="Save"
 						look="primary"
 						color="positive"
-						@click=${r(this, n, R)}>
+						@click=${r(this, n, M)}>
 						Save
 					</uui-button>
 				</div>
@@ -182,10 +182,10 @@ L = function(e, t, i) {
   const a = s.conditions[t], d = a.type === "fontSizeEquals" || a.type === "fontSizeAbove" || a.type === "fontSizeBelow";
   s.conditions[t] = { ...a, value: d && !isNaN(Number(i)) ? Number(i) : i }, o[e] = s, this._rules = o;
 };
-R = function() {
+M = function() {
   this.value = { rules: { rules: this._rules } }, this.modalContext?.submit();
 };
-M = function() {
+R = function() {
   this.modalContext?.reject();
 };
 A = function(e, t, i) {
@@ -226,7 +226,7 @@ O = function(e, t, i) {
 					<input
 						type="text"
 						class="role-name-input"
-						placeholder="Role name (e.g. organiser-name)"
+						placeholder="Section name (e.g. tour-title)"
 						.value=${e.role}
 						@input=${(o) => r(this, n, $).call(this, t, o.target.value)} />
 					<uui-button
@@ -486,4 +486,4 @@ export {
   p as UpDocSectionRulesEditorModalElement,
   Q as default
 };
-//# sourceMappingURL=section-rules-editor-modal.element-MtFFkp-I.js.map
+//# sourceMappingURL=section-rules-editor-modal.element-O7G1d5Rz.js.map

@@ -1,6 +1,6 @@
-const c = /* @__PURE__ */ new Map();
+const i = /* @__PURE__ */ new Map();
 let r = null, s = null;
-async function u(o) {
+async function p(o) {
   return r || (s || (s = (async () => {
     try {
       const n = await fetch("/umbraco/management/api/v1/updoc/workflows/active", {
@@ -17,8 +17,8 @@ async function u(o) {
     return s = null, r;
   })()), s);
 }
-async function p(o, n) {
-  const e = c.get(o);
+async function f(o, n) {
+  const e = i.get(o);
   if (e) return e;
   const t = await fetch(
     `/umbraco/management/api/v1/updoc/config/${o}`,
@@ -33,9 +33,9 @@ async function p(o, n) {
   if (!t.ok)
     return console.warn(`No config found for blueprint ${o}`), null;
   const a = await t.json();
-  return c.set(o, a), a;
+  return i.set(o, a), a;
 }
-async function f(o, n) {
+async function l(o, n) {
   const e = await fetch(
     `/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(o)}`,
     {
@@ -48,7 +48,7 @@ async function f(o, n) {
   );
   return e.ok ? e.json() : (console.warn(`No workflow found with name "${o}"`), null);
 }
-async function l(o, n) {
+async function m(o, n) {
   const e = await fetch(
     `/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(o)}/sample-extraction`,
     {
@@ -61,7 +61,7 @@ async function l(o, n) {
   );
   return e.ok ? e.json() : null;
 }
-async function m(o, n, e) {
+async function d(o, n, e) {
   const t = await fetch(
     `/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(o)}/sample-extraction`,
     {
@@ -79,7 +79,7 @@ async function m(o, n, e) {
   }
   return t.json();
 }
-async function d(o, n) {
+async function h(o, n) {
   const e = await fetch(
     `/umbraco/management/api/v1/updoc/extract-rich?mediaKey=${o}`,
     {
@@ -92,7 +92,7 @@ async function d(o, n) {
   );
   return e.ok ? e.json() : null;
 }
-async function h(o, n) {
+async function w(o, n) {
   const e = await fetch(
     `/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(o)}/area-detection`,
     {
@@ -105,7 +105,7 @@ async function h(o, n) {
   );
   return e.ok ? e.json() : null;
 }
-async function w(o, n) {
+async function y(o, n) {
   const e = await fetch(
     `/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(o)}/transform`,
     {
@@ -118,7 +118,7 @@ async function w(o, n) {
   );
   return e.ok ? e.json() : null;
 }
-async function y(o, n, e) {
+async function g(o, n, e) {
   const t = await fetch(
     `/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(o)}/transform`,
     {
@@ -136,7 +136,7 @@ async function y(o, n, e) {
   }
   return t.json();
 }
-async function g(o, n, e) {
+async function k(o, n, e) {
   const t = await fetch(
     `/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(o)}/transform-adhoc`,
     {
@@ -150,7 +150,7 @@ async function g(o, n, e) {
   );
   return t.ok ? t.json() : null;
 }
-async function k(o, n, e, t) {
+async function j(o, n, e, t) {
   const a = await fetch(
     `/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(o)}/transform/sections/${encodeURIComponent(n)}/included`,
     {
@@ -180,9 +180,9 @@ async function C(o, n, e) {
     const a = await t.json();
     return console.error("Save map config failed:", a), null;
   }
-  return i(), t.json();
+  return c(), t.json();
 }
-async function j(o, n, e) {
+async function $(o, n, e) {
   const t = await fetch(
     `/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(o)}/pages`,
     {
@@ -198,9 +198,9 @@ async function j(o, n, e) {
     const a = await t.json();
     return console.error("Save page selection failed:", a), !1;
   }
-  return i(), !0;
+  return c(), !0;
 }
-async function $(o, n) {
+async function T(o, n) {
   const e = await fetch(
     `/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(o)}/source`,
     {
@@ -211,7 +211,7 @@ async function $(o, n) {
   );
   return e.ok ? e.json() : null;
 }
-async function T(o, n) {
+async function b(o, n) {
   const e = await fetch(
     `/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(o)}/area-template`,
     {
@@ -222,7 +222,7 @@ async function T(o, n) {
   );
   return e.ok ? e.json() : null;
 }
-async function b(o, n, e) {
+async function v(o, n, e) {
   const t = await fetch(
     `/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(o)}/area-template`,
     {
@@ -240,7 +240,7 @@ async function b(o, n, e) {
   }
   return t.json();
 }
-async function v(o, n) {
+async function A(o, n) {
   const e = await fetch(
     `/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(o)}/pdf`,
     {
@@ -251,9 +251,9 @@ async function v(o, n) {
   );
   return e.ok ? e.blob() : null;
 }
-async function A(o, n, e) {
+async function S(o, n, e) {
   const t = await fetch(
-    `/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(o)}/section-rules`,
+    `/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(o)}/area-rules`,
     {
       method: "PUT",
       headers: {
@@ -265,32 +265,51 @@ async function A(o, n, e) {
   );
   if (!t.ok) {
     const a = await t.json();
-    return console.error("Save section rules failed:", a), null;
+    return console.error("Save area rules failed:", a), null;
   }
-  return i(), t.json();
+  return c(), t.json();
 }
-function i() {
-  c.clear(), r = null, s = null;
+async function B(o, n, e, t) {
+  const a = await fetch(
+    `/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(o)}/infer-section-pattern`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${t}`
+      },
+      body: JSON.stringify({ areaIndex: n, elementId: e })
+    }
+  );
+  if (!a.ok) {
+    const u = await a.json();
+    return console.error("Infer section pattern failed:", u), null;
+  }
+  return a.json();
+}
+function c() {
+  i.clear(), r = null, s = null;
 }
 export {
-  p as a,
-  f as b,
-  v as c,
-  l as d,
-  d as e,
-  u as f,
-  h as g,
-  w as h,
-  $ as i,
-  T as j,
-  m as k,
-  y as l,
-  A as m,
-  j as n,
+  f as a,
+  l as b,
+  A as c,
+  m as d,
+  h as e,
+  p as f,
+  w as g,
+  y as h,
+  T as i,
+  b as j,
+  d as k,
+  g as l,
+  S as m,
+  $ as n,
   C as o,
-  i as p,
-  b as s,
-  g as t,
-  k as u
+  B as p,
+  c as q,
+  v as s,
+  k as t,
+  j as u
 };
-//# sourceMappingURL=workflow.service-CZ6YzcAN.js.map
+//# sourceMappingURL=workflow.service-D_fkSdCh.js.map

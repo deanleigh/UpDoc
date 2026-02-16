@@ -1,5 +1,5 @@
-import type { RichExtractionResult, DocumentTypeConfig, MappingDestination, AreaDetectionResult, DetectedArea, DetectedSection, AreaElement, TransformResult, TransformedSection, SourceConfig, AreaTemplate, SectionRuleSet } from './workflow.types.js';
-import { fetchSampleExtraction, triggerSampleExtraction, fetchWorkflowByName, fetchAreaDetection, triggerTransform, fetchTransformResult, updateSectionInclusion, saveMapConfig, savePageSelection, fetchSourceConfig, fetchAreaTemplate, saveAreaTemplate, saveSectionRules } from './workflow.service.js';
+import type { RichExtractionResult, DocumentTypeConfig, MappingDestination, AreaDetectionResult, DetectedArea, DetectedSection, AreaElement, TransformResult, TransformedSection, SourceConfig, AreaTemplate, SectionRuleSet, InferSectionPatternResponse } from './workflow.types.js';
+import { fetchSampleExtraction, triggerSampleExtraction, fetchWorkflowByName, fetchAreaDetection, triggerTransform, fetchTransformResult, updateSectionInclusion, saveMapConfig, savePageSelection, fetchSourceConfig, fetchAreaTemplate, saveAreaTemplate, saveAreaRules, inferSectionPattern } from './workflow.service.js';
 import { markdownToHtml, normalizeToKebabCase } from './transforms.js';
 import { UMB_DESTINATION_PICKER_MODAL } from './destination-picker-modal.token.js';
 import { UMB_AREA_EDITOR_MODAL } from './pdf-area-editor-modal.token.js';
@@ -34,6 +34,12 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 	@state() private _excludedAreas = new Set<string>();
 	@state() private _areaTemplate: AreaTemplate | null = null;
 	@state() private _sectionPickerOpen = false;
+	/** Area index currently in teach mode (null = not teaching). */
+	@state() private _teachingAreaIndex: number | null = null;
+	/** Inference result from clicking an element in teach mode. */
+	@state() private _inferenceResult: InferSectionPatternResponse | null = null;
+	/** Whether an inference API call is in progress. */
+	@state() private _inferring = false;
 	#token = '';
 
 	override connectedCallback() {
@@ -310,72 +316,44 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		}
 	}
 
-	/** Builds a list of transform sections with their corresponding area detection elements. */
-	#getTransformSectionsWithElements(): Array<{ id: string; heading: string; elements: AreaElement[] }> {
-		if (!this._transformResult || !this._areaDetection) return [];
-
-		const result: Array<{ id: string; heading: string; elements: AreaElement[] }> = [];
-
-		for (const section of this._transformResult.sections) {
-			if (!section.included) continue;
-			const elements = this.#findElementsForSection(section);
-			result.push({
-				id: section.id,
-				heading: section.heading ?? 'Content',
-				elements,
-			});
-		}
-		return result;
-	}
-
-	/** Find area detection elements that belong to a given transform section. */
-	#findElementsForSection(section: TransformedSection): AreaElement[] {
+	/** Builds a list of areas for the rules editor dropdown. */
+	#getAreasForRulesEditor(): Array<{ areaKey: string; areaName: string; elements: AreaElement[]; hasRules: boolean }> {
 		if (!this._areaDetection) return [];
 
-		// Walk area detection pages looking for the matching detected section
-		for (const page of this._areaDetection.pages) {
-			if (page.page !== section.page) continue;
+		const result: Array<{ areaKey: string; areaName: string; elements: AreaElement[]; hasRules: boolean }> = [];
+		const seenKeys = new Set<string>();
 
+		for (const page of this._areaDetection.pages) {
 			for (const area of page.areas) {
-				for (const detectedSection of area.sections) {
-					const detectedId = detectedSection.heading
-						? normalizeToKebabCase(detectedSection.heading.text)
-						: this.#buildPreambleId(page.page, area, page);
-					if (detectedId === section.id) {
-						// Collect heading + children as element list
-						const elements: AreaElement[] = [];
-						if (detectedSection.heading) elements.push(detectedSection.heading);
-						elements.push(...detectedSection.children);
-						return elements;
-					}
-				}
+				const areaName = area.name || `Area`;
+				const areaKey = normalizeToKebabCase(areaName);
+				if (seenKeys.has(areaKey)) continue; // Deduplicate (same area on multiple pages)
+				seenKeys.add(areaKey);
+
+				const elements = this.#getAreaElements(area);
+				const hasRules = !!(this._sourceConfig?.areaRules?.[areaKey]?.rules?.length);
+				result.push({ areaKey, areaName, elements, hasRules });
 			}
 		}
-		return [];
-	}
-
-	/** Build a preamble section ID matching the transform layer's convention. */
-	#buildPreambleId(pageNum: number, area: DetectedArea, pageAreas: { areas: DetectedArea[] }): string {
-		const areaIdx = pageAreas.areas.indexOf(area);
-		return `preamble-p${pageNum}-z${areaIdx}`;
+		return result;
 	}
 
 	#onSectionPickerToggle(event: ToggleEvent) {
 		this._sectionPickerOpen = event.newState === 'open';
 	}
 
-	/** Opens the rules editor modal for a specific transform section. */
-	async #onEditSectionRules(sectionId: string, sectionHeading: string, elements: AreaElement[]) {
+	/** Opens the rules editor modal for a specific area. */
+	async #onEditAreaRules(areaKey: string, areaName: string, elements: AreaElement[]) {
 		if (!this._workflowName) return;
 
-		const existingRules = this._sourceConfig?.sectionRules?.[sectionId] ?? null;
+		const existingRules = this._sourceConfig?.areaRules?.[areaKey] ?? null;
 
 		const modalManager = await this.getContext(UMB_MODAL_MANAGER_CONTEXT);
 		const modal = modalManager.open(this, UMB_SECTION_RULES_EDITOR_MODAL, {
 			data: {
 				workflowName: this._workflowName,
-				sectionId,
-				sectionHeading,
+				sectionId: areaKey,
+				sectionHeading: areaName,
 				elements,
 				existingRules,
 			},
@@ -384,21 +362,21 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		try {
 			const result = await modal.onSubmit();
 			if (result?.rules) {
-				// Merge into existing sectionRules and save
+				// Merge into existing areaRules and save
 				const allRules: Record<string, SectionRuleSet> = {
-					...(this._sourceConfig?.sectionRules ?? {}),
+					...(this._sourceConfig?.areaRules ?? {}),
 				};
 
 				if (result.rules.rules.length > 0) {
-					allRules[sectionId] = result.rules;
+					allRules[areaKey] = result.rules;
 				} else {
 					// No rules left — remove the entry
-					delete allRules[sectionId];
+					delete allRules[areaKey];
 				}
 
-				const saved = await saveSectionRules(this._workflowName, allRules, this.#token);
+				const saved = await saveAreaRules(this._workflowName, allRules, this.#token);
 				if (saved && this._sourceConfig) {
-					this._sourceConfig = { ...this._sourceConfig, sectionRules: saved };
+					this._sourceConfig = { ...this._sourceConfig, areaRules: saved };
 				}
 			}
 		} catch {
@@ -470,7 +448,8 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				const areaDetection = await fetchAreaDetection(this._workflowName, token);
 				this._areaDetection = areaDetection;
 				const d = transformResult.diagnostics;
-				this._successMessage = `Content extracted — ${d.totalSections} sections (${d.bulletListSections} bullet, ${d.paragraphSections} paragraph, ${d.subHeadedSections} sub-headed)`;
+				const rolePart = d.roleSections > 0 ? `, ${d.roleSections} role` : '';
+				this._successMessage = `Content extracted — ${d.totalSections} sections (${d.bulletListSections} bullet, ${d.paragraphSections} paragraph, ${d.subHeadedSections} sub-headed${rolePart})`;
 				setTimeout(() => { this._successMessage = null; }, 5000);
 			} else if (extraction) {
 				this._successMessage = `Content extracted — ${extraction.elements.length} elements (transform unavailable)`;
@@ -579,6 +558,116 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		return dest.target;
 	}
 
+	// --- Teach-by-example helpers ---
+
+	/** Compute a flat global area index from page number and local area index. */
+	#getGlobalAreaIndex(pageNum: number, localAreaIndex: number): number {
+		if (!this._areaDetection) return localAreaIndex;
+		let globalIdx = 0;
+		for (const page of this._areaDetection.pages) {
+			if (page.page === pageNum) return globalIdx + localAreaIndex;
+			globalIdx += page.areas.length;
+		}
+		return globalIdx + localAreaIndex;
+	}
+
+	/** Get all elements from an area, flattened from sections. */
+	#getAreaElements(area: DetectedArea): AreaElement[] {
+		const elements: AreaElement[] = [];
+		for (const section of area.sections) {
+			if (section.heading) elements.push(section.heading);
+			elements.push(...section.children);
+		}
+		return elements;
+	}
+
+	/** Enter teach mode for a specific area. */
+	#onDefineStructure(globalAreaIdx: number, areaKey: string) {
+		this._teachingAreaIndex = globalAreaIdx;
+		this._inferenceResult = null;
+		this._inferring = false;
+		// Ensure the area is expanded
+		if (this._collapsed.has(areaKey)) {
+			const next = new Set(this._collapsed);
+			next.delete(areaKey);
+			this._collapsed = next;
+		}
+	}
+
+	/** User clicked an element in teach mode. Call the inference API. */
+	async #onTeachElementClick(elementId: string) {
+		if (this._teachingAreaIndex === null || !this._workflowName || this._inferring) return;
+
+		this._inferring = true;
+		this._inferenceResult = null;
+
+		try {
+			const result = await inferSectionPattern(
+				this._workflowName,
+				this._teachingAreaIndex,
+				elementId,
+				this.#token,
+			);
+			this._inferenceResult = result;
+		} catch (err) {
+			console.error('Inference failed:', err);
+			this._error = 'Failed to infer section pattern';
+		} finally {
+			this._inferring = false;
+		}
+	}
+
+	/** Confirm the inferred pattern — save to area template and re-extract. */
+	async #onConfirmPattern() {
+		if (this._teachingAreaIndex === null || !this._inferenceResult || !this._workflowName || !this._areaTemplate) return;
+
+		const idx = this._teachingAreaIndex;
+		if (idx < 0 || idx >= this._areaTemplate.areas.length) return;
+
+		// Update the area template with the new section pattern
+		const updatedAreas = [...this._areaTemplate.areas];
+		updatedAreas[idx] = { ...updatedAreas[idx], sectionPattern: this._inferenceResult.pattern };
+		const updatedTemplate: AreaTemplate = { ...this._areaTemplate, areas: updatedAreas };
+
+		const saved = await saveAreaTemplate(this._workflowName, updatedTemplate, this.#token);
+		if (saved) {
+			this._areaTemplate = saved;
+			// Exit teach mode
+			this._teachingAreaIndex = null;
+			this._inferenceResult = null;
+			// Re-extract with the updated area template
+			await this.#onReExtract();
+		}
+	}
+
+	/** Save empty conditions (no section headings) for the current teach area. */
+	async #onNoSections() {
+		if (this._teachingAreaIndex === null || !this._workflowName || !this._areaTemplate) return;
+
+		const idx = this._teachingAreaIndex;
+		if (idx < 0 || idx >= this._areaTemplate.areas.length) return;
+
+		// Save empty conditions = one flat section
+		const updatedAreas = [...this._areaTemplate.areas];
+		updatedAreas[idx] = { ...updatedAreas[idx], sectionPattern: { conditions: [] } };
+		const updatedTemplate: AreaTemplate = { ...this._areaTemplate, areas: updatedAreas };
+
+		const saved = await saveAreaTemplate(this._workflowName, updatedTemplate, this.#token);
+		if (saved) {
+			this._areaTemplate = saved;
+			this._teachingAreaIndex = null;
+			this._inferenceResult = null;
+			await this.#onReExtract();
+		}
+	}
+
+	/** Cancel teach mode without saving. */
+	#onCancelTeach() {
+		this._teachingAreaIndex = null;
+		this._inferenceResult = null;
+		this._inferring = false;
+	}
+
 	// --- Area-based rendering ---
 
 	#classifyText(text: string): 'list' | 'paragraph' {
@@ -678,18 +767,102 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		this._excludedAreas = next;
 	}
 
+	#renderTeachElement(element: AreaElement) {
+		const isClicked = this._inferenceResult?.clickedElementId === element.id;
+		const isMatching = this._inferenceResult?.matchingElementIds?.includes(element.id) ?? false;
+		const textType = this.#classifyText(element.text);
+		const badgeLabel = textType === 'list' ? 'List Item' : 'Paragraph';
+		return html`
+			<div class="element-item teach-element ${isClicked ? 'teach-clicked' : ''} ${isMatching ? 'teach-matched' : ''}"
+				@click=${() => this.#onTeachElementClick(element.id)}>
+				<div class="element-content">
+					<div class="element-text">${element.text}</div>
+					<div class="element-meta">
+						<span class="meta-badge text-type ${textType}">${badgeLabel}</span>
+						<span class="meta-badge font-size">${element.fontSize}pt</span>
+						<span class="meta-badge font-name">${element.fontName}</span>
+						<span class="meta-badge color" style="border-left: 3px solid ${element.color};">${element.color}</span>
+						${element.text === element.text.toUpperCase() && element.text !== element.text.toLowerCase() ? html`<span class="meta-badge text-case">UPPERCASE</span>` : nothing}
+					</div>
+				</div>
+			</div>
+		`;
+	}
+
+	#renderTeachToolbar() {
+		if (this._inferenceResult) {
+			const matchCount = this._inferenceResult.matchingElementIds.length;
+			const conditionSummary = this._inferenceResult.pattern.conditions
+				.map((c) => `${c.type}: ${c.value}`)
+				.join(', ');
+			return html`
+				<div class="teach-confirmation">
+					<div class="teach-confirmation-info">
+						<uui-icon name="icon-check" style="color: var(--uui-color-positive);"></uui-icon>
+						<span>Found <strong>${matchCount}</strong> matching element${matchCount !== 1 ? 's' : ''}</span>
+						<span class="teach-condition-summary">${conditionSummary}</span>
+					</div>
+					<div class="teach-confirmation-actions">
+						<uui-button look="primary" color="positive" label="Confirm" @click=${() => this.#onConfirmPattern()}>
+							<uui-icon name="icon-check"></uui-icon> Confirm
+						</uui-button>
+						<uui-button look="secondary" label="Cancel" @click=${() => this.#onCancelTeach()}>Cancel</uui-button>
+					</div>
+				</div>
+			`;
+		}
+
+		return html`
+			<div class="teach-toolbar">
+				<span class="teach-instruction">
+					${this._inferring
+						? html`<uui-loader-bar></uui-loader-bar> Analysing...`
+						: html`Click a section heading, or <strong>No Sections</strong> if this area has no repeating structure`}
+				</span>
+				<div class="teach-toolbar-actions">
+					<uui-button look="secondary" compact label="No Sections" @click=${() => this.#onNoSections()}
+						title="This area has no repeating section structure">
+						No Sections
+					</uui-button>
+					<uui-button look="default" compact label="Cancel" @click=${() => this.#onCancelTeach()}>Cancel</uui-button>
+				</div>
+			</div>
+		`;
+	}
+
 	#renderArea(area: DetectedArea, pageNum: number, areaIndex: number) {
 		const areaKey = `area-p${pageNum}-a${areaIndex}`;
-		const isCollapsed = this.#isCollapsed(areaKey);
+		const globalIdx = this.#getGlobalAreaIndex(pageNum, areaIndex);
+		const isTeaching = this._teachingAreaIndex === globalIdx;
+		const isCollapsed = isTeaching ? false : this.#isCollapsed(areaKey);
 		const isIncluded = !this._excludedAreas.has(areaKey);
 		const sectionCount = area.sections.length;
+
+		// Check if area has a configured section pattern
+		const hasPattern = area.sectionPattern != null;
+		const patternLabel = hasPattern
+			? (area.sectionPattern!.conditions.length > 0 ? 'Configured' : 'Flat')
+			: null;
+
 		return html`
-			<div class="detected-area ${!isIncluded ? 'area-excluded' : ''}" style="border-left-color: ${area.color};">
-				<div class="area-header" @click=${() => this.#toggleCollapse(areaKey)}>
+			<div class="detected-area ${!isIncluded ? 'area-excluded' : ''} ${isTeaching ? 'area-teaching' : ''}" style="border-left-color: ${area.color};">
+				<div class="area-header" @click=${() => !isTeaching && this.#toggleCollapse(areaKey)}>
 					<uui-icon class="collapse-chevron" name="${isCollapsed ? 'icon-navigation-right' : 'icon-navigation-down'}"></uui-icon>
 					<span class="area-name">${area.name || `Area ${areaIndex + 1}`}</span>
+					${patternLabel ? html`<span class="meta-badge structure-badge">${patternLabel}</span>` : nothing}
 					<span class="header-spacer"></span>
 					<span class="group-count">${sectionCount} section${sectionCount !== 1 ? 's' : ''}</span>
+					${!isTeaching ? html`
+						<uui-button
+							look="outline"
+							compact
+							label="${hasPattern ? 'Redefine Structure' : 'Define Structure'}"
+							@click=${(e: Event) => { e.stopPropagation(); this.#onDefineStructure(globalIdx, areaKey); }}
+							?disabled=${this._teachingAreaIndex !== null && !isTeaching}>
+							<uui-icon name="icon-axis-rotation"></uui-icon>
+							${hasPattern ? 'Redefine' : 'Define Structure'}
+						</uui-button>
+					` : nothing}
 					<uui-toggle
 						label="${isIncluded ? 'Included' : 'Excluded'}"
 						?checked=${isIncluded}
@@ -698,9 +871,16 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 					</uui-toggle>
 				</div>
 				${!isCollapsed ? html`
-					${area.sections.map((section, sIdx) =>
-						this.#renderSection(section, `p${pageNum}-a${areaIndex}-s${sIdx}`, pageNum, areaIndex)
-					)}
+					${isTeaching ? html`
+						${this.#renderTeachToolbar()}
+						<div class="teach-elements">
+							${this.#getAreaElements(area).map((el) => this.#renderTeachElement(el))}
+						</div>
+					` : html`
+						${area.sections.map((section, sIdx) =>
+							this.#renderSection(section, `p${pageNum}-a${areaIndex}-s${sIdx}`, pageNum, areaIndex)
+						)}
+					`}
 				` : nothing}
 			</div>
 		`;
@@ -872,17 +1052,14 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 									placement="bottom-end"
 									@toggle=${this.#onSectionPickerToggle}>
 									<umb-popover-layout>
-										${this.#getTransformSectionsWithElements().map((s) => {
-											const hasRules = !!(this._sourceConfig?.sectionRules?.[s.id]?.rules?.length);
-											return html`
-												<uui-menu-item
-													label="${s.heading}"
-													@click=${() => this.#onEditSectionRules(s.id, s.heading, s.elements)}>
-													<uui-icon slot="icon" name="${hasRules ? 'icon-check' : 'icon-thumbnail-list'}"></uui-icon>
-													<span slot="badge" class="section-picker-meta">${s.elements.length} el</span>
-												</uui-menu-item>
-											`;
-										})}
+										${this.#getAreasForRulesEditor().map((a) => html`
+											<uui-menu-item
+												label="${a.areaName}"
+												@click=${() => this.#onEditAreaRules(a.areaKey, a.areaName, a.elements)}>
+												<uui-icon slot="icon" name="${a.hasRules ? 'icon-check' : 'icon-thumbnail-list'}"></uui-icon>
+												<span slot="badge" class="section-picker-meta">${a.elements.length} el</span>
+											</uui-menu-item>
+										`)}
 									</umb-popover-layout>
 								</uui-popover-container>
 							</div>
@@ -961,6 +1138,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 			subHeaded: 'Sub-Headed',
 			preamble: 'Preamble',
 			mixed: 'Mixed',
+			role: 'Role',
 		};
 
 		const headingKey = `${section.id}.heading`;
@@ -1011,6 +1189,9 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				<span class="meta-badge">${this._transformResult.diagnostics.subHeadedSections} sub-headed</span>
 				${this._transformResult.diagnostics.preambleSections > 0
 					? html`<span class="meta-badge">${this._transformResult.diagnostics.preambleSections} preamble</span>`
+					: nothing}
+				${this._transformResult.diagnostics.roleSections > 0
+					? html`<span class="meta-badge">${this._transformResult.diagnostics.roleSections} role</span>`
 					: nothing}
 			</div>
 		`;
@@ -1501,6 +1682,11 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				border: 1px solid var(--uui-color-border);
 			}
 
+			.pattern-badge.role {
+				background: var(--uui-color-current-emphasis);
+				color: var(--uui-color-current-contrast);
+			}
+
 			.transformed-content {
 				padding: var(--uui-size-space-4);
 				font-size: var(--uui-type-small-size);
@@ -1527,6 +1713,101 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				font-size: 11px;
 				font-family: monospace;
 				color: var(--uui-color-text-alt);
+			}
+
+			/* Structure badge on area header */
+			.structure-badge {
+				background: var(--uui-color-positive-emphasis);
+				color: var(--uui-color-positive-contrast);
+				font-weight: 500;
+			}
+
+			/* Teach-by-example mode */
+			.area-teaching {
+				border-left-width: 4px;
+				border-left-style: solid;
+				box-shadow: 0 0 0 1px var(--uui-color-focus);
+				border-radius: var(--uui-border-radius);
+			}
+
+			.teach-toolbar {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				gap: var(--uui-size-space-3);
+				padding: var(--uui-size-space-3) var(--uui-size-space-4);
+				background: var(--uui-color-surface-alt);
+				border-bottom: 1px solid var(--uui-color-border);
+			}
+
+			.teach-instruction {
+				font-size: var(--uui-type-small-size);
+				color: var(--uui-color-text-alt);
+				display: flex;
+				align-items: center;
+				gap: var(--uui-size-space-2);
+			}
+
+			.teach-toolbar-actions {
+				display: flex;
+				gap: var(--uui-size-space-2);
+			}
+
+			.teach-confirmation {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				gap: var(--uui-size-space-3);
+				padding: var(--uui-size-space-3) var(--uui-size-space-4);
+				background: var(--uui-color-positive-emphasis);
+				color: var(--uui-color-positive-contrast);
+				border-bottom: 1px solid var(--uui-color-border);
+			}
+
+			.teach-confirmation-info {
+				display: flex;
+				align-items: center;
+				gap: var(--uui-size-space-2);
+				font-size: var(--uui-type-small-size);
+			}
+
+			.teach-condition-summary {
+				font-family: monospace;
+				font-size: 11px;
+				opacity: 0.8;
+			}
+
+			.teach-confirmation-actions {
+				display: flex;
+				gap: var(--uui-size-space-2);
+			}
+
+			.teach-elements {
+				padding-left: var(--uui-size-space-3);
+			}
+
+			.teach-element {
+				cursor: pointer;
+				transition: background-color 0.15s;
+			}
+
+			.teach-element:hover {
+				background: var(--uui-color-surface-emphasis);
+			}
+
+			.teach-element.teach-clicked {
+				background: color-mix(in srgb, var(--uui-color-focus) 15%, transparent);
+				border-left: 3px solid var(--uui-color-focus);
+			}
+
+			.teach-element.teach-matched {
+				background: color-mix(in srgb, var(--uui-color-positive) 10%, transparent);
+				border-left: 3px solid var(--uui-color-positive);
+			}
+
+			.teach-element.teach-clicked.teach-matched {
+				background: color-mix(in srgb, var(--uui-color-focus) 15%, transparent);
+				border-left: 3px solid var(--uui-color-focus);
 			}
 		`,
 	];

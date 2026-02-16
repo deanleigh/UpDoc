@@ -1,4 +1,4 @@
-import type { DocumentTypeConfig, ExtractSectionsResponse, MapConfig, RichExtractionResult, SectionRuleSet, TransformResult, AreaDetectionResult, AreaTemplate } from './workflow.types.js';
+import type { DocumentTypeConfig, ExtractSectionsResponse, MapConfig, RichExtractionResult, SectionRuleSet, TransformResult, AreaDetectionResult, AreaTemplate, InferSectionPatternResponse } from './workflow.types.js';
 
 const configCache = new Map<string, DocumentTypeConfig>();
 
@@ -538,8 +538,66 @@ export async function saveSectionRules(
 }
 
 /**
- * Clears all caches. Useful when configs have been modified.
+ * Saves area rules for a workflow. Patches source.json's areaRules key.
  */
+export async function saveAreaRules(
+	workflowName: string,
+	areaRules: Record<string, SectionRuleSet>,
+	token: string
+): Promise<Record<string, SectionRuleSet> | null> {
+	const response = await fetch(
+		`/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(workflowName)}/area-rules`,
+		{
+			method: 'PUT',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${token}`,
+			},
+			body: JSON.stringify(areaRules),
+		}
+	);
+
+	if (!response.ok) {
+		const error = await response.json();
+		console.error('Save area rules failed:', error);
+		return null;
+	}
+
+	clearConfigCache();
+	return response.json();
+}
+
+/**
+ * Infers a section pattern from a clicked element.
+ * The backend examines the element's metadata and finds minimum distinguishing conditions.
+ */
+export async function inferSectionPattern(
+	workflowName: string,
+	areaIndex: number,
+	elementId: string,
+	token: string
+): Promise<InferSectionPatternResponse | null> {
+	const response = await fetch(
+		`/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(workflowName)}/infer-section-pattern`,
+		{
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${token}`,
+			},
+			body: JSON.stringify({ areaIndex, elementId }),
+		}
+	);
+
+	if (!response.ok) {
+		const error = await response.json();
+		console.error('Infer section pattern failed:', error);
+		return null;
+	}
+
+	return response.json();
+}
+
 export function clearConfigCache(): void {
 	configCache.clear();
 	activeWorkflowsCache = null;

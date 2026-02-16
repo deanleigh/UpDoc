@@ -2,36 +2,36 @@
   "Version": "1.0",
   "Sections": [
     {
-      "Id": "preamble-p1-z0",
-      "OriginalHeading": null,
-      "Heading": null,
+      "Id": "organisation",
+      "OriginalHeading": "Organisation",
+      "Heading": "Organisation",
       "Content": "The Arts Society Kingston presents",
-      "Pattern": "paragraph",
+      "Pattern": "role",
       "Page": 1,
       "AreaColor": "#e84855",
       "ChildCount": 1,
       "Included": true
     },
     {
-      "Id": "the-art-history-of-liverpool",
-      "OriginalHeading": "The Art \u0026 History of Liverpool",
-      "Heading": "The Art \u0026 History of Liverpool",
-      "Content": "",
-      "Pattern": "preamble",
+      "Id": "tour-title",
+      "OriginalHeading": "Tour Title",
+      "Heading": "Tour Title",
+      "Content": "The Art \u0026 History of Liverpool",
+      "Pattern": "role",
       "Page": 1,
       "AreaColor": "#e84855",
-      "ChildCount": 0,
+      "ChildCount": 1,
       "Included": true
     },
     {
-      "Id": "5-days-from-814-departing-5th-october-2026",
-      "OriginalHeading": "5 days from \u00A3814 Departing 5th October 2026",
-      "Heading": "5 days from \u00A3814 Departing 5th October 2026",
-      "Content": "",
-      "Pattern": "preamble",
+      "Id": "tour-description",
+      "OriginalHeading": "Tour Description",
+      "Heading": "Tour Description",
+      "Content": "5 days from \u00A3814 Departing 5th October 2026",
+      "Pattern": "role",
       "Page": 1,
       "AreaColor": "#e84855",
-      "ChildCount": 0,
+      "ChildCount": 1,
       "Included": true
     },
     {
@@ -104,8 +104,9 @@
   "Diagnostics": {
     "TotalSections": 9,
     "BulletListSections": 3,
-    "ParagraphSections": 4,
+    "ParagraphSections": 3,
     "SubHeadedSections": 0,
-    "PreambleSections": 2
+    "PreambleSections": 0,
+    "RoleSections": 3
   }
 }

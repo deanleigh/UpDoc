@@ -264,7 +264,7 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 					<input
 						type="text"
 						class="role-name-input"
-						placeholder="Role name (e.g. organiser-name)"
+						placeholder="Section name (e.g. tour-title)"
 						.value=${rule.role}
 						@input=${(e: Event) => this.#updateRoleName(ruleIdx, (e.target as HTMLInputElement).value)} />
 					<uui-button

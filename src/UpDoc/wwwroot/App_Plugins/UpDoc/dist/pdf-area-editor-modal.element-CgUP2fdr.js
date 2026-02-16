@@ -1,4 +1,4 @@
-import { c as B } from "./workflow.service-CZ6YzcAN.js";
+import { c as B } from "./workflow.service-D_fkSdCh.js";
 import { html as f, nothing as S, css as Z, state as p, customElement as q } from "@umbraco-cms/backoffice/external/lit";
 import { UmbTextStyles as G } from "@umbraco-cms/backoffice/style";
 import { UmbModalBaseElement as X } from "@umbraco-cms/backoffice/modal";
@@ -10,7 +10,7 @@ var J = Object.defineProperty, K = Object.getOwnPropertyDescriptor, D = (a) => {
   for (var o = r > 1 ? void 0 : r ? K(t, e) : t, n = a.length - 1, l; n >= 0; n--)
     (l = a[n]) && (o = (r ? l(t, e, o) : l(o)) || o);
   return r && o && J(t, e, o), o;
-}, C = (a, t, e) => t.has(a) || D("Cannot " + e), v = (a, t, e) => (C(a, t, "read from private field"), e ? e.call(a) : t.get(a)), Q = (a, t, e) => t.has(a) ? D("Cannot add the same private member more than once") : t instanceof WeakSet ? t.add(a) : t.set(a, e), i = (a, t, e) => (C(a, t, "access private method"), e), s, I, R, m, g, A, d, w, z, $, T, E, F, M, H, L, O, N, U, W, P, b, k;
+}, C = (a, t, e) => t.has(a) || D("Cannot " + e), v = (a, t, e) => (C(a, t, "read from private field"), e ? e.call(a) : t.get(a)), Q = (a, t, e) => t.has(a) ? D("Cannot add the same private member more than once") : t instanceof WeakSet ? t.add(a) : t.set(a, e), i = (a, t, e) => (C(a, t, "access private method"), e), s, I, R, m, g, A, d, w, z, $, T, E, H, M, L, O, N, U, W, F, P, b, k;
 V.workerSrc = "/App_Plugins/UpDoc/dist/pdf.worker.min.mjs";
 const y = [
   "#e84855",
@@ -72,9 +72,9 @@ let h = class extends X {
 							</div>
 
 							<div class="toolbar-group">
-								<uui-button compact label="Zoom out" @click=${i(this, s, L)}>&minus;</uui-button>
+								<uui-button compact label="Zoom out" @click=${i(this, s, O)}>&minus;</uui-button>
 								<span class="zoom-info">${Math.round(this._scale * 100)}%</span>
-								<uui-button compact label="Zoom in" @click=${i(this, s, H)}>+</uui-button>
+								<uui-button compact label="Zoom in" @click=${i(this, s, L)}>+</uui-button>
 							</div>
 						</div>
 
@@ -83,7 +83,7 @@ let h = class extends X {
 							<canvas id="overlay-canvas"
 								@mousedown=${i(this, s, T)}
 								@mousemove=${i(this, s, E)}
-								@mouseup=${i(this, s, F)}
+								@mouseup=${i(this, s, H)}
 								style="cursor: ${this._mode === "draw" ? "crosshair" : "default"}">
 							</canvas>
 						</div>
@@ -111,12 +111,12 @@ let h = class extends X {
 						<uui-box headline="Areas on this page" style="${this._availablePages.length > 1 ? "margin-top: var(--uui-size-space-4)" : ""}">
 							${v(this, s, k).length === 0 ? f`<p class="empty-hint">Draw an area on the PDF to get started.</p>` : v(this, s, k).map((a) => f`
 									<div class="area-item ${a.id === this._selectedAreaId ? "selected" : ""}"
-										@click=${() => i(this, s, O).call(this, a.id)}>
+										@click=${() => i(this, s, N).call(this, a.id)}>
 										<span class="area-color" style="background: ${a.color}"></span>
 										<span class="area-name">${a.name || "Unnamed"}</span>
 										<uui-button compact look="secondary" label="Delete"
 											@click=${(t) => {
-      t.stopPropagation(), i(this, s, N).call(this, a.id);
+      t.stopPropagation(), i(this, s, U).call(this, a.id);
     }}>
 											<uui-icon name="icon-trash"></uui-icon>
 										</uui-button>
@@ -131,7 +131,7 @@ let h = class extends X {
 									<uui-input
 										.value=${v(this, s, b).name}
 										@change=${(a) => {
-      i(this, s, U).call(this, this._selectedAreaId, a.target.value);
+      i(this, s, W).call(this, this._selectedAreaId, a.target.value);
     }}>
 									</uui-input>
 
@@ -160,7 +160,7 @@ let h = class extends X {
 					color="positive"
 					label="Save"
 					?disabled=${this._areas.length === 0}
-					@click=${i(this, s, W)}>
+					@click=${i(this, s, F)}>
 					Save
 				</uui-button>
 				<uui-button
@@ -203,7 +203,6 @@ R = async function() {
       w: l.bounds.width,
       h: l.bounds.height,
       color: l.color || y[c % y.length],
-      headingFont: l.headingFont,
       expectedSections: l.expectedSections,
       notes: l.notes
     })), this._nextId = this._areas.length + 1), this._loading = !1, await this.updateComplete, await i(this, s, m).call(this);
@@ -329,7 +328,7 @@ E = function(a) {
     } else e ? this._overlay.style.cursor = "pointer" : this._overlay.style.cursor = "default";
   }
 };
-F = function(a) {
+H = function(a) {
   if (this._isDrawing) {
     this._isDrawing = !1;
     const t = i(this, s, w).call(this, a), e = Math.abs(t.x - this._drawStart.x), r = Math.abs(t.y - this._drawStart.y);
@@ -345,7 +344,6 @@ F = function(a) {
         w: n.px - o.px,
         h: o.py - n.py,
         color: y[this._areas.length % y.length],
-        headingFont: "",
         expectedSections: [],
         notes: ""
       };
@@ -359,25 +357,25 @@ F = function(a) {
 M = async function(a) {
   this._availablePages.includes(a) && (this._currentPage = a, this._selectedAreaId = null, await this.updateComplete, await i(this, s, m).call(this));
 };
-H = function() {
+L = function() {
   this._scale = Math.min(3, this._scale + 0.25), i(this, s, m).call(this);
 };
-L = function() {
+O = function() {
   this._scale = Math.max(0.5, this._scale - 0.25), i(this, s, m).call(this);
 };
-O = function(a) {
+N = function(a) {
   this._selectedAreaId = a, this._mode = "select";
   const t = this._areas.find((e) => e.id === a);
   t && t.page !== this._currentPage ? i(this, s, M).call(this, t.page) : i(this, s, d).call(this);
 };
-N = function(a) {
+U = function(a) {
   this._areas = this._areas.filter((t) => t.id !== a), this._selectedAreaId === a && (this._selectedAreaId = null), i(this, s, d).call(this);
 };
-U = function(a, t) {
+W = function(a, t) {
   const e = this._areas.find((r) => r.id === a);
   e && (e.name = t, this._areas = [...this._areas], i(this, s, d).call(this));
 };
-W = function() {
+F = function() {
   const a = {
     templateName: this.data?.existingTemplate?.templateName || this.data?.workflowName || "Area Template",
     sourceFile: this.data?.existingTemplate?.sourceFile || "",
@@ -398,7 +396,6 @@ W = function() {
         height: Math.round(t.h * 10) / 10
       },
       color: t.color,
-      headingFont: t.headingFont,
       expectedSections: t.expectedSections,
       notes: t.notes
     }))
@@ -640,4 +637,4 @@ export {
   h as PdfAreaEditorModalElement,
   ot as default
 };
-//# sourceMappingURL=pdf-area-editor-modal.element-qL0gYWE-.js.map
+//# sourceMappingURL=pdf-area-editor-modal.element-CgUP2fdr.js.map

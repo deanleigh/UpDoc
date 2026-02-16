@@ -11,7 +11,7 @@ namespace UpDoc.Services;
 /// </summary>
 public interface IContentTransformService
 {
-    TransformResult Transform(AreaDetectionResult areaDetection, TransformResult? previous = null);
+    TransformResult Transform(AreaDetectionResult areaDetection, Dictionary<string, SectionRuleSet>? areaRules = null, TransformResult? previous = null);
 }
 
 public class ContentTransformService : IContentTransformService
@@ -21,7 +21,7 @@ public class ContentTransformService : IContentTransformService
         '•', '●', '○', '■', '□', '▪', '▫', '◆', '◇', '►', '▸', '\u2022'
     };
 
-    public TransformResult Transform(AreaDetectionResult areaDetection, TransformResult? previous = null)
+    public TransformResult Transform(AreaDetectionResult areaDetection, Dictionary<string, SectionRuleSet>? areaRules = null, TransformResult? previous = null)
     {
         var result = new TransformResult();
         var diagnostics = new TransformDiagnostics();
@@ -34,15 +34,34 @@ public class ContentTransformService : IContentTransformService
             for (int areaIndex = 0; areaIndex < page.Areas.Count; areaIndex++)
             {
                 var area = page.Areas[areaIndex];
-                foreach (var section in area.Sections)
+
+                // Check if this area has rules that should produce individual sections
+                var areaKey = !string.IsNullOrEmpty(area.Name) ? NormalizeToKebabCase(area.Name) : null;
+                SectionRuleSet? ruleSet = null;
+                if (areaKey != null && areaRules != null)
                 {
-                    var transformed = TransformSection(section, page.Page, area.Color, areaIndex);
-                    DeduplicateId(transformed, seenIds);
-                    result.Sections.Add(transformed);
-                    UpdateDiagnostics(diagnostics, transformed.Pattern);
+                    areaRules.TryGetValue(areaKey, out ruleSet);
+                }
+
+                // For flat areas with rules, produce individual sections per role
+                if (ruleSet != null && ruleSet.Rules.Count > 0 && IsFlatArea(area))
+                {
+                    var roleSections = TransformFlatAreaWithRules(
+                        area, ruleSet, page.Page, areaIndex, seenIds, diagnostics);
+                    result.Sections.AddRange(roleSections);
+                }
+                else
+                {
+                    // Normal processing: transform each detected section
+                    foreach (var section in area.Sections)
+                    {
+                        var transformed = TransformSection(section, page.Page, area.Color, areaIndex);
+                        DeduplicateId(transformed, seenIds);
+                        result.Sections.Add(transformed);
+                        UpdateDiagnostics(diagnostics, transformed.Pattern);
+                    }
                 }
             }
-
         }
 
         // Preserve include/exclude state from previous transform
@@ -105,6 +124,113 @@ public class ContentTransformService : IContentTransformService
             AreaColor = string.IsNullOrEmpty(areaColor) ? null : areaColor,
             ChildCount = children.Count,
         };
+    }
+
+    /// <summary>
+    /// Returns true if the area is "flat" — a single section with no heading.
+    /// Flat areas are candidates for role-based splitting via area rules.
+    /// </summary>
+    private static bool IsFlatArea(DetectedArea area)
+    {
+        return area.Sections.Count == 1 && area.Sections[0].Heading == null;
+    }
+
+    /// <summary>
+    /// Transforms a flat area using area rules to produce individual sections per role.
+    /// Each rule matches elements (first-match-wins per element), and each role that
+    /// has matched elements becomes its own TransformedSection.
+    /// Unmatched elements are grouped into a remaining preamble section.
+    /// </summary>
+    private static List<TransformedSection> TransformFlatAreaWithRules(
+        DetectedArea area, SectionRuleSet ruleSet, int page, int areaIndex,
+        Dictionary<string, int> seenIds, TransformDiagnostics diagnostics)
+    {
+        var sections = new List<TransformedSection>();
+        var flatSection = area.Sections[0];
+        var elements = flatSection.Children;
+        var total = elements.Count;
+
+        // For each element, determine which rule (if any) claims it (first-match-wins)
+        var elementRoles = new string?[elements.Count];
+        for (int i = 0; i < elements.Count; i++)
+        {
+            foreach (var rule in ruleSet.Rules)
+            {
+                // Skip rules with no conditions — empty conditions match everything (vacuous truth)
+                if (rule.Conditions.Count == 0)
+                    continue;
+
+                if (PdfPagePropertiesService.MatchesAllConditions(elements[i], rule.Conditions, i, total))
+                {
+                    elementRoles[i] = rule.Role;
+                    break; // first-match-wins: move to next element
+                }
+            }
+        }
+
+        // Group claimed elements by role (preserving element order within each role)
+        var roleElements = new Dictionary<string, List<AreaElement>>();
+        var unclaimed = new List<AreaElement>();
+        for (int i = 0; i < elements.Count; i++)
+        {
+            if (elementRoles[i] != null)
+            {
+                var role = elementRoles[i]!;
+                if (!roleElements.ContainsKey(role))
+                    roleElements[role] = new List<AreaElement>();
+                roleElements[role].Add(elements[i]);
+            }
+            else
+            {
+                unclaimed.Add(elements[i]);
+            }
+        }
+
+        // Create one section per role (in rule order, not element order)
+        foreach (var rule in ruleSet.Rules)
+        {
+            if (roleElements.TryGetValue(rule.Role, out var roleEls) && roleEls.Count > 0)
+            {
+                var content = string.Join("\n\n", roleEls.Select(e => e.Text));
+                var section = new TransformedSection
+                {
+                    Id = NormalizeToKebabCase(rule.Role),
+                    Heading = rule.Role,
+                    OriginalHeading = rule.Role,
+                    Content = content,
+                    Pattern = "role",
+                    Page = page,
+                    AreaColor = string.IsNullOrEmpty(area.Color) ? null : area.Color,
+                    ChildCount = roleEls.Count,
+                };
+                DeduplicateId(section, seenIds);
+                sections.Add(section);
+                UpdateDiagnostics(diagnostics, section.Pattern);
+            }
+        }
+
+        // Unmatched elements: group into a remaining preamble section
+        if (unclaimed.Count > 0)
+        {
+            var pattern = DetectPattern(unclaimed);
+            var content = AssembleMarkdown(unclaimed, pattern);
+            var remainingSection = new TransformedSection
+            {
+                Id = $"preamble-p{page}-z{areaIndex}",
+                Heading = null,
+                OriginalHeading = null,
+                Content = content,
+                Pattern = pattern,
+                Page = page,
+                AreaColor = string.IsNullOrEmpty(area.Color) ? null : area.Color,
+                ChildCount = unclaimed.Count,
+            };
+            DeduplicateId(remainingSection, seenIds);
+            sections.Add(remainingSection);
+            UpdateDiagnostics(diagnostics, remainingSection.Pattern);
+        }
+
+        return sections;
     }
 
     /// <summary>
@@ -329,6 +455,7 @@ public class ContentTransformService : IContentTransformService
             case "paragraph": diagnostics.ParagraphSections++; break;
             case "subHeaded": diagnostics.SubHeadedSections++; break;
             case "preamble": diagnostics.PreambleSections++; break;
+            case "role": diagnostics.RoleSections++; break;
         }
     }
 }

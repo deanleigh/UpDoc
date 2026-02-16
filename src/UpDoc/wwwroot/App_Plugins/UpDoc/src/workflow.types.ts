@@ -11,6 +11,8 @@ export interface SourceConfig {
 	sections: SourceSection[];
 	/** Rules for breaking transform sections into individually-mappable roles, keyed by section ID. */
 	sectionRules?: Record<string, SectionRuleSet>;
+	/** Rules for breaking area elements into individually-mappable sections, keyed by area name in kebab-case. */
+	areaRules?: Record<string, SectionRuleSet>;
 }
 
 // ============================================================================
@@ -35,14 +37,26 @@ export type RuleConditionType =
 	| 'textBeginsWith'
 	| 'textEndsWith'
 	| 'textContains'
+	| 'textEquals'
 	| 'textMatchesPattern'
 	| 'fontSizeEquals'
 	| 'fontSizeAbove'
 	| 'fontSizeBelow'
 	| 'fontNameContains'
+	| 'fontNameEquals'
 	| 'colorEquals'
 	| 'positionFirst'
 	| 'positionLast';
+
+/**
+ * Pattern for identifying section heading elements within an area.
+ * Null/undefined = auto-detect (bodySize * 1.15).
+ * Empty conditions = flat section (no grouping).
+ * Populated conditions = user-defined from teach-by-example.
+ */
+export interface SectionPattern {
+	conditions: RuleCondition[];
+}
 
 export interface SourceGlobals {
 	columnDetection?: ColumnDetectionConfig;
@@ -319,6 +333,7 @@ export interface DetectedArea {
 	page: number;
 	sections: DetectedSection[];
 	totalElements: number;
+	sectionPattern?: SectionPattern;
 }
 
 export interface DetectedSection {
@@ -357,7 +372,7 @@ export interface TransformedSection {
 	originalHeading: string | null;
 	heading: string | null;
 	content: string;
-	pattern: 'bulletList' | 'paragraph' | 'subHeaded' | 'preamble' | 'mixed';
+	pattern: 'bulletList' | 'paragraph' | 'subHeaded' | 'preamble' | 'mixed' | 'role';
 	page: number;
 	areaColor: string | null;
 	childCount: number;
@@ -370,6 +385,7 @@ export interface TransformDiagnostics {
 	paragraphSections: number;
 	subHeadedSections: number;
 	preambleSections: number;
+	roleSections: number;
 }
 
 // ============================================================================
@@ -391,7 +407,7 @@ export interface AreaDefinition {
 	type: string;
 	bounds: AreaBounds;
 	color: string;
-	headingFont: string;
+	sectionPattern?: SectionPattern;
 	expectedSections: string[];
 	notes: string;
 }
@@ -410,4 +426,11 @@ export interface AreaBounds {
 export interface ExtractSectionsResponse {
 	sections: Record<string, string>;
 	config: DocumentTypeConfig;
+}
+
+export interface InferSectionPatternResponse {
+	pattern: SectionPattern;
+	matchingElementIds: string[];
+	clickedElementId: string;
+	totalElements: number;
 }
