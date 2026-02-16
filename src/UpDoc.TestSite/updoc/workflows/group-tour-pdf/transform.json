@@ -35,14 +35,58 @@
       "Included": true
     },
     {
+      "Id": "organiser-name",
+      "OriginalHeading": "Organiser Name",
+      "Heading": "Organiser Name",
+      "Content": "Robin Linnecar",
+      "Pattern": "role",
+      "Page": 1,
+      "AreaColor": "#f9dc5c",
+      "ChildCount": 1,
+      "Included": true
+    },
+    {
+      "Id": "organiser-telephone",
+      "OriginalHeading": "Organiser Telephone",
+      "Heading": "Organiser Telephone",
+      "Content": "Tel: 020 8942 1558",
+      "Pattern": "role",
+      "Page": 1,
+      "AreaColor": "#f9dc5c",
+      "ChildCount": 1,
+      "Included": true
+    },
+    {
+      "Id": "organiser-email",
+      "OriginalHeading": "Organiser Email",
+      "Heading": "Organiser Email",
+      "Content": "Email: linnecar@btinternet.com",
+      "Pattern": "role",
+      "Page": 1,
+      "AreaColor": "#f9dc5c",
+      "ChildCount": 1,
+      "Included": true
+    },
+    {
+      "Id": "organiser-address",
+      "OriginalHeading": "Organiser Address",
+      "Heading": "Organiser Address",
+      "Content": "81 Alric Avenue, New Malden KT3 4JP",
+      "Pattern": "role",
+      "Page": 1,
+      "AreaColor": "#f9dc5c",
+      "ChildCount": 1,
+      "Included": true
+    },
+    {
       "Id": "preamble-p1-z1",
       "OriginalHeading": null,
       "Heading": null,
-      "Content": "For more information on this tour contact your Group Organiser\n\nRobin Linnecar\n\nTel: 020 8942 1558\n\nEmail: linnecar@btinternet.com\n\n....................................................................\n\n81 Alric Avenue, New Malden KT3 4JP",
+      "Content": "For more information on this tour contact your Group Organiser\n\n....................................................................",
       "Pattern": "paragraph",
       "Page": 1,
       "AreaColor": "#f9dc5c",
-      "ChildCount": 6,
+      "ChildCount": 2,
       "Included": true
     },
     {
@@ -102,11 +146,11 @@
     }
   ],
   "Diagnostics": {
-    "TotalSections": 9,
+    "TotalSections": 13,
     "BulletListSections": 3,
     "ParagraphSections": 3,
     "SubHeadedSections": 0,
     "PreambleSections": 0,
-    "RoleSections": 3
+    "RoleSections": 7
   }
 }

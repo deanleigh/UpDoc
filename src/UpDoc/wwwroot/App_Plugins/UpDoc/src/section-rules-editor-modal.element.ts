@@ -1,5 +1,5 @@
 import type { SectionRulesEditorModalData, SectionRulesEditorModalValue } from './section-rules-editor-modal.token.js';
-import type { SectionRule, RuleCondition, RuleConditionType, AreaElement } from './workflow.types.js';
+import type { SectionRule, RuleCondition, RuleConditionType, RuleAction, AreaElement } from './workflow.types.js';
 import { html, css, state, nothing } from '@umbraco-cms/backoffice/external/lit';
 import { customElement } from '@umbraco-cms/backoffice/external/lit';
 import { UmbModalBaseElement } from '@umbraco-cms/backoffice/modal';
@@ -10,11 +10,13 @@ const CONDITION_LABELS: Record<RuleConditionType, string> = {
 	textBeginsWith: 'Text begins with',
 	textEndsWith: 'Text ends with',
 	textContains: 'Text contains',
+	textEquals: 'Text equals',
 	textMatchesPattern: 'Text matches pattern',
 	fontSizeEquals: 'Font size equals',
 	fontSizeAbove: 'Font size above',
 	fontSizeBelow: 'Font size below',
 	fontNameContains: 'Font name contains',
+	fontNameEquals: 'Font name equals',
 	colorEquals: 'Color equals',
 	positionFirst: 'Position: first',
 	positionLast: 'Position: last',
@@ -25,11 +27,23 @@ const VALUELESS_CONDITIONS: RuleConditionType[] = ['positionFirst', 'positionLas
 
 /** All available condition types */
 const ALL_CONDITION_TYPES: RuleConditionType[] = [
-	'textBeginsWith', 'textEndsWith', 'textContains', 'textMatchesPattern',
+	'textBeginsWith', 'textEndsWith', 'textContains', 'textEquals', 'textMatchesPattern',
 	'fontSizeEquals', 'fontSizeAbove', 'fontSizeBelow',
-	'fontNameContains', 'colorEquals',
+	'fontNameContains', 'fontNameEquals', 'colorEquals',
 	'positionFirst', 'positionLast',
 ];
+
+/** Friendly labels for rule actions */
+const ACTION_LABELS: Record<RuleAction, string> = {
+	createSection: 'Create section',
+	setAsHeading: 'Set as heading',
+	addAsContent: 'Add as content',
+	addAsList: 'Add as list item',
+	exclude: 'Exclude',
+};
+
+/** All available rule actions */
+const ALL_ACTIONS: RuleAction[] = ['createSection', 'setAsHeading', 'addAsContent', 'addAsList', 'exclude'];
 
 @customElement('up-doc-section-rules-editor-modal')
 export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<SectionRulesEditorModalData, SectionRulesEditorModalValue> {
@@ -147,7 +161,7 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 	// ===== Rule CRUD =====
 
 	#addRule() {
-		this._rules = [...this._rules, { role: '', conditions: [] }];
+		this._rules = [...this._rules, { role: '', action: 'createSection' as RuleAction, conditions: [] }];
 	}
 
 	#removeRule(ruleIdx: number) {
@@ -163,12 +177,18 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 			.join('-')
 			.toLowerCase()
 			.replace(/[^a-z0-9-]/g, '');
-		this._rules = [...this._rules, { role: roleSuggestion, conditions }];
+		this._rules = [...this._rules, { role: roleSuggestion, action: 'createSection' as RuleAction, conditions }];
 	}
 
 	#updateRoleName(ruleIdx: number, value: string) {
 		const updated = [...this._rules];
 		updated[ruleIdx] = { ...updated[ruleIdx], role: value };
+		this._rules = updated;
+	}
+
+	#updateAction(ruleIdx: number, value: RuleAction) {
+		const updated = [...this._rules];
+		updated[ruleIdx] = { ...updated[ruleIdx], action: value };
 		this._rules = updated;
 	}
 
@@ -286,6 +306,18 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 						@click=${() => this.#addCondition(ruleIdx)}>
 						+ Add condition
 					</uui-button>
+				</div>
+
+				<div class="action-area">
+					<label class="action-label">Action:</label>
+					<select
+						class="action-select"
+						.value=${rule.action ?? 'createSection'}
+						@change=${(e: Event) => this.#updateAction(ruleIdx, (e.target as HTMLSelectElement).value as RuleAction)}>
+						${ALL_ACTIONS.map((a) => html`
+							<option value=${a} ?selected=${a === (rule.action ?? 'createSection')}>${ACTION_LABELS[a]}</option>
+						`)}
+					</select>
 				</div>
 
 				<div class="match-preview ${matchedElement ? 'matched' : 'no-match'}">
@@ -498,6 +530,36 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 			}
 
 			.condition-value-input:focus {
+				outline: none;
+				border-color: var(--uui-color-focus);
+			}
+
+			/* Action area */
+			.action-area {
+				display: flex;
+				align-items: center;
+				gap: var(--uui-size-space-3);
+				padding: var(--uui-size-space-3) var(--uui-size-space-4);
+				border-top: 1px solid var(--uui-color-border);
+			}
+
+			.action-label {
+				font-size: var(--uui-type-small-size);
+				font-weight: 600;
+				color: var(--uui-color-text-alt);
+				flex-shrink: 0;
+			}
+
+			.action-select {
+				padding: var(--uui-size-space-1) var(--uui-size-space-2);
+				border: 1px solid var(--uui-color-border);
+				border-radius: var(--uui-border-radius);
+				font-size: var(--uui-type-small-size);
+				background: var(--uui-color-surface);
+				color: var(--uui-color-text);
+			}
+
+			.action-select:focus {
 				outline: none;
 				border-color: var(--uui-color-focus);
 			}

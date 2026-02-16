@@ -23,8 +23,11 @@ export interface SectionRuleSet {
 	rules: SectionRule[];
 }
 
+export type RuleAction = 'createSection' | 'setAsHeading' | 'addAsContent' | 'addAsList' | 'exclude';
+
 export interface SectionRule {
 	role: string;
+	action: RuleAction;
 	conditions: RuleCondition[];
 }
 

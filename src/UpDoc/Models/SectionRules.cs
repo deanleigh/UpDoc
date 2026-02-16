@@ -21,6 +21,9 @@ public class SectionRule
     [JsonPropertyName("role")]
     public string Role { get; set; } = string.Empty;
 
+    [JsonPropertyName("action")]
+    public string Action { get; set; } = "createSection";
+
     [JsonPropertyName("conditions")]
     public List<RuleCondition> Conditions { get; set; } = new();
 }

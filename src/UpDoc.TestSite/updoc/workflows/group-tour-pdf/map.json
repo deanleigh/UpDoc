@@ -162,6 +162,18 @@
       ],
       "enabled": true,
       "comment": null
+    },
+    {
+      "source": "tour-description.heading",
+      "destinations": [
+        {
+          "target": "pageDescription",
+          "blockKey": null,
+          "transforms": null
+        }
+      ],
+      "enabled": true,
+      "comment": null
     }
   ]
 }

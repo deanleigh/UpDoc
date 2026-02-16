@@ -16,6 +16,7 @@
       "rules": [
         {
           "role": "Organisation",
+          "action": "createSection",
           "conditions": [
             {
               "type": "fontSizeEquals",
@@ -37,6 +38,7 @@
         },
         {
           "role": "Tour Title",
+          "action": "createSection",
           "conditions": [
             {
               "type": "fontSizeEquals",
@@ -54,6 +56,7 @@
         },
         {
           "role": "Tour Description",
+          "action": "createSection",
           "conditions": [
             {
               "type": "fontSizeEquals",
@@ -66,6 +69,94 @@
             {
               "type": "colorEquals",
               "value": "#FFD200"
+            },
+            {
+              "type": "positionLast",
+              "value": null
+            }
+          ]
+        }
+      ]
+    },
+    "organiser-info": {
+      "rules": [
+        {
+          "role": "Organiser Name",
+          "action": "createSection",
+          "conditions": [
+            {
+              "type": "fontSizeEquals",
+              "value": 20
+            },
+            {
+              "type": "fontNameContains",
+              "value": "GHEALP\u002BClarendon"
+            },
+            {
+              "type": "colorEquals",
+              "value": "#FFD200"
+            }
+          ]
+        },
+        {
+          "role": "Organiser Telephone",
+          "action": "createSection",
+          "conditions": [
+            {
+              "type": "fontSizeEquals",
+              "value": 20
+            },
+            {
+              "type": "fontNameContains",
+              "value": "GHEALP\u002BClarendon"
+            },
+            {
+              "type": "colorEquals",
+              "value": "#FFFFFF"
+            },
+            {
+              "type": "textBeginsWith",
+              "value": "Tel:"
+            }
+          ]
+        },
+        {
+          "role": "Organiser Email",
+          "action": "createSection",
+          "conditions": [
+            {
+              "type": "fontSizeEquals",
+              "value": 15
+            },
+            {
+              "type": "fontNameContains",
+              "value": "GHEALP\u002BClarendon"
+            },
+            {
+              "type": "colorEquals",
+              "value": "#FFD200"
+            },
+            {
+              "type": "textBeginsWith",
+              "value": "Email:"
+            }
+          ]
+        },
+        {
+          "role": "Organiser Address",
+          "action": "createSection",
+          "conditions": [
+            {
+              "type": "fontSizeEquals",
+              "value": 11
+            },
+            {
+              "type": "fontNameContains",
+              "value": "GHEALP\u002BClarendon"
+            },
+            {
+              "type": "colorEquals",
+              "value": "#FFFFFF"
             },
             {
               "type": "positionLast",
