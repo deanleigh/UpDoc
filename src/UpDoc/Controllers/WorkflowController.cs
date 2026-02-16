@@ -559,6 +559,176 @@ public class WorkflowController : ControllerBase
     }
 
     /// <summary>
+    /// Infers a section pattern from a user-selected element.
+    /// The user clicks one element as an example section heading, and the system
+    /// finds the minimum distinguishing conditions that separate heading-like
+    /// elements from non-heading elements in the same area.
+    /// </summary>
+    [HttpPost("{name}/infer-section-pattern")]
+    public IActionResult InferSectionPattern(string name, [FromBody] InferSectionPatternRequest request)
+    {
+        try
+        {
+            // Load the area template to get area definitions
+            var areaTemplate = _workflowService.GetAreaTemplate(name);
+            if (areaTemplate == null)
+                return NotFound(new { error = $"No area template found for workflow '{name}'." });
+
+            if (request.AreaIndex < 0 || request.AreaIndex >= areaTemplate.Areas.Count)
+                return BadRequest(new { error = $"Area index {request.AreaIndex} is out of range (0-{areaTemplate.Areas.Count - 1})." });
+
+            // Get the source config for page selection
+            var config = _workflowService.GetConfigByName(name);
+            var sourceConfig = config?.Sources.Values.FirstOrDefault();
+
+            // Get the PDF file path
+            var extraction = _workflowService.GetSampleExtraction(name);
+            if (extraction?.Source?.MediaKey == null || !Guid.TryParse(extraction.Source.MediaKey, out var mediaKey))
+                return BadRequest(new { error = "No sample extraction found. Extract a PDF first." });
+
+            var filePath = ResolveMediaFilePath(mediaKey);
+            if (filePath == null)
+                return NotFound(new { error = "PDF file not found on disk." });
+
+            // Run area detection to get current elements
+            var includePages = ResolveIncludePages(filePath, sourceConfig);
+            var areaResult = _pdfPagePropertiesService.DetectAreas(filePath, includePages, areaTemplate);
+
+            // Find the target area across all pages
+            var targetAreaDef = areaTemplate.Areas[request.AreaIndex];
+            DetectedArea? targetArea = null;
+            foreach (var page in areaResult.Pages)
+            {
+                targetArea = page.Areas.FirstOrDefault(a => a.Name == targetAreaDef.Name && a.Page == targetAreaDef.Page);
+                if (targetArea != null) break;
+            }
+
+            if (targetArea == null)
+                return NotFound(new { error = $"Area '{targetAreaDef.Name}' not found in detection result." });
+
+            // Find the clicked element
+            var allElements = targetArea.Sections.SelectMany(s =>
+            {
+                var elems = new List<AreaElement>();
+                if (s.Heading != null) elems.Add(s.Heading);
+                elems.AddRange(s.Children);
+                return elems;
+            }).ToList();
+
+            var clickedElement = allElements.FirstOrDefault(e => e.Id == request.ElementId);
+            if (clickedElement == null)
+                return NotFound(new { error = $"Element '{request.ElementId}' not found in area '{targetAreaDef.Name}'." });
+
+            // Infer the minimum distinguishing conditions
+            var otherElements = allElements.Where(e => e.Id != request.ElementId).ToList();
+            var pattern = InferMinimumPattern(clickedElement, otherElements);
+
+            // Find all elements matching the inferred pattern
+            var matchingIds = allElements
+                .Where(e => PdfPagePropertiesService.MatchesAllConditions(e, pattern.Conditions))
+                .Select(e => e.Id)
+                .ToList();
+
+            return Ok(new InferSectionPatternResponse
+            {
+                Pattern = pattern,
+                MatchingElementIds = matchingIds,
+                ClickedElementId = request.ElementId,
+                TotalElements = allElements.Count
+            });
+        }
+        catch (DirectoryNotFoundException)
+        {
+            return NotFound(new { error = $"Workflow '{name}' not found." });
+        }
+    }
+
+    /// <summary>
+    /// Infers the minimum set of conditions that distinguish the clicked element
+    /// from other elements in the area. Tries each metadata dimension individually
+    /// and returns the simplest pattern that uniquely identifies "heading-like" elements.
+    /// </summary>
+    private static SectionPattern InferMinimumPattern(AreaElement clicked, List<AreaElement> others)
+    {
+        // Try single-condition candidates in order of specificity (most useful first)
+        var candidates = new List<RuleCondition>();
+
+        // Font name — often the strongest signal (e.g., "Clarendon" vs "Helvetica")
+        if (!string.IsNullOrEmpty(clicked.FontName))
+        {
+            // Extract the base font name (strip PDF subset prefix like "GHEALP+")
+            var baseFontName = clicked.FontName.Contains('+')
+                ? clicked.FontName.Substring(clicked.FontName.IndexOf('+') + 1)
+                : clicked.FontName;
+
+            candidates.Add(new RuleCondition { Type = "fontNameContains", Value = baseFontName });
+        }
+
+        // Font size — check if clicked element has a distinct font size
+        var clickedSize = Math.Round(clicked.FontSize, 1);
+        var otherSizes = others.Select(e => Math.Round(e.FontSize, 1)).Distinct().ToList();
+        if (otherSizes.All(s => Math.Abs(s - clickedSize) >= 0.5))
+        {
+            candidates.Add(new RuleCondition { Type = "fontSizeEquals", Value = clickedSize });
+        }
+        if (otherSizes.Count > 0 && clickedSize > otherSizes.Max())
+        {
+            candidates.Add(new RuleCondition { Type = "fontSizeAbove", Value = otherSizes.Max() });
+        }
+
+        // Color — often useful when headings have a distinct color
+        if (!string.IsNullOrEmpty(clicked.Color))
+        {
+            var otherColors = others.Select(e => e.Color).Distinct().ToList();
+            if (!otherColors.Contains(clicked.Color, StringComparer.OrdinalIgnoreCase))
+            {
+                candidates.Add(new RuleCondition { Type = "colorEquals", Value = clicked.Color });
+            }
+        }
+
+        // Try each single candidate — does it uniquely identify headings without false positives?
+        foreach (var candidate in candidates)
+        {
+            var conditions = new List<RuleCondition> { candidate };
+            var falsePositives = others.Count(e => PdfPagePropertiesService.MatchesAllConditions(e, conditions));
+            if (falsePositives == 0)
+            {
+                // This single condition is sufficient
+                return new SectionPattern { Conditions = conditions };
+            }
+        }
+
+        // No single condition works — try pairs
+        for (int i = 0; i < candidates.Count; i++)
+        {
+            for (int j = i + 1; j < candidates.Count; j++)
+            {
+                var conditions = new List<RuleCondition> { candidates[i], candidates[j] };
+                var falsePositives = others.Count(e => PdfPagePropertiesService.MatchesAllConditions(e, conditions));
+                if (falsePositives == 0)
+                {
+                    return new SectionPattern { Conditions = conditions };
+                }
+            }
+        }
+
+        // Fallback: use all non-empty candidates
+        if (candidates.Count > 0)
+        {
+            return new SectionPattern { Conditions = candidates };
+        }
+
+        // Last resort: no distinguishing conditions found — use font size equals
+        return new SectionPattern
+        {
+            Conditions = new List<RuleCondition>
+            {
+                new RuleCondition { Type = "fontSizeEquals", Value = Math.Round(clicked.FontSize, 1) }
+            }
+        };
+    }
+
+    /// <summary>
     /// Resolves page selection from source.json into a list of page numbers.
     /// Opens the PDF briefly to get the total page count for validation.
     /// Returns null if all pages should be included.
@@ -628,4 +798,41 @@ public class PageSelectionRequest
     /// List of page numbers to include in extraction. Null or empty = all pages.
     /// </summary>
     public List<int>? Pages { get; set; }
+}
+
+public class InferSectionPatternRequest
+{
+    /// <summary>
+    /// Zero-based index of the area in the area template's Areas list.
+    /// </summary>
+    public int AreaIndex { get; set; }
+
+    /// <summary>
+    /// The element ID (e.g., "p1-e5") that the user clicked as a section heading example.
+    /// </summary>
+    public string ElementId { get; set; } = string.Empty;
+}
+
+public class InferSectionPatternResponse
+{
+    /// <summary>
+    /// The inferred section pattern with minimum distinguishing conditions.
+    /// </summary>
+    public SectionPattern Pattern { get; set; } = new();
+
+    /// <summary>
+    /// IDs of all elements in the area that match the inferred pattern.
+    /// These are the proposed section headings.
+    /// </summary>
+    public List<string> MatchingElementIds { get; set; } = new();
+
+    /// <summary>
+    /// The element ID the user originally clicked.
+    /// </summary>
+    public string ClickedElementId { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Total number of elements in the area, for context.
+    /// </summary>
+    public int TotalElements { get; set; }
 }

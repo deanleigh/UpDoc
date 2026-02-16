@@ -49,8 +49,14 @@ public class AreaDefinition
     [JsonPropertyName("color")]
     public string Color { get; set; } = string.Empty;
 
-    [JsonPropertyName("headingFont")]
-    public string HeadingFont { get; set; } = string.Empty;
+    /// <summary>
+    /// User-defined pattern for identifying section heading elements in this area.
+    /// Null = not yet configured (auto-detect with bodySize * 1.15 for backwards compatibility).
+    /// Empty conditions = explicitly no section headings (one flat section).
+    /// Populated conditions = user-defined from teach-by-example.
+    /// </summary>
+    [JsonPropertyName("sectionPattern")]
+    public SectionPattern? SectionPattern { get; set; }
 
     [JsonPropertyName("expectedSections")]
     public List<string> ExpectedSections { get; set; } = new();

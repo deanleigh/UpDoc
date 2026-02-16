@@ -55,6 +55,15 @@ public class DetectedArea
 
     [JsonPropertyName("totalElements")]
     public int TotalElements { get; set; }
+
+    /// <summary>
+    /// The section pattern used for grouping elements in this area.
+    /// Null = auto-detect was used (no user-defined pattern).
+    /// Present = user-defined pattern from area template.
+    /// </summary>
+    [JsonPropertyName("sectionPattern")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public SectionPattern? SectionPattern { get; set; }
 }
 
 /// <summary>

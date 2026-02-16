@@ -282,6 +282,7 @@ public class PdfPagePropertiesService : IPdfPagePropertiesService
                         Name = a.Name,
                         Color = a.Color,
                         Page = pageNum,
+                        SectionPattern = a.SectionPattern,
                         BoundingBox = new ElementBoundingBox
                         {
                             Left = a.Bounds.X,
@@ -432,7 +433,7 @@ public class PdfPagePropertiesService : IPdfPagePropertiesService
             {
                 var elems = areaElements[i];
                 areas[i].TotalElements = elems.Count;
-                areas[i].Sections = GroupIntoSections(elems);
+                areas[i].Sections = GroupIntoSections(elems, areas[i].SectionPattern);
                 diagnostics.ElementsInAreas += elems.Count;
 
                 if (elems.Count > 0)
@@ -518,48 +519,71 @@ public class PdfPagePropertiesService : IPdfPagePropertiesService
     }
 
     /// <summary>
-    /// Groups elements into sections using heading detection.
-    /// Mode font size = body text. A heading must be at least 15% larger than body text to
-    /// prevent false positives from minor font size variations (e.g., 11pt vs 10.5pt = 4.8%).
-    /// Real headings are typically 40%+ larger (e.g., 12pt vs 8.5pt = 41%).
+    /// Groups elements into sections based on the provided section pattern.
+    ///
+    /// Three modes:
+    /// 1. sectionPattern is null → backwards-compatible auto-detect using bodySize * 1.15 threshold
+    /// 2. sectionPattern has empty conditions → one flat section (no grouping)
+    /// 3. sectionPattern has conditions → evaluate conditions against each element to find section headings
+    ///
+    /// In all heading modes, each heading + following non-heading elements = one section.
+    /// Elements before the first heading become a preamble section (heading = null).
     /// </summary>
-    private static List<DetectedSection> GroupIntoSections(List<AreaElement> elements)
+    private static List<DetectedSection> GroupIntoSections(List<AreaElement> elements, SectionPattern? sectionPattern)
     {
         if (elements.Count == 0)
             return new List<DetectedSection>();
 
-        // Compute mode font size (most frequent, rounded to 1 decimal)
-        var fontSizeCounts = new Dictionary<double, int>();
-        foreach (var el in elements)
+        // Mode 2: Explicit flat section — no headings
+        if (sectionPattern != null && sectionPattern.Conditions.Count == 0)
         {
-            var size = Math.Round(el.FontSize, 1);
-            fontSizeCounts[size] = fontSizeCounts.GetValueOrDefault(size) + 1;
-        }
-
-        var bodySize = fontSizeCounts.OrderByDescending(kvp => kvp.Value).First().Key;
-
-        // Heading threshold: must be at least 15% larger than body text
-        var headingThreshold = bodySize * 1.15;
-
-        // Check if any elements exceed the heading threshold
-        var hasHeadings = elements.Any(el => Math.Round(el.FontSize, 1) > headingThreshold);
-        if (!hasHeadings)
-        {
-            // No headings — everything is one section with no heading
             return new List<DetectedSection>
             {
                 new DetectedSection { Heading = null, Children = new List<AreaElement>(elements) }
             };
         }
 
-        // Walk elements: headings (fontSize > threshold) start new sections
+        // Determine which elements are headings
+        Func<AreaElement, bool> isHeading;
+
+        if (sectionPattern != null && sectionPattern.Conditions.Count > 0)
+        {
+            // Mode 3: User-defined pattern — evaluate conditions
+            isHeading = el => MatchesAllConditions(el, sectionPattern.Conditions);
+        }
+        else
+        {
+            // Mode 1: Auto-detect using bodySize * 1.15 threshold (backwards compat)
+            var fontSizeCounts = new Dictionary<double, int>();
+            foreach (var el in elements)
+            {
+                var size = Math.Round(el.FontSize, 1);
+                fontSizeCounts[size] = fontSizeCounts.GetValueOrDefault(size) + 1;
+            }
+
+            var bodySize = fontSizeCounts.OrderByDescending(kvp => kvp.Value).First().Key;
+            var headingThreshold = bodySize * 1.15;
+
+            // If no elements exceed the threshold, return flat section
+            var hasHeadings = elements.Any(el => Math.Round(el.FontSize, 1) > headingThreshold);
+            if (!hasHeadings)
+            {
+                return new List<DetectedSection>
+                {
+                    new DetectedSection { Heading = null, Children = new List<AreaElement>(elements) }
+                };
+            }
+
+            isHeading = el => Math.Round(el.FontSize, 1) > headingThreshold;
+        }
+
+        // Walk elements: headings start new sections
         var sections = new List<DetectedSection>();
         var current = new DetectedSection();
 
         foreach (var el in elements)
         {
-            var size = Math.Round(el.FontSize, 1);
-            if (size > headingThreshold)
+            if (isHeading(el))
             {
                 // This element is a heading — push current and start new section
                 if (current.Heading != null || current.Children.Count > 0)
@@ -578,6 +602,58 @@ public class PdfPagePropertiesService : IPdfPagePropertiesService
             sections.Add(current);
 
         return sections;
+    }
+
+    /// <summary>
+    /// Evaluates whether an element matches ALL conditions in a list (AND logic).
+    /// Used by both SectionPattern (area-level) and SectionRules (section-level).
+    /// </summary>
+    internal static bool MatchesAllConditions(AreaElement element, List<RuleCondition> conditions)
+    {
+        foreach (var condition in conditions)
+        {
+            if (!MatchesCondition(element, condition))
+                return false;
+        }
+        return true;
+    }
+
+    /// <summary>
+    /// Evaluates a single condition against an element.
+    /// </summary>
+    private static bool MatchesCondition(AreaElement element, RuleCondition condition)
+    {
+        var valueStr = condition.Value?.ToString() ?? string.Empty;
+
+        return condition.Type switch
+        {
+            // Text conditions
+            "textBeginsWith" => element.Text.StartsWith(valueStr, StringComparison.OrdinalIgnoreCase),
+            "textEndsWith" => element.Text.EndsWith(valueStr, StringComparison.OrdinalIgnoreCase),
+            "textContains" => element.Text.Contains(valueStr, StringComparison.OrdinalIgnoreCase),
+            "textEquals" => element.Text.Equals(valueStr, StringComparison.OrdinalIgnoreCase),
+            "textMatchesPattern" => Regex.IsMatch(element.Text, valueStr, RegexOptions.IgnoreCase),
+
+            // Font size conditions
+            "fontSizeEquals" => Math.Abs(element.FontSize - ParseDouble(valueStr)) < 0.5,
+            "fontSizeAbove" => element.FontSize > ParseDouble(valueStr),
+            "fontSizeBelow" => element.FontSize < ParseDouble(valueStr),
+
+            // Font name conditions
+            "fontNameContains" => element.FontName.Contains(valueStr, StringComparison.OrdinalIgnoreCase),
+            "fontNameEquals" => element.FontName.Equals(valueStr, StringComparison.OrdinalIgnoreCase),
+
+            // Color conditions
+            "colorEquals" => element.Color.Equals(valueStr, StringComparison.OrdinalIgnoreCase),
+
+            _ => false // Unknown condition type — does not match
+        };
+    }
+
+    private static double ParseDouble(string value)
+    {
+        return double.TryParse(value, System.Globalization.NumberStyles.Any,
+            System.Globalization.CultureInfo.InvariantCulture, out var result) ? result : 0;
     }
 
     private static RichExtractionResult ExtractRichDumpFromDocument(PdfDocument document, List<int>? includePages = null)
