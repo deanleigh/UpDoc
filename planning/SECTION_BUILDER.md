@@ -1,6 +1,6 @@
 # Section Builder: Rules + Actions for Composing Sections
 
-> Status: PLANNING — Design captured from discussion 16 Feb 2026.
+> Status: Phase 1 COMPLETE (commit `384133c`). Phases 2-5 planned.
 > Supersedes the implicit "one rule = one section" behaviour from the area rules pipeline.
 
 ---
@@ -277,12 +277,18 @@ Tour Details  [4 sections]  [Define Structure]
 
 ## Implementation Phases
 
-### Phase 1: Add action field + dropdown (minimal)
+### Phase 1: Add action field + dropdown (minimal) — COMPLETE
 
-- Add `action` field to `SectionRule` (C# + TS), default `"createSection"`
-- Add action dropdown to rules editor modal
+Commit `384133c` on `feature/section-builder` branch.
+
+**What was done:**
+- Added `action` field to `SectionRule` in C# (`Models/SectionRules.cs`) with default `"createSection"`
+- Added `RuleAction` type and `action` field to TypeScript (`workflow.types.ts`)
+- Added action dropdown to rules editor modal (`section-rules-editor-modal.element.ts`)
+- Fixed missing `textEquals` and `fontNameEquals` entries in `CONDITION_LABELS` and `ALL_CONDITION_TYPES`
+- Fixed `#addRule()` and `#createRuleFromElement()` to include `action` property
 - No backend behaviour change — all actions behave as `createSection` for now
-- This makes the rule structure complete (IF conditions THEN action) even before the backend supports new actions
+- Backward compatible — rules without `action` field default to `"createSection"` in both C# and TypeScript
 
 ### Phase 2: Fix mapping bug + createSection semantics
 
