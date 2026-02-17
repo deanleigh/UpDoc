@@ -1,4 +1,4 @@
-import { a as Z, t as tt } from "./workflow.service-D_fkSdCh.js";
+import { a as Z, t as tt } from "./workflow.service-DfBs4vkW.js";
 import { r as et, a as it, g as ot } from "./destination-utils-CEQ5Lbpg.js";
 import { html as s, css as at, state as h, customElement as nt, nothing as U } from "@umbraco-cms/backoffice/external/lit";
 import { UmbTextStyles as rt } from "@umbraco-cms/backoffice/style";
@@ -10,7 +10,7 @@ var ct = Object.defineProperty, ut = Object.getOwnPropertyDescriptor, M = (t) =>
   for (var r = a > 1 ? void 0 : a ? ut(i, e) : i, l = t.length - 1, c; l >= 0; l--)
     (c = t[l]) && (r = (a ? c(i, e, r) : c(r)) || r);
   return a && r && ct(i, e, r), r;
-}, lt = (t, i, e) => i.has(t) || M("Cannot " + e), dt = (t, i, e) => i.has(t) ? M("Cannot add the same private member more than once") : i instanceof WeakSet ? i.add(t) : i.set(t, e), n = (t, i, e) => (lt(t, i, "access private method"), e), o, L, D, $, N, A, q, I, P, O, K, F, W, C, x, z, j, G, B, w, R, Y, H, X, J, Q;
+}, lt = (t, i, e) => i.has(t) || M("Cannot " + e), dt = (t, i, e) => i.has(t) ? M("Cannot add the same private member more than once") : i instanceof WeakSet ? i.add(t) : i.set(t, e), n = (t, i, e) => (lt(t, i, "access private method"), e), o, L, D, $, N, A, q, I, P, O, K, W, F, C, x, z, j, G, B, w, R, Y, H, X, J, Q;
 const pt = {
   pdf: "PDF Document",
   markdown: "Markdown",
@@ -102,23 +102,35 @@ N = async function(t) {
   }
 };
 A = function(t) {
-  if (!this._config?.map?.mappings?.length) return;
-  let i = null;
-  for (const a of this._config.map.mappings) {
-    if (a.enabled === !1) continue;
-    const r = a.destinations.find((l) => !l.blockKey);
-    if (r) {
-      i = r.target;
-      break;
+  if (this._config?.map?.mappings?.length) {
+    let i = null;
+    for (const e of this._config.map.mappings) {
+      if (e.enabled === !1) continue;
+      const a = e.destinations.find((r) => !r.blockKey);
+      if (a) {
+        i = a.target;
+        break;
+      }
+    }
+    if (i) {
+      const e = [];
+      for (const a of this._config.map.mappings) {
+        if (a.enabled === !1) continue;
+        a.destinations.some(
+          (l) => l.target === i && !l.blockKey
+        ) && t[a.source] && e.push(t[a.source]);
+      }
+      if (e.length > 0) {
+        this._documentName = e.join(" ");
+        return;
+      }
     }
   }
-  if (!i) return;
-  const e = [];
-  for (const a of this._config.map.mappings) {
-    if (a.enabled === !1) continue;
-    a.destinations.some((l) => l.target === i && !l.blockKey) && t[a.source] && e.push(t[a.source]);
-  }
-  e.length > 0 && (this._documentName = e.join(" "));
+  for (const [i, e] of Object.entries(t))
+    if (i.endsWith(".heading") && e) {
+      this._documentName = e;
+      return;
+    }
 };
 q = function() {
   this.value = {
@@ -140,9 +152,9 @@ P = function() {
     case "markdown":
       return n(this, o, K).call(this);
     case "web":
-      return n(this, o, F).call(this);
-    case "doc":
       return n(this, o, W).call(this);
+    case "doc":
+      return n(this, o, F).call(this);
     default:
       return U;
   }
@@ -175,7 +187,7 @@ K = function() {
 			</umb-property-layout>
 		`;
 };
-F = function() {
+W = function() {
   return s`
 			<umb-property-layout label="Web Page URL" orientation="vertical">
 				<div slot="editor">
@@ -193,7 +205,7 @@ F = function() {
 			</umb-property-layout>
 		`;
 };
-W = function() {
+F = function() {
   return s`
 			<umb-property-layout label="Word Document" orientation="vertical">
 				<div slot="editor">
@@ -676,4 +688,4 @@ export {
   u as UpDocModalElement,
   _t as default
 };
-//# sourceMappingURL=up-doc-modal.element-DVs3XVHM.js.map
+//# sourceMappingURL=up-doc-modal.element-fYfnVHwe.js.map

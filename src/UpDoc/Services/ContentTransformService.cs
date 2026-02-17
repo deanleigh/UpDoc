@@ -55,7 +55,7 @@ public class ContentTransformService : IContentTransformService
                     // Normal processing: transform each detected section
                     foreach (var section in area.Sections)
                     {
-                        var transformed = TransformSection(section, page.Page, area.Color, areaIndex);
+                        var transformed = TransformSection(section, page.Page, area.Color, area.Name, areaIndex);
                         DeduplicateId(transformed, seenIds);
                         result.Sections.Add(transformed);
                         UpdateDiagnostics(diagnostics, transformed.Pattern);
@@ -88,7 +88,7 @@ public class ContentTransformService : IContentTransformService
     }
 
     private static TransformedSection TransformSection(
-        DetectedSection section, int page, string? areaColor, int areaIndex)
+        DetectedSection section, int page, string? areaColor, string? areaName, int areaIndex)
     {
         var heading = section.Heading;
         var children = section.Children;
@@ -122,6 +122,7 @@ public class ContentTransformService : IContentTransformService
             Pattern = pattern,
             Page = page,
             AreaColor = string.IsNullOrEmpty(areaColor) ? null : areaColor,
+            AreaName = areaName,
             ChildCount = children.Count,
         };
     }
@@ -201,6 +202,7 @@ public class ContentTransformService : IContentTransformService
                     Pattern = "role",
                     Page = page,
                     AreaColor = string.IsNullOrEmpty(area.Color) ? null : area.Color,
+                    AreaName = area.Name,
                     ChildCount = roleEls.Count,
                 };
                 DeduplicateId(section, seenIds);
@@ -223,6 +225,7 @@ public class ContentTransformService : IContentTransformService
                 Pattern = pattern,
                 Page = page,
                 AreaColor = string.IsNullOrEmpty(area.Color) ? null : area.Color,
+                AreaName = area.Name,
                 ChildCount = unclaimed.Count,
             };
             DeduplicateId(remainingSection, seenIds);

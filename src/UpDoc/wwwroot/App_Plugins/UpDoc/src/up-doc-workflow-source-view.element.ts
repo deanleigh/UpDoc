@@ -1,7 +1,6 @@
 import type { RichExtractionResult, DocumentTypeConfig, MappingDestination, AreaDetectionResult, DetectedArea, DetectedSection, AreaElement, TransformResult, TransformedSection, SourceConfig, AreaTemplate, SectionRuleSet, InferSectionPatternResponse } from './workflow.types.js';
-import { fetchSampleExtraction, triggerSampleExtraction, fetchWorkflowByName, fetchAreaDetection, triggerTransform, fetchTransformResult, updateSectionInclusion, saveMapConfig, savePageSelection, fetchSourceConfig, fetchAreaTemplate, saveAreaTemplate, saveAreaRules, inferSectionPattern } from './workflow.service.js';
-import { markdownToHtml, normalizeToKebabCase } from './transforms.js';
-import { UMB_DESTINATION_PICKER_MODAL } from './destination-picker-modal.token.js';
+import { fetchSampleExtraction, triggerSampleExtraction, fetchWorkflowByName, fetchAreaDetection, triggerTransform, fetchTransformResult, updateSectionInclusion, savePageSelection, fetchSourceConfig, fetchAreaTemplate, saveAreaTemplate, saveAreaRules, inferSectionPattern } from './workflow.service.js';
+import { normalizeToKebabCase } from './transforms.js';
 import { UMB_AREA_EDITOR_MODAL } from './pdf-area-editor-modal.token.js';
 import { UMB_PAGE_PICKER_MODAL } from './page-picker-modal.token.js';
 import { UMB_SECTION_RULES_EDITOR_MODAL } from './section-rules-editor-modal.token.js';
@@ -442,33 +441,6 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		if (result) {
 			this._transformResult = result;
 		}
-	}
-
-	async #onMapSection(sourceKey: string) {
-		if (!this._config?.destination || !this._workflowName) return;
-		const modalManager = await this.getContext(UMB_MODAL_MANAGER_CONTEXT);
-		const modal = modalManager.open(this, UMB_DESTINATION_PICKER_MODAL, {
-			data: {
-				destination: this._config.destination,
-				existingMappings: this._config.map?.mappings,
-			},
-		});
-		const result = await modal.onSubmit().catch(() => null);
-		if (!result?.selectedTargets?.length) return;
-
-		const mappings = [...(this._config.map?.mappings ?? [])];
-		const existingIdx = mappings.findIndex((m) => m.source === sourceKey);
-		const newMapping = {
-			source: sourceKey,
-			destinations: result.selectedTargets.map((t: { target: string; blockKey?: string }) => ({ target: t.target, blockKey: t.blockKey })),
-			enabled: true,
-		};
-		if (existingIdx >= 0) mappings[existingIdx] = newMapping;
-		else mappings.push(newMapping);
-
-		const updatedMap = { ...this._config.map, version: this._config.map?.version ?? '1.0', mappings };
-		const saved = await saveMapConfig(this._workflowName, updatedMap, this.#token);
-		if (saved) this._config = { ...this._config, map: updatedMap };
 	}
 
 	#getMappedTargets(elementId: string): MappingDestination[] {
@@ -1115,55 +1087,6 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 			: this.#renderTransformed();
 	}
 
-	#renderMappingBadges(sourceKey: string) {
-		const targets = this.#getMappedTargets(sourceKey);
-		if (targets.length === 0) {
-			return html`<uui-button look="secondary" compact label="Map" @click=${() => this.#onMapSection(sourceKey)}>
-				<uui-icon name="icon-link"></uui-icon> Map
-			</uui-button>`;
-		}
-		return html`${targets.map(
-			(dest) => html`<span class="meta-badge mapped-target" @click=${() => this.#onMapSection(sourceKey)} style="cursor:pointer;" title="Click to re-map">
-				<uui-icon name="icon-check" style="font-size:10px;"></uui-icon> ${this.#resolveTargetLabel(dest)}
-			</span>`,
-		)}`;
-	}
-
-	#renderTransformedSection(section: TransformedSection) {
-		const patternLabels: Record<string, string> = {
-			bulletList: 'Bullet List',
-			paragraph: 'Paragraph',
-			subHeaded: 'Sub-Headed',
-			preamble: 'Preamble',
-			mixed: 'Mixed',
-			role: 'Role',
-		};
-
-		const headingKey = `${section.id}.heading`;
-		const contentKey = `${section.id}.content`;
-		const hasHeadingMapping = this.#getMappedTargets(headingKey).length > 0;
-		const hasContentMapping = this.#getMappedTargets(contentKey).length > 0;
-		const isMapped = hasHeadingMapping || hasContentMapping;
-
-		const headline = section.heading ?? 'Content';
-		return html`
-			<uui-box headline=${headline} class="transformed-section ${isMapped ? 'section-mapped' : ''}">
-				<div slot="header-actions" class="transformed-header-badges">
-					<span class="pattern-badge ${section.pattern}">${patternLabels[section.pattern] ?? section.pattern}</span>
-					<span class="meta-badge">p${section.page}</span>
-					${section.areaColor ? html`<span class="area-color-swatch" style="background: ${section.areaColor};"></span>` : nothing}
-					<span class="meta-badge">${section.childCount} item${section.childCount !== 1 ? 's' : ''}</span>
-					${section.heading ? this.#renderMappingBadges(headingKey) : nothing}
-				</div>
-				<div class="transformed-content" .innerHTML=${markdownToHtml(section.content)}></div>
-				<div class="section-mapping-actions">
-					<span class="mapping-label">Content:</span>
-					${this.#renderMappingBadges(contentKey)}
-				</div>
-			</uui-box>
-		`;
-	}
-
 	#renderTransformed() {
 		if (!this._transformResult) {
 			return html`
@@ -1178,19 +1101,56 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		const includedSections = this._transformResult.sections.filter((s) => s.included);
 		const totalSections = this._transformResult.sections.length;
 
+		// Group sections by page → area
+		const pages = new Map<number, Map<string, { name: string; color: string | null; sections: TransformedSection[] }>>();
+
+		for (const section of includedSections) {
+			if (!pages.has(section.page)) {
+				pages.set(section.page, new Map());
+			}
+			const areaMap = pages.get(section.page)!;
+			const areaKey = section.areaName ?? section.areaColor ?? 'unknown';
+			if (!areaMap.has(areaKey)) {
+				areaMap.set(areaKey, {
+					name: section.areaName ?? 'Ungrouped',
+					color: section.areaColor,
+					sections: [],
+				});
+			}
+			areaMap.get(areaKey)!.sections.push(section);
+		}
+
+		const sortedPages = [...pages.entries()].sort((a, b) => a[0] - b[0]);
+
 		return html`
-			${includedSections.map((section) => this.#renderTransformedSection(section))}
+			${sortedPages.map(([pageNum, areaMap]) => {
+				const areas = [...areaMap.values()];
+				const sectionCount = areas.reduce((sum, a) => sum + a.sections.length, 0);
+				return html`
+					<uui-box class="page-box">
+						<div slot="header" class="tree-header">
+							<strong class="page-title">Page ${pageNum}</strong>
+						</div>
+						<div slot="header-actions" class="page-header-actions">
+							<span class="group-count">${sectionCount} section${sectionCount !== 1 ? 's' : ''}, ${areas.length} area${areas.length !== 1 ? 's' : ''}</span>
+						</div>
+						${areas.map((area) => html`
+							<div class="detected-area" style="border-left-color: ${area.color ?? 'var(--uui-color-divider)'};">
+								<div class="area-header">
+									<span class="area-name">${area.name}</span>
+									<span class="header-spacer"></span>
+									<span class="group-count">${area.sections.length} section${area.sections.length !== 1 ? 's' : ''}</span>
+								</div>
+								<div class="composed-sections">
+									${area.sections.map((section) => this.#renderComposedSectionRow(section))}
+								</div>
+							</div>
+						`)}
+					</uui-box>
+				`;
+			})}
 			<div class="diagnostics">
 				<span class="meta-badge">${includedSections.length}/${totalSections} sections included</span>
-				<span class="meta-badge">${this._transformResult.diagnostics.bulletListSections} bullet</span>
-				<span class="meta-badge">${this._transformResult.diagnostics.paragraphSections} paragraph</span>
-				<span class="meta-badge">${this._transformResult.diagnostics.subHeadedSections} sub-headed</span>
-				${this._transformResult.diagnostics.preambleSections > 0
-					? html`<span class="meta-badge">${this._transformResult.diagnostics.preambleSections} preamble</span>`
-					: nothing}
-				${this._transformResult.diagnostics.roleSections > 0
-					? html`<span class="meta-badge">${this._transformResult.diagnostics.roleSections} role</span>`
-					: nothing}
 			</div>
 		`;
 	}

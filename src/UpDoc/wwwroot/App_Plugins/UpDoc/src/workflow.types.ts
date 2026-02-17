@@ -378,6 +378,7 @@ export interface TransformedSection {
 	pattern: 'bulletList' | 'paragraph' | 'subHeaded' | 'preamble' | 'mixed' | 'role';
 	page: number;
 	areaColor: string | null;
+	areaName: string | null;
 	childCount: number;
 	included: boolean;
 }

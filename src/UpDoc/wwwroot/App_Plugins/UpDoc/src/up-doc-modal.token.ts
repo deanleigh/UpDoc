@@ -24,7 +24,7 @@ export const UMB_UP_DOC_MODAL = new UmbModalToken<UmbUpDocModalData, UmbUpDocMod
 	{
 		modal: {
 			type: 'sidebar',
-			size: 'small',
+			size: 'medium',
 		},
 	},
 );

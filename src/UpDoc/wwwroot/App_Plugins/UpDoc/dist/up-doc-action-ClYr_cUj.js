@@ -1,6 +1,6 @@
-import { U as x } from "./up-doc-modal.token-CsTR3cxa.js";
+import { U as x } from "./up-doc-modal.token-DHoS03yR.js";
 import { U as V } from "./blueprint-picker-modal.token-mXZoRNwG.js";
-import { f as A } from "./workflow.service-D_fkSdCh.js";
+import { f as A } from "./workflow.service-DfBs4vkW.js";
 import { b as C, m as O } from "./transforms-deUehta3.js";
 import { UmbEntityActionBase as G } from "@umbraco-cms/backoffice/entity-action";
 import { umbOpenModal as I } from "@umbraco-cms/backoffice/modal";
@@ -295,4 +295,4 @@ export {
   oe as UpDocEntityAction,
   oe as default
 };
-//# sourceMappingURL=up-doc-action-BhE2P0H1.js.map
+//# sourceMappingURL=up-doc-action-ClYr_cUj.js.map

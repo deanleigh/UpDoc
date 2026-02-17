@@ -51,6 +51,95 @@
       ],
       "enabled": true,
       "comment": null
+    },
+    {
+      "source": "preamble-p1-z0.content",
+      "destinations": [
+        {
+          "target": "organiserOrganisation",
+          "blockKey": null,
+          "transforms": null
+        }
+      ],
+      "enabled": true,
+      "comment": null
+    },
+    {
+      "source": "the-moorish-treasures-of-andaluc-a.heading",
+      "destinations": [
+        {
+          "target": "pageTitle",
+          "blockKey": null,
+          "transforms": null
+        },
+        {
+          "target": "pageTitleShort",
+          "blockKey": null,
+          "transforms": null
+        }
+      ],
+      "enabled": true,
+      "comment": null
+    },
+    {
+      "source": "6-days-from-1-099-departing-8th-november-2018.content",
+      "destinations": [
+        {
+          "target": "pageDescription",
+          "blockKey": null,
+          "transforms": null
+        }
+      ],
+      "enabled": true,
+      "comment": null
+    },
+    {
+      "source": "features.heading",
+      "destinations": [
+        {
+          "target": "featurePropertyFeatureTitle",
+          "blockKey": "e8fa3567-798c-427f-8677-58bfd87b19cb",
+          "transforms": null
+        }
+      ],
+      "enabled": true,
+      "comment": null
+    },
+    {
+      "source": "features.content",
+      "destinations": [
+        {
+          "target": "richTextContent",
+          "blockKey": "e8fa3567-798c-427f-8677-58bfd87b19cb",
+          "transforms": null
+        }
+      ],
+      "enabled": true,
+      "comment": null
+    },
+    {
+      "source": "accommodation.heading",
+      "destinations": [
+        {
+          "target": "featurePropertyFeatureTitle",
+          "blockKey": "bc5ae5e8-0f80-48b6-acbf-ef6eb7ebd69c",
+          "transforms": null
+        }
+      ],
+      "enabled": true,
+      "comment": null
+    },
+    {
+      "source": "accommodation.content",
+      "destinations": [
+        {
+          "target": "richTextContent",
+          "blockKey": "bc5ae5e8-0f80-48b6-acbf-ef6eb7ebd69c",
+          "transforms": null
+        }
+      ],
+      "enabled": true,
+      "comment": null
     }
   ]
 }

@@ -103,6 +103,72 @@
           ]
         }
       ]
+    },
+    "page-header": {
+      "rules": [
+        {
+          "role": "Organisation",
+          "action": "createSection",
+          "conditions": [
+            {
+              "type": "fontSizeEquals",
+              "value": 11.4
+            },
+            {
+              "type": "fontNameContains",
+              "value": "LGPHPC\u002BHelveticaNeue-Medium"
+            },
+            {
+              "type": "colorEquals",
+              "value": "#FFD200"
+            },
+            {
+              "type": "positionFirst",
+              "value": null
+            }
+          ]
+        },
+        {
+          "role": "Tour Title",
+          "action": "createSection",
+          "conditions": [
+            {
+              "type": "fontSizeEquals",
+              "value": 28
+            },
+            {
+              "type": "fontNameContains",
+              "value": "LGPHPF\u002BClarendon"
+            },
+            {
+              "type": "colorEquals",
+              "value": "#FFFFFF"
+            }
+          ]
+        },
+        {
+          "role": "Tour Description",
+          "action": "createSection",
+          "conditions": [
+            {
+              "type": "fontSizeEquals",
+              "value": 14.4
+            },
+            {
+              "type": "fontNameContains",
+              "value": "LGPHPC\u002BHelveticaNeue-Medium"
+            },
+            {
+              "type": "colorEquals",
+              "value": "#FFD200"
+            },
+            {
+              "type": "positionLast",
+              "value": null
+            }
+          ]
+        }
+      ]
     }
   }
 }

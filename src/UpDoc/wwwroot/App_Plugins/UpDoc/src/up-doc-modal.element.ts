@@ -186,35 +186,49 @@ export class UpDocModalElement extends UmbModalBaseElement<
 	 * Pre-fills the document name by finding elements mapped to a top-level field
 	 * (no blockKey — i.e., a document property like pageTitle, not a block property).
 	 * Concatenates multiple elements with a space (e.g., title split across two lines).
+	 * Falls back to the first section heading if mapping-based resolution fails
+	 * (e.g., section IDs differ across source documents).
 	 */
 	#prefillDocumentName(elementLookup: Record<string, string>) {
-		if (!this._config?.map?.mappings?.length) return;
+		// Try mapping-based name resolution first
+		if (this._config?.map?.mappings?.length) {
+			// Find the first mapping that targets a top-level field (no blockKey)
+			let titleTarget: string | null = null;
+			for (const mapping of this._config.map.mappings) {
+				if (mapping.enabled === false) continue;
+				const topLevelDest = mapping.destinations.find((d) => !d.blockKey);
+				if (topLevelDest) {
+					titleTarget = topLevelDest.target;
+					break;
+				}
+			}
 
-		// Find the first mapping that targets a top-level field (no blockKey)
-		let titleTarget: string | null = null;
-		for (const mapping of this._config.map.mappings) {
-			if (mapping.enabled === false) continue;
-			const topLevelDest = mapping.destinations.find((d) => !d.blockKey);
-			if (topLevelDest) {
-				titleTarget = topLevelDest.target;
-				break;
+			if (titleTarget) {
+				// Collect text from all elements mapped to this top-level target
+				const parts: string[] = [];
+				for (const mapping of this._config.map.mappings) {
+					if (mapping.enabled === false) continue;
+					const mapsToTarget = mapping.destinations.some(
+						(d) => d.target === titleTarget && !d.blockKey,
+					);
+					if (mapsToTarget && elementLookup[mapping.source]) {
+						parts.push(elementLookup[mapping.source]);
+					}
+				}
+
+				if (parts.length > 0) {
+					this._documentName = parts.join(' ');
+					return;
+				}
 			}
 		}
 
-		if (!titleTarget) return;
-
-		// Collect text from all elements mapped to this top-level target
-		const parts: string[] = [];
-		for (const mapping of this._config.map.mappings) {
-			if (mapping.enabled === false) continue;
-			const mapsToTarget = mapping.destinations.some((d) => d.target === titleTarget && !d.blockKey);
-			if (mapsToTarget && elementLookup[mapping.source]) {
-				parts.push(elementLookup[mapping.source]);
+		// Fallback: use the first .heading value from the section lookup
+		for (const [key, value] of Object.entries(elementLookup)) {
+			if (key.endsWith('.heading') && value) {
+				this._documentName = value;
+				return;
 			}
-		}
-
-		if (parts.length > 0) {
-			this._documentName = parts.join(' ');
 		}
 	}
 

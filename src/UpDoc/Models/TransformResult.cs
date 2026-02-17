@@ -43,6 +43,9 @@ public class TransformedSection
     /// <summary>Hex color of the area this section belongs to.</summary>
     public string? AreaColor { get; set; }
 
+    /// <summary>Name of the area this section belongs to (e.g., "Page Header", "Tour Details").</summary>
+    public string? AreaName { get; set; }
+
     /// <summary>Number of children that were assembled.</summary>
     public int ChildCount { get; set; }
 

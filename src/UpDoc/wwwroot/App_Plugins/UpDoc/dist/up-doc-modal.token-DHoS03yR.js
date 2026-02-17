@@ -1,14 +1,14 @@
 import { UmbModalToken as o } from "@umbraco-cms/backoffice/modal";
-const e = new o(
+const m = new o(
   "UpDoc.Modal",
   {
     modal: {
       type: "sidebar",
-      size: "small"
+      size: "medium"
     }
   }
 );
 export {
-  e as U
+  m as U
 };
-//# sourceMappingURL=up-doc-modal.token-CsTR3cxa.js.map
+//# sourceMappingURL=up-doc-modal.token-DHoS03yR.js.map
