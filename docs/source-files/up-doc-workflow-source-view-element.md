@@ -32,22 +32,18 @@ Uses `umb-body-layout header-fit-height` with a single `slot="header"` div conta
 
 Four equal-width `<uui-box>` cards in a flex row with `flex-grow: 1`, following the uSync dashboard pattern. Each box uses the `headline` attribute for its title label.
 
-1. **Source** — h2 filename, document icon, extraction date, Re-extract (green) and Change PDF (blue) buttons
-2. **Pages** — stat number (e.g., "2 of 4"), page selection controls (All/Choose radio + range input)
-3. **Areas** — stat number
+1. **Source** — h2 filename, document icon, extraction date, Re-extract and Change PDF buttons
+2. **Pages** — stat number (e.g., "2 of 4" or "All"), "Choose Pages" button opens page picker modal
+3. **Areas** — stat number, "Edit Areas" or "Define Areas" button opens area editor modal
 4. **Sections** — stat number, "Edit Sections" button that opens a section picker popover listing all transform sections. Each menu item shows `icon-check` (green) if the section already has rules, or `icon-thumbnail-list` (default) if not. Clicking a section opens the Section Rules Editor modal.
+
+All boxes use equal-height layout via `min-height: 180px` on `.box-content` with `margin-top: auto` on `.box-buttons` to pin buttons to the bottom. Stat numbers are vertically centred using flex. All buttons use `color="default"` for consistent styling.
 
 The Collapse All / Expand All button sits in its own row below the boxes, right-aligned.
 
 ### Page selection
 
-Users can filter which PDF pages are extracted. Stored in `source.json` as a `pages` array of page numbers.
-
-- **All mode** — all pages processed (default, no `pages` in source.json)
-- **Custom mode** — user enters a range string (e.g., "1-2, 5") parsed into individual page numbers
-- **Per-page toggles** — each Page box in the hierarchy has an include/exclude toggle that updates the range
-- Selecting all pages automatically switches back to "All" mode
-- Page selection is saved immediately on change and applied on next re-extract
+Users can filter which PDF pages are extracted. Stored in `source.json` as a `pages` array of page numbers. Page selection is managed via the "Choose Pages" button in the Pages info box, which opens a page picker modal. Selection is saved immediately and applied on next re-extract.
 
 ### Data loading
 
@@ -63,7 +59,7 @@ On load, the component:
 Elements are displayed in a four-level collapsible hierarchy:
 
 1. **Page** — `uui-box` with "Page N" headline, section/area counts, page include toggle, and collapse chevron in `header-actions` slot. Excluded pages are dimmed.
-2. **Area** — colour-coded left border with "Area N" label, colour swatch, section count, and collapse chevron. Areas without a detected area are labelled "Undefined" (italic, dimmed).
+2. **Area** — colour-coded left border with area name label, section count, and collapse chevron. Areas with rules show an "N rules" badge and "Edit Rules" button. Areas without rules show a "Flat"/"Configured" structure badge and "Define Structure"/"Redefine" button plus an include/exclude toggle. For areas with rules, composed sections from the transform pipeline are rendered instead of raw elements, showing role name, content preview, and mapping status badges.
 3. **Section** — structural label "Section – {name}" with include/exclude toggle, element count, and collapse chevron. The heading text from the PDF is rendered as the first child element (with a HEADING badge), not as the section header itself. This separates our structural UI from the actual PDF content. Preamble sections (no heading) show "Content" as the structural label.
 4. **Element** — individual elements with semantic role badge (Heading/List Item/Paragraph), font size, font name, and colour badges.
 
@@ -132,8 +128,7 @@ When no sample extraction exists, shows a centered prompt with "Choose PDF" butt
 | `#onSectionPickerToggle(e)` | Handles popover open/close for the section picker |
 | `#onEditSectionRules(sectionId, heading, elements)` | Opens rules editor modal for a section, saves returned rules via API |
 | `#renderExtractionHeader()` | Tab group slotted into header |
-| `#renderInfoBoxes()` | Four equal-width uui-box cards (Source, Pages, Areas, Sections) |
-| `#renderPageSelection()` | Radio buttons (All/Choose) + range text input |
+| `#renderInfoBoxes()` | Four equal-height uui-box cards (Source, Pages, Areas, Sections) |
 | `#renderExtractionContent()` | Dispatches to area detection or transformed view |
 | `#renderAreaPage()` | Renders a page with toggle, area count, and collapse |
 | `#renderArea()` | Renders "Area N" with sections and collapse |
@@ -143,6 +138,9 @@ When no sample extraction exists, shows a centered prompt with "Choose PDF" butt
 | `#classifyText()` | Classifies text as 'list' or 'paragraph' by leading pattern |
 | `#renderTransformedSection()` | Renders an assembled section with pattern badge and mapping |
 | `#renderMappingBadges()` | Shows Map button or green mapped-target badges |
+| `#hasAreaRules(area)` | Checks if an area has rules defined in source config |
+| `#getTransformSectionsForArea(area, pageNum)` | Gets transform sections belonging to an area (matched by colour + page) |
+| `#renderComposedSectionRow(section)` | Renders a composed section row with role name, content preview, and mapping badges |
 
 ## Imports
 

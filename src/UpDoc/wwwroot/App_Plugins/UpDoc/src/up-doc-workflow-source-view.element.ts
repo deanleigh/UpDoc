@@ -149,65 +149,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		return pages.length === 0 || pages.includes(pageNum);
 	}
 
-	/** Toggle a page on/off and update the text input. */
-	#togglePage(pageNum: number) {
-		const totalPages = this._areaDetection?.totalPages ?? this._extraction?.source.totalPages ?? 0;
-		if (totalPages === 0) return;
 
-		if (this._pageMode === 'all') {
-			// Switching from "all" to "custom" by toggling one page off
-			const allPages = Array.from({ length: totalPages }, (_, i) => i + 1);
-			const remaining = allPages.filter((p) => p !== pageNum);
-			this._pageMode = 'custom';
-			this._pageInputValue = this.#pagesToRangeString(remaining);
-		} else {
-			const current = this.#parsePageRange(this._pageInputValue);
-			if (current.includes(pageNum)) {
-				const remaining = current.filter((p) => p !== pageNum);
-				this._pageInputValue = this.#pagesToRangeString(remaining);
-				// If all removed, switch back to "all" mode
-				if (remaining.length === 0) {
-					this._pageMode = 'all';
-					this._pageInputValue = '';
-				}
-			} else {
-				const updated = [...current, pageNum].sort((a, b) => a - b);
-				this._pageInputValue = this.#pagesToRangeString(updated);
-			}
-			// If all pages are now selected, switch back to "all"
-			if (this.#parsePageRange(this._pageInputValue).length === totalPages) {
-				this._pageMode = 'all';
-				this._pageInputValue = '';
-			}
-		}
-		this.#savePageSelection();
-	}
-
-	async #onPageModeChange(mode: 'all' | 'custom') {
-		this._pageMode = mode;
-		if (mode === 'all') {
-			this._pageInputValue = '';
-		}
-		await this.#savePageSelection();
-	}
-
-	async #onPageInputChange(e: Event) {
-		const input = e.target as HTMLInputElement;
-		this._pageInputValue = input.value;
-	}
-
-	async #onPageInputBlur() {
-		// Normalize the input and save
-		const pages = this.#parsePageRange(this._pageInputValue);
-		if (pages.length > 0) {
-			this._pageInputValue = this.#pagesToRangeString(pages);
-			this._pageMode = 'custom';
-		} else {
-			this._pageMode = 'all';
-			this._pageInputValue = '';
-		}
-		await this.#savePageSelection();
-	}
 
 	async #savePageSelection() {
 		if (!this._workflowName) return;
@@ -668,6 +610,52 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		this._inferring = false;
 	}
 
+	// --- Composed section helpers (Phase 1b) ---
+
+	/** Check if an area has rules defined in source config. */
+	#getAreaRulesKey(area: DetectedArea): string {
+		return normalizeToKebabCase(area.name || '');
+	}
+
+	#hasAreaRules(area: DetectedArea): boolean {
+		const key = this.#getAreaRulesKey(area);
+		return !!(this._sourceConfig?.areaRules?.[key]?.rules?.length);
+	}
+
+	/** Get transform sections that belong to a specific area (matched by color + page). */
+	#getTransformSectionsForArea(area: DetectedArea, pageNum: number): TransformedSection[] {
+		if (!this._transformResult) return [];
+		return this._transformResult.sections.filter(
+			(s) => s.areaColor === area.color && s.page === pageNum,
+		);
+	}
+
+	#renderComposedSectionRow(section: TransformedSection) {
+		const contentPreview =
+			section.content.length > 100
+				? section.content.substring(0, 100).replace(/\r?\n/g, ' ') + '\u2026'
+				: section.content.replace(/\r?\n/g, ' ');
+
+		// Check both .content and .heading keys — existing mappings may use either
+		const contentTargets = this.#getMappedTargets(`${section.id}.content`);
+		const headingTargets = this.#getMappedTargets(`${section.id}.heading`);
+		const targets = [...contentTargets, ...headingTargets];
+		const isMapped = targets.length > 0;
+
+		return html`
+			<div class="composed-section-row">
+				<span class="composed-role">${section.heading ?? 'Content'}</span>
+				<span class="composed-preview">${contentPreview}</span>
+				<span class="header-spacer"></span>
+				${isMapped
+					? targets.map((dest) => html`<span class="meta-badge mapped-target" title="${this.#resolveTargetLabel(dest)}">
+						<uui-icon name="icon-check" style="font-size:10px;"></uui-icon> ${this.#resolveTargetLabel(dest)}
+					</span>`)
+					: html`<span class="composed-unmapped">unmapped</span>`}
+			</div>
+		`;
+	}
+
 	// --- Area-based rendering ---
 
 	#classifyText(text: string): 'list' | 'paragraph' {
@@ -803,7 +791,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 						<span class="teach-condition-summary">${conditionSummary}</span>
 					</div>
 					<div class="teach-confirmation-actions">
-						<uui-button look="primary" color="positive" label="Confirm" @click=${() => this.#onConfirmPattern()}>
+						<uui-button look="primary" color="default" label="Confirm" @click=${() => this.#onConfirmPattern()}>
 							<uui-icon name="icon-check"></uui-icon> Confirm
 						</uui-button>
 						<uui-button look="secondary" label="Cancel" @click=${() => this.#onCancelTeach()}>Cancel</uui-button>
@@ -836,7 +824,18 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		const isTeaching = this._teachingAreaIndex === globalIdx;
 		const isCollapsed = isTeaching ? false : this.#isCollapsed(areaKey);
 		const isIncluded = !this._excludedAreas.has(areaKey);
-		const sectionCount = area.sections.length;
+
+		// Check if area has rules defined (from section rules editor)
+		const rulesAreaKey = this.#getAreaRulesKey(area);
+		const hasRules = this.#hasAreaRules(area);
+
+		// When rules exist and transform is available, use composed sections from transform
+		const composedSections = hasRules && this._transformResult
+			? this.#getTransformSectionsForArea(area, pageNum)
+			: [];
+		const useComposed = hasRules && composedSections.length > 0;
+
+		const sectionCount = useComposed ? composedSections.length : area.sections.length;
 
 		// Check if area has a configured section pattern
 		const hasPattern = area.sectionPattern != null;
@@ -844,37 +843,59 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 			? (area.sectionPattern!.conditions.length > 0 ? 'Configured' : 'Flat')
 			: null;
 
+		const ruleCount = this._sourceConfig?.areaRules?.[rulesAreaKey]?.rules?.length ?? 0;
+
 		return html`
 			<div class="detected-area ${!isIncluded ? 'area-excluded' : ''} ${isTeaching ? 'area-teaching' : ''}" style="border-left-color: ${area.color};">
 				<div class="area-header" @click=${() => !isTeaching && this.#toggleCollapse(areaKey)}>
 					<uui-icon class="collapse-chevron" name="${isCollapsed ? 'icon-navigation-right' : 'icon-navigation-down'}"></uui-icon>
 					<span class="area-name">${area.name || `Area ${areaIndex + 1}`}</span>
-					${patternLabel ? html`<span class="meta-badge structure-badge">${patternLabel}</span>` : nothing}
+					${hasRules
+						? html`<span class="meta-badge rules-badge">${ruleCount} rule${ruleCount !== 1 ? 's' : ''}</span>`
+						: patternLabel ? html`<span class="meta-badge structure-badge">${patternLabel}</span>` : nothing}
 					<span class="header-spacer"></span>
 					<span class="group-count">${sectionCount} section${sectionCount !== 1 ? 's' : ''}</span>
 					${!isTeaching ? html`
-						<uui-button
-							look="outline"
-							compact
-							label="${hasPattern ? 'Redefine Structure' : 'Define Structure'}"
-							@click=${(e: Event) => { e.stopPropagation(); this.#onDefineStructure(globalIdx, areaKey); }}
-							?disabled=${this._teachingAreaIndex !== null && !isTeaching}>
-							<uui-icon name="icon-axis-rotation"></uui-icon>
-							${hasPattern ? 'Redefine' : 'Define Structure'}
-						</uui-button>
+						${hasRules ? html`
+							<uui-button
+								look="outline"
+								compact
+								label="Edit Rules"
+								@click=${(e: Event) => { e.stopPropagation(); this.#onEditAreaRules(rulesAreaKey, area.name || '', this.#getAreaElements(area)); }}
+								?disabled=${this._teachingAreaIndex !== null}>
+								<uui-icon name="icon-settings"></uui-icon>
+								Edit Rules
+							</uui-button>
+						` : html`
+							<uui-button
+								look="outline"
+								compact
+								label="${hasPattern ? 'Redefine Structure' : 'Define Structure'}"
+								@click=${(e: Event) => { e.stopPropagation(); this.#onDefineStructure(globalIdx, areaKey); }}
+								?disabled=${this._teachingAreaIndex !== null && !isTeaching}>
+								<uui-icon name="icon-axis-rotation"></uui-icon>
+								${hasPattern ? 'Redefine' : 'Define Structure'}
+							</uui-button>
+						`}
 					` : nothing}
-					<uui-toggle
-						label="${isIncluded ? 'Included' : 'Excluded'}"
-						?checked=${isIncluded}
-						@click=${(e: Event) => e.stopPropagation()}
-						@change=${() => this.#toggleAreaExclusion(areaKey)}>
-					</uui-toggle>
+					${!hasRules ? html`
+						<uui-toggle
+							label="${isIncluded ? 'Included' : 'Excluded'}"
+							?checked=${isIncluded}
+							@click=${(e: Event) => e.stopPropagation()}
+							@change=${() => this.#toggleAreaExclusion(areaKey)}>
+						</uui-toggle>
+					` : nothing}
 				</div>
 				${!isCollapsed ? html`
 					${isTeaching ? html`
 						${this.#renderTeachToolbar()}
 						<div class="teach-elements">
 							${this.#getAreaElements(area).map((el) => this.#renderTeachElement(el))}
+						</div>
+					` : useComposed ? html`
+						<div class="composed-sections">
+							${composedSections.map((section) => this.#renderComposedSectionRow(section))}
 						</div>
 					` : html`
 						${area.sections.map((section, sIdx) =>
@@ -900,12 +921,6 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				</div>
 				<div slot="header-actions" class="page-header-actions">
 					<span class="group-count">${sectionCount} section${sectionCount !== 1 ? 's' : ''}, ${areaCount} area${areaCount !== 1 ? 's' : ''}</span>
-					<uui-toggle
-						label="${isIncluded ? 'Included in extraction' : 'Excluded from extraction'}"
-						?checked=${isIncluded}
-						@click=${(e: Event) => e.stopPropagation()}
-						@change=${() => this.#togglePage(pageNum)}>
-					</uui-toggle>
 				</div>
 				${!isCollapsed ? html`
 					${areas.map((area, idx) => this.#renderArea(area, pageNum, idx))}
@@ -930,32 +945,6 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 			sum + page.areas.reduce((aSum, area) => aSum + area.sections.length, 0), 0);
 	}
 
-	#renderPageSelection() {
-		const totalPages = this._areaDetection?.totalPages ?? this._extraction?.source.totalPages ?? 0;
-		if (totalPages === 0) return nothing;
-
-		return html`
-			<label class="page-radio">
-				<input type="radio" name="page-mode" value="all"
-					.checked=${this._pageMode === 'all'}
-					@change=${() => this.#onPageModeChange('all')} />
-				All
-			</label>
-			<label class="page-radio">
-				<input type="radio" name="page-mode" value="custom"
-					.checked=${this._pageMode === 'custom'}
-					@change=${() => this.#onPageModeChange('custom')} />
-				Choose
-			</label>
-			<input type="text" class="page-input"
-				placeholder="e.g. 1-2, 5"
-				.value=${this._pageInputValue}
-				@input=${this.#onPageInputChange}
-				@blur=${this.#onPageInputBlur}
-				@focus=${() => { if (this._pageMode === 'all') this.#onPageModeChange('custom'); }}
-				?disabled=${this._pageMode === 'all'} />
-		`;
-	}
 
 	#renderExtractionHeader() {
 		return html`
@@ -1004,9 +993,6 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				<uui-box headline="Pages" class="info-box-item">
 					<div class="box-content">
 						<span class="box-stat">${pagesLabel}</span>
-						<div class="page-selection">
-							${this.#renderPageSelection()}
-						</div>
 						<div class="box-buttons">
 							<uui-button look="primary" color="default" label="Choose Pages" @click=${this.#onOpenPagePicker}>
 								<uui-icon name="icon-thumbnails-small"></uui-icon>
@@ -1021,11 +1007,11 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 						<span class="box-stat">${this._areaTemplate ? this._areaTemplate.areas.length : areas}</span>
 						<div class="box-buttons">
 							${this._areaTemplate
-								? html`<uui-button look="primary" color="positive" label="Edit Areas" @click=${this.#onEditAreas}>
+								? html`<uui-button look="primary" color="default" label="Edit Areas" @click=${this.#onEditAreas}>
 									<uui-icon name="icon-edit"></uui-icon>
 									Edit Areas
 								</uui-button>`
-								: html`<uui-button look="primary" color="positive" label="Define Areas" @click=${this.#onEditAreas}>
+								: html`<uui-button look="primary" color="default" label="Define Areas" @click=${this.#onEditAreas}>
 									<uui-icon name="icon-grid"></uui-icon>
 									Define Areas
 								</uui-button>`}
@@ -1040,7 +1026,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 							<div class="box-buttons">
 								<uui-button
 									look="primary"
-									color="positive"
+									color="default"
 									label="Edit Sections"
 									popovertarget="section-picker-popover">
 									<uui-icon name="icon-settings"></uui-icon>
@@ -1300,7 +1286,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 			}
 
 			.info-box-item {
-				flex-grow: 1;
+				flex: 1;
 			}
 
 			.box-content {
@@ -1309,6 +1295,12 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				align-items: center;
 				text-align: center;
 				gap: var(--uui-size-space-2);
+				min-height: 180px;
+			}
+
+			.box-buttons {
+				margin-top: auto;
+				padding-top: var(--uui-size-space-2);
 			}
 
 			.box-icon {
@@ -1342,6 +1334,10 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				font-size: var(--uui-type-h3-size);
 				font-weight: 700;
 				color: var(--uui-color-text);
+				flex: 1;
+				display: flex;
+				align-items: center;
+				justify-content: center;
 			}
 
 
@@ -1350,50 +1346,6 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				display: flex;
 				justify-content: flex-end;
 				padding: 0 var(--uui-size-space-4) var(--uui-size-space-2);
-			}
-
-			/* Page selection (stacked inside box) */
-			.page-selection {
-				display: flex;
-				flex-direction: column;
-				gap: var(--uui-size-space-1);
-				font-size: var(--uui-type-small-size);
-				margin-top: var(--uui-size-space-1);
-			}
-
-			.page-radio {
-				display: flex;
-				align-items: center;
-				gap: var(--uui-size-space-1);
-				cursor: pointer;
-				white-space: nowrap;
-				color: var(--uui-color-text);
-			}
-
-			.page-radio input[type="radio"] {
-				margin: 0;
-				cursor: pointer;
-			}
-
-			.page-input {
-				width: 100%;
-				padding: 2px 8px;
-				border: 1px solid var(--uui-color-border);
-				border-radius: var(--uui-border-radius);
-				font-size: var(--uui-type-small-size);
-				font-family: inherit;
-				background: var(--uui-color-surface);
-				color: var(--uui-color-text);
-			}
-
-			.page-input:focus {
-				outline: none;
-				border-color: var(--uui-color-focus);
-			}
-
-			.page-input:disabled {
-				opacity: 0.4;
-				cursor: not-allowed;
 			}
 
 			/* Page box include toggle */
@@ -1720,6 +1672,55 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				background: var(--uui-color-positive-emphasis);
 				color: var(--uui-color-positive-contrast);
 				font-weight: 500;
+			}
+
+			/* Rules badge on area header */
+			.rules-badge {
+				background: var(--uui-color-default-emphasis);
+				color: var(--uui-color-default-contrast);
+				font-weight: 500;
+			}
+
+			/* Composed sections (Phase 1b — areas with rules) */
+			.composed-sections {
+				margin-left: var(--uui-size-space-3);
+			}
+
+			.composed-section-row {
+				display: flex;
+				align-items: center;
+				gap: var(--uui-size-space-3);
+				padding: var(--uui-size-space-3) var(--uui-size-space-4);
+				border-bottom: 1px solid var(--uui-color-border);
+			}
+
+			.composed-section-row:last-child {
+				border-bottom: none;
+			}
+
+			.composed-role {
+				font-weight: 600;
+				color: var(--uui-color-text);
+				white-space: nowrap;
+				min-width: 0;
+				flex-shrink: 0;
+			}
+
+			.composed-preview {
+				font-size: var(--uui-type-small-size);
+				color: var(--uui-color-text-alt);
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+				min-width: 0;
+				flex: 1;
+			}
+
+			.composed-unmapped {
+				font-size: var(--uui-type-small-size);
+				color: var(--uui-color-text-alt);
+				font-style: italic;
+				white-space: nowrap;
 			}
 
 			/* Teach-by-example mode */
