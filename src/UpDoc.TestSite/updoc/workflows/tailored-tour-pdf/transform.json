@@ -1,0 +1,145 @@
+{
+  "Version": "1.0",
+  "Sections": [
+    {
+      "Id": "preamble-p1-z0",
+      "OriginalHeading": null,
+      "Heading": null,
+      "Content": "The Art Fund (Devon) presents",
+      "Pattern": "paragraph",
+      "Page": 1,
+      "AreaColor": "#e84855",
+      "ChildCount": 1,
+      "Included": true
+    },
+    {
+      "Id": "the-moorish-treasures-of-andaluc-a",
+      "OriginalHeading": "The Moorish Treasures of Andaluc\u00EDa",
+      "Heading": "The Moorish Treasures of Andaluc\u00EDa",
+      "Content": "",
+      "Pattern": "preamble",
+      "Page": 1,
+      "AreaColor": "#e84855",
+      "ChildCount": 0,
+      "Included": true
+    },
+    {
+      "Id": "6-days-from-1-099-departing-8th-november-2018",
+      "OriginalHeading": "6 days from \u00A31,099 Departing 8th November 2018",
+      "Heading": "6 days from \u00A31,099 Departing 8th November 2018",
+      "Content": "",
+      "Pattern": "preamble",
+      "Page": 1,
+      "AreaColor": "#e84855",
+      "ChildCount": 0,
+      "Included": true
+    },
+    {
+      "Id": "name",
+      "OriginalHeading": "Name",
+      "Heading": "Name",
+      "Content": "John Hitchins",
+      "Pattern": "role",
+      "Page": 1,
+      "AreaColor": "#3185fc",
+      "ChildCount": 1,
+      "Included": true
+    },
+    {
+      "Id": "telephone",
+      "OriginalHeading": "Telephone",
+      "Heading": "Telephone",
+      "Content": "Tel: 01803 732173",
+      "Pattern": "role",
+      "Page": 1,
+      "AreaColor": "#3185fc",
+      "ChildCount": 1,
+      "Included": true
+    },
+    {
+      "Id": "email",
+      "OriginalHeading": "Email",
+      "Heading": "Email",
+      "Content": "Email: john@frogmorecottage.org.uk ...............................................................",
+      "Pattern": "role",
+      "Page": 1,
+      "AreaColor": "#3185fc",
+      "ChildCount": 1,
+      "Included": true
+    },
+    {
+      "Id": "address",
+      "OriginalHeading": "Address",
+      "Heading": "Address",
+      "Content": "Frogmore Cottage, Ashprington, Totnes TQ9 7UL",
+      "Pattern": "role",
+      "Page": 1,
+      "AreaColor": "#3185fc",
+      "ChildCount": 1,
+      "Included": true
+    },
+    {
+      "Id": "features",
+      "OriginalHeading": "FEATURES",
+      "Heading": "Features",
+      "Content": "- 4* hotels throughout\r\n- 2 dinners included\r\n- A full programme of included excursions \u0026 guided tours\r\n- All entrance fees included\r\n- Return UK airport coach transfers included\r\n- Direct scheduled flights from Bristol to Malaga\r\n- Professional tour manager\r\n- Executive coach throughout\r\n- Audio headsets included on Days 2 to 5",
+      "Pattern": "bulletList",
+      "Page": 1,
+      "AreaColor": "#f9dc5c",
+      "ChildCount": 9,
+      "Included": true
+    },
+    {
+      "Id": "what-we-will-see",
+      "OriginalHeading": "WHAT WE WILL SEE",
+      "Heading": "What We Will See",
+      "Content": "- Granada \u2013 orientation tour\r\n- 14th century Alhambra Palace \u2013 guided tour\r\n- Cordoba \u0026 The Mezquita \u2013 guided tour\r\n- Seville \u2013 guided tour\r\n- Reales Alcazares \u2013 guided tour\r\n- Italica remains\r\n- Museo de Bellas Artes\r\n- Ronda \u2013 guided tour",
+      "Pattern": "bulletList",
+      "Page": 1,
+      "AreaColor": "#f9dc5c",
+      "ChildCount": 8,
+      "Included": true
+    },
+    {
+      "Id": "optional",
+      "OriginalHeading": "OPTIONAL",
+      "Heading": "Optional",
+      "Content": "- Flamenco evening",
+      "Pattern": "bulletList",
+      "Page": 1,
+      "AreaColor": "#f9dc5c",
+      "ChildCount": 1,
+      "Included": true
+    },
+    {
+      "Id": "accommodation",
+      "OriginalHeading": "ACCOMMODATION",
+      "Heading": "Accommodation",
+      "Content": "We stay two nights in Granada at the 4* Gran Hotel Luna (www.sercotelhotels.co.uk/hotels/spain/Gr anada/gran-hotel-luna-de-granada), located a ten minute walk from the historical centre, and three nights in Seville at the 4* Hotel MA Sevilla Congreso (www.hotelsevillacongresos.com), just a short bus or taxi ride from the centre. Facilities at both hotels include a restaurant and a bar and all rooms are en suite. Dinner is served on the first night at each hotel and the remaining three nights are on bed and breakfast basis.",
+      "Pattern": "paragraph",
+      "Page": 1,
+      "AreaColor": "#f9dc5c",
+      "ChildCount": 1,
+      "Included": true
+    },
+    {
+      "Id": "extras-to-your-tour",
+      "OriginalHeading": "EXTRAS TO YOUR TOUR",
+      "Heading": "Extras To Your Tour",
+      "Content": "- Single room supplement \u00A3149\r\n- Insurance \u00A344\r\n- Optional Flamenco evening on Day 5\r\n- Gratuities\r\n- Flight details may be subject to change. Price based on twin share. Minimum numbers required. Normal booking conditions apply.",
+      "Pattern": "bulletList",
+      "Page": 1,
+      "AreaColor": "#f9dc5c",
+      "ChildCount": 5,
+      "Included": true
+    }
+  ],
+  "Diagnostics": {
+    "TotalSections": 12,
+    "BulletListSections": 4,
+    "ParagraphSections": 2,
+    "SubHeadedSections": 0,
+    "PreambleSections": 2,
+    "RoleSections": 4
+  }
+}

@@ -1,0 +1,1896 @@
+{
+  "version": "1.0",
+  "sourceType": "pdf",
+  "source": {
+    "fileName": "updoc-test-03.pdf",
+    "mediaKey": "2dc64059-9bb2-468b-be75-98d6b4bb3108",
+    "extractedDate": "2026-02-17T13:42:28.1908732Z",
+    "totalPages": 4,
+    "extractedPages": [
+      1,
+      2
+    ]
+  },
+  "elements": [
+    {
+      "id": "p1-e1",
+      "page": 1,
+      "text": "The Art Fund (Devon) presents",
+      "metadata": {
+        "fontSize": 11.4,
+        "fontName": "LGPHPC\u002BHelveticaNeue-Medium",
+        "position": {
+          "x": 31.7,
+          "y": 816.7
+        },
+        "boundingBox": {
+          "left": 31.7,
+          "top": 816.7,
+          "width": 149.7,
+          "height": 8.3
+        },
+        "color": "#FFD200"
+      }
+    },
+    {
+      "id": "p1-e2",
+      "page": 1,
+      "text": "The Moorish Treasures of Andaluc\u00EDa",
+      "metadata": {
+        "fontSize": 28,
+        "fontName": "LGPHPF\u002BClarendon",
+        "position": {
+          "x": 33.2,
+          "y": 794.4
+        },
+        "boundingBox": {
+          "left": 33.2,
+          "top": 794.4,
+          "width": 314,
+          "height": 49.6
+        },
+        "color": "#FFFFFF"
+      }
+    },
+    {
+      "id": "p1-e3",
+      "page": 1,
+      "text": "FEATURES",
+      "metadata": {
+        "fontSize": 12,
+        "fontName": "LGPHPF\u002BClarendon",
+        "position": {
+          "x": 409.4,
+          "y": 742
+        },
+        "boundingBox": {
+          "left": 409.4,
+          "top": 742,
+          "width": 67.6,
+          "height": 8.2
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p1-e4",
+      "page": 1,
+      "text": "\u2022 4* hotels throughout",
+      "metadata": {
+        "fontSize": 8.5,
+        "fontName": "LGPHPE\u002BHelveticaNeue",
+        "position": {
+          "x": 409.3,
+          "y": 724.8
+        },
+        "boundingBox": {
+          "left": 409.3,
+          "top": 724.8,
+          "width": 82.3,
+          "height": 6.1
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p1-e5",
+      "page": 1,
+      "text": "6 days from \u00A31,099 Departing 8th November 2018",
+      "metadata": {
+        "fontSize": 14.4,
+        "fontName": "LGPHPC\u002BHelveticaNeue-Medium",
+        "position": {
+          "x": 30.1,
+          "y": 722.1
+        },
+        "boundingBox": {
+          "left": 30.1,
+          "top": 722.1,
+          "width": 338.3,
+          "height": 10.5
+        },
+        "color": "#FFD200"
+      }
+    },
+    {
+      "id": "p1-e6",
+      "page": 1,
+      "text": "\u2022 2 dinners included",
+      "metadata": {
+        "fontSize": 8.5,
+        "fontName": "LGPHPE\u002BHelveticaNeue",
+        "position": {
+          "x": 409.3,
+          "y": 713
+        },
+        "boundingBox": {
+          "left": 409.3,
+          "top": 713,
+          "width": 75.2,
+          "height": 6.1
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p1-e7",
+      "page": 1,
+      "text": "\u2022 A full programme of included excursions \u0026 guided tours",
+      "metadata": {
+        "fontSize": 8.5,
+        "fontName": "LGPHPE\u002BHelveticaNeue",
+        "position": {
+          "x": 409.3,
+          "y": 701.2
+        },
+        "boundingBox": {
+          "left": 409.3,
+          "top": 701.2,
+          "width": 158.4,
+          "height": 15.8
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p1-e8",
+      "page": 1,
+      "text": "\u2022 All entrance fees included",
+      "metadata": {
+        "fontSize": 8.5,
+        "fontName": "LGPHPE\u002BHelveticaNeue",
+        "position": {
+          "x": 409.3,
+          "y": 679.8
+        },
+        "boundingBox": {
+          "left": 409.3,
+          "top": 679.8,
+          "width": 103.2,
+          "height": 6.1
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p1-e9",
+      "page": 1,
+      "text": "\u2022 Return UK airport coach transfers included",
+      "metadata": {
+        "fontSize": 8.5,
+        "fontName": "LGPHPE\u002BHelveticaNeue",
+        "position": {
+          "x": 409.3,
+          "y": 668
+        },
+        "boundingBox": {
+          "left": 409.3,
+          "top": 668,
+          "width": 133.2,
+          "height": 15.8
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p1-e10",
+      "page": 1,
+      "text": "\u2022 Direct scheduled flights from Bristol to Malaga",
+      "metadata": {
+        "fontSize": 8.5,
+        "fontName": "LGPHPE\u002BHelveticaNeue",
+        "position": {
+          "x": 409.3,
+          "y": 646.5
+        },
+        "boundingBox": {
+          "left": 409.3,
+          "top": 646.5,
+          "width": 150.7,
+          "height": 15.8
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p1-e11",
+      "page": 1,
+      "text": "\u2022 Professional tour manager",
+      "metadata": {
+        "fontSize": 8.5,
+        "fontName": "LGPHPE\u002BHelveticaNeue",
+        "position": {
+          "x": 409.3,
+          "y": 625
+        },
+        "boundingBox": {
+          "left": 409.3,
+          "top": 625,
+          "width": 105.1,
+          "height": 6.1
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p1-e12",
+      "page": 1,
+      "text": "\u2022 Executive coach throughout",
+      "metadata": {
+        "fontSize": 8.5,
+        "fontName": "LGPHPE\u002BHelveticaNeue",
+        "position": {
+          "x": 409.3,
+          "y": 613.1
+        },
+        "boundingBox": {
+          "left": 409.3,
+          "top": 613.1,
+          "width": 111.7,
+          "height": 6.1
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p1-e13",
+      "page": 1,
+      "text": "\u2022 Audio headsets included on Days 2 to 5",
+      "metadata": {
+        "fontSize": 8.5,
+        "fontName": "LGPHPE\u002BHelveticaNeue",
+        "position": {
+          "x": 409.3,
+          "y": 601.3
+        },
+        "boundingBox": {
+          "left": 409.3,
+          "top": 601.3,
+          "width": 156.6,
+          "height": 6.1
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p1-e14",
+      "page": 1,
+      "text": "WHAT WE WILL SEE",
+      "metadata": {
+        "fontSize": 12,
+        "fontName": "LGPHPF\u002BClarendon",
+        "position": {
+          "x": 409.4,
+          "y": 581.9
+        },
+        "boundingBox": {
+          "left": 409.4,
+          "top": 581.9,
+          "width": 127.2,
+          "height": 8.2
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p1-e15",
+      "page": 1,
+      "text": "\u2022 Granada \u2013 orientation tour",
+      "metadata": {
+        "fontSize": 8.5,
+        "fontName": "LGPHPE\u002BHelveticaNeue",
+        "position": {
+          "x": 409.3,
+          "y": 564.8
+        },
+        "boundingBox": {
+          "left": 409.3,
+          "top": 564.8,
+          "width": 104.8,
+          "height": 6.2
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p1-e16",
+      "page": 1,
+      "text": "\u2022 14th century Alhambra Palace \u2013 guided tour",
+      "metadata": {
+        "fontSize": 8.5,
+        "fontName": "LGPHPE\u002BHelveticaNeue",
+        "position": {
+          "x": 409.3,
+          "y": 552.9
+        },
+        "boundingBox": {
+          "left": 409.3,
+          "top": 552.9,
+          "width": 126.2,
+          "height": 15.7
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p1-e17",
+      "page": 1,
+      "text": "\u2022 Cordoba \u0026 The Mezquita \u2013 guided tour",
+      "metadata": {
+        "fontSize": 8.5,
+        "fontName": "LGPHPE\u002BHelveticaNeue",
+        "position": {
+          "x": 409.3,
+          "y": 531.6
+        },
+        "boundingBox": {
+          "left": 409.3,
+          "top": 531.6,
+          "width": 152.6,
+          "height": 6.2
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p1-e18",
+      "page": 1,
+      "text": "\u2022 Seville \u2013 guided tour",
+      "metadata": {
+        "fontSize": 8.5,
+        "fontName": "LGPHPE\u002BHelveticaNeue",
+        "position": {
+          "x": 409.3,
+          "y": 519.8
+        },
+        "boundingBox": {
+          "left": 409.3,
+          "top": 519.8,
+          "width": 82.4,
+          "height": 6.2
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p1-e19",
+      "page": 1,
+      "text": "\u2022 Reales Alcazares \u2013 guided tour",
+      "metadata": {
+        "fontSize": 8.5,
+        "fontName": "LGPHPE\u002BHelveticaNeue",
+        "position": {
+          "x": 409.3,
+          "y": 507.8
+        },
+        "boundingBox": {
+          "left": 409.3,
+          "top": 507.8,
+          "width": 122.5,
+          "height": 6.1
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p1-e20",
+      "page": 1,
+      "text": "\u2022 Italica remains",
+      "metadata": {
+        "fontSize": 8.5,
+        "fontName": "LGPHPE\u002BHelveticaNeue",
+        "position": {
+          "x": 409.3,
+          "y": 496
+        },
+        "boundingBox": {
+          "left": 409.3,
+          "top": 496,
+          "width": 59.9,
+          "height": 6.1
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p1-e21",
+      "page": 1,
+      "text": "\u2022 Museo de Bellas Artes",
+      "metadata": {
+        "fontSize": 8.5,
+        "fontName": "LGPHPE\u002BHelveticaNeue",
+        "position": {
+          "x": 409.3,
+          "y": 484.2
+        },
+        "boundingBox": {
+          "left": 409.3,
+          "top": 484.2,
+          "width": 90.6,
+          "height": 6.1
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p1-e22",
+      "page": 1,
+      "text": "\u2022 Ronda \u2013 guided tour",
+      "metadata": {
+        "fontSize": 8.5,
+        "fontName": "LGPHPE\u002BHelveticaNeue",
+        "position": {
+          "x": 409.3,
+          "y": 472.4
+        },
+        "boundingBox": {
+          "left": 409.3,
+          "top": 472.4,
+          "width": 82.9,
+          "height": 6.1
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p1-e23",
+      "page": 1,
+      "text": "OPTIONAL",
+      "metadata": {
+        "fontSize": 12,
+        "fontName": "LGPHPF\u002BClarendon",
+        "position": {
+          "x": 409.4,
+          "y": 453
+        },
+        "boundingBox": {
+          "left": 409.4,
+          "top": 453,
+          "width": 66.7,
+          "height": 8.2
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p1-e24",
+      "page": 1,
+      "text": "\u2022 Flamenco evening",
+      "metadata": {
+        "fontSize": 8.5,
+        "fontName": "LGPHPE\u002BHelveticaNeue",
+        "position": {
+          "x": 409.3,
+          "y": 435.8
+        },
+        "boundingBox": {
+          "left": 409.3,
+          "top": 435.8,
+          "width": 74.5,
+          "height": 6.1
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p1-e25",
+      "page": 1,
+      "text": "ACCOMMODATION",
+      "metadata": {
+        "fontSize": 12,
+        "fontName": "LGPHPF\u002BClarendon",
+        "position": {
+          "x": 409.4,
+          "y": 416.4
+        },
+        "boundingBox": {
+          "left": 409.4,
+          "top": 416.4,
+          "width": 116.2,
+          "height": 8.2
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p1-e26",
+      "page": 1,
+      "text": "We stay two nights in Granada at the 4* Gran Hotel Luna (www.sercotelhotels.co.uk/hotels/spain/Gr anada/gran-hotel-luna-de-granada), located a ten minute walk from the historical centre, and three nights in Seville at the 4* Hotel MA Sevilla Congreso (www.hotelsevillacongresos.com), just a short bus or taxi ride from the centre. Facilities at both hotels include a restaurant and a bar and all rooms are en suite. Dinner is served on the first night at each hotel and the remaining three nights are on bed and breakfast basis.",
+      "metadata": {
+        "fontSize": 8.5,
+        "fontName": "LGPHPE\u002BHelveticaNeue",
+        "position": {
+          "x": 409.3,
+          "y": 399.3
+        },
+        "boundingBox": {
+          "left": 409.3,
+          "top": 399.3,
+          "width": 164.2,
+          "height": 132
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p1-e27",
+      "page": 1,
+      "text": "EXTRAS TO YOUR TOUR",
+      "metadata": {
+        "fontSize": 12,
+        "fontName": "LGPHPF\u002BClarendon",
+        "position": {
+          "x": 409.4,
+          "y": 254
+        },
+        "boundingBox": {
+          "left": 409.4,
+          "top": 254,
+          "width": 154.3,
+          "height": 8.2
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p1-e28",
+      "page": 1,
+      "text": "e c a",
+      "metadata": {
+        "fontSize": 9,
+        "fontName": "LGPHPC\u002BHelveticaNeue-Medium",
+        "position": {
+          "x": 20.8,
+          "y": 231.3
+        },
+        "boundingBox": {
+          "left": 20.8,
+          "top": 231.3,
+          "width": 4.9,
+          "height": 5.3
+        },
+        "color": "#FFFFFF"
+      }
+    },
+    {
+      "id": "p1-e29",
+      "page": 1,
+      "text": "\u2022 Single room supplement \u00A3149",
+      "metadata": {
+        "fontSize": 8.5,
+        "fontName": "LGPHPE\u002BHelveticaNeue",
+        "position": {
+          "x": 409.3,
+          "y": 236.9
+        },
+        "boundingBox": {
+          "left": 409.3,
+          "top": 236.9,
+          "width": 119.1,
+          "height": 6.2
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p1-e30",
+      "page": 1,
+      "text": "l a",
+      "metadata": {
+        "fontSize": 9,
+        "fontName": "LGPHPC\u002BHelveticaNeue-Medium",
+        "position": {
+          "x": 19.3,
+          "y": 218.7
+        },
+        "boundingBox": {
+          "left": 19.3,
+          "top": 218.7,
+          "width": 6.4,
+          "height": 0.2
+        },
+        "color": "#FFFFFF"
+      }
+    },
+    {
+      "id": "p1-e31",
+      "page": 1,
+      "text": "\u2022 Insurance \u00A344",
+      "metadata": {
+        "fontSize": 8.5,
+        "fontName": "LGPHPE\u002BHelveticaNeue",
+        "position": {
+          "x": 409.3,
+          "y": 225.1
+        },
+        "boundingBox": {
+          "left": 409.3,
+          "top": 225.1,
+          "width": 58.9,
+          "height": 6.2
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p1-e32",
+      "page": 1,
+      "text": "P a",
+      "metadata": {
+        "fontSize": 9,
+        "fontName": "LGPHPC\u002BHelveticaNeue-Medium",
+        "position": {
+          "x": 19.3,
+          "y": 207.4
+        },
+        "boundingBox": {
+          "left": 19.3,
+          "top": 207.4,
+          "width": 6.4,
+          "height": 2.8
+        },
+        "color": "#FFFFFF"
+      }
+    },
+    {
+      "id": "p1-e33",
+      "page": 1,
+      "text": "\u2022 Optional Flamenco evening on Day 5",
+      "metadata": {
+        "fontSize": 8.5,
+        "fontName": "LGPHPE\u002BHelveticaNeue",
+        "position": {
+          "x": 409.3,
+          "y": 213.3
+        },
+        "boundingBox": {
+          "left": 409.3,
+          "top": 213.3,
+          "width": 145.2,
+          "height": 6.2
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p1-e34",
+      "page": 1,
+      "text": "b r",
+      "metadata": {
+        "fontSize": 9,
+        "fontName": "LGPHPC\u002BHelveticaNeue-Medium",
+        "position": {
+          "x": 19.2,
+          "y": 196.4
+        },
+        "boundingBox": {
+          "left": 19.2,
+          "top": 196.4,
+          "width": 6.6,
+          "height": 0.5
+        },
+        "color": "#FFFFFF"
+      }
+    },
+    {
+      "id": "p1-e35",
+      "page": 1,
+      "text": "\u2022 Gratuities",
+      "metadata": {
+        "fontSize": 8.5,
+        "fontName": "LGPHPE\u002BHelveticaNeue",
+        "position": {
+          "x": 409.3,
+          "y": 201.5
+        },
+        "boundingBox": {
+          "left": 409.3,
+          "top": 201.5,
+          "width": 41.8,
+          "height": 6.2
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p1-e36",
+      "page": 1,
+      "text": "m a",
+      "metadata": {
+        "fontSize": 9,
+        "fontName": "LGPHPC\u002BHelveticaNeue-Medium",
+        "position": {
+          "x": 21,
+          "y": 182.8
+        },
+        "boundingBox": {
+          "left": 21,
+          "top": 182.8,
+          "width": 4.8,
+          "height": 0.2
+        },
+        "color": "#FFFFFF"
+      }
+    },
+    {
+      "id": "p1-e37",
+      "page": 1,
+      "text": "Flight details may be subject to change.",
+      "metadata": {
+        "fontSize": 8,
+        "fontName": "LGPHPC\u002BHelveticaNeue-Medium",
+        "position": {
+          "x": 408.6,
+          "y": 186.7
+        },
+        "boundingBox": {
+          "left": 408.6,
+          "top": 186.7,
+          "width": 136.4,
+          "height": 5.7
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p1-e38",
+      "page": 1,
+      "text": "h",
+      "metadata": {
+        "fontSize": 9,
+        "fontName": "LGPHPC\u002BHelveticaNeue-Medium",
+        "position": {
+          "x": 19.3,
+          "y": 172.3
+        },
+        "boundingBox": {
+          "left": 19.3,
+          "top": 172.3,
+          "width": 6.4,
+          "height": -4.6
+        },
+        "color": "#FFFFFF"
+      }
+    },
+    {
+      "id": "p1-e39",
+      "page": 1,
+      "text": "Price based on twin share. Minimum numbers",
+      "metadata": {
+        "fontSize": 8,
+        "fontName": "LGPHPC\u002BHelveticaNeue-Medium",
+        "position": {
+          "x": 408.6,
+          "y": 178.7
+        },
+        "boundingBox": {
+          "left": 408.6,
+          "top": 178.7,
+          "width": 157.5,
+          "height": 5.7
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p1-e40",
+      "page": 1,
+      "text": "l A",
+      "metadata": {
+        "fontSize": 9,
+        "fontName": "LGPHPC\u002BHelveticaNeue-Medium",
+        "position": {
+          "x": 19.3,
+          "y": 170
+        },
+        "boundingBox": {
+          "left": 19.3,
+          "top": 170,
+          "width": 6.4,
+          "height": 0.1
+        },
+        "color": "#FFFFFF"
+      }
+    },
+    {
+      "id": "p1-e41",
+      "page": 1,
+      "text": "required. Normal booking conditions apply.",
+      "metadata": {
+        "fontSize": 8,
+        "fontName": "LGPHPC\u002BHelveticaNeue-Medium",
+        "position": {
+          "x": 408.6,
+          "y": 170.7
+        },
+        "boundingBox": {
+          "left": 408.6,
+          "top": 170.7,
+          "width": 147.3,
+          "height": 5.7
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p1-e42",
+      "page": 1,
+      "text": "For more information on this tour contact your Group Organiser",
+      "metadata": {
+        "fontSize": 9,
+        "fontName": "LGPHPE\u002BHelveticaNeue",
+        "position": {
+          "x": 26.7,
+          "y": 144.7
+        },
+        "boundingBox": {
+          "left": 26.7,
+          "top": 144.7,
+          "width": 254.3,
+          "height": 6.6
+        },
+        "color": "#FFFFFF"
+      }
+    },
+    {
+      "id": "p1-e43",
+      "page": 1,
+      "text": "John Hitchins",
+      "metadata": {
+        "fontSize": 23,
+        "fontName": "LGPHPF\u002BClarendon",
+        "position": {
+          "x": 26.9,
+          "y": 131.1
+        },
+        "boundingBox": {
+          "left": 26.9,
+          "top": 131.1,
+          "width": 159,
+          "height": 15.5
+        },
+        "color": "#FFD200"
+      }
+    },
+    {
+      "id": "p1-e44",
+      "page": 1,
+      "text": "Tel: 01803 732173",
+      "metadata": {
+        "fontSize": 18,
+        "fontName": "LGPHPF\u002BClarendon",
+        "position": {
+          "x": 26.9,
+          "y": 108.5
+        },
+        "boundingBox": {
+          "left": 26.9,
+          "top": 108.5,
+          "width": 161.7,
+          "height": 11.9
+        },
+        "color": "#FFFFFF"
+      }
+    },
+    {
+      "id": "p1-e45",
+      "page": 1,
+      "text": "Email: john@frogmorecottage.org.uk Any air holidays and",
+      "metadata": {
+        "fontSize": 14,
+        "fontName": "LGPHPF\u002BClarendon",
+        "position": {
+          "x": 26.9,
+          "y": 90.2
+        },
+        "boundingBox": {
+          "left": 26.9,
+          "top": 90.2,
+          "width": 347.8,
+          "height": 9.6
+        },
+        "color": "#FFD200"
+      }
+    },
+    {
+      "id": "p1-e46",
+      "page": 1,
+      "text": "flights in this brochure are",
+      "metadata": {
+        "fontSize": 7,
+        "fontName": "LGPHPE\u002BHelveticaNeue",
+        "position": {
+          "x": 312.2,
+          "y": 82
+        },
+        "boundingBox": {
+          "left": 312.2,
+          "top": 82,
+          "width": 70.2,
+          "height": 5.1
+        },
+        "color": "#FFFFFF"
+      }
+    },
+    {
+      "id": "p1-e47",
+      "page": 1,
+      "text": "............................................................... ATOL protected by the",
+      "metadata": {
+        "fontSize": 14,
+        "fontName": "LGPHPF\u002BClarendon",
+        "position": {
+          "x": 26.9,
+          "y": 74
+        },
+        "boundingBox": {
+          "left": 26.9,
+          "top": 74,
+          "width": 351.2,
+          "height": 9.4
+        },
+        "color": "#FFD200"
+      }
+    },
+    {
+      "id": "p1-e48",
+      "page": 1,
+      "text": "Civil Aviation Authority.",
+      "metadata": {
+        "fontSize": 7,
+        "fontName": "LGPHPE\u002BHelveticaNeue",
+        "position": {
+          "x": 316.2,
+          "y": 65.9
+        },
+        "boundingBox": {
+          "left": 316.2,
+          "top": 65.9,
+          "width": 62.1,
+          "height": 5.1
+        },
+        "color": "#FFFFFF"
+      }
+    },
+    {
+      "id": "p1-e49",
+      "page": 1,
+      "text": "Frogmore Cottage, Ashprington,",
+      "metadata": {
+        "fontSize": 12,
+        "fontName": "LGPHPF\u002BClarendon",
+        "position": {
+          "x": 26.9,
+          "y": 58.8
+        },
+        "boundingBox": {
+          "left": 26.9,
+          "top": 58.8,
+          "width": 188.8,
+          "height": 8.2
+        },
+        "color": "#FFFFFF"
+      }
+    },
+    {
+      "id": "p1-e50",
+      "page": 1,
+      "text": "Tailored Travel\u2019s ATOL number is 5605",
+      "metadata": {
+        "fontSize": 7,
+        "fontName": "LGPHPE\u002BHelveticaNeue",
+        "position": {
+          "x": 317.4,
+          "y": 57.8
+        },
+        "boundingBox": {
+          "left": 317.4,
+          "top": 57.8,
+          "width": 59.6,
+          "height": 13.2
+        },
+        "color": "#FFFFFF"
+      }
+    },
+    {
+      "id": "p1-e51",
+      "page": 1,
+      "text": "Totnes TQ9 7UL",
+      "metadata": {
+        "fontSize": 12,
+        "fontName": "LGPHPF\u002BClarendon",
+        "position": {
+          "x": 26.9,
+          "y": 44.8
+        },
+        "boundingBox": {
+          "left": 26.9,
+          "top": 44.8,
+          "width": 93.4,
+          "height": 8.2
+        },
+        "color": "#FFFFFF"
+      }
+    },
+    {
+      "id": "p1-e52",
+      "page": 1,
+      "text": "Palaza de Espana, Seville",
+      "metadata": {
+        "fontSize": 9,
+        "fontName": "LGPHPC\u002BHelveticaNeue-Medium",
+        "position": {
+          "x": 464.6,
+          "y": 41.6
+        },
+        "boundingBox": {
+          "left": 464.6,
+          "top": 41.6,
+          "width": 109.5,
+          "height": 6.6
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p1-e53",
+      "page": 1,
+      "text": "Vie w a nd sha r e this to u r o nlin e - click o n Vie w Yo u r To u r at w w w.tailo r ed-tr a v el. c o . uk a nd qu ote afd182",
+      "metadata": {
+        "fontSize": 9.5,
+        "fontName": "LGPNGO\u002BSwiss721BT-Bold",
+        "position": {
+          "x": 25.6,
+          "y": 22.2
+        },
+        "boundingBox": {
+          "left": 25.6,
+          "top": 22.2,
+          "width": 544,
+          "height": 6.9
+        },
+        "color": "#CC161E"
+      }
+    },
+    {
+      "id": "p2-e54",
+      "page": 2,
+      "text": "The Art Fund (Devon) presents",
+      "metadata": {
+        "fontSize": 10.2,
+        "fontName": "LGPHPE\u002BHelveticaNeue",
+        "position": {
+          "x": 210.3,
+          "y": 807.5
+        },
+        "boundingBox": {
+          "left": 210.3,
+          "top": 807.5,
+          "width": 148.2,
+          "height": 7.5
+        },
+        "color": "#FFD200"
+      }
+    },
+    {
+      "id": "p2-e55",
+      "page": 2,
+      "text": "The Moorish Treasures of Andaluc\u00EDa",
+      "metadata": {
+        "fontSize": 27,
+        "fontName": "LGPHPF\u002BClarendon",
+        "position": {
+          "x": 210.3,
+          "y": 787.6
+        },
+        "boundingBox": {
+          "left": 210.3,
+          "top": 787.6,
+          "width": 302.8,
+          "height": 47.2
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p2-e56",
+      "page": 2,
+      "text": "WHAT WE WILL SEE",
+      "metadata": {
+        "fontSize": 12,
+        "fontName": "LGPHPF\u002BClarendon",
+        "position": {
+          "x": 30,
+          "y": 742
+        },
+        "boundingBox": {
+          "left": 30,
+          "top": 742,
+          "width": 127.2,
+          "height": 8.2
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p2-e57",
+      "page": 2,
+      "text": "6 days from \u00A31,099 Departing 8th November 2018",
+      "metadata": {
+        "fontSize": 14.4,
+        "fontName": "LGPHPC\u002BHelveticaNeue-Medium",
+        "position": {
+          "x": 209.8,
+          "y": 721.1
+        },
+        "boundingBox": {
+          "left": 209.8,
+          "top": 721.1,
+          "width": 338.3,
+          "height": 10.5
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p2-e58",
+      "page": 2,
+      "text": "Orientation tour of Granada",
+      "metadata": {
+        "fontSize": 13,
+        "fontName": "LGPHPE\u002BHelveticaNeue",
+        "position": {
+          "x": 31.2,
+          "y": 713.1
+        },
+        "boundingBox": {
+          "left": 31.2,
+          "top": 713.1,
+          "width": 105.7,
+          "height": 25.1
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p2-e59",
+      "page": 2,
+      "text": "Day 1",
+      "metadata": {
+        "fontSize": 10,
+        "fontName": "LGPHPC\u002BHelveticaNeue-Medium",
+        "position": {
+          "x": 212,
+          "y": 698.8
+        },
+        "boundingBox": {
+          "left": 212,
+          "top": 698.8,
+          "width": 26.3,
+          "height": 7.1
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p2-e60",
+      "page": 2,
+      "text": "We meet at our designated pick up points and transfer by coach to Bristol",
+      "metadata": {
+        "fontSize": 10,
+        "fontName": "LGPHPE\u002BHelveticaNeue",
+        "position": {
+          "x": 212,
+          "y": 685.9
+        },
+        "boundingBox": {
+          "left": 212,
+          "top": 685.9,
+          "width": 329.9,
+          "height": 7.2
+        },
+        "color": "#221F1F"
+      }
+    },
+    {
+      "id": "p2-e61",
+      "page": 2,
+      "text": "14th century",
+      "metadata": {
+        "fontSize": 13,
+        "fontName": "LGPHPE\u002BHelveticaNeue",
+        "position": {
+          "x": 31.2,
+          "y": 670.3
+        },
+        "boundingBox": {
+          "left": 31.2,
+          "top": 670.3,
+          "width": 72.7,
+          "height": 9.3
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p2-e62",
+      "page": 2,
+      "text": "Airport for our direct scheduled flight to Malaga. On arrival in Malaga we are met by our tour manager who will accompany us throughout our tour. We",
+      "metadata": {
+        "fontSize": 10,
+        "fontName": "LGPHPE\u002BHelveticaNeue",
+        "position": {
+          "x": 212,
+          "y": 673.1
+        },
+        "boundingBox": {
+          "left": 212,
+          "top": 673.1,
+          "width": 338.2,
+          "height": 20.2
+        },
+        "color": "#221F1F"
+      }
+    },
+    {
+      "id": "p2-e63",
+      "page": 2,
+      "text": "Alhambra Palace",
+      "metadata": {
+        "fontSize": 13,
+        "fontName": "LGPHPE\u002BHelveticaNeue",
+        "position": {
+          "x": 31.2,
+          "y": 654.7
+        },
+        "boundingBox": {
+          "left": 31.2,
+          "top": 654.7,
+          "width": 98.5,
+          "height": 9.3
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p2-e64",
+      "page": 2,
+      "text": "transfer in our private executive coach to Granada where we enjoy a short orientation tour before checking in at the centrally located 4* Gran Hotel",
+      "metadata": {
+        "fontSize": 10,
+        "fontName": "LGPHPE\u002BHelveticaNeue",
+        "position": {
+          "x": 212,
+          "y": 647.2
+        },
+        "boundingBox": {
+          "left": 212,
+          "top": 647.2,
+          "width": 329.6,
+          "height": 20.2
+        },
+        "color": "#221F1F"
+      }
+    },
+    {
+      "id": "p2-e65",
+      "page": 2,
+      "text": "Cordoba \u0026 The Mezquita Luna for a two night stay. Dinner is served in our hotel this evening, and the",
+      "metadata": {
+        "fontSize": 13,
+        "fontName": "LGPHPE\u002BHelveticaNeue",
+        "position": {
+          "x": 31.2,
+          "y": 628
+        },
+        "boundingBox": {
+          "left": 31.2,
+          "top": 628,
+          "width": 516.4,
+          "height": 13.9
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p2-e66",
+      "page": 2,
+      "text": "second night is on bed and breakfast basis.",
+      "metadata": {
+        "fontSize": 10,
+        "fontName": "LGPHPE\u002BHelveticaNeue",
+        "position": {
+          "x": 212,
+          "y": 608.4
+        },
+        "boundingBox": {
+          "left": 212,
+          "top": 608.4,
+          "width": 195.1,
+          "height": 7.2
+        },
+        "color": "#221F1F"
+      }
+    },
+    {
+      "id": "p2-e67",
+      "page": 2,
+      "text": "Guided tour of Seville",
+      "metadata": {
+        "fontSize": 13,
+        "fontName": "LGPHPE\u002BHelveticaNeue",
+        "position": {
+          "x": 31.2,
+          "y": 601.1
+        },
+        "boundingBox": {
+          "left": 31.2,
+          "top": 601.1,
+          "width": 125.2,
+          "height": 9.5
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p2-e68",
+      "page": 2,
+      "text": "Day 2",
+      "metadata": {
+        "fontSize": 10,
+        "fontName": "LGPHPC\u002BHelveticaNeue-Medium",
+        "position": {
+          "x": 212,
+          "y": 589.7
+        },
+        "boundingBox": {
+          "left": 212,
+          "top": 589.7,
+          "width": 25.7,
+          "height": 7.1
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p2-e69",
+      "page": 2,
+      "text": "This morning we have a guided tour of the Alhambra Palace. Dating from the",
+      "metadata": {
+        "fontSize": 10,
+        "fontName": "LGPHPE\u002BHelveticaNeue",
+        "position": {
+          "x": 212,
+          "y": 576.9
+        },
+        "boundingBox": {
+          "left": 212,
+          "top": 576.9,
+          "width": 341.7,
+          "height": 7.2
+        },
+        "color": "#221F1F"
+      }
+    },
+    {
+      "id": "p2-e70",
+      "page": 2,
+      "text": "Reales Alcazares",
+      "metadata": {
+        "fontSize": 13,
+        "fontName": "LGPHPE\u002BHelveticaNeue",
+        "position": {
+          "x": 31.2,
+          "y": 573.9
+        },
+        "boundingBox": {
+          "left": 31.2,
+          "top": 573.9,
+          "width": 98.9,
+          "height": 9.3
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p2-e71",
+      "page": 2,
+      "text": "14th century, the Palace is the high point of Moorish culture and is recognised as the world\u2019s greatest Moorish monument. With gardens,",
+      "metadata": {
+        "fontSize": 10,
+        "fontName": "LGPHPE\u002BHelveticaNeue",
+        "position": {
+          "x": 212,
+          "y": 564
+        },
+        "boundingBox": {
+          "left": 212,
+          "top": 564,
+          "width": 310.4,
+          "height": 20.1
+        },
+        "color": "#221F1F"
+      }
+    },
+    {
+      "id": "p2-e72",
+      "page": 2,
+      "text": "Italica remains",
+      "metadata": {
+        "fontSize": 13,
+        "fontName": "LGPHPE\u002BHelveticaNeue",
+        "position": {
+          "x": 31.2,
+          "y": 547
+        },
+        "boundingBox": {
+          "left": 31.2,
+          "top": 547,
+          "width": 83.5,
+          "height": 9.3
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p2-e73",
+      "page": 2,
+      "text": "fortifications and sumptuous palaces, it was the home of many of the Arabic sultans who ruled the whole province. This afternoon you have the chance",
+      "metadata": {
+        "fontSize": 10,
+        "fontName": "LGPHPE\u002BHelveticaNeue",
+        "position": {
+          "x": 212,
+          "y": 538.1
+        },
+        "boundingBox": {
+          "left": 212,
+          "top": 538.1,
+          "width": 339.9,
+          "height": 20.1
+        },
+        "color": "#221F1F"
+      }
+    },
+    {
+      "id": "p2-e74",
+      "page": 2,
+      "text": "Museo de Bellas Artes",
+      "metadata": {
+        "fontSize": 13,
+        "fontName": "LGPHPE\u002BHelveticaNeue",
+        "position": {
+          "x": 31.2,
+          "y": 520
+        },
+        "boundingBox": {
+          "left": 31.2,
+          "top": 520,
+          "width": 130.5,
+          "height": 9.3
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p2-e75",
+      "page": 2,
+      "text": "to explore Granada with time to visit the Gothic style Cathedral at your leisure.",
+      "metadata": {
+        "fontSize": 10,
+        "fontName": "LGPHPE\u002BHelveticaNeue",
+        "position": {
+          "x": 212,
+          "y": 512.4
+        },
+        "boundingBox": {
+          "left": 212,
+          "top": 512.4,
+          "width": 314.1,
+          "height": 20.2
+        },
+        "color": "#221F1F"
+      }
+    },
+    {
+      "id": "p2-e76",
+      "page": 2,
+      "text": "Guided tour of Ronda",
+      "metadata": {
+        "fontSize": 13,
+        "fontName": "LGPHPE\u002BHelveticaNeue",
+        "position": {
+          "x": 31.2,
+          "y": 493.3
+        },
+        "boundingBox": {
+          "left": 31.2,
+          "top": 493.3,
+          "width": 125.9,
+          "height": 9.5
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p2-e77",
+      "page": 2,
+      "text": "Day 3",
+      "metadata": {
+        "fontSize": 10,
+        "fontName": "LGPHPC\u002BHelveticaNeue-Medium",
+        "position": {
+          "x": 212,
+          "y": 480.7
+        },
+        "boundingBox": {
+          "left": 212,
+          "top": 480.7,
+          "width": 25.7,
+          "height": 7.1
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p2-e78",
+      "page": 2,
+      "text": "We leave Granada and travel to Seville. En route we visit the Moorish capital of Cordoba, once famous for its Jewish community and now known for The Mezquita, the grandest mosque ever constructed by the Moors. There is a guided tour on arrival followed by time at leisure for lunch. We continue to Seville where we stay three nights at the 4* Hotel MA Sevilla Congreso. Dinner is served in our hotel this evening and the remaining two nights are on bed and breakfast basis.",
+      "metadata": {
+        "fontSize": 10,
+        "fontName": "LGPHPE\u002BHelveticaNeue",
+        "position": {
+          "x": 212,
+          "y": 467.9
+        },
+        "boundingBox": {
+          "left": 212,
+          "top": 467.9,
+          "width": 339.1,
+          "height": 84.8
+        },
+        "color": "#221F1F"
+      }
+    },
+    {
+      "id": "p2-e79",
+      "page": 2,
+      "text": "Granada",
+      "metadata": {
+        "fontSize": 9,
+        "fontName": "LGPHPC\u002BHelveticaNeue-Medium",
+        "position": {
+          "x": 34.9,
+          "y": 376.1
+        },
+        "boundingBox": {
+          "left": 34.9,
+          "top": 376.1,
+          "width": 36.5,
+          "height": 6.6
+        },
+        "color": "#FFFFFF"
+      }
+    },
+    {
+      "id": "p2-e80",
+      "page": 2,
+      "text": "Day 4",
+      "metadata": {
+        "fontSize": 10,
+        "fontName": "LGPHPC\u002BHelveticaNeue-Medium",
+        "position": {
+          "x": 212,
+          "y": 371.6
+        },
+        "boundingBox": {
+          "left": 212,
+          "top": 371.6,
+          "width": 25.7,
+          "height": 7.1
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p2-e81",
+      "page": 2,
+      "text": "This morning we have a guided tour of Seville. The capital of Andaluc\u00EDa, made famous by the Conquistadors, was once one of the richest cities in the world and is now home to the world\u2019s largest cathedral. After time for lunch, our guided tour of the Reales Alacazares explores this stunning Moorish palace which was the Spanish kings\u2019 royal residence for seven centuries.",
+      "metadata": {
+        "fontSize": 10,
+        "fontName": "LGPHPE\u002BHelveticaNeue",
+        "position": {
+          "x": 212,
+          "y": 358.9
+        },
+        "boundingBox": {
+          "left": 212,
+          "top": 358.9,
+          "width": 342.7,
+          "height": 59
+        },
+        "color": "#221F1F"
+      }
+    },
+    {
+      "id": "p2-e82",
+      "page": 2,
+      "text": "Day 5",
+      "metadata": {
+        "fontSize": 10,
+        "fontName": "LGPHPC\u002BHelveticaNeue-Medium",
+        "position": {
+          "x": 212,
+          "y": 288.4
+        },
+        "boundingBox": {
+          "left": 212,
+          "top": 288.4,
+          "width": 25.7,
+          "height": 7.1
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p2-e83",
+      "page": 2,
+      "text": "This morning we see the remains at Italica, an ancient Roman city that was the birthplace of two Roman emperors, Trajan and Hadrian. This afternoon",
+      "metadata": {
+        "fontSize": 10,
+        "fontName": "LGPHPE\u002BHelveticaNeue",
+        "position": {
+          "x": 212,
+          "y": 275.5
+        },
+        "boundingBox": {
+          "left": 212,
+          "top": 275.5,
+          "width": 333.6,
+          "height": 20.1
+        },
+        "color": "#221F1F"
+      }
+    },
+    {
+      "id": "p2-e84",
+      "page": 2,
+      "text": "The Mezquita",
+      "metadata": {
+        "fontSize": 9,
+        "fontName": "LGPHPC\u002BHelveticaNeue-Medium",
+        "position": {
+          "x": 34.9,
+          "y": 254.1
+        },
+        "boundingBox": {
+          "left": 34.9,
+          "top": 254.1,
+          "width": 57.8,
+          "height": 6.4
+        },
+        "color": "#FFFFFF"
+      }
+    },
+    {
+      "id": "p2-e85",
+      "page": 2,
+      "text": "we visit the Museo de Bellas Artes. Formerly a convent, this is now one of Spain\u2019s finest galleries with a particular focus on artists from Seville including works by Goya, Murillo, Millan, Zurbaran and Ribera. For those who are interested our Tour Manager will make arrangements for an optional Flamenco evening.",
+      "metadata": {
+        "fontSize": 10,
+        "fontName": "LGPHPE\u002BHelveticaNeue",
+        "position": {
+          "x": 212,
+          "y": 249.7
+        },
+        "boundingBox": {
+          "left": 212,
+          "top": 249.7,
+          "width": 340.2,
+          "height": 58.9
+        },
+        "color": "#221F1F"
+      }
+    },
+    {
+      "id": "p2-e86",
+      "page": 2,
+      "text": "Day 6",
+      "metadata": {
+        "fontSize": 10,
+        "fontName": "LGPHPC\u002BHelveticaNeue-Medium",
+        "position": {
+          "x": 212,
+          "y": 179.4
+        },
+        "boundingBox": {
+          "left": 212,
+          "top": 179.4,
+          "width": 25.7,
+          "height": 7.1
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p2-e87",
+      "page": 2,
+      "text": "After checking out of our hotel this morning we travel to Ronda where we",
+      "metadata": {
+        "fontSize": 10,
+        "fontName": "LGPHPE\u002BHelveticaNeue",
+        "position": {
+          "x": 212,
+          "y": 166.5
+        },
+        "boundingBox": {
+          "left": 212,
+          "top": 166.5,
+          "width": 326.1,
+          "height": 7.2
+        },
+        "color": "#221F1F"
+      }
+    },
+    {
+      "id": "p2-e88",
+      "page": 2,
+      "text": "Reales Alcazares",
+      "metadata": {
+        "fontSize": 9,
+        "fontName": "LGPHPC\u002BHelveticaNeue-Medium",
+        "position": {
+          "x": 34.9,
+          "y": 156.9
+        },
+        "boundingBox": {
+          "left": 34.9,
+          "top": 156.9,
+          "width": 73.1,
+          "height": 6.4
+        },
+        "color": "#FFFFFF"
+      }
+    },
+    {
+      "id": "p2-e89",
+      "page": 2,
+      "text": "enjoy a guided tour on arrival. Lying within an amphitheatre of limestone hills and standing above 120 metre cliffs, Ronda is one of the most dramatically sited towns in Spain. The Moorish part of the town is divided from the modern part by the extraordinary Tajo, a 90 metre gorge with the river flowing below. We continue to Malaga Airport for our direct scheduled flight to Bristol, and onwards coach travel back to our original pick up points.",
+      "metadata": {
+        "fontSize": 10,
+        "fontName": "LGPHPE\u002BHelveticaNeue",
+        "position": {
+          "x": 212,
+          "y": 153.6
+        },
+        "boundingBox": {
+          "left": 212,
+          "top": 153.6,
+          "width": 340.8,
+          "height": 71.8
+        },
+        "color": "#221F1F"
+      }
+    },
+    {
+      "id": "p2-e90",
+      "page": 2,
+      "text": "NB:- Please note we reserve the right to alter the above itinerary if required for operational",
+      "metadata": {
+        "fontSize": 8,
+        "fontName": "LGPHPC\u002BHelveticaNeue-Medium",
+        "position": {
+          "x": 212.3,
+          "y": 71.1
+        },
+        "boundingBox": {
+          "left": 212.3,
+          "top": 71.1,
+          "width": 324.7,
+          "height": 5.7
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p2-e91",
+      "page": 2,
+      "text": "reasons. Given the historic nature of the places visited, a certain degree of walking will",
+      "metadata": {
+        "fontSize": 8,
+        "fontName": "LGPHPC\u002BHelveticaNeue-Medium",
+        "position": {
+          "x": 230.8,
+          "y": 63.3
+        },
+        "boundingBox": {
+          "left": 230.8,
+          "top": 63.3,
+          "width": 311.6,
+          "height": 5.8
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p2-e92",
+      "page": 2,
+      "text": "Ronda \u0026 the Tajo",
+      "metadata": {
+        "fontSize": 9,
+        "fontName": "LGPHPC\u002BHelveticaNeue-Medium",
+        "position": {
+          "x": 34.9,
+          "y": 57
+        },
+        "boundingBox": {
+          "left": 34.9,
+          "top": 57,
+          "width": 72.8,
+          "height": 6.6
+        },
+        "color": "#FFFFFF"
+      }
+    },
+    {
+      "id": "p2-e93",
+      "page": 2,
+      "text": "be involved.",
+      "metadata": {
+        "fontSize": 8,
+        "fontName": "LGPHPC\u002BHelveticaNeue-Medium",
+        "position": {
+          "x": 230.8,
+          "y": 55.1
+        },
+        "boundingBox": {
+          "left": 230.8,
+          "top": 55.1,
+          "width": 43.7,
+          "height": 5.7
+        },
+        "color": "#16549D"
+      }
+    },
+    {
+      "id": "p2-e94",
+      "page": 2,
+      "text": "Vie w a nd sha r e this to u r o nlin e - click o n Vie w Yo u r To u r at w w w.tailo r ed-tr a v el. c o . uk a nd qu ote afd182",
+      "metadata": {
+        "fontSize": 9.5,
+        "fontName": "LGPNGO\u002BSwiss721BT-Bold",
+        "position": {
+          "x": 25.6,
+          "y": 21.2
+        },
+        "boundingBox": {
+          "left": 25.6,
+          "top": 21.2,
+          "width": 544,
+          "height": 6.9
+        },
+        "color": "#CC161E"
+      }
+    }
+  ]
+}

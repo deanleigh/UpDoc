@@ -1,0 +1,108 @@
+{
+  "$schema": null,
+  "version": "1.0",
+  "sourceTypes": [
+    "pdf"
+  ],
+  "globals": null,
+  "pages": [
+    1,
+    2
+  ],
+  "sections": [],
+  "sectionRules": null,
+  "areaRules": {
+    "organiser-information": {
+      "rules": [
+        {
+          "role": "Name",
+          "action": "createSection",
+          "conditions": [
+            {
+              "type": "fontSizeEquals",
+              "value": 23
+            },
+            {
+              "type": "fontNameContains",
+              "value": "LGPHPF\u002BClarendon"
+            },
+            {
+              "type": "colorEquals",
+              "value": "#FFD200"
+            },
+            {
+              "type": "positionFirst",
+              "value": null
+            }
+          ]
+        },
+        {
+          "role": "Telephone",
+          "action": "createSection",
+          "conditions": [
+            {
+              "type": "fontSizeEquals",
+              "value": 18
+            },
+            {
+              "type": "fontNameContains",
+              "value": "LGPHPF\u002BClarendon"
+            },
+            {
+              "type": "colorEquals",
+              "value": "#FFFFFF"
+            },
+            {
+              "type": "textBeginsWith",
+              "value": "Tel:"
+            }
+          ]
+        },
+        {
+          "role": "Email",
+          "action": "createSection",
+          "conditions": [
+            {
+              "type": "fontSizeEquals",
+              "value": 14
+            },
+            {
+              "type": "fontNameContains",
+              "value": "LGPHPF\u002BClarendon"
+            },
+            {
+              "type": "colorEquals",
+              "value": "#FFD200"
+            },
+            {
+              "type": "textBeginsWith",
+              "value": "Email:"
+            }
+          ]
+        },
+        {
+          "role": "Address",
+          "action": "createSection",
+          "conditions": [
+            {
+              "type": "fontSizeEquals",
+              "value": 12
+            },
+            {
+              "type": "fontNameContains",
+              "value": "LGPHPF\u002BClarendon"
+            },
+            {
+              "type": "colorEquals",
+              "value": "#FFFFFF"
+            },
+            {
+              "type": "positionLast",
+              "value": null
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
