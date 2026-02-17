@@ -43,10 +43,10 @@ public class ContentTransformService : IContentTransformService
                     areaRules.TryGetValue(areaKey, out ruleSet);
                 }
 
-                // For flat areas with rules, produce individual sections per role
-                if (ruleSet != null && ruleSet.Rules.Count > 0 && IsFlatArea(area))
+                // When area rules exist, apply them to all elements in the area
+                if (ruleSet != null && ruleSet.Rules.Count > 0)
                 {
-                    var roleSections = TransformFlatAreaWithRules(
+                    var roleSections = TransformAreaWithRules(
                         area, ruleSet, page.Page, areaIndex, seenIds, diagnostics);
                     result.Sections.AddRange(roleSections);
                 }
@@ -128,27 +128,27 @@ public class ContentTransformService : IContentTransformService
     }
 
     /// <summary>
-    /// Returns true if the area is "flat" — a single section with no heading.
-    /// Flat areas are candidates for role-based splitting via area rules.
+    /// Transforms an area using area rules to produce individual sections per role.
+    /// Collects all elements from all sections (headings + children) and applies
+    /// rules against the complete set. Each rule matches elements (first-match-wins
+    /// per element), and each role that has matched elements becomes its own
+    /// TransformedSection. Unmatched elements are grouped into a remaining preamble section.
     /// </summary>
-    private static bool IsFlatArea(DetectedArea area)
-    {
-        return area.Sections.Count == 1 && area.Sections[0].Heading == null;
-    }
-
-    /// <summary>
-    /// Transforms a flat area using area rules to produce individual sections per role.
-    /// Each rule matches elements (first-match-wins per element), and each role that
-    /// has matched elements becomes its own TransformedSection.
-    /// Unmatched elements are grouped into a remaining preamble section.
-    /// </summary>
-    private static List<TransformedSection> TransformFlatAreaWithRules(
+    private static List<TransformedSection> TransformAreaWithRules(
         DetectedArea area, SectionRuleSet ruleSet, int page, int areaIndex,
         Dictionary<string, int> seenIds, TransformDiagnostics diagnostics)
     {
         var sections = new List<TransformedSection>();
-        var flatSection = area.Sections[0];
-        var elements = flatSection.Children;
+
+        // Flatten all elements from all sections (headings are elements too)
+        var elements = new List<AreaElement>();
+        foreach (var section in area.Sections)
+        {
+            if (section.Heading != null)
+                elements.Add(section.Heading);
+            elements.AddRange(section.Children);
+        }
+
         var total = elements.Count;
 
         // For each element, determine which rule (if any) claims it (first-match-wins)

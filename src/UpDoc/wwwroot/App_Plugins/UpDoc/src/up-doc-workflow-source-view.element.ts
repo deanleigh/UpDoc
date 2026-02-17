@@ -80,6 +80,16 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 			this._sourceConfig = sourceConfig;
 			this._areaTemplate = areaTemplate;
 
+			// Always re-trigger transform on load to ensure fresh data
+			// (handles code changes, stale transform.json, etc.)
+			const mediaKey = extraction?.source.mediaKey;
+			if (mediaKey && areaDetection) {
+				const freshTransform = await triggerTransform(this._workflowName, mediaKey, this.#token);
+				if (freshTransform) {
+					this._transformResult = freshTransform;
+				}
+			}
+
 			// Initialize page selection state from source config
 			if (sourceConfig?.pages && Array.isArray(sourceConfig.pages) && sourceConfig.pages.length > 0) {
 				this._pageMode = 'custom';
