@@ -1,6 +1,56 @@
 {
+  "$schema": null,
   "version": "1.0",
   "name": "tailored-tour-pdf Mapping",
   "description": "Mapping configuration for tailored-tour-pdf",
-  "mappings": []
+  "mappings": [
+    {
+      "source": "name.heading",
+      "destinations": [
+        {
+          "target": "organiserName",
+          "blockKey": null,
+          "transforms": null
+        }
+      ],
+      "enabled": true,
+      "comment": null
+    },
+    {
+      "source": "telephone.heading",
+      "destinations": [
+        {
+          "target": "organiserTelephone",
+          "blockKey": null,
+          "transforms": null
+        }
+      ],
+      "enabled": true,
+      "comment": null
+    },
+    {
+      "source": "email.heading",
+      "destinations": [
+        {
+          "target": "organiserEmail",
+          "blockKey": null,
+          "transforms": null
+        }
+      ],
+      "enabled": true,
+      "comment": null
+    },
+    {
+      "source": "address.heading",
+      "destinations": [
+        {
+          "target": "organiserAddress",
+          "blockKey": null,
+          "transforms": null
+        }
+      ],
+      "enabled": true,
+      "comment": null
+    }
+  ]
 }

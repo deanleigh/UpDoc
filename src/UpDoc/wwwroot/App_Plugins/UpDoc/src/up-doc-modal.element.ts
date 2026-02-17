@@ -255,6 +255,7 @@ export class UpDocModalElement extends UmbModalBaseElement<
 				<div slot="editor">
 					<umb-input-media
 						max="1"
+						.selection=${this._selectedMediaUnique ? [this._selectedMediaUnique] : []}
 						@change=${this.#handleMediaChange}>
 					</umb-input-media>
 					${this.#renderExtractionStatus()}
@@ -269,6 +270,7 @@ export class UpDocModalElement extends UmbModalBaseElement<
 				<div slot="editor">
 					<umb-input-media
 						max="1"
+						.selection=${this._selectedMediaUnique ? [this._selectedMediaUnique] : []}
 						@change=${this.#handleMediaChange}>
 					</umb-input-media>
 					${this.#renderExtractionStatus()}

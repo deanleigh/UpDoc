@@ -9,10 +9,10 @@ namespace UpDoc.Services;
 public interface IDestinationStructureService
 {
     /// <summary>
-    /// Builds a DestinationConfig by introspecting the actual blueprint content.
-    /// Only includes properties that are populated in the blueprint and text-mappable.
+    /// Builds a DestinationConfig by introspecting the document type and blueprint content.
+    /// Includes all text-mappable properties from the document type (regardless of blueprint population).
     /// Block grids only include block instances actually placed in the blueprint's grid.
-    /// The "Page Settings" tab is excluded entirely.
+    /// All tabs are included — the text-mappable filter ensures only relevant field types appear.
     /// </summary>
     Task<DestinationConfig> BuildDestinationConfigAsync(
         string documentTypeAlias,
@@ -89,16 +89,9 @@ public class DestinationStructureService : IDestinationStructureService
         {
             var tabName = group.Name ?? "General";
 
-            // Exclude Page Settings tab entirely
-            if (tabName.Equals("Page Settings", StringComparison.OrdinalIgnoreCase))
-            {
-                // Track these aliases so we skip them in the ungrouped pass too
-                foreach (var pt in group.PropertyTypes ?? Enumerable.Empty<IPropertyType>())
-                {
-                    groupedPropertyAliases.Add(pt.Alias);
-                }
-                continue;
-            }
+            // All tabs are included — the TextMappableTypes filter in BuildFieldIfEligible
+            // ensures only relevant field types appear. Workflow authors can choose which
+            // fields to map; no tabs are excluded at generation time.
 
             foreach (var propertyType in group.PropertyTypes?.OrderBy(p => p.SortOrder) ?? Enumerable.Empty<IPropertyType>())
             {
@@ -154,8 +147,10 @@ public class DestinationStructureService : IDestinationStructureService
     }
 
     /// <summary>
-    /// Builds a DestinationField only if the property is text-mappable AND populated in the blueprint.
-    /// Returns null if the property should be excluded.
+    /// Builds a DestinationField if the property is text-mappable.
+    /// All text-mappable properties are included as mapping targets, regardless of whether
+    /// they are populated in the blueprint. Properties like organiser fields are empty in the
+    /// blueprint because they're meant to be filled from the source.
     /// </summary>
     private DestinationField? BuildFieldIfEligible(IPropertyType propertyType, string tabName, IContent blueprint)
     {
@@ -163,13 +158,6 @@ public class DestinationStructureService : IDestinationStructureService
 
         // Only include text-mappable types
         if (!TextMappableTypes.Contains(fieldType))
-        {
-            return null;
-        }
-
-        // Only include properties that are populated in the blueprint
-        var blueprintValue = blueprint.GetValue(propertyType.Alias);
-        if (IsValueEmpty(blueprintValue))
         {
             return null;
         }

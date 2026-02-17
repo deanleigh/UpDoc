@@ -7,6 +7,67 @@
   "blueprintName": "Tailored Tour",
   "fields": [
     {
+      "key": "d210233f-a41e-4e86-86b4-88d503a0b2b9",
+      "alias": "organiserOrganisation",
+      "label": "Organisation",
+      "description": "",
+      "type": "text",
+      "tab": "Organiser Details",
+      "mandatory": false,
+      "acceptsFormats": [
+        "text"
+      ]
+    },
+    {
+      "key": "5f76aa5c-40b9-4743-aaa0-b1ec32dff3fd",
+      "alias": "organiserName",
+      "label": "Organiser Name",
+      "description": "",
+      "type": "text",
+      "tab": "Organiser Details",
+      "mandatory": false,
+      "acceptsFormats": [
+        "text"
+      ]
+    },
+    {
+      "key": "da6244b0-8e0f-47b7-bd28-55cd9c199374",
+      "alias": "organiserTelephone",
+      "label": "Organiser Telephone",
+      "description": "",
+      "type": "text",
+      "tab": "Organiser Details",
+      "mandatory": false,
+      "acceptsFormats": [
+        "text"
+      ]
+    },
+    {
+      "key": "4167aba8-a286-4638-8a56-032525b274db",
+      "alias": "organiserEmail",
+      "label": "Organiser Email",
+      "description": "",
+      "type": "text",
+      "tab": "Organiser Details",
+      "mandatory": false,
+      "acceptsFormats": [
+        "text"
+      ]
+    },
+    {
+      "key": "0b42b05d-cf43-47c2-8e0e-2249f651d587",
+      "alias": "organiserAddress",
+      "label": "Organiser Address",
+      "description": "",
+      "type": "textArea",
+      "tab": "Organiser Details",
+      "mandatory": false,
+      "acceptsFormats": [
+        "text",
+        "markdown"
+      ]
+    },
+    {
       "key": "1456b7e3-0fb0-45d0-9514-8438e6ec5960",
       "alias": "pageTitle",
       "label": "Page Title",

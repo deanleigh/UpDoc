@@ -24,6 +24,18 @@ export class UpDocDestinationPickerModalElement extends UmbModalBaseElement<
 		return this.data?.destination;
 	}
 
+	/** Build a Set of compound keys (blockKey:alias or alias) that are already mapped */
+	get #alreadyMapped(): Set<string> {
+		const mapped = new Set<string>();
+		for (const mapping of this.data?.existingMappings ?? []) {
+			if (mapping.enabled === false) continue;
+			for (const dest of mapping.destinations) {
+				mapped.add(this.#makeKey(dest.target, dest.blockKey));
+			}
+		}
+		return mapped;
+	}
+
 	#getTabs(): Array<{ id: string; label: string }> {
 		if (!this.#destination) return [];
 
@@ -72,6 +84,7 @@ export class UpDocDestinationPickerModalElement extends UmbModalBaseElement<
 
 	#renderField(field: DestinationField) {
 		const checked = this._selectedTargets.has(field.alias);
+		const mapped = this.#alreadyMapped.has(field.alias);
 		return html`
 			<div class="field-item ${checked ? 'field-selected' : ''}" @click=${() => this.#toggleTarget(field.alias)}>
 				<uui-checkbox
@@ -82,6 +95,7 @@ export class UpDocDestinationPickerModalElement extends UmbModalBaseElement<
 				</uui-checkbox>
 				<div class="field-info">
 					<span class="field-label">${field.label}</span>
+					${mapped ? html`<span class="field-mapped">mapped</span>` : nothing}
 					<span class="field-type">${field.type}</span>
 				</div>
 			</div>
@@ -131,6 +145,7 @@ export class UpDocDestinationPickerModalElement extends UmbModalBaseElement<
 											${block.properties.map((prop) => {
 												const compoundKey = this.#makeKey(prop.alias, block.key);
 												const checked = this._selectedTargets.has(compoundKey);
+												const mapped = this.#alreadyMapped.has(compoundKey);
 												return html`
 													<div class="block-property ${checked ? 'field-selected' : ''}" @click=${() => this.#toggleTarget(prop.alias, block.key)}>
 														<uui-checkbox
@@ -140,6 +155,7 @@ export class UpDocDestinationPickerModalElement extends UmbModalBaseElement<
 															@change=${() => this.#toggleTarget(prop.alias, block.key)}>
 														</uui-checkbox>
 														<span class="block-property-label">${prop.label || prop.alias}</span>
+														${mapped ? html`<span class="field-mapped">mapped</span>` : nothing}
 														<span class="field-type">${prop.type}</span>
 													</div>
 												`;
@@ -178,22 +194,22 @@ export class UpDocDestinationPickerModalElement extends UmbModalBaseElement<
 
 		return html`
 			<umb-body-layout headline="Pick destination field(s)">
-				<uui-tab-group slot="header" dropdown-content-direction="vertical">
-					${tabs.map(
-						(tab) => html`
-							<uui-tab
-								label=${tab.label}
-								?active=${this._activeTab === tab.id}
-								@click=${() => { this._activeTab = tab.id; }}>
-								${tab.label}
-							</uui-tab>
-						`
-					)}
-				</uui-tab-group>
+				<div class="tab-content">
+					<uui-tab-group class="content-inner-tabs" dropdown-content-direction="vertical">
+						${tabs.map(
+							(tab) => html`
+								<uui-tab
+									label=${tab.label}
+									?active=${this._activeTab === tab.id}
+									@click=${() => { this._activeTab = tab.id; }}>
+									${tab.label}
+								</uui-tab>
+							`
+						)}
+					</uui-tab-group>
 
-				<uui-box>
 					${this.#renderTabContent()}
-				</uui-box>
+				</div>
 
 				<div slot="actions">
 					<uui-button label="Cancel" @click=${this.#onCancel}>Cancel</uui-button>
@@ -217,6 +233,20 @@ export class UpDocDestinationPickerModalElement extends UmbModalBaseElement<
 				display: block;
 				height: 100%;
 				--uui-tab-background: var(--uui-color-surface);
+			}
+
+			.tab-content {
+				display: flex;
+				flex-direction: column;
+			}
+
+			/* Inner tabs — bleed edge-to-edge past body layout padding */
+			.content-inner-tabs {
+				margin: calc(var(--uui-size-layout-1) * -1);
+				margin-bottom: var(--uui-size-space-4);
+				background: var(--uui-color-surface);
+				--uui-tab-background: var(--uui-color-surface);
+				border-bottom: 1px solid var(--uui-color-border);
 			}
 
 			.empty-message {
@@ -266,6 +296,14 @@ export class UpDocDestinationPickerModalElement extends UmbModalBaseElement<
 				font-size: var(--uui-type-small-size);
 				color: var(--uui-color-text-alt);
 				background: var(--uui-color-surface-alt);
+				padding: 2px 8px;
+				border-radius: var(--uui-border-radius);
+			}
+
+			.field-mapped {
+				font-size: var(--uui-type-small-size);
+				color: var(--uui-color-positive-standalone);
+				background: var(--uui-color-positive-emphasis);
 				padding: 2px 8px;
 				border-radius: var(--uui-border-radius);
 			}

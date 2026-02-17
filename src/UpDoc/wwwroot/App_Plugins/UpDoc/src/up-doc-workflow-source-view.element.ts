@@ -320,6 +320,15 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				if (saved && this._sourceConfig) {
 					this._sourceConfig = { ...this._sourceConfig, areaRules: saved };
 				}
+
+				// Re-trigger transform so the Extracted view reflects composed sections
+				const mediaKey = this._extraction?.source.mediaKey;
+				if (mediaKey) {
+					const updatedTransform = await triggerTransform(this._workflowName, mediaKey, this.#token);
+					if (updatedTransform) {
+						this._transformResult = updatedTransform;
+					}
+				}
 			}
 		} catch {
 			// Modal cancelled
@@ -439,7 +448,10 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		if (!this._config?.destination || !this._workflowName) return;
 		const modalManager = await this.getContext(UMB_MODAL_MANAGER_CONTEXT);
 		const modal = modalManager.open(this, UMB_DESTINATION_PICKER_MODAL, {
-			data: { destination: this._config.destination },
+			data: {
+				destination: this._config.destination,
+				existingMappings: this._config.map?.mappings,
+			},
 		});
 		const result = await modal.onSubmit().catch(() => null);
 		if (!result?.selectedTargets?.length) return;

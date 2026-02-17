@@ -1,16 +1,16 @@
 import { a as Z, t as tt } from "./workflow.service-D_fkSdCh.js";
 import { r as et, a as it, g as ot } from "./destination-utils-CEQ5Lbpg.js";
-import { html as s, css as at, state as h, customElement as nt, nothing as E } from "@umbraco-cms/backoffice/external/lit";
+import { html as s, css as at, state as h, customElement as nt, nothing as U } from "@umbraco-cms/backoffice/external/lit";
 import { UmbTextStyles as rt } from "@umbraco-cms/backoffice/style";
 import { UmbModalBaseElement as st } from "@umbraco-cms/backoffice/modal";
-import { UMB_AUTH_CONTEXT as U } from "@umbraco-cms/backoffice/auth";
+import { UMB_AUTH_CONTEXT as E } from "@umbraco-cms/backoffice/auth";
 var ct = Object.defineProperty, ut = Object.getOwnPropertyDescriptor, M = (t) => {
   throw TypeError(t);
 }, d = (t, i, e, a) => {
   for (var r = a > 1 ? void 0 : a ? ut(i, e) : i, l = t.length - 1, c; l >= 0; l--)
     (c = t[l]) && (r = (a ? c(i, e, r) : c(r)) || r);
   return a && r && ct(i, e, r), r;
-}, lt = (t, i, e) => i.has(t) || M("Cannot " + e), dt = (t, i, e) => i.has(t) ? M("Cannot add the same private member more than once") : i instanceof WeakSet ? i.add(t) : i.set(t, e), n = (t, i, e) => (lt(t, i, "access private method"), e), o, L, D, $, N, A, I, P, q, O, K, F, W, C, x, z, j, G, B, w, R, Y, H, X, J, Q;
+}, lt = (t, i, e) => i.has(t) || M("Cannot " + e), dt = (t, i, e) => i.has(t) ? M("Cannot add the same private member more than once") : i instanceof WeakSet ? i.add(t) : i.set(t, e), n = (t, i, e) => (lt(t, i, "access private method"), e), o, L, D, $, N, A, q, I, P, O, K, F, W, C, x, z, j, G, B, w, R, Y, H, X, J, Q;
 const pt = {
   pdf: "PDF Document",
   markdown: "Markdown",
@@ -38,7 +38,7 @@ let u = class extends st {
 					slot="actions"
 					id="close"
 					label=${this.localize.term("general_close")}
-					@click="${n(this, o, P)}"></uui-button>
+					@click="${n(this, o, I)}"></uui-button>
 				<uui-button
 					slot="actions"
 					id="save"
@@ -46,7 +46,7 @@ let u = class extends st {
 					color="positive"
 					label=${this.localize.term("general_create")}
 					?disabled=${!t}
-					@click="${n(this, o, I)}"></uui-button>
+					@click="${n(this, o, q)}"></uui-button>
 			</umb-body-layout>
 		`;
   }
@@ -57,7 +57,7 @@ L = async function() {
   try {
     const t = this.data?.blueprintId;
     if (!t) return;
-    const e = await (await this.getContext(U)).getLatestToken(), a = await Z(t, e);
+    const e = await (await this.getContext(E)).getLatestToken(), a = await Z(t, e);
     a && (this._config = a, a.sources && (this._availableSourceTypes = Object.keys(a.sources), this._availableSourceTypes.length === 1 && (this._sourceType = this._availableSourceTypes[0])));
   } catch (t) {
     console.error("Failed to load available source types:", t);
@@ -76,7 +76,7 @@ $ = async function(t) {
 N = async function(t) {
   this._isExtracting = !0, this._extractionError = null;
   try {
-    const e = await (await this.getContext(U)).getLatestToken();
+    const e = await (await this.getContext(E)).getLatestToken();
     if (!this._config?.folderPath) {
       this._extractionError = "No workflow configured for this blueprint";
       return;
@@ -120,7 +120,7 @@ A = function(t) {
   }
   e.length > 0 && (this._documentName = e.join(" "));
 };
-I = function() {
+q = function() {
   this.value = {
     name: this._documentName,
     sourceType: this._sourceType,
@@ -130,10 +130,10 @@ I = function() {
     config: this._config
   }, this._submitModal();
 };
-P = function() {
+I = function() {
   this._rejectModal();
 };
-q = function() {
+P = function() {
   switch (this._sourceType) {
     case "pdf":
       return n(this, o, O).call(this);
@@ -144,7 +144,7 @@ q = function() {
     case "doc":
       return n(this, o, W).call(this);
     default:
-      return E;
+      return U;
   }
 };
 O = function() {
@@ -153,6 +153,7 @@ O = function() {
 				<div slot="editor">
 					<umb-input-media
 						max="1"
+						.selection=${this._selectedMediaUnique ? [this._selectedMediaUnique] : []}
 						@change=${n(this, o, $)}>
 					</umb-input-media>
 					${n(this, o, z).call(this)}
@@ -166,6 +167,7 @@ K = function() {
 				<div slot="editor">
 					<umb-input-media
 						max="1"
+						.selection=${this._selectedMediaUnique ? [this._selectedMediaUnique] : []}
 						@change=${n(this, o, $)}>
 					</umb-input-media>
 					${n(this, o, z).call(this)}
@@ -226,7 +228,7 @@ z = function() {
 			</div>` : Object.values(this._sectionLookup).some((i) => i.length > 0) ? s`<div class="extraction-status success">
 				<uui-icon name="icon-check"></uui-icon>
 				<span>Content extracted successfully</span>
-			</div>` : E;
+			</div>` : U;
 };
 j = function() {
   const t = n(this, o, C).call(this);
@@ -292,7 +294,7 @@ G = function() {
 								</div>
 							</umb-property-layout>
 
-							${n(this, o, q).call(this)}
+							${n(this, o, P).call(this)}
 						`}
 			</uui-box>
 		`;
@@ -674,4 +676,4 @@ export {
   u as UpDocModalElement,
   _t as default
 };
-//# sourceMappingURL=up-doc-modal.element-CCNO-clw.js.map
+//# sourceMappingURL=up-doc-modal.element-DVs3XVHM.js.map

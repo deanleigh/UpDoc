@@ -1,8 +1,10 @@
-import type { DestinationConfig } from './workflow.types.js';
+import type { DestinationConfig, SectionMapping } from './workflow.types.js';
 import { UmbModalToken } from '@umbraco-cms/backoffice/modal';
 
 export interface DestinationPickerModalData {
 	destination: DestinationConfig;
+	/** Existing mappings so the picker can show which fields are already mapped */
+	existingMappings?: SectionMapping[];
 }
 
 export interface DestinationPickerModalValue {
@@ -15,6 +17,6 @@ export const UMB_DESTINATION_PICKER_MODAL = new UmbModalToken<
 >('UpDoc.DestinationPickerModal', {
 	modal: {
 		type: 'sidebar',
-		size: 'small',
+		size: 'medium',
 	},
 });
