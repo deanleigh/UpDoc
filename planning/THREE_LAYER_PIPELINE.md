@@ -38,6 +38,8 @@ Extract (raw dough)  →  Shape (proof)  →  Map (bake)
 
 **UI:** Source tab → **Transformed** inner tab. Shows only included sections with their assembled Markdown rendered as HTML preview. Pattern badges (Bullet List, Paragraph, Sub-Headed) and metadata.
 
+**Content cleanup belongs here, not in mapping.** Any prefix stripping (e.g., "Email:" → just the email address, "Tel:" → just the phone number) must happen during transformation. The Transformed tab should show clean, map-ready content. The mapping stage only wires values to fields — it does not modify content. This means section rules need a way to configure content transforms (prefix stripping, regex replacement) that run during the Shape step.
+
 **What the author does here:** Maps sections to destination fields (source-driven direction). Click a section heading → pick destination field. Click section content → pick destination field.
 
 ### Layer 3: Map (Wiring to Destination)

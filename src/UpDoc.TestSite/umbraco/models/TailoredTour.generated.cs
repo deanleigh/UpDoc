@@ -20,7 +20,7 @@ namespace Umbraco.Cms.Web.Common.PublishedModels
 {
 	/// <summary>Tailored Tour</summary>
 	[PublishedModel("tailoredTour")]
-	public partial class TailoredTour : PublishedContentModel, IContentGridGroupTour, IContentHeadingDefault, IContentHeadingDefault1
+	public partial class TailoredTour : PublishedContentModel, IContentGridTailoredTour, IContentHeadingDefault, IContentHeadingDefault1, ITourProperties
 	{
 		// helpers
 #pragma warning disable 0109 // new is redundant
@@ -55,7 +55,7 @@ namespace Umbraco.Cms.Web.Common.PublishedModels
 		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "17.1.0+2832436")]
 		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
 		[ImplementPropertyType("contentGridTour")]
-		public virtual global::Umbraco.Cms.Core.Models.Blocks.BlockGridModel ContentGridTour => global::Umbraco.Cms.Web.Common.PublishedModels.ContentGridGroupTour.GetContentGridTour(this, _publishedValueFallback);
+		public virtual global::Umbraco.Cms.Core.Models.Blocks.BlockGridModel ContentGridTour => global::Umbraco.Cms.Web.Common.PublishedModels.ContentGridTailoredTour.GetContentGridTour(this, _publishedValueFallback);
 
 		///<summary>
 		/// Page Description: This will appear in pages
@@ -96,5 +96,45 @@ namespace Umbraco.Cms.Web.Common.PublishedModels
 		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
 		[ImplementPropertyType("pageSettingsBackgroundImagePicker")]
 		public virtual global::Umbraco.Cms.Core.Models.MediaWithCrops PageSettingsBackgroundImagePicker => global::Umbraco.Cms.Web.Common.PublishedModels.ContentHeadingDefault1.GetPageSettingsBackgroundImagePicker(this, _publishedValueFallback);
+
+		///<summary>
+		/// Organiser Address
+		///</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "17.1.0+2832436")]
+		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
+		[ImplementPropertyType("organiserAddress")]
+		public virtual string OrganiserAddress => global::Umbraco.Cms.Web.Common.PublishedModels.TourProperties.GetOrganiserAddress(this, _publishedValueFallback);
+
+		///<summary>
+		/// Organiser Email
+		///</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "17.1.0+2832436")]
+		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
+		[ImplementPropertyType("organiserEmail")]
+		public virtual string OrganiserEmail => global::Umbraco.Cms.Web.Common.PublishedModels.TourProperties.GetOrganiserEmail(this, _publishedValueFallback);
+
+		///<summary>
+		/// Organiser Name
+		///</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "17.1.0+2832436")]
+		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
+		[ImplementPropertyType("organiserName")]
+		public virtual string OrganiserName => global::Umbraco.Cms.Web.Common.PublishedModels.TourProperties.GetOrganiserName(this, _publishedValueFallback);
+
+		///<summary>
+		/// Organisation
+		///</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "17.1.0+2832436")]
+		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
+		[ImplementPropertyType("organiserOrganisation")]
+		public virtual string OrganiserOrganisation => global::Umbraco.Cms.Web.Common.PublishedModels.TourProperties.GetOrganiserOrganisation(this, _publishedValueFallback);
+
+		///<summary>
+		/// Organiser Telephone
+		///</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "17.1.0+2832436")]
+		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
+		[ImplementPropertyType("organiserTelephone")]
+		public virtual string OrganiserTelephone => global::Umbraco.Cms.Web.Common.PublishedModels.TourProperties.GetOrganiserTelephone(this, _publishedValueFallback);
 	}
 }
