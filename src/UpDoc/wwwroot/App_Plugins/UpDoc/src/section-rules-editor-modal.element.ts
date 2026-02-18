@@ -77,11 +77,11 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 
 			for (let elIdx = 0; elIdx < elements.length; elIdx++) {
 				const el = elements[elIdx];
-				if (claimed.has(el.id)) continue; // already claimed
+				if (claimed.has(el.id)) continue; // already claimed by an earlier rule
 
 				if (this.#elementMatchesAllConditions(el, rule.conditions, elIdx, elements.length)) {
 					claimed.set(el.id, ruleIdx);
-					break; // first match only per rule
+					// No break — a rule can match multiple elements (e.g. repeating section headings)
 				}
 			}
 		}
@@ -276,7 +276,7 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 		`;
 	}
 
-	#renderRuleCard(rule: SectionRule, ruleIdx: number, matchedElement: AreaElement | null) {
+	#renderRuleCard(rule: SectionRule, ruleIdx: number, matchedElements: AreaElement[]) {
 		return html`
 			<div class="rule-card">
 				<div class="rule-header">
@@ -320,9 +320,9 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 					</select>
 				</div>
 
-				<div class="match-preview ${matchedElement ? 'matched' : 'no-match'}">
-					${matchedElement
-						? html`<uui-icon name="icon-check"></uui-icon> Matched: <strong>${this.#truncate(matchedElement.text, 60)}</strong>`
+				<div class="match-preview ${matchedElements.length > 0 ? 'matched' : 'no-match'}">
+					${matchedElements.length > 0
+						? html`<uui-icon name="icon-check"></uui-icon> Matched <strong>${matchedElements.length}&times;</strong>${matchedElements.length <= 5 ? html`: ${matchedElements.map((el, i) => html`${i > 0 ? html`, ` : nothing}<strong>${this.#truncate(el.text, 40)}</strong>`)}` : nothing}`
 						: html`<uui-icon name="icon-alert"></uui-icon> ${rule.conditions.length === 0 ? 'Add conditions to match elements' : 'No match'}`}
 				</div>
 			</div>
@@ -368,12 +368,14 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 	override render() {
 		const claimed = this.#evaluateRules();
 
-		// Build ruleIdx -> matched element lookup
-		const ruleMatches = new Map<number, AreaElement>();
+		// Build ruleIdx -> all matched elements lookup
+		const ruleMatches = new Map<number, AreaElement[]>();
 		for (const [elId, ruleIdx] of claimed) {
-			if (!ruleMatches.has(ruleIdx)) {
-				const el = this.#elements.find((e) => e.id === elId);
-				if (el) ruleMatches.set(ruleIdx, el);
+			const el = this.#elements.find((e) => e.id === elId);
+			if (el) {
+				const existing = ruleMatches.get(ruleIdx) ?? [];
+				existing.push(el);
+				ruleMatches.set(ruleIdx, existing);
 			}
 		}
 
@@ -387,7 +389,7 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 						<span class="meta-badge">${this.#elements.length - claimed.size} unmatched</span>
 					</div>
 
-					${this._rules.map((rule, idx) => this.#renderRuleCard(rule, idx, ruleMatches.get(idx) ?? null))}
+					${this._rules.map((rule, idx) => this.#renderRuleCard(rule, idx, ruleMatches.get(idx) ?? []))}
 
 					<uui-button
 						look="placeholder"

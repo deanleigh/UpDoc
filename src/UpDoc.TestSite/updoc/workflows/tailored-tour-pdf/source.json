@@ -169,6 +169,72 @@
           ]
         }
       ]
+    },
+    "test": {
+      "rules": [
+        {
+          "role": "for-more-information",
+          "action": "createSection",
+          "conditions": [
+            {
+              "type": "fontSizeEquals",
+              "value": 9
+            },
+            {
+              "type": "fontNameContains",
+              "value": "LGPHPE\u002BHelveticaNeue"
+            },
+            {
+              "type": "colorEquals",
+              "value": "#FFFFFF"
+            },
+            {
+              "type": "positionFirst",
+              "value": null
+            }
+          ]
+        }
+      ]
+    },
+    "tour-details": {
+      "rules": [
+        {
+          "role": "Tour Details - Section Title",
+          "action": "createSection",
+          "conditions": [
+            {
+              "type": "fontSizeEquals",
+              "value": 12
+            },
+            {
+              "type": "fontNameContains",
+              "value": "LGPHPF\u002BClarendon"
+            },
+            {
+              "type": "colorEquals",
+              "value": "#16549D"
+            }
+          ]
+        },
+        {
+          "role": "Tour Details - Section Content",
+          "action": "addAsContent",
+          "conditions": [
+            {
+              "type": "fontSizeEquals",
+              "value": 8.5
+            },
+            {
+              "type": "fontNameContains",
+              "value": "LGPHPE\u002BHelveticaNeue"
+            },
+            {
+              "type": "colorEquals",
+              "value": "#16549D"
+            }
+          ]
+        }
+      ]
     }
   }
 }

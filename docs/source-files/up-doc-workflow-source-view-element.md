@@ -52,7 +52,8 @@ On load, the component:
 1. Consumes `UMB_WORKSPACE_CONTEXT` and observes the `unique` value (workflow name)
 2. Loads in parallel: sample extraction, area detection, workflow config, transform result, source config
 3. Initialises page selection state from source config
-4. Stores all in state for rendering
+4. If sample extraction and area detection exist, automatically triggers a fresh transform to ensure data is current
+5. Stores all in state for rendering
 
 ### Extracted mode (area detection hierarchy)
 
@@ -140,13 +141,14 @@ When no sample extraction exists, shows a centered prompt with "Choose PDF" butt
 | `#renderMappingBadges()` | Shows Map button or green mapped-target badges |
 | `#hasAreaRules(area)` | Checks if an area has rules defined in source config |
 | `#getTransformSectionsForArea(area, pageNum)` | Gets transform sections belonging to an area (matched by colour + page) |
-| `#renderComposedSectionRow(section)` | Renders a composed section row with role name, content preview, and mapping badges |
+| `#onMapSection(section)` | Opens destination picker for a section's content key (`{id}.content`), saves result to map.json |
+| `#renderComposedSectionRow(section)` | Renders a composed section row with role name, content preview, mapping badges, and Map button |
 
 ## Imports
 
 ```typescript
-import type { RichExtractionResult, DocumentTypeConfig, MappingDestination, AreaDetectionResult, DetectedArea, DetectedSection, AreaElement, TransformResult, TransformedSection, SourceConfig, SectionRuleSet } from './workflow.types.js';
-import { fetchSampleExtraction, triggerSampleExtraction, fetchWorkflowByName, fetchAreaDetection, triggerTransform, fetchTransformResult, updateSectionInclusion, saveMapConfig, savePageSelection, fetchSourceConfig, saveSectionRules } from './workflow.service.js';
+import type { RichExtractionResult, DocumentTypeConfig, MappingDestination, AreaDetectionResult, DetectedArea, DetectedSection, AreaElement, TransformResult, TransformedSection, SourceConfig, AreaTemplate, SectionRuleSet, InferSectionPatternResponse, MapConfig, SectionMapping } from './workflow.types.js';
+import { fetchSampleExtraction, triggerSampleExtraction, fetchWorkflowByName, fetchAreaDetection, triggerTransform, fetchTransformResult, updateSectionInclusion, savePageSelection, fetchSourceConfig, fetchAreaTemplate, saveAreaTemplate, saveAreaRules, inferSectionPattern, saveMapConfig } from './workflow.service.js';
 import { markdownToHtml, normalizeToKebabCase } from './transforms.js';
 import { UMB_DESTINATION_PICKER_MODAL } from './destination-picker-modal.token.js';
 import { UMB_SECTION_RULES_EDITOR_MODAL } from './section-rules-editor-modal.token.js';

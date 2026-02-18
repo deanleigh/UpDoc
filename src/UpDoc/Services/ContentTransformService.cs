@@ -169,68 +169,142 @@ public class ContentTransformService : IContentTransformService
             }
         }
 
-        // Group claimed elements by role (preserving element order within each role)
-        var roleElements = new Dictionary<string, List<AreaElement>>();
-        var unclaimed = new List<AreaElement>();
+        // Count matches per role to detect repeating-heading vs label→data patterns
+        var roleCounts = new Dictionary<string, int>();
         for (int i = 0; i < elements.Count; i++)
         {
             if (elementRoles[i] != null)
-            {
-                var role = elementRoles[i]!;
-                if (!roleElements.ContainsKey(role))
-                    roleElements[role] = new List<AreaElement>();
-                roleElements[role].Add(elements[i]);
-            }
-            else
-            {
-                unclaimed.Add(elements[i]);
-            }
+                roleCounts[elementRoles[i]!] = (roleCounts.TryGetValue(elementRoles[i]!, out var c) ? c : 0) + 1;
         }
 
-        // Create one section per role (in rule order, not element order)
-        foreach (var rule in ruleSet.Rules)
+        var repeatingRoles = new HashSet<string>(roleCounts.Where(r => r.Value > 1).Select(r => r.Key));
+
+        if (repeatingRoles.Count > 0)
         {
-            if (roleElements.TryGetValue(rule.Role, out var roleEls) && roleEls.Count > 0)
+            // BOUNDARY MODE: each matched element starts a new section; following unmatched = content.
+            // Used when one rule matches multiple headings (e.g. Features, What We Will See, Accommodation).
+            string? currentHeadingText = null;
+            var currentChildren = new List<AreaElement>();
+
+            void FlushSection()
             {
-                var content = string.Join("\n\n", roleEls.Select(e => e.Text));
-                var section = new TransformedSection
+                if (currentHeadingText == null && currentChildren.Count == 0) return;
+
+                string id;
+                string? titleCasedHeading = null;
+                if (currentHeadingText != null)
                 {
-                    Id = NormalizeToKebabCase(rule.Role),
-                    Heading = rule.Role,
-                    OriginalHeading = rule.Role,
+                    titleCasedHeading = ToTitleCaseIfAllCaps(currentHeadingText);
+                    id = NormalizeToKebabCase(currentHeadingText);
+                }
+                else
+                {
+                    id = $"preamble-p{page}-z{areaIndex}";
+                }
+
+                var pat = DetectPattern(currentChildren);
+                var content = currentChildren.Count > 0
+                    ? AssembleMarkdown(currentChildren, pat)
+                    : (currentHeadingText ?? string.Empty);
+
+                var s = new TransformedSection
+                {
+                    Id = id,
+                    Heading = titleCasedHeading,
+                    OriginalHeading = currentHeadingText,
                     Content = content,
-                    Pattern = "role",
+                    Pattern = currentChildren.Count > 0 ? pat : "role",
                     Page = page,
                     AreaColor = string.IsNullOrEmpty(area.Color) ? null : area.Color,
                     AreaName = area.Name,
-                    ChildCount = roleEls.Count,
+                    ChildCount = currentChildren.Count,
                 };
-                DeduplicateId(section, seenIds);
-                sections.Add(section);
-                UpdateDiagnostics(diagnostics, section.Pattern);
+                DeduplicateId(s, seenIds);
+                sections.Add(s);
+                UpdateDiagnostics(diagnostics, s.Pattern);
+                currentHeadingText = null;
+                currentChildren = new List<AreaElement>();
             }
-        }
 
-        // Unmatched elements: group into a remaining preamble section
-        if (unclaimed.Count > 0)
-        {
-            var pattern = DetectPattern(unclaimed);
-            var content = AssembleMarkdown(unclaimed, pattern);
-            var remainingSection = new TransformedSection
+            for (int i = 0; i < elements.Count; i++)
             {
-                Id = $"preamble-p{page}-z{areaIndex}",
-                Heading = null,
-                OriginalHeading = null,
-                Content = content,
-                Pattern = pattern,
-                Page = page,
-                AreaColor = string.IsNullOrEmpty(area.Color) ? null : area.Color,
-                AreaName = area.Name,
-                ChildCount = unclaimed.Count,
-            };
-            DeduplicateId(remainingSection, seenIds);
-            sections.Add(remainingSection);
-            UpdateDiagnostics(diagnostics, remainingSection.Pattern);
+                var role = elementRoles[i];
+                if (role != null && repeatingRoles.Contains(role))
+                {
+                    FlushSection();
+                    currentHeadingText = elements[i].Text;
+                }
+                else
+                {
+                    currentChildren.Add(elements[i]);
+                }
+            }
+            FlushSection();
+        }
+        else
+        {
+            // GROUPING MODE: one section per role (label → data pattern for single-match roles).
+            // Used when each rule matches exactly one element (e.g. Name, Telephone, Email, Address).
+            var roleElements = new Dictionary<string, List<AreaElement>>();
+            var unclaimed = new List<AreaElement>();
+            for (int i = 0; i < elements.Count; i++)
+            {
+                if (elementRoles[i] != null)
+                {
+                    var role = elementRoles[i]!;
+                    if (!roleElements.ContainsKey(role))
+                        roleElements[role] = new List<AreaElement>();
+                    roleElements[role].Add(elements[i]);
+                }
+                else
+                {
+                    unclaimed.Add(elements[i]);
+                }
+            }
+
+            foreach (var rule in ruleSet.Rules)
+            {
+                if (roleElements.TryGetValue(rule.Role, out var roleEls) && roleEls.Count > 0)
+                {
+                    var content = string.Join("\n\n", roleEls.Select(e => e.Text));
+                    var section = new TransformedSection
+                    {
+                        Id = NormalizeToKebabCase(rule.Role),
+                        Heading = rule.Role,
+                        OriginalHeading = rule.Role,
+                        Content = content,
+                        Pattern = "role",
+                        Page = page,
+                        AreaColor = string.IsNullOrEmpty(area.Color) ? null : area.Color,
+                        AreaName = area.Name,
+                        ChildCount = roleEls.Count,
+                    };
+                    DeduplicateId(section, seenIds);
+                    sections.Add(section);
+                    UpdateDiagnostics(diagnostics, section.Pattern);
+                }
+            }
+
+            if (unclaimed.Count > 0)
+            {
+                var pattern = DetectPattern(unclaimed);
+                var content = AssembleMarkdown(unclaimed, pattern);
+                var remainingSection = new TransformedSection
+                {
+                    Id = $"preamble-p{page}-z{areaIndex}",
+                    Heading = null,
+                    OriginalHeading = null,
+                    Content = content,
+                    Pattern = pattern,
+                    Page = page,
+                    AreaColor = string.IsNullOrEmpty(area.Color) ? null : area.Color,
+                    AreaName = area.Name,
+                    ChildCount = unclaimed.Count,
+                };
+                DeduplicateId(remainingSection, seenIds);
+                sections.Add(remainingSection);
+                UpdateDiagnostics(diagnostics, remainingSection.Pattern);
+            }
         }
 
         return sections;

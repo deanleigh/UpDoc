@@ -19,6 +19,8 @@ ASP.NET Core API controller for UpDoc workflow CRUD operations.
 | GET | `/{name}/sample-extraction` | Returns the saved sample extraction |
 | POST | `/{name}/regenerate-destination` | Regenerates destination.json from the blueprint |
 | PUT | `/{name}/map` | Saves updated map.json |
+| POST | `/{name}/transform` | Runs area detection and content transform on the workflow's sample extraction |
+| GET | `/{name}/transform` | Returns the saved transform result |
 
 ### GET /{name} — Direct config loading with auto-regeneration
 
@@ -30,7 +32,8 @@ After loading, the endpoint always regenerates `destination.json` from the curre
 
 - `IWorkflowService` — handles workflow file operations, config loading, and validation
 - `IDestinationStructureService` — builds destination.json from blueprint content
-- `IPdfPagePropertiesService` — extracts text from PDFs
+- `IPdfPagePropertiesService` — detects areas in PDFs via `DetectAreas()`
+- `IContentTransformService` — assembles area detection into sections via `Transform()`
 - `IMediaService` — resolves media file paths
 - `IWebHostEnvironment` — provides web root path for file resolution
 

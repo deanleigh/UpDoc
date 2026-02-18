@@ -1,4 +1,4 @@
-import { b as A, d as N, p as P } from "./workflow.service-CkB4ycNR.js";
+import { b as A, d as N, o as P } from "./workflow.service-B_tImYWQ.js";
 import { g as R, r as V, a as F } from "./destination-utils-CEQ5Lbpg.js";
 import { html as s, nothing as z, css as I, state as x, customElement as X } from "@umbraco-cms/backoffice/external/lit";
 import { UmbLitElement as j } from "@umbraco-cms/backoffice/lit-element";
@@ -341,4 +341,4 @@ export {
   u as UpDocWorkflowMapViewElement,
   st as default
 };
-//# sourceMappingURL=up-doc-workflow-map-view.element-J080oSRH.js.map
+//# sourceMappingURL=up-doc-workflow-map-view.element-3UPQZorV.js.map
