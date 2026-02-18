@@ -554,13 +554,215 @@
     },
     {
       "page": 2,
-      "areas": []
+      "areas": [
+        {
+          "name": "Itinerary",
+          "color": "#5bba6f",
+          "boundingBox": {
+            "left": 204,
+            "top": 705.9000000000001,
+            "width": 352,
+            "height": 662.7
+          },
+          "page": 2,
+          "sections": [
+            {
+              "heading": null,
+              "children": [
+                {
+                  "id": "p2-e37",
+                  "text": "Day 1",
+                  "fontSize": 10,
+                  "fontName": "LGPHPC\u002BHelveticaNeue-Medium",
+                  "color": "#16549D",
+                  "boundingBox": {
+                    "left": 212,
+                    "top": 698.8,
+                    "width": 26.3,
+                    "height": 7.1
+                  }
+                },
+                {
+                  "id": "p2-e38",
+                  "text": "We meet at our designated pick up points and transfer by coach to Bristol Airport for our direct scheduled flight to Malaga. On arrival in Malaga we are met by our tour manager who will accompany us throughout our tour. We transfer in our private executive coach to Granada where we enjoy a short orientation tour before checking in at the centrally located 4* Gran Hotel Luna for a two night stay. Dinner is served in our hotel this evening, and the second night is on bed and breakfast basis.",
+                  "fontSize": 10,
+                  "fontName": "LGPHPE\u002BHelveticaNeue",
+                  "color": "#221F1F",
+                  "boundingBox": {
+                    "left": 212,
+                    "top": 685.9,
+                    "width": 338.2,
+                    "height": 84.8
+                  }
+                },
+                {
+                  "id": "p2-e39",
+                  "text": "Day 2",
+                  "fontSize": 10,
+                  "fontName": "LGPHPC\u002BHelveticaNeue-Medium",
+                  "color": "#16549D",
+                  "boundingBox": {
+                    "left": 212,
+                    "top": 589.7,
+                    "width": 25.7,
+                    "height": 7.1
+                  }
+                },
+                {
+                  "id": "p2-e40",
+                  "text": "This morning we have a guided tour of the Alhambra Palace. Dating from the 14th century, the Palace is the high point of Moorish culture and is recognised as the world\u2019s greatest Moorish monument. With gardens, fortifications and sumptuous palaces, it was the home of many of the Arabic sultans who ruled the whole province. This afternoon you have the chance to explore Granada with time to visit the Gothic style Cathedral at your leisure.",
+                  "fontSize": 10,
+                  "fontName": "LGPHPE\u002BHelveticaNeue",
+                  "color": "#221F1F",
+                  "boundingBox": {
+                    "left": 212,
+                    "top": 576.9,
+                    "width": 341.7,
+                    "height": 84.8
+                  }
+                },
+                {
+                  "id": "p2-e41",
+                  "text": "Day 3",
+                  "fontSize": 10,
+                  "fontName": "LGPHPC\u002BHelveticaNeue-Medium",
+                  "color": "#16549D",
+                  "boundingBox": {
+                    "left": 212,
+                    "top": 480.7,
+                    "width": 25.7,
+                    "height": 7.1
+                  }
+                },
+                {
+                  "id": "p2-e42",
+                  "text": "We leave Granada and travel to Seville. En route we visit the Moorish capital of Cordoba, once famous for its Jewish community and now known for The Mezquita, the grandest mosque ever constructed by the Moors. There is a guided tour on arrival followed by time at leisure for lunch. We continue to Seville where we stay three nights at the 4* Hotel MA Sevilla Congreso. Dinner is served in our hotel this evening and the remaining two nights are on bed and breakfast basis.",
+                  "fontSize": 10,
+                  "fontName": "LGPHPE\u002BHelveticaNeue",
+                  "color": "#221F1F",
+                  "boundingBox": {
+                    "left": 212,
+                    "top": 467.9,
+                    "width": 339.1,
+                    "height": 84.8
+                  }
+                },
+                {
+                  "id": "p2-e43",
+                  "text": "Day 4",
+                  "fontSize": 10,
+                  "fontName": "LGPHPC\u002BHelveticaNeue-Medium",
+                  "color": "#16549D",
+                  "boundingBox": {
+                    "left": 212,
+                    "top": 371.6,
+                    "width": 25.7,
+                    "height": 7.1
+                  }
+                },
+                {
+                  "id": "p2-e44",
+                  "text": "This morning we have a guided tour of Seville. The capital of Andaluc\u00EDa, made famous by the Conquistadors, was once one of the richest cities in the world and is now home to the world\u2019s largest cathedral. After time for lunch, our guided tour of the Reales Alacazares explores this stunning Moorish palace which was the Spanish kings\u2019 royal residence for seven centuries.",
+                  "fontSize": 10,
+                  "fontName": "LGPHPE\u002BHelveticaNeue",
+                  "color": "#221F1F",
+                  "boundingBox": {
+                    "left": 212,
+                    "top": 358.9,
+                    "width": 342.7,
+                    "height": 59
+                  }
+                },
+                {
+                  "id": "p2-e45",
+                  "text": "Day 5",
+                  "fontSize": 10,
+                  "fontName": "LGPHPC\u002BHelveticaNeue-Medium",
+                  "color": "#16549D",
+                  "boundingBox": {
+                    "left": 212,
+                    "top": 288.4,
+                    "width": 25.7,
+                    "height": 7.1
+                  }
+                },
+                {
+                  "id": "p2-e46",
+                  "text": "This morning we see the remains at Italica, an ancient Roman city that was the birthplace of two Roman emperors, Trajan and Hadrian. This afternoon we visit the Museo de Bellas Artes. Formerly a convent, this is now one of Spain\u2019s finest galleries with a particular focus on artists from Seville including works by Goya, Murillo, Millan, Zurbaran and Ribera. For those who are interested our Tour Manager will make arrangements for an optional Flamenco evening.",
+                  "fontSize": 10,
+                  "fontName": "LGPHPE\u002BHelveticaNeue",
+                  "color": "#221F1F",
+                  "boundingBox": {
+                    "left": 212,
+                    "top": 275.5,
+                    "width": 340.2,
+                    "height": 84.7
+                  }
+                },
+                {
+                  "id": "p2-e47",
+                  "text": "Day 6",
+                  "fontSize": 10,
+                  "fontName": "LGPHPC\u002BHelveticaNeue-Medium",
+                  "color": "#16549D",
+                  "boundingBox": {
+                    "left": 212,
+                    "top": 179.4,
+                    "width": 25.7,
+                    "height": 7.1
+                  }
+                },
+                {
+                  "id": "p2-e48",
+                  "text": "After checking out of our hotel this morning we travel to Ronda where we enjoy a guided tour on arrival. Lying within an amphitheatre of limestone hills and standing above 120 metre cliffs, Ronda is one of the most dramatically sited towns in Spain. The Moorish part of the town is divided from the modern part by the extraordinary Tajo, a 90 metre gorge with the river flowing below. We continue to Malaga Airport for our direct scheduled flight to Bristol, and onwards coach travel back to our original pick up points.",
+                  "fontSize": 10,
+                  "fontName": "LGPHPE\u002BHelveticaNeue",
+                  "color": "#221F1F",
+                  "boundingBox": {
+                    "left": 212,
+                    "top": 166.5,
+                    "width": 340.8,
+                    "height": 84.8
+                  }
+                },
+                {
+                  "id": "p2-e49",
+                  "text": "NB:- Please note we reserve the right to alter the above itinerary if required for operational",
+                  "fontSize": 8,
+                  "fontName": "LGPHPC\u002BHelveticaNeue-Medium",
+                  "color": "#16549D",
+                  "boundingBox": {
+                    "left": 212.3,
+                    "top": 71.1,
+                    "width": 324.7,
+                    "height": 5.7
+                  }
+                },
+                {
+                  "id": "p2-e50",
+                  "text": "reasons. Given the historic nature of the places visited, a certain degree of walking will be involved.",
+                  "fontSize": 8,
+                  "fontName": "LGPHPC\u002BHelveticaNeue-Medium",
+                  "color": "#16549D",
+                  "boundingBox": {
+                    "left": 230.8,
+                    "top": 63.3,
+                    "width": 311.6,
+                    "height": 13.8
+                  }
+                }
+              ]
+            }
+          ],
+          "totalElements": 14
+        }
+      ]
     }
   ],
   "diagnostics": {
     "totalPathsFound": 0,
     "pathsAfterFiltering": 0,
-    "areasDetected": 3,
-    "elementsInAreas": 36
+    "areasDetected": 4,
+    "elementsInAreas": 50
   }
 }

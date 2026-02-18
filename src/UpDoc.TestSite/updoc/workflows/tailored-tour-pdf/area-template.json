@@ -5,7 +5,7 @@
     "width": 595,
     "height": 841.89
   },
-  "createdAt": "2026-02-18T10:03:27.256Z",
+  "createdAt": "2026-02-18T19:59:25.047Z",
   "areas": [
     {
       "name": "Page Header",
@@ -51,6 +51,22 @@
         "height": 107
       },
       "color": "#3185fc",
+      "sectionPattern": null,
+      "expectedSections": [],
+      "notes": ""
+    },
+    {
+      "name": "Itinerary",
+      "property": "",
+      "page": 2,
+      "type": "",
+      "bounds": {
+        "x": 204,
+        "y": 43.2,
+        "width": 352,
+        "height": 662.7
+      },
+      "color": "#5bba6f",
       "sectionPattern": null,
       "expectedSections": [],
       "notes": ""
