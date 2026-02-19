@@ -17,6 +17,7 @@
         {
           "role": "Name",
           "action": "createSection",
+          "format": null,
           "conditions": [
             {
               "type": "fontSizeEquals",
@@ -39,6 +40,7 @@
         {
           "role": "Telephone",
           "action": "createSection",
+          "format": null,
           "conditions": [
             {
               "type": "fontSizeEquals",
@@ -61,6 +63,7 @@
         {
           "role": "Email",
           "action": "createSection",
+          "format": null,
           "conditions": [
             {
               "type": "fontSizeEquals",
@@ -83,6 +86,7 @@
         {
           "role": "Address",
           "action": "createSection",
+          "format": null,
           "conditions": [
             {
               "type": "fontSizeEquals",
@@ -109,6 +113,7 @@
         {
           "role": "Organisation",
           "action": "createSection",
+          "format": null,
           "conditions": [
             {
               "type": "fontSizeEquals",
@@ -131,6 +136,7 @@
         {
           "role": "Tour Title",
           "action": "createSection",
+          "format": null,
           "conditions": [
             {
               "type": "fontSizeEquals",
@@ -149,6 +155,7 @@
         {
           "role": "Tour Description",
           "action": "createSection",
+          "format": null,
           "conditions": [
             {
               "type": "fontSizeEquals",
@@ -175,6 +182,7 @@
         {
           "role": "for-more-information",
           "action": "createSection",
+          "format": null,
           "conditions": [
             {
               "type": "fontSizeEquals",
@@ -201,6 +209,7 @@
         {
           "role": "Tour Details - Section Title",
           "action": "createSection",
+          "format": null,
           "conditions": [
             {
               "type": "fontSizeEquals",
@@ -219,6 +228,7 @@
         {
           "role": "Tour Details - Section Content",
           "action": "addAsContent",
+          "format": null,
           "conditions": [
             {
               "type": "fontSizeEquals",
@@ -231,6 +241,48 @@
             {
               "type": "colorEquals",
               "value": "#16549D"
+            }
+          ]
+        }
+      ]
+    },
+    "itinerary": {
+      "rules": [
+        {
+          "role": "Day",
+          "action": "sectionContent",
+          "format": "heading3",
+          "conditions": [
+            {
+              "type": "fontSizeEquals",
+              "value": 10
+            },
+            {
+              "type": "fontNameContains",
+              "value": "LGPHPC\u002BHelveticaNeue-Medium"
+            },
+            {
+              "type": "colorEquals",
+              "value": "#16549D"
+            }
+          ]
+        },
+        {
+          "role": "we-meet-at",
+          "action": "sectionContent",
+          "format": "paragraph",
+          "conditions": [
+            {
+              "type": "fontSizeEquals",
+              "value": 10
+            },
+            {
+              "type": "fontNameContains",
+              "value": "LGPHPE\u002BHelveticaNeue"
+            },
+            {
+              "type": "colorEquals",
+              "value": "#221F1F"
             }
           ]
         }

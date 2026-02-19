@@ -2,45 +2,97 @@
 
 ## Current State
 
-Branch: `main` — clean. `feature/destination-picker-fixes` merged in commit `ce1239f`.
+Branch: `feature/rules-actions-v2` — has v2a implementation (Action + Format model). Uncommitted changes to `planning/RULES_AND_ACTIONS_V2.md` with the v2b refinement.
 
-## What's Done This Session (18 Feb 2026)
+**First task:** Commit planning changes, then begin Phase 2 (v2b refactor).
 
-### Planning Documents Written/Updated
+## What's Done (19 Feb 2026)
 
-1. **`planning/CORE_CONCEPT.md`** (NEW) — Foundational doc: "Any Source → Markdown → Pick Pieces → Map to CMS Fields". Covers source difficulty spectrum, why rules exist (PDF has no structure), why Markdown is always the intermediate format (one source → many destinations, no information loss, human-readable preview, future storage options).
+### v2a Implementation (COMPLETE on `feature/rules-actions-v2`)
 
-2. **`planning/RULES_AND_ACTIONS_V2.md`** (UPDATED) — Major additions:
-   - **The Outlook Rules Model** section — four layers (Rule, Condition, Action, Exception), pre-existing conditions, categorized dropdown, UX insight about "Define Rule" vs "Create Rule", exceptions as future enhancement
-   - **Naming Conventions (DECIDED)** section — complete reference for all JSON values, UI labels, C# properties, TypeScript types
-   - **Source Tab UI Vision** section — rendered Markdown with Map buttons (Obsidian-style reading view, not data table, not editable)
+Phase 1 of the original plan is implemented and tested:
+- C# `SectionRule`: `Action` + `Format` properties, `GetNormalizedAction()` for backward compatibility
+- TypeScript: `RuleAction`, `RuleContentFormat`, `normalizeAction()` function
+- `ContentTransformService.cs`: normalized v2 actions, `FormatContentLine()` with heading/bullet/numbered output
+- Rules editor UI: Action dropdown (Section Title / Section Content / Exclude), conditional Format dropdown
+- Legacy action names normalized on load
+- Builds pass (TypeScript + .NET)
+- **Tested in browser:** Itinerary area with 2 rules (Day=Heading 3, Body=Paragraph), 12/14 matched, transform produces `### Day 1` correctly
 
-### Naming Conventions Finalized
+### Design Decisions from Testing (documented in `RULES_AND_ACTIONS_V2.md`)
 
-- **Structural terms**: Rule, Condition, Action, Format, Exception (Outlook naming adopted directly)
-- **Actions**: `sectionTitle` / `sectionContent` / `exclude` (nouns — role declarations)
-- **Formats**: `paragraph` / `heading1` / `heading2` / `heading3` / `bulletListItem` / `numberedListItem`
-- **Conditions**: unchanged from current (`fontSizeEquals`, `colorEquals`, `textContains`, etc.)
-- **Button label**: "Define Rule" instead of "Create Rule"
+Testing revealed the v2a model's limitation: an element can't be both a section boundary AND have a Markdown format. Led to the **v2b three-property definition model**:
 
-## What's Planned (NOT started)
+1. **Format** (dropdown, always visible) — Paragraph, Heading 1-6, Bullet, Numbered, Quote
+2. **Starts section** (checkbox) — independent of format
+3. **Exclude** (checkbox) — overrides format + section
+4. **Inline formats** (multi-select) — Bold, Italic, Strikethrough, Code
+5. **Exceptions** (UNLESS conditions) — promoted from future to current
 
-### Rules & Actions v2 Implementation
+Also decided:
+- "Definition" not "Action" — declarative, not imperative
+- Rendered Markdown view (Obsidian reading mode) replaces data table
+- Unify "Define Structure" and "Edit Rules" into one button
+- Block format expanded to Heading 1-6 + Quote (was Heading 1-3)
 
-Create new feature branch from `main` and follow the phases in `RULES_AND_ACTIONS_V2.md`:
+## What's Next: Phase 2 (v2b Refactor)
 
-1. **Phase 1: Data Model Changes** — Add `Format` property to `SectionRule` (C# + TS), rename action values
-2. **Phase 2: Transform Pipeline Update** — New action names + format handling in `ContentTransformService.cs`
-3. **Phase 3: Rules Editor UI** — Two-level dropdown (Action → conditional Format)
-4. **Phase 4: Collapse Tabs + Unified View** — Rendered Markdown view with Map buttons
-5. **Phase 5: Backward Compatibility** — Old action names still work
+Follow the implementation plan in `planning/RULES_AND_ACTIONS_V2.md` (Phase 2 onwards):
+
+### Phase 2: Data Model Refactor (v2a → v2b)
+
+**C# — `SectionRules.cs`:**
+- Replace `Action` property with `Format` (string, default "paragraph"), `StartsSection` (bool), `Exclude` (bool)
+- Add `InlineFormats` (List<string>?, optional)
+- Add `Exceptions` (List<RuleCondition>?, optional)
+- Rename `GetNormalizedAction()` → `GetNormalizedDefinition()` — handle v1, v2a, and v2b JSON
+- Keep `Action` property for backward compat deserialization
+
+**TypeScript — `workflow.types.ts`:**
+- Replace `RuleAction` with `BlockFormat` and `InlineFormat` types
+- Update `SectionRule`: `format`, `inlineFormats?`, `startsSection?`, `exclude?`, `exceptions?`
+- Replace `normalizeAction()` with `normalizeDefinition()` — three-generation normalization
+
+**C# — `ContentTransformService.cs`:**
+- Replace action-driven switch with definition-driven logic
+- If `StartsSection`: flush + start new section
+- If `Exclude`: skip
+- Always apply `Format` (not conditional on action)
+- Apply `InlineFormats` wrapping
+- Check `Exceptions` before applying rule
+- Add `heading4`-`heading6`, `quote` formats
+
+### Phase 3: Rules Editor UI (v2b)
+
+**`section-rules-editor-modal.element.ts`:**
+- Replace Action dropdown + conditional Format with:
+  - Format dropdown (always visible)
+  - Inline format checkboxes (Bold, Italic, Strikethrough, Code)
+  - "Starts section" checkbox
+  - "Exclude" checkbox
+- Add Exceptions section: "+ Add exception" (same condition UI)
+
+### Phase 4: Rendered Markdown View
+
+Replace Transformed tab data table with rendered Markdown (Obsidian style). Use `marked` or `markdown-it`.
+
+### Phase 5: Unify Define Structure / Edit Rules
+
+Remove old teach-by-example "Define Structure" button. All areas show "Edit Rules" consistently.
 
 ## Key Files
 
-- `planning/CORE_CONCEPT.md` — Foundational concept (READ THIS)
-- `planning/RULES_AND_ACTIONS_V2.md` — The implementation plan with naming conventions (READ THIS)
-- `src/UpDoc/Models/SectionRules.cs` — Rule model (needs Format property)
-- `src/UpDoc/Services/ContentTransformService.cs` — Transform service (new action names + format handling)
-- `src/UpDoc/wwwroot/App_Plugins/UpDoc/src/workflow.types.ts` — TS types (new RuleAction + ContentFormat)
-- `src/UpDoc/wwwroot/App_Plugins/UpDoc/src/section-rules-editor-modal.element.ts` — Rules editor UI (two-level dropdown)
-- `src/UpDoc/wwwroot/App_Plugins/UpDoc/src/up-doc-workflow-source-view.element.ts` — Source tab (collapse tabs, rendered Markdown view)
+- `planning/RULES_AND_ACTIONS_V2.md` — **THE implementation plan** (READ THIS FIRST — it has everything: model, types, UI mockup, migration tables, examples)
+- `planning/CORE_CONCEPT.md` — Foundational: "Any Source → Markdown → Pick Pieces → Map to CMS Fields"
+- `src/UpDoc/Models/SectionRules.cs` — C# rule model (needs v2b properties)
+- `src/UpDoc/Services/ContentTransformService.cs` — Transform pipeline (needs definition-driven logic)
+- `src/UpDoc/wwwroot/App_Plugins/UpDoc/src/workflow.types.ts` — TS types (needs BlockFormat + InlineFormat)
+- `src/UpDoc/wwwroot/App_Plugins/UpDoc/src/section-rules-editor-modal.element.ts` — Rules editor (needs v2b UI)
+- `src/UpDoc/wwwroot/App_Plugins/UpDoc/src/up-doc-workflow-source-view.element.ts` — Source tab (rendered Markdown + button unification)
+
+## Backlog Items (Not This Session)
+
+- Multi-action per rule (Section Title + Heading format simultaneously) — solved by v2b model
+- Page picker for PDF page selection
+- Strategy badge contrast (pink-on-pink fix)
+- CS8602 warning at PdfPagePropertiesService.cs:1166

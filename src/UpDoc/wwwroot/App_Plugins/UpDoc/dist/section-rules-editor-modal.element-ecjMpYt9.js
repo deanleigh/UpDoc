@@ -1,14 +1,33 @@
-import { html as u, nothing as p, css as W, state as F, customElement as P } from "@umbraco-cms/backoffice/external/lit";
+import { html as u, nothing as d, css as P, state as W, customElement as D } from "@umbraco-cms/backoffice/external/lit";
 import { UmbModalBaseElement as U } from "@umbraco-cms/backoffice/modal";
-import { UmbTextStyles as D } from "@umbraco-cms/backoffice/style";
-var V = Object.defineProperty, H = Object.getOwnPropertyDescriptor, v = (e) => {
+import { UmbTextStyles as H } from "@umbraco-cms/backoffice/style";
+function V(e, t) {
+  switch (e) {
+    case "createSection":
+    case "setAsHeading":
+      return ["sectionTitle", void 0];
+    case "addAsContent":
+      return ["sectionContent", t ?? "paragraph"];
+    case "addAsList":
+      return ["sectionContent", t ?? "bulletListItem"];
+    case "sectionTitle":
+      return ["sectionTitle", void 0];
+    case "sectionContent":
+      return ["sectionContent", t ?? "paragraph"];
+    case "exclude":
+      return ["exclude", void 0];
+    default:
+      return ["sectionContent", t ?? "paragraph"];
+  }
+}
+var J = Object.defineProperty, j = Object.getOwnPropertyDescriptor, v = (e) => {
   throw TypeError(e);
-}, m = (e, i, t, o) => {
-  for (var s = o > 1 ? void 0 : o ? H(i, t) : i, n = e.length - 1, d; n >= 0; n--)
-    (d = e[n]) && (s = (o ? d(i, t, s) : d(s)) || s);
-  return o && s && V(i, t, s), s;
-}, g = (e, i, t) => i.has(e) || v("Cannot " + t), c = (e, i, t) => (g(e, i, "read from private field"), t ? t.call(e) : i.get(e)), J = (e, i, t) => i.has(e) ? v("Cannot add the same private member more than once") : i instanceof WeakSet ? i.add(e) : i.set(e, t), r = (e, i, t) => (g(e, i, "access private method"), t), a, l, b, x, _, z, y, w, C, S, $, N, E, L, A, k, q, M, O, R, f, T;
-const j = {
+}, m = (e, t, i, o) => {
+  for (var s = o > 1 ? void 0 : o ? j(t, i) : t, a = e.length - 1, p; a >= 0; a--)
+    (p = e[a]) && (s = (o ? p(t, i, s) : p(s)) || s);
+  return o && s && J(t, i, s), s;
+}, g = (e, t, i) => t.has(e) || v("Cannot " + i), c = (e, t, i) => (g(e, t, "read from private field"), i ? i.call(e) : t.get(e)), G = (e, t, i) => t.has(e) ? v("Cannot add the same private member more than once") : t instanceof WeakSet ? t.add(e) : t.set(e, i), r = (e, t, i) => (g(e, t, "access private method"), i), n, l, b, _, x, z, y, C, $, w, S, L, N, E, A, T, k, M, O, R, q, f, F;
+const Y = {
   textBeginsWith: "Text begins with",
   textEndsWith: "Text ends with",
   textContains: "Text contains",
@@ -22,7 +41,7 @@ const j = {
   colorEquals: "Color equals",
   positionFirst: "Position: first",
   positionLast: "Position: last"
-}, B = ["positionFirst", "positionLast"], G = [
+}, B = ["positionFirst", "positionLast"], K = [
   "textBeginsWith",
   "textEndsWith",
   "textContains",
@@ -36,58 +55,69 @@ const j = {
   "colorEquals",
   "positionFirst",
   "positionLast"
-], Y = {
-  createSection: "Create section",
-  setAsHeading: "Set as heading",
-  addAsContent: "Add as content",
-  addAsList: "Add as list item",
+], Q = {
+  sectionTitle: "Section Title",
+  sectionContent: "Section Content",
   exclude: "Exclude"
-}, K = ["createSection", "setAsHeading", "addAsContent", "addAsList", "exclude"];
+}, X = ["sectionTitle", "sectionContent", "exclude"], Z = {
+  paragraph: "Paragraph",
+  heading1: "Heading 1",
+  heading2: "Heading 2",
+  heading3: "Heading 3",
+  bulletListItem: "Bullet List",
+  numberedListItem: "Numbered List"
+}, I = ["paragraph", "heading1", "heading2", "heading3", "bulletListItem", "numberedListItem"];
 let h = class extends U {
   constructor() {
-    super(...arguments), J(this, a), this._rules = [];
+    super(...arguments), G(this, n), this._rules = [];
   }
   firstUpdated() {
-    this.data?.existingRules?.rules?.length && (this._rules = JSON.parse(JSON.stringify(this.data.existingRules.rules)));
+    if (this.data?.existingRules?.rules?.length) {
+      const e = JSON.parse(JSON.stringify(this.data.existingRules.rules));
+      this._rules = e.map((t) => {
+        const [i, o] = V(t.action, t.format);
+        return { ...t, action: i, format: o };
+      });
+    }
   }
   render() {
-    const e = r(this, a, x).call(this), i = /* @__PURE__ */ new Map();
-    for (const [t, o] of e) {
-      const s = c(this, a, l).find((n) => n.id === t);
+    const e = r(this, n, _).call(this), t = /* @__PURE__ */ new Map();
+    for (const [i, o] of e) {
+      const s = c(this, n, l).find((a) => a.id === i);
       if (s) {
-        const n = i.get(o) ?? [];
-        n.push(s), i.set(o, n);
+        const a = t.get(o) ?? [];
+        a.push(s), t.set(o, a);
       }
     }
     return u`
-			<umb-body-layout headline="Edit Sections: ${c(this, a, b)}">
+			<umb-body-layout headline="Edit Sections: ${c(this, n, b)}">
 				<div id="main">
 					<div class="section-info">
-						<span class="meta-badge">${c(this, a, l).length} elements</span>
+						<span class="meta-badge">${c(this, n, l).length} elements</span>
 						<span class="meta-badge">${this._rules.length} rules</span>
 						<span class="meta-badge">${e.size} matched</span>
-						<span class="meta-badge">${c(this, a, l).length - e.size} unmatched</span>
+						<span class="meta-badge">${c(this, n, l).length - e.size} unmatched</span>
 					</div>
 
-					${this._rules.map((t, o) => r(this, a, R).call(this, t, o, i.get(o) ?? []))}
+					${this._rules.map((i, o) => r(this, n, q).call(this, i, o, t.get(o) ?? []))}
 
 					<uui-button
 						look="placeholder"
 						label="Add rule"
-						@click=${r(this, a, w)}>
+						@click=${r(this, n, C)}>
 						+ Add another rule
 					</uui-button>
 
-					${r(this, a, T).call(this, e)}
+					${r(this, n, F).call(this, e)}
 				</div>
 
 				<div slot="actions">
-					<uui-button label="Close" @click=${r(this, a, M)}>Close</uui-button>
+					<uui-button label="Close" @click=${r(this, n, O)}>Close</uui-button>
 					<uui-button
 						label="Save"
 						look="primary"
 						color="positive"
-						@click=${r(this, a, q)}>
+						@click=${r(this, n, M)}>
 						Save
 					</uui-button>
 				</div>
@@ -95,31 +125,31 @@ let h = class extends U {
 		`;
   }
 };
-a = /* @__PURE__ */ new WeakSet();
+n = /* @__PURE__ */ new WeakSet();
 l = function() {
   return this.data?.elements ?? [];
 };
 b = function() {
   return this.data?.sectionHeading ?? "Section";
 };
-x = function() {
-  const e = /* @__PURE__ */ new Map(), i = c(this, a, l);
-  for (let t = 0; t < this._rules.length; t++) {
-    const o = this._rules[t];
+_ = function() {
+  const e = /* @__PURE__ */ new Map(), t = c(this, n, l);
+  for (let i = 0; i < this._rules.length; i++) {
+    const o = this._rules[i];
     if (o.conditions.length !== 0)
-      for (let s = 0; s < i.length; s++) {
-        const n = i[s];
-        e.has(n.id) || r(this, a, _).call(this, n, o.conditions, s, i.length) && e.set(n.id, t);
+      for (let s = 0; s < t.length; s++) {
+        const a = t[s];
+        e.has(a.id) || r(this, n, x).call(this, a, o.conditions, s, t.length) && e.set(a.id, i);
       }
   }
   return e;
 };
-_ = function(e, i, t, o) {
-  return i.every((s) => r(this, a, z).call(this, e, s, t, o));
+x = function(e, t, i, o) {
+  return t.every((s) => r(this, n, z).call(this, e, s, i, o));
 };
-z = function(e, i, t, o) {
-  const s = String(i.value ?? ""), n = Number(i.value);
-  switch (i.type) {
+z = function(e, t, i, o) {
+  const s = String(t.value ?? ""), a = Number(t.value);
+  switch (t.type) {
     case "textBeginsWith":
       return e.text.toLowerCase().startsWith(s.toLowerCase());
     case "textEndsWith":
@@ -133,132 +163,136 @@ z = function(e, i, t, o) {
         return !1;
       }
     case "fontSizeEquals":
-      return !isNaN(n) && Math.abs(e.fontSize - n) < 0.5;
+      return !isNaN(a) && Math.abs(e.fontSize - a) < 0.5;
     case "fontSizeAbove":
-      return !isNaN(n) && e.fontSize > n;
+      return !isNaN(a) && e.fontSize > a;
     case "fontSizeBelow":
-      return !isNaN(n) && e.fontSize < n;
+      return !isNaN(a) && e.fontSize < a;
     case "fontNameContains":
       return e.fontName.toLowerCase().includes(s.toLowerCase());
     case "colorEquals":
       return e.color.toLowerCase() === s.toLowerCase();
     case "positionFirst":
-      return t === 0;
+      return i === 0;
     case "positionLast":
-      return t === o - 1;
+      return i === o - 1;
     default:
       return !1;
   }
 };
-y = function(e, i, t) {
+y = function(e, t, i) {
   const o = [];
   o.push({ type: "fontSizeEquals", value: e.fontSize }), e.fontName && o.push({ type: "fontNameContains", value: e.fontName }), e.color && e.color.toLowerCase() !== "#000000" && e.color.toLowerCase() !== "#000" && o.push({ type: "colorEquals", value: e.color });
   const s = e.text.indexOf(":");
-  return s > 0 && s < 30 && o.push({ type: "textBeginsWith", value: e.text.substring(0, s + 1) }), i === 0 ? o.push({ type: "positionFirst" }) : i === t - 1 && o.push({ type: "positionLast" }), o;
+  return s > 0 && s < 30 && o.push({ type: "textBeginsWith", value: e.text.substring(0, s + 1) }), t === 0 ? o.push({ type: "positionFirst" }) : t === i - 1 && o.push({ type: "positionLast" }), o;
 };
-w = function() {
-  this._rules = [...this._rules, { role: "", action: "createSection", conditions: [] }];
+C = function() {
+  this._rules = [...this._rules, { role: "", action: "sectionTitle", conditions: [] }];
 };
-C = function(e) {
-  this._rules = this._rules.filter((i, t) => t !== e);
+$ = function(e) {
+  this._rules = this._rules.filter((t, i) => i !== e);
 };
-S = function(e, i) {
-  const t = r(this, a, y).call(this, e, i, c(this, a, l).length), o = e.text.split(/[\s:,]+/).slice(0, 3).join("-").toLowerCase().replace(/[^a-z0-9-]/g, "");
-  this._rules = [...this._rules, { role: o, action: "createSection", conditions: t }];
+w = function(e, t) {
+  const i = r(this, n, y).call(this, e, t, c(this, n, l).length), o = e.text.split(/[\s:,]+/).slice(0, 3).join("-").toLowerCase().replace(/[^a-z0-9-]/g, "");
+  this._rules = [...this._rules, { role: o, action: "sectionTitle", conditions: i }];
 };
-$ = function(e, i) {
-  const t = [...this._rules];
-  t[e] = { ...t[e], role: i }, this._rules = t;
+S = function(e, t) {
+  const i = [...this._rules];
+  i[e] = { ...i[e], role: t }, this._rules = i;
 };
-N = function(e, i) {
-  const t = [...this._rules];
-  t[e] = { ...t[e], action: i }, this._rules = t;
+L = function(e, t) {
+  const i = [...this._rules];
+  t === "sectionContent" ? i[e] = { ...i[e], action: t, format: i[e].format ?? "paragraph" } : i[e] = { ...i[e], action: t, format: void 0 }, this._rules = i;
+};
+N = function(e, t) {
+  const i = [...this._rules];
+  i[e] = { ...i[e], format: t }, this._rules = i;
 };
 E = function(e) {
-  const i = [...this._rules], t = { ...i[e] };
-  t.conditions = [...t.conditions, { type: "textBeginsWith", value: "" }], i[e] = t, this._rules = i;
+  const t = [...this._rules], i = { ...t[e] };
+  i.conditions = [...i.conditions, { type: "textBeginsWith", value: "" }], t[e] = i, this._rules = t;
 };
-L = function(e, i) {
-  const t = [...this._rules], o = { ...t[e] };
-  o.conditions = o.conditions.filter((s, n) => n !== i), t[e] = o, this._rules = t;
+A = function(e, t) {
+  const i = [...this._rules], o = { ...i[e] };
+  o.conditions = o.conditions.filter((s, a) => a !== t), i[e] = o, this._rules = i;
 };
-A = function(e, i, t) {
+T = function(e, t, i) {
   const o = [...this._rules], s = { ...o[e] };
-  s.conditions = [...s.conditions], s.conditions[i] = {
-    type: t,
-    value: B.includes(t) ? void 0 : s.conditions[i].value
+  s.conditions = [...s.conditions], s.conditions[t] = {
+    type: i,
+    value: B.includes(i) ? void 0 : s.conditions[t].value
   }, o[e] = s, this._rules = o;
 };
-k = function(e, i, t) {
+k = function(e, t, i) {
   const o = [...this._rules], s = { ...o[e] };
   s.conditions = [...s.conditions];
-  const n = s.conditions[i], d = n.type === "fontSizeEquals" || n.type === "fontSizeAbove" || n.type === "fontSizeBelow";
-  s.conditions[i] = { ...n, value: d && !isNaN(Number(t)) ? Number(t) : t }, o[e] = s, this._rules = o;
-};
-q = function() {
-  this.value = { rules: { rules: this._rules } }, this.modalContext?.submit();
+  const a = s.conditions[t], p = a.type === "fontSizeEquals" || a.type === "fontSizeAbove" || a.type === "fontSizeBelow";
+  s.conditions[t] = { ...a, value: p && !isNaN(Number(i)) ? Number(i) : i }, o[e] = s, this._rules = o;
 };
 M = function() {
+  this.value = { rules: { rules: this._rules } }, this.modalContext?.submit();
+};
+O = function() {
   this.modalContext?.reject();
 };
-O = function(e, i, t) {
-  const o = B.includes(t.type);
+R = function(e, t, i) {
+  const o = B.includes(i.type);
   return u`
 			<div class="condition-row">
 				<select
 					class="condition-type-select"
-					.value=${t.type}
-					@change=${(s) => r(this, a, A).call(this, e, i, s.target.value)}>
-					${G.map((s) => u`
-						<option value=${s} ?selected=${s === t.type}>${j[s]}</option>
+					.value=${i.type}
+					@change=${(s) => r(this, n, T).call(this, e, t, s.target.value)}>
+					${K.map((s) => u`
+						<option value=${s} ?selected=${s === i.type}>${Y[s]}</option>
 					`)}
 				</select>
-				${o ? p : u`
+				${o ? d : u`
 					<input
 						type="text"
 						class="condition-value-input"
 						placeholder="Value..."
-						.value=${String(t.value ?? "")}
-						@input=${(s) => r(this, a, k).call(this, e, i, s.target.value)} />
+						.value=${String(i.value ?? "")}
+						@input=${(s) => r(this, n, k).call(this, e, t, s.target.value)} />
 				`}
 				<uui-button
 					compact
 					look="secondary"
 					label="Remove condition"
-					@click=${() => r(this, a, L).call(this, e, i)}>
+					@click=${() => r(this, n, A).call(this, e, t)}>
 					<uui-icon name="icon-trash"></uui-icon>
 				</uui-button>
 			</div>
 		`;
 };
-R = function(e, i, t) {
+q = function(e, t, i) {
   return u`
 			<div class="rule-card">
 				<div class="rule-header">
-					<span class="rule-number">${i + 1}</span>
+					<span class="rule-number">${t + 1}</span>
 					<input
 						type="text"
 						class="role-name-input"
 						placeholder="Section name (e.g. tour-title)"
 						.value=${e.role}
-						@input=${(o) => r(this, a, $).call(this, i, o.target.value)} />
+						@input=${(o) => r(this, n, S).call(this, t, o.target.value)} />
 					<uui-button
 						compact
 						look="secondary"
 						color="danger"
 						label="Remove rule"
-						@click=${() => r(this, a, C).call(this, i)}>
+						@click=${() => r(this, n, $).call(this, t)}>
 						<uui-icon name="icon-trash"></uui-icon>
 					</uui-button>
 				</div>
 
 				<div class="conditions-area">
-					${e.conditions.map((o, s) => r(this, a, O).call(this, i, s, o))}
+					${e.conditions.map((o, s) => r(this, n, R).call(this, t, s, o))}
 					<uui-button
 						compact
 						look="placeholder"
 						label="Add condition"
-						@click=${() => r(this, a, E).call(this, i)}>
+						@click=${() => r(this, n, E).call(this, t)}>
 						+ Add condition
 					</uui-button>
 				</div>
@@ -267,44 +301,55 @@ R = function(e, i, t) {
 					<label class="action-label">Action:</label>
 					<select
 						class="action-select"
-						.value=${e.action ?? "createSection"}
-						@change=${(o) => r(this, a, N).call(this, i, o.target.value)}>
-						${K.map((o) => u`
-							<option value=${o} ?selected=${o === (e.action ?? "createSection")}>${Y[o]}</option>
+						.value=${e.action ?? "sectionTitle"}
+						@change=${(o) => r(this, n, L).call(this, t, o.target.value)}>
+						${X.map((o) => u`
+							<option value=${o} ?selected=${o === (e.action ?? "sectionTitle")}>${Q[o]}</option>
 						`)}
 					</select>
+					${e.action === "sectionContent" ? u`
+						<label class="action-label">Format:</label>
+						<select
+							class="action-select"
+							.value=${e.format ?? "paragraph"}
+							@change=${(o) => r(this, n, N).call(this, t, o.target.value)}>
+							${I.map((o) => u`
+								<option value=${o} ?selected=${o === (e.format ?? "paragraph")}>${Z[o]}</option>
+							`)}
+						</select>
+					` : d}
 				</div>
 
-				<div class="match-preview ${t.length > 0 ? "matched" : "no-match"}">
-					${t.length > 0 ? u`<uui-icon name="icon-check"></uui-icon> Matched <strong>${t.length}&times;</strong>${t.length <= 5 ? u`: ${t.map((o, s) => u`${s > 0 ? u`, ` : p}<strong>${r(this, a, f).call(this, o.text, 40)}</strong>`)}` : p}` : u`<uui-icon name="icon-alert"></uui-icon> ${e.conditions.length === 0 ? "Add conditions to match elements" : "No match"}`}
+				<div class="match-preview ${i.length > 0 ? "matched" : "no-match"}">
+					${i.length > 0 ? u`<uui-icon name="icon-check"></uui-icon> Matched <strong>${i.length}&times;</strong>${i.length <= 5 ? u`: ${i.map((o, s) => u`${s > 0 ? u`, ` : d}<strong>${r(this, n, f).call(this, o.text, 40)}</strong>`)}` : d}` : u`<uui-icon name="icon-alert"></uui-icon> ${e.conditions.length === 0 ? "Add conditions to match elements" : "No match"}`}
 				</div>
 			</div>
 		`;
 };
-f = function(e, i) {
-  return e.length > i ? e.substring(0, i) + "..." : e;
+f = function(e, t) {
+  return e.length > t ? e.substring(0, t) + "..." : e;
 };
-T = function(e) {
-  const i = c(this, a, l), t = i.filter((o) => !e.has(o.id));
-  return t.length === 0 ? p : u`
+F = function(e) {
+  const t = c(this, n, l), i = t.filter((o) => !e.has(o.id));
+  return i.length === 0 ? d : u`
 			<div class="unmatched-section">
-				<h4>Unmatched elements (${t.length})</h4>
-				${t.map((o) => {
-    const s = i.indexOf(o);
+				<h4>Unmatched elements (${i.length})</h4>
+				${i.map((o) => {
+    const s = t.indexOf(o);
     return u`
 						<div class="unmatched-element">
-							<div class="unmatched-text">${r(this, a, f).call(this, o.text, 80)}</div>
+							<div class="unmatched-text">${r(this, n, f).call(this, o.text, 80)}</div>
 							<div class="unmatched-meta">
 								<span class="meta-badge">${o.fontSize}pt</span>
 								<span class="meta-badge">${o.fontName}</span>
-								${o.color !== "#000000" ? u`<span class="meta-badge" style="border-left: 3px solid ${o.color};">${o.color}</span>` : p}
+								${o.color !== "#000000" ? u`<span class="meta-badge" style="border-left: 3px solid ${o.color};">${o.color}</span>` : d}
 							</div>
 							<uui-button
 								compact
 								look="outline"
-								label="Create rule from this"
-								@click=${() => r(this, a, S).call(this, o, s)}>
-								Create rule
+								label="Define rule from this"
+								@click=${() => r(this, n, w).call(this, o, s)}>
+								Define rule
 							</uui-button>
 						</div>
 					`;
@@ -313,8 +358,8 @@ T = function(e) {
 		`;
 };
 h.styles = [
-  D,
-  W`
+  H,
+  P`
 			:host {
 				display: block;
 				height: 100%;
@@ -531,14 +576,14 @@ h.styles = [
 		`
 ];
 m([
-  F()
+  W()
 ], h.prototype, "_rules", 2);
 h = m([
-  P("up-doc-section-rules-editor-modal")
+  D("up-doc-section-rules-editor-modal")
 ], h);
-const I = h;
+const oe = h;
 export {
   h as UpDocSectionRulesEditorModalElement,
-  I as default
+  oe as default
 };
-//# sourceMappingURL=section-rules-editor-modal.element-DjResBSt.js.map
+//# sourceMappingURL=section-rules-editor-modal.element-ecjMpYt9.js.map

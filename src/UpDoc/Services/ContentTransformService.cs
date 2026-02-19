@@ -131,12 +131,16 @@ public class ContentTransformService : IContentTransformService
     /// Transforms an area using area rules to produce sections driven by rule actions.
     /// Collects all elements from all sections (headings + children) and applies
     /// rules against the complete set (first-match-wins per element).
-    /// The matched rule's Action property determines behaviour:
-    ///   createSection / setAsHeading → flush current section, start new section with this element as heading
-    ///   addAsContent → append element text as paragraph to current section
-    ///   addAsList → append element text as bullet item to current section
+    ///
+    /// v2 action names (normalized from legacy via SectionRule.GetNormalizedAction):
+    ///   sectionTitle → flush current section, start new section with this element as heading
+    ///   sectionContent → append to current section using the rule's Format for Markdown output
     ///   exclude → skip element entirely
-    /// Unmatched elements are appended as content to the current open section.
+    ///
+    /// Format determines Markdown output for sectionContent:
+    ///   paragraph → plain text, heading1/2/3 → #/##/###, bulletListItem → "- ", numberedListItem → "N. "
+    ///
+    /// Unmatched elements are appended as paragraph content to the current open section.
     /// </summary>
     private static List<TransformedSection> TransformAreaWithRules(
         DetectedArea area, SectionRuleSet ruleSet, int page, int areaIndex,
@@ -173,14 +177,21 @@ public class ContentTransformService : IContentTransformService
             }
         }
 
-        // Check if any rules use accumulating actions (addAsList, addAsContent).
+        // Normalize all matched rules to v2 action names
+        var normalizedActions = new (string Action, string? Format)?[elements.Count];
+        for (int i = 0; i < elements.Count; i++)
+        {
+            normalizedActions[i] = elementRules[i]?.GetNormalizedAction();
+        }
+
+        // Check if any rules use accumulating actions (sectionContent, exclude).
         // If so, use the action-driven loop. Otherwise, fall back to legacy behaviour
-        // for backward compatibility with rules that only use createSection.
+        // for backward compatibility with rules that only use sectionTitle.
         bool hasAccumulatingActions = false;
         for (int i = 0; i < elements.Count; i++)
         {
-            var action = elementRules[i]?.Action;
-            if (action is "addAsList" or "addAsContent" or "exclude")
+            var action = normalizedActions[i]?.Action;
+            if (action is "sectionContent" or "exclude")
             {
                 hasAccumulatingActions = true;
                 break;
@@ -189,9 +200,10 @@ public class ContentTransformService : IContentTransformService
 
         if (hasAccumulatingActions)
         {
-            // ACTION-DRIVEN MODE: each element's matched rule Action determines behaviour.
+            // ACTION-DRIVEN MODE: each element's normalized action determines behaviour.
             string? currentHeadingText = null;
             var currentContentLines = new List<string>();
+            int numberedListCounter = 0;
 
             void FlushSection()
             {
@@ -235,36 +247,29 @@ public class ContentTransformService : IContentTransformService
                 UpdateDiagnostics(diagnostics, s.Pattern);
                 currentHeadingText = null;
                 currentContentLines = new List<string>();
+                numberedListCounter = 0;
             }
 
             for (int i = 0; i < elements.Count; i++)
             {
-                var matchedRule = elementRules[i];
-                var action = matchedRule?.Action ?? "addAsContent"; // unmatched → content
+                var normalized = normalizedActions[i];
+                var action = normalized?.Action ?? "sectionContent";
+                var format = normalized?.Format ?? "paragraph";
 
                 switch (action)
                 {
-                    case "createSection":
-                    case "setAsHeading":
+                    case "sectionTitle":
                         FlushSection();
                         currentHeadingText = elements[i].Text;
                         break;
 
-                    case "addAsList":
-                        currentContentLines.Add($"- {StripBulletPrefix(elements[i].Text)}");
-                        break;
-
-                    case "addAsContent":
-                        currentContentLines.Add(elements[i].Text);
+                    case "sectionContent":
+                        var line = FormatContentLine(elements[i].Text, format, ref numberedListCounter);
+                        currentContentLines.Add(line);
                         break;
 
                     case "exclude":
                         // Skip entirely
-                        break;
-
-                    default:
-                        // Unknown action — treat as content
-                        currentContentLines.Add(elements[i].Text);
                         break;
                 }
             }
@@ -412,6 +417,28 @@ public class ContentTransformService : IContentTransformService
         }
 
         return sections;
+    }
+
+    /// <summary>
+    /// Formats an element's text according to the rule's format value.
+    /// Produces the Markdown line that will be accumulated in the current section.
+    /// </summary>
+    private static string FormatContentLine(string text, string? format, ref int numberedListCounter)
+    {
+        // Reset numbered list counter when format is not numberedListItem
+        if (format != "numberedListItem")
+            numberedListCounter = 0;
+
+        return format switch
+        {
+            "heading1" => $"# {text}",
+            "heading2" => $"## {text}",
+            "heading3" => $"### {text}",
+            "bulletListItem" => $"- {StripBulletPrefix(text)}",
+            "numberedListItem" => $"{++numberedListCounter}. {text}",
+            "paragraph" => text,
+            _ => text, // null or unknown → plain text
+        };
     }
 
     /// <summary>

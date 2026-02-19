@@ -1,5 +1,6 @@
 import type { SectionRulesEditorModalData, SectionRulesEditorModalValue } from './section-rules-editor-modal.token.js';
-import type { SectionRule, RuleCondition, RuleConditionType, RuleAction, AreaElement } from './workflow.types.js';
+import type { SectionRule, RuleCondition, RuleConditionType, RuleAction, RuleContentFormat, AreaElement } from './workflow.types.js';
+import { normalizeAction } from './workflow.types.js';
 import { html, css, state, nothing } from '@umbraco-cms/backoffice/external/lit';
 import { customElement } from '@umbraco-cms/backoffice/external/lit';
 import { UmbModalBaseElement } from '@umbraco-cms/backoffice/modal';
@@ -35,15 +36,26 @@ const ALL_CONDITION_TYPES: RuleConditionType[] = [
 
 /** Friendly labels for rule actions */
 const ACTION_LABELS: Record<RuleAction, string> = {
-	createSection: 'Create section',
-	setAsHeading: 'Set as heading',
-	addAsContent: 'Add as content',
-	addAsList: 'Add as list item',
+	sectionTitle: 'Section Title',
+	sectionContent: 'Section Content',
 	exclude: 'Exclude',
 };
 
 /** All available rule actions */
-const ALL_ACTIONS: RuleAction[] = ['createSection', 'setAsHeading', 'addAsContent', 'addAsList', 'exclude'];
+const ALL_ACTIONS: RuleAction[] = ['sectionTitle', 'sectionContent', 'exclude'];
+
+/** Friendly labels for content format (conditional dropdown when action = sectionContent) */
+const FORMAT_LABELS: Record<RuleContentFormat, string> = {
+	paragraph: 'Paragraph',
+	heading1: 'Heading 1',
+	heading2: 'Heading 2',
+	heading3: 'Heading 3',
+	bulletListItem: 'Bullet List',
+	numberedListItem: 'Numbered List',
+};
+
+/** All available format values */
+const ALL_FORMATS: RuleContentFormat[] = ['paragraph', 'heading1', 'heading2', 'heading3', 'bulletListItem', 'numberedListItem'];
 
 @customElement('up-doc-section-rules-editor-modal')
 export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<SectionRulesEditorModalData, SectionRulesEditorModalValue> {
@@ -52,7 +64,12 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 	override firstUpdated() {
 		// Deep clone existing rules so edits don't mutate the original
 		if (this.data?.existingRules?.rules?.length) {
-			this._rules = JSON.parse(JSON.stringify(this.data.existingRules.rules));
+			const cloned: SectionRule[] = JSON.parse(JSON.stringify(this.data.existingRules.rules));
+			// Normalize legacy action names to v2
+			this._rules = cloned.map((rule) => {
+				const [action, format] = normalizeAction(rule.action, rule.format);
+				return { ...rule, action, format };
+			});
 		}
 	}
 
@@ -161,7 +178,7 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 	// ===== Rule CRUD =====
 
 	#addRule() {
-		this._rules = [...this._rules, { role: '', action: 'createSection' as RuleAction, conditions: [] }];
+		this._rules = [...this._rules, { role: '', action: 'sectionTitle' as RuleAction, conditions: [] }];
 	}
 
 	#removeRule(ruleIdx: number) {
@@ -177,7 +194,7 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 			.join('-')
 			.toLowerCase()
 			.replace(/[^a-z0-9-]/g, '');
-		this._rules = [...this._rules, { role: roleSuggestion, action: 'createSection' as RuleAction, conditions }];
+		this._rules = [...this._rules, { role: roleSuggestion, action: 'sectionTitle' as RuleAction, conditions }];
 	}
 
 	#updateRoleName(ruleIdx: number, value: string) {
@@ -188,7 +205,19 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 
 	#updateAction(ruleIdx: number, value: RuleAction) {
 		const updated = [...this._rules];
-		updated[ruleIdx] = { ...updated[ruleIdx], action: value };
+		if (value === 'sectionContent') {
+			// Set default format when switching to sectionContent
+			updated[ruleIdx] = { ...updated[ruleIdx], action: value, format: updated[ruleIdx].format ?? 'paragraph' };
+		} else {
+			// Clear format for non-content actions
+			updated[ruleIdx] = { ...updated[ruleIdx], action: value, format: undefined };
+		}
+		this._rules = updated;
+	}
+
+	#updateFormat(ruleIdx: number, value: RuleContentFormat) {
+		const updated = [...this._rules];
+		updated[ruleIdx] = { ...updated[ruleIdx], format: value };
 		this._rules = updated;
 	}
 
@@ -312,12 +341,23 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 					<label class="action-label">Action:</label>
 					<select
 						class="action-select"
-						.value=${rule.action ?? 'createSection'}
+						.value=${rule.action ?? 'sectionTitle'}
 						@change=${(e: Event) => this.#updateAction(ruleIdx, (e.target as HTMLSelectElement).value as RuleAction)}>
 						${ALL_ACTIONS.map((a) => html`
-							<option value=${a} ?selected=${a === (rule.action ?? 'createSection')}>${ACTION_LABELS[a]}</option>
+							<option value=${a} ?selected=${a === (rule.action ?? 'sectionTitle')}>${ACTION_LABELS[a]}</option>
 						`)}
 					</select>
+					${rule.action === 'sectionContent' ? html`
+						<label class="action-label">Format:</label>
+						<select
+							class="action-select"
+							.value=${rule.format ?? 'paragraph'}
+							@change=${(e: Event) => this.#updateFormat(ruleIdx, (e.target as HTMLSelectElement).value as RuleContentFormat)}>
+							${ALL_FORMATS.map((f) => html`
+								<option value=${f} ?selected=${f === (rule.format ?? 'paragraph')}>${FORMAT_LABELS[f]}</option>
+							`)}
+						</select>
+					` : nothing}
 				</div>
 
 				<div class="match-preview ${matchedElements.length > 0 ? 'matched' : 'no-match'}">
@@ -354,9 +394,9 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 							<uui-button
 								compact
 								look="outline"
-								label="Create rule from this"
+								label="Define rule from this"
 								@click=${() => this.#createRuleFromElement(el, elIndex)}>
-								Create rule
+								Define rule
 							</uui-button>
 						</div>
 					`;

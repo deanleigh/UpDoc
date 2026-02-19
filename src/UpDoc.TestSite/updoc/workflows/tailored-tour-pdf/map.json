@@ -140,6 +140,18 @@
       ],
       "enabled": true,
       "comment": null
+    },
+    {
+      "source": "preamble-p2-z0.content",
+      "destinations": [
+        {
+          "target": "richTextContent",
+          "blockKey": "1e424c30-f74a-43fe-8c93-b59a4e52fa8b",
+          "transforms": null
+        }
+      ],
+      "enabled": true,
+      "comment": null
     }
   ]
 }

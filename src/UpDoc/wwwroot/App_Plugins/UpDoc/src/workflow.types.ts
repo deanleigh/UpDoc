@@ -23,12 +23,50 @@ export interface SectionRuleSet {
 	rules: SectionRule[];
 }
 
-export type RuleAction = 'createSection' | 'setAsHeading' | 'addAsContent' | 'addAsList' | 'exclude';
+export type RuleAction = 'sectionTitle' | 'sectionContent' | 'exclude';
+
+/** Legacy action names still accepted from existing source.json files */
+export type LegacyRuleAction = 'createSection' | 'setAsHeading' | 'addAsContent' | 'addAsList';
+
+/**
+ * Markdown format for sectionContent action.
+ * Determines what Markdown syntax the matched content produces.
+ */
+export type RuleContentFormat =
+	| 'paragraph'
+	| 'heading1'
+	| 'heading2'
+	| 'heading3'
+	| 'bulletListItem'
+	| 'numberedListItem';
 
 export interface SectionRule {
 	role: string;
-	action: RuleAction;
+	action: RuleAction | LegacyRuleAction;
+	/** Markdown format — only meaningful when action = sectionContent */
+	format?: RuleContentFormat;
 	conditions: RuleCondition[];
+}
+
+/** Normalize legacy action names to v2. Returns [action, effectiveFormat]. */
+export function normalizeAction(action: string, format?: RuleContentFormat): [RuleAction, RuleContentFormat | undefined] {
+	switch (action) {
+		case 'createSection':
+		case 'setAsHeading':
+			return ['sectionTitle', undefined];
+		case 'addAsContent':
+			return ['sectionContent', format ?? 'paragraph'];
+		case 'addAsList':
+			return ['sectionContent', format ?? 'bulletListItem'];
+		case 'sectionTitle':
+			return ['sectionTitle', undefined];
+		case 'sectionContent':
+			return ['sectionContent', format ?? 'paragraph'];
+		case 'exclude':
+			return ['exclude', undefined];
+		default:
+			return ['sectionContent', format ?? 'paragraph'];
+	}
 }
 
 export interface RuleCondition {
