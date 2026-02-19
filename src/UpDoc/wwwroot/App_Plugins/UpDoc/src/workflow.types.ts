@@ -23,7 +23,7 @@ export interface SectionRuleSet {
 	rules: SectionRule[];
 }
 
-export type RuleAction = 'sectionTitle' | 'sectionContent' | 'exclude';
+export type RuleAction = 'sectionTitle' | 'sectionContent' | 'sectionDescription' | 'sectionSummary' | 'exclude';
 
 /** Legacy action names still accepted from existing source.json files */
 export type LegacyRuleAction = 'createSection' | 'setAsHeading' | 'addAsContent' | 'addAsList';
@@ -34,17 +34,38 @@ export type LegacyRuleAction = 'createSection' | 'setAsHeading' | 'addAsContent'
  */
 export type RuleContentFormat =
 	| 'paragraph'
-	| 'heading1'
-	| 'heading2'
-	| 'heading3'
-	| 'bulletListItem'
-	| 'numberedListItem';
+	| 'heading1' | 'heading2' | 'heading3'
+	| 'heading4' | 'heading5' | 'heading6'
+	| 'bulletListItem' | 'numberedListItem'
+	| 'quote';
+
+/** Format entry types — Block (block-level Markdown) or Style (inline Markdown) */
+export type FormatEntryType = 'block' | 'style';
+
+/** Block-level format values — each maps to a Markdown block element */
+export type BlockFormatValue =
+	| 'paragraph'
+	| 'heading1' | 'heading2' | 'heading3'
+	| 'heading4' | 'heading5' | 'heading6'
+	| 'bulletListItem' | 'numberedListItem'
+	| 'quote';
+
+/** Inline style format values — each wraps text in Markdown inline syntax */
+export type StyleFormatValue = 'bold' | 'italic' | 'strikethrough' | 'code' | 'highlight';
+
+/** A single format entry — either a block format or an inline style */
+export interface FormatEntry {
+	type: FormatEntryType;
+	value: BlockFormatValue | StyleFormatValue;
+}
 
 export interface SectionRule {
 	role: string;
 	action: RuleAction | LegacyRuleAction;
-	/** Markdown format — only meaningful when action = sectionContent */
+	/** Legacy: single block format. Kept for backward compat with C# transform. */
 	format?: RuleContentFormat;
+	/** New: array of format entries (Block + Style rows). */
+	formats?: FormatEntry[];
 	conditions: RuleCondition[];
 	/** UNLESS conditions — if any single exception matches, the rule does not apply. */
 	exceptions?: RuleCondition[];

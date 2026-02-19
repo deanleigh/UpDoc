@@ -1,5 +1,5 @@
 import type { SectionRulesEditorModalData, SectionRulesEditorModalValue } from './section-rules-editor-modal.token.js';
-import type { SectionRule, RuleCondition, RuleConditionType, RuleAction, RuleContentFormat, AreaElement } from './workflow.types.js';
+import type { SectionRule, RuleCondition, RuleConditionType, RuleAction, RuleContentFormat, FormatEntry, FormatEntryType, AreaElement } from './workflow.types.js';
 import { normalizeAction } from './workflow.types.js';
 import { html, css, state, nothing } from '@umbraco-cms/backoffice/external/lit';
 import { customElement } from '@umbraco-cms/backoffice/external/lit';
@@ -38,24 +38,51 @@ const ALL_CONDITION_TYPES: RuleConditionType[] = [
 const ACTION_LABELS: Record<RuleAction, string> = {
 	sectionTitle: 'Section Title',
 	sectionContent: 'Section Content',
+	sectionDescription: 'Section Description',
+	sectionSummary: 'Section Summary',
 	exclude: 'Exclude',
 };
 
 /** All available rule actions */
-const ALL_ACTIONS: RuleAction[] = ['sectionTitle', 'sectionContent', 'exclude'];
+const ALL_ACTIONS: RuleAction[] = ['sectionTitle', 'sectionContent', 'sectionDescription', 'sectionSummary', 'exclude'];
 
-/** Friendly labels for content format (conditional dropdown when action = sectionContent) */
-const FORMAT_LABELS: Record<RuleContentFormat, string> = {
+/** Format entry type labels */
+const FORMAT_ENTRY_TYPE_LABELS: Record<FormatEntryType, string> = {
+	block: 'Block',
+	style: 'Style',
+};
+
+const ALL_FORMAT_ENTRY_TYPES: FormatEntryType[] = ['block', 'style'];
+
+/** Block format value labels (block-level Markdown elements) */
+const BLOCK_FORMAT_LABELS: Record<string, string> = {
 	paragraph: 'Paragraph',
 	heading1: 'Heading 1',
 	heading2: 'Heading 2',
 	heading3: 'Heading 3',
+	heading4: 'Heading 4',
+	heading5: 'Heading 5',
+	heading6: 'Heading 6',
 	bulletListItem: 'Bullet List',
 	numberedListItem: 'Numbered List',
+	quote: 'Quote',
 };
 
-/** All available format values */
-const ALL_FORMATS: RuleContentFormat[] = ['paragraph', 'heading1', 'heading2', 'heading3', 'bulletListItem', 'numberedListItem'];
+const ALL_BLOCK_FORMATS: string[] = [
+	'paragraph', 'heading1', 'heading2', 'heading3', 'heading4', 'heading5', 'heading6',
+	'bulletListItem', 'numberedListItem', 'quote',
+];
+
+/** Style format value labels (inline Markdown decorations) */
+const STYLE_FORMAT_LABELS: Record<string, string> = {
+	bold: 'Bold',
+	italic: 'Italic',
+	strikethrough: 'Strikethrough',
+	code: 'Code',
+	highlight: 'Highlight',
+};
+
+const ALL_STYLE_FORMATS: string[] = ['bold', 'italic', 'strikethrough', 'code', 'highlight'];
 
 @customElement('up-doc-section-rules-editor-modal')
 export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<SectionRulesEditorModalData, SectionRulesEditorModalValue> {
@@ -82,10 +109,16 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 		// Deep clone existing rules so edits don't mutate the original
 		if (this.data?.existingRules?.rules?.length) {
 			const cloned: SectionRule[] = JSON.parse(JSON.stringify(this.data.existingRules.rules));
-			// Normalize legacy action names to v2
+			// Normalize legacy action names to v2 and migrate format → formats
 			this._rules = cloned.map((rule) => {
 				const [action, format] = normalizeAction(rule.action, rule.format);
-				return { ...rule, action, format };
+				// Migrate old single format to formats array
+				let formats = rule.formats;
+				if (!formats || formats.length === 0) {
+					const blockValue = format ?? 'paragraph';
+					formats = [{ type: 'block' as FormatEntryType, value: blockValue }];
+				}
+				return { ...rule, action, format, formats };
 			});
 		}
 	}
@@ -195,7 +228,12 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 	// ===== Rule CRUD =====
 
 	#addRule() {
-		this._rules = [...this._rules, { role: '', action: 'sectionTitle' as RuleAction, conditions: [] }];
+		this._rules = [...this._rules, {
+			role: '',
+			action: 'sectionTitle' as RuleAction,
+			conditions: [],
+			formats: [{ type: 'block' as FormatEntryType, value: 'paragraph' }],
+		}];
 	}
 
 	#removeRule(ruleIdx: number) {
@@ -211,7 +249,12 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 			.join('-')
 			.toLowerCase()
 			.replace(/[^a-z0-9-]/g, '');
-		this._rules = [...this._rules, { role: roleSuggestion, action: 'sectionTitle' as RuleAction, conditions }];
+		this._rules = [...this._rules, {
+			role: roleSuggestion,
+			action: 'sectionTitle' as RuleAction,
+			conditions,
+			formats: [{ type: 'block' as FormatEntryType, value: 'paragraph' }],
+		}];
 	}
 
 	#updateRoleName(ruleIdx: number, value: string) {
@@ -227,9 +270,41 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 		this._rules = updated;
 	}
 
-	#updateFormat(ruleIdx: number, value: RuleContentFormat) {
+	// ===== Format entry CRUD =====
+
+	#addFormatEntry(ruleIdx: number) {
 		const updated = [...this._rules];
-		updated[ruleIdx] = { ...updated[ruleIdx], format: value };
+		const rule = { ...updated[ruleIdx] };
+		rule.formats = [...(rule.formats ?? []), { type: 'block' as FormatEntryType, value: 'paragraph' }];
+		updated[ruleIdx] = rule;
+		this._rules = updated;
+	}
+
+	#removeFormatEntry(ruleIdx: number, fmtIdx: number) {
+		const updated = [...this._rules];
+		const rule = { ...updated[ruleIdx] };
+		rule.formats = (rule.formats ?? []).filter((_, i) => i !== fmtIdx);
+		updated[ruleIdx] = rule;
+		this._rules = updated;
+	}
+
+	#updateFormatEntryType(ruleIdx: number, fmtIdx: number, type: FormatEntryType) {
+		const updated = [...this._rules];
+		const rule = { ...updated[ruleIdx] };
+		rule.formats = [...(rule.formats ?? [])];
+		// Reset value to first option when switching type
+		const defaultValue = type === 'block' ? 'paragraph' : 'bold';
+		rule.formats[fmtIdx] = { type, value: defaultValue };
+		updated[ruleIdx] = rule;
+		this._rules = updated;
+	}
+
+	#updateFormatEntryValue(ruleIdx: number, fmtIdx: number, value: string) {
+		const updated = [...this._rules];
+		const rule = { ...updated[ruleIdx] };
+		rule.formats = [...(rule.formats ?? [])];
+		rule.formats[fmtIdx] = { ...rule.formats[fmtIdx], value: value as FormatEntry['value'] };
+		updated[ruleIdx] = rule;
 		this._rules = updated;
 	}
 
@@ -317,7 +392,15 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 	// ===== Submit =====
 
 	#onSubmit() {
-		this.value = { rules: { rules: this._rules } };
+		// Sync backward-compat format field from formats array for C# transform
+		const rulesWithCompat = this._rules.map(rule => {
+			const blockEntry = (rule.formats ?? []).find(f => f.type === 'block');
+			return {
+				...rule,
+				format: (blockEntry?.value ?? 'paragraph') as RuleContentFormat,
+			};
+		});
+		this.value = { rules: { rules: rulesWithCompat } };
 		this.modalContext?.submit();
 	}
 
@@ -383,6 +466,39 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 					look="secondary"
 					label="Remove exception"
 					@click=${() => this.#removeException(ruleIdx, excIdx)}>
+					<uui-icon name="icon-trash"></uui-icon>
+				</uui-button>
+			</div>
+		`;
+	}
+
+	#renderFormatRow(ruleIdx: number, fmtIdx: number, entry: FormatEntry) {
+		const valueOptions = entry.type === 'block' ? ALL_BLOCK_FORMATS : ALL_STYLE_FORMATS;
+		const valueLabels = entry.type === 'block' ? BLOCK_FORMAT_LABELS : STYLE_FORMAT_LABELS;
+
+		return html`
+			<div class="condition-row">
+				<select
+					class="format-type-select"
+					.value=${entry.type}
+					@change=${(e: Event) => this.#updateFormatEntryType(ruleIdx, fmtIdx, (e.target as HTMLSelectElement).value as FormatEntryType)}>
+					${ALL_FORMAT_ENTRY_TYPES.map((t) => html`
+						<option value=${t} ?selected=${t === entry.type}>${FORMAT_ENTRY_TYPE_LABELS[t]}</option>
+					`)}
+				</select>
+				<select
+					class="format-value-select"
+					.value=${entry.value}
+					@change=${(e: Event) => this.#updateFormatEntryValue(ruleIdx, fmtIdx, (e.target as HTMLSelectElement).value)}>
+					${valueOptions.map((v) => html`
+						<option value=${v} ?selected=${v === entry.value}>${valueLabels[v]}</option>
+					`)}
+				</select>
+				<uui-button
+					compact
+					look="secondary"
+					label="Remove format"
+					@click=${() => this.#removeFormatEntry(ruleIdx, fmtIdx)}>
 					<uui-icon name="icon-trash"></uui-icon>
 				</uui-button>
 			</div>
@@ -465,17 +581,17 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 				<div class="format-area">
 					<div class="section-header collapsible" @click=${() => this.#toggleCollapsed('format', ruleIdx)}>
 						<uui-icon name=${this.#isCollapsed('format', ruleIdx) ? 'icon-navigation-right' : 'icon-navigation-down'}></uui-icon>
-						Format
+						Format${(rule.formats ?? []).length > 0 ? ` (${(rule.formats ?? []).length})` : ''}
 					</div>
 					${this.#isCollapsed('format', ruleIdx) ? nothing : html`
-						<select
-							class="action-select"
-							.value=${rule.format ?? 'paragraph'}
-							@change=${(e: Event) => this.#updateFormat(ruleIdx, (e.target as HTMLSelectElement).value as RuleContentFormat)}>
-							${ALL_FORMATS.map((f) => html`
-								<option value=${f} ?selected=${f === (rule.format ?? 'paragraph')}>${FORMAT_LABELS[f]}</option>
-							`)}
-						</select>
+						${(rule.formats ?? []).map((fmt, fIdx) => this.#renderFormatRow(ruleIdx, fIdx, fmt))}
+						<uui-button
+							compact
+							look="placeholder"
+							label="Add format"
+							@click=${() => this.#addFormatEntry(ruleIdx)}>
+							+ Add format
+						</uui-button>
 					`}
 				</div>
 				` : nothing}
@@ -727,6 +843,37 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 			}
 
 			.condition-value-input:focus {
+				outline: none;
+				border-color: var(--uui-color-focus);
+			}
+
+			/* Format row selects */
+			.format-type-select {
+				min-width: 100px;
+				padding: var(--uui-size-space-1) var(--uui-size-space-2);
+				border: 1px solid var(--uui-color-border);
+				border-radius: var(--uui-border-radius);
+				font-size: var(--uui-type-small-size);
+				background: var(--uui-color-surface);
+				color: var(--uui-color-text);
+			}
+
+			.format-type-select:focus {
+				outline: none;
+				border-color: var(--uui-color-focus);
+			}
+
+			.format-value-select {
+				flex: 1;
+				padding: var(--uui-size-space-1) var(--uui-size-space-2);
+				border: 1px solid var(--uui-color-border);
+				border-radius: var(--uui-border-radius);
+				font-size: var(--uui-type-small-size);
+				background: var(--uui-color-surface);
+				color: var(--uui-color-text);
+			}
+
+			.format-value-select:focus {
 				outline: none;
 				border-color: var(--uui-color-focus);
 			}

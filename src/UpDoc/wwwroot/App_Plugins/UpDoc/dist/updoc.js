@@ -101,7 +101,7 @@ const o = [
     type: "modal",
     alias: "UpDoc.SectionRulesEditorModal",
     name: "Section Rules Editor Modal",
-    element: () => import("./section-rules-editor-modal.element-Drngl34e.js")
+    element: () => import("./section-rules-editor-modal.element-m3o3f6Ae.js")
   },
   // =====================================================================
   // Workflow Workspace — full page for editing individual workflows

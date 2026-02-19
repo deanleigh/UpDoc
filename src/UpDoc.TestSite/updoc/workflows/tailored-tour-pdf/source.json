@@ -16,8 +16,8 @@
       "rules": [
         {
           "role": "Name",
-          "action": "createSection",
-          "format": null,
+          "action": "sectionContent",
+          "format": "paragraph",
           "conditions": [
             {
               "type": "fontSizeEquals",
@@ -39,8 +39,8 @@
         },
         {
           "role": "Telephone",
-          "action": "createSection",
-          "format": null,
+          "action": "sectionTitle",
+          "format": "paragraph",
           "conditions": [
             {
               "type": "fontSizeEquals",
@@ -62,8 +62,8 @@
         },
         {
           "role": "Email",
-          "action": "createSection",
-          "format": null,
+          "action": "sectionTitle",
+          "format": "paragraph",
           "conditions": [
             {
               "type": "fontSizeEquals",
@@ -85,8 +85,8 @@
         },
         {
           "role": "Address",
-          "action": "createSection",
-          "format": null,
+          "action": "sectionTitle",
+          "format": "paragraph",
           "conditions": [
             {
               "type": "fontSizeEquals",
@@ -249,9 +249,9 @@
     "itinerary": {
       "rules": [
         {
-          "role": "Day",
+          "role": "Day Number",
           "action": "sectionContent",
-          "format": "heading3",
+          "format": "paragraph",
           "conditions": [
             {
               "type": "fontSizeEquals",
@@ -268,7 +268,7 @@
           ]
         },
         {
-          "role": "we-meet-at",
+          "role": "Day Details",
           "action": "sectionContent",
           "format": "paragraph",
           "conditions": [

@@ -10,55 +10,60 @@ Branch: `feature/rules-actions-v2` — v2a working code + incremental UI redesig
 
 The v2a implementation is working correctly:
 - Itinerary = 1 section mapped to "Suggested Itinerary > Rich Text"
-- Rules editor has Action dropdown (Section Title / Section Content / Exclude) + conditional Format dropdown
+- Rules editor has all four sections collapsible (Conditions, Exceptions, Action, Format)
 - All existing rules in source.json (v1 + v2a formats) load and work
+- Exclude visual feedback: Format section hidden + red "Excluded" match preview with block icon
 
-## Incremental UI Redesign — AGREED PLAN
+## Commits This Branch
 
-We agreed to redesign the rules editor one block at a time. Each rule card has **four sections** (in this order):
+- `5edb35d` — Collapsible sections (Conditions, Exceptions, Action, Format) + Format as independent section
+- `af66d99` — Exclude visual feedback (hide Format when Action=exclude, red match preview)
 
-### 1. Conditions & Exceptions (the matching block)
-- **CONDITIONS** header (collapsible, shows count) — IF conditions
-- **EXCEPTIONS** header (collapsible, shows count) — UNLESS conditions (same dropdown vocabulary)
-- Together they form the complete IF/UNLESS matching logic
-- Both default to expanded, click header to collapse
-- **STATUS: Conditions header DONE. Exceptions section DONE. Collapsible: IN PROGRESS.**
+## Incremental UI Redesign — Progress
 
-### 2. Include / Exclude (the gate)
-- Toggle (not checkbox): ON = "Include" (green), OFF = "Exclude"
-- When excluded: Structure + Format sections are HIDDEN (not dimmed — completely gone)
-- An excluded rule card collapses to just: Name + Conditions/Exceptions + Exclude toggle
-- **STATUS: NOT STARTED**
-
-### 3. Structure (the role)
-- Dropdown: Section Title / Section Content (same values as current Action dropdown, renamed)
-- Has its own section header "STRUCTURE" on its own line, dropdown below
-- **STATUS: NOT STARTED** (will rename Action → Structure)
-
-### 4. Format (the styling)
-- Dropdown: Paragraph, Heading 1-6, Bullet, Numbered, Quote (always visible, not conditional on Structure)
-- Inline format checkboxes: Bold, Italic, Strikethrough, Code
-- Has its own section header "FORMAT" on its own line
-- **STATUS: NOT STARTED** (currently conditional on action=sectionContent, needs to be always visible)
-
-### Incremental Steps Remaining
-
+Steps completed:
 1. ~~Add Conditions header~~ DONE
 2. ~~Add Exceptions section (UI + type)~~ DONE
-3. Make Conditions & Exceptions collapsible — IN PROGRESS
-4. Add Include/Exclude toggle
-5. Rename Action → Structure (header on own line, dropdown below)
-6. Make Format always visible and independent of Structure
-7. Update C# transform to handle the new model (exceptions evaluation, separated structure + format)
+3. ~~Make Conditions & Exceptions collapsible~~ DONE (all four sections collapsible)
+4. ~~Add Action section header~~ DONE (kept name "Action", not renamed to "Structure")
+5. ~~Make Action + Format separate collapsible sections~~ DONE
+6. ~~Exclude visual feedback~~ DONE (Format hidden, red "Excluded" match preview with icon-block)
+
+### Next Step: Format + Style Rows
+
+**AGREED but not yet confirmed to implement** — user said "have a think about this" then later showed Obsidian screenshots and agreed to the approach, but didn't explicitly say "go ahead and implement".
+
+Replace the single Format dropdown with **condition-row-pattern rows** (same pattern as Conditions):
+
+**Two row types under the Format section:**
+- **Format** (block-level): Paragraph, Heading 1-6, Bullet List, Numbered List, Quote
+- **Style** (inline): Bold, Italic, Strikethrough, Code, Highlight
+
+**Each row:** type dropdown (Format/Style) + value dropdown + trash button
+**"+ Add format"** button to add rows
+
+**TypeScript type change needed:**
+- Current: `format?: RuleContentFormat` (single string)
+- New: array of format entries, each with `type` ('format' | 'style') and `value`
+
+### Later: Update C# Transform
+
+Deferred until UI model is fully settled. Will need:
+- Exceptions evaluation (UNLESS logic)
+- Independent format processing
+- Inline style wrapping (bold, italic, etc.)
 
 ## Design Decisions (AGREED, do not re-debate)
 
-- **Three sections per rule:** Conditions & Exceptions → Include/Exclude → Structure → Format
-- **Order rationale:** Identity before presentation. Structure (what it IS) before Format (how it LOOKS)
-- **Exclude as toggle, not dropdown option:** More discoverable, quick to toggle, hides irrelevant controls
-- **Include/Exclude toggle (not checkbox):** Both states labeled. Toggle ON = "Include", Toggle OFF = "Exclude". Matches the metaphor of toggling content visibility below.
+- **Exclude stays in Action dropdown** (not separate toggle) — cleaner IF/UNLESS/THEN model
+- **Keep "Action" as name** (not "Structure") — we're not only concerned with structure
+- **Four collapsible sections:** Conditions, Exceptions, Action, Format — all with chevron + count/label
+- **Format hidden when Action = Exclude** — irrelevant for excluded content
+- **Match preview states:** green "Matched" (icon-check) / red "Excluded" (icon-block) / amber "No match" (icon-alert)
+- **Format + Style split (Obsidian model):** Format = block-level (Paragraph, Heading 1-6, Bullet, Numbered, Quote), Style = inline (Bold, Italic, Strikethrough, Code, Highlight)
+- **Row pattern for Format entries:** Same pattern as condition rows (type dropdown + value dropdown + trash)
+- **Markdown pipeline confirmed:** Rules → C# Transform → Markdown → HTML → Umbraco Rich Text Editor (Tiptap)
 - **Exceptions in same block as Conditions:** Both are matching logic (IF/UNLESS). Separate from what-to-do-with-matches.
-- **Collapsible Conditions & Exceptions:** Show count in header, click to expand/collapse. Reduces vertical space once set up.
 - **v2b big-bang approach FAILED:** Changed all 4 files, broke the itinerary (12 sections instead of 1). Lesson: one file/feature at a time.
 
 ## Key Files
