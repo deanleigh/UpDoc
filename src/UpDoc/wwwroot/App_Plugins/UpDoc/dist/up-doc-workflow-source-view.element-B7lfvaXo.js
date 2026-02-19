@@ -1565,6 +1565,7 @@ f.styles = [
 			.md-part-content {
 				flex: 1;
 				min-width: 0;
+				max-width: 75ch;
 			}
 
 			.md-part-actions {
@@ -1572,6 +1573,7 @@ f.styles = [
 				align-items: center;
 				gap: var(--uui-size-space-2);
 				flex-shrink: 0;
+				margin-left: auto;
 			}
 
 			/* Map button — hidden by default, shown on box hover */
@@ -1765,4 +1767,4 @@ export {
   f as UpDocWorkflowSourceViewElement,
   xt as default
 };
-//# sourceMappingURL=up-doc-workflow-source-view.element-BWPyS-uA.js.map
+//# sourceMappingURL=up-doc-workflow-source-view.element-B7lfvaXo.js.map

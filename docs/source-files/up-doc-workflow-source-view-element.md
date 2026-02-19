@@ -89,6 +89,7 @@ Shows assembled sections from the transform pipeline as individual `uui-box` car
 - Each section is a `uui-box` with the section heading as the headline
 - **Simple sections** (single content part): one body row with rendered Markdown content on the left and mapping badge + Map button on the right
 - **Multi-part sections** (heading + complex content): separate rows within the box for title and content, each with its own badge + Map button, separated by horizontal border lines
+- Content text is clamped to `max-width: 75ch` for comfortable reading line length; badges and Map buttons are right-aligned via `margin-left: auto` on `.md-part-actions`
 - Map buttons are hidden by default and appear on box hover (like Umbraco's block grid editor)
 - Mapped sections show a green left border and green `uui-tag` badges with an "x" button to unmap directly
 - Markdown content is rendered as HTML via `markdownToHtml()` — headings, bullet lists, blockquotes, and inline formatting are all visible

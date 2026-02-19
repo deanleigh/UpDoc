@@ -2005,6 +2005,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 			.md-part-content {
 				flex: 1;
 				min-width: 0;
+				max-width: 75ch;
 			}
 
 			.md-part-actions {
@@ -2012,6 +2013,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				align-items: center;
 				gap: var(--uui-size-space-2);
 				flex-shrink: 0;
+				margin-left: auto;
 			}
 
 			/* Map button — hidden by default, shown on box hover */
