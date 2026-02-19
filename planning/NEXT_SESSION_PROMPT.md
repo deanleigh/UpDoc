@@ -4,56 +4,60 @@ Copy and paste everything below the line into a new Claude Code chat.
 
 ---
 
-## Continue UpDoc Development — UI Fixes + Section Builder Phase 1b
+## Continue UpDoc Development — Testing and Next Steps
 
 ### Where we left off
 
-Branch `main` (commit `08fa857`). Tailored Tour document type, blueprint, and workflow are complete. User testing session identified several UX issues now tracked in `planning/TODO.md`.
+Branch `main` (merged from `feature/rules-actions-v2`). The Transformed tab on the Source workspace has been significantly redesigned with a card-based layout using `uui-box` components.
 
-### Quick wins to do first
+### What was completed on the `feature/rules-actions-v2` branch
 
-#### 1. Destination picker: tabs on wrong row (5 min fix)
+1. **uui-box card layout for Transformed sections**: Each section is a `uui-box` card with the section heading as the headline. Simple sections have one body row (content left, badge + Map right). Multi-part sections (heading + complex content) have separate rows for title and content, each with their own badge + Map button, separated by horizontal lines.
 
-In `src/UpDoc/wwwroot/App_Plugins/UpDoc/src/destination-picker-modal.element.ts`, line 181:
+2. **Map button hover behaviour**: Map buttons are hidden by default and appear when hovering over a section box, following the Umbraco block grid editor pattern.
 
-```html
-<uui-tab-group slot="header" dropdown-content-direction="vertical">
-```
+3. **Per-part mapping**: Sections with both a heading and content (e.g., "Features") show separate Map buttons for the title part and content part. Source keys use `${sectionId}.${partSuffix}` convention.
 
-The `slot="header"` puts tabs inline with the headline in `umb-body-layout`. **Fix:** Remove `slot="header"` so tabs render in the main content area below the headline. Build and test.
+4. **Inline unmap from badges**: Green `uui-tag` badges have an "x" button to remove mappings directly from the Transformed view.
 
-#### 2. Destination picker: missing Tour Properties tab
+5. **Section rules editor**: Collapsible rule cards with Conditions, Exceptions, Action, and Format sections. Match preview shows matched elements.
 
-`DestinationStructureService` only includes properties **populated** in the blueprint. Tour Properties fields (organiserName, organiserTelephone, organiserEmail, organiserAddress, organiserOrganisation) are empty in the blueprint because they're meant to be filled from the source.
+6. **Format options**: Block format (Paragraph, Heading 1-6, Bullet List, Numbered List, Quote) and Style (Bold, Italic, Strikethrough, Code).
 
-**Fix:** Change `DestinationStructureService` to include ALL text-mappable property fields from the document type (not just populated ones). The "populated only" rule should still apply to block grid content (only show blocks actually placed in the blueprint), but simple property fields should all appear as mapping targets. Remember: use `CompositionPropertyGroups` and `CompositionPropertyTypes`, NEVER the non-Composition variants.
+### What the user wants to do next
 
-### Section Builder Phase 1b (Extracted Tab Reflection)
+**Test the system end-to-end.** The user said: "I think really what we need to be checking is how well it works at the moment." Focus on:
+- Does Create from Source correctly use mapped sections to populate Umbraco documents?
+- Do the rules correctly shape PDF content into sections?
+- Does the mapping flow (Transformed view → Map → Create from Source) work correctly?
 
-Branch `feature/section-builder` (commit `384133c`). Phase 1 of the Section Builder is complete:
+### Known issues and planned work
 
-- **Action dropdown** added to the rules editor modal — Create section, Set as heading, Add as content, Add as list item, Exclude
-- **Backward compatible** — rules without `action` field default to `"createSection"` in C# and TypeScript
-- `planning/SECTION_BUILDER.md` is the single active planning doc for this feature
+1. **Map tab Save hanging** — User reported clicking Save on the Map tab seemed to hang. After page refresh everything was fine. Not yet investigated.
 
-**Goal:** After rules are saved, the Extracted view should show composed sections within each area (not just raw element lists).
+2. **v2b three-property model** — Planned in `planning/RULES_AND_ACTIONS_V2.md` Phase 2-3 but NOT started. Replaces the current Action+Format model with Format+StartsSection+Exclude. Awaiting user direction.
+
+3. **Unify "Define Structure" and "Edit Rules"** — Phase 5 in RULES_AND_ACTIONS_V2.md. Remove old teach-by-example, all areas use rules editor. Not started.
+
+### Key files
+
+- `src/UpDoc/wwwroot/App_Plugins/UpDoc/src/up-doc-workflow-source-view.element.ts` — Main source view (Extracted + Transformed tabs)
+- `src/UpDoc/wwwroot/App_Plugins/UpDoc/src/up-doc-collection-action.element.ts` — Create from Source button (primary code path)
+- `src/UpDoc/wwwroot/App_Plugins/UpDoc/src/up-doc-action.ts` — Entity action (tree context menu path)
+- `src/UpDoc/Services/ContentTransformService.cs` — Transform pipeline
+- `src/UpDoc/Models/SectionRules.cs` — Rule models
+
+### Critical reminder: Two bridge code files
+
+Changes to mapping/bridge logic MUST be applied to BOTH:
+- `up-doc-action.ts` — entity action (tree context menu path)
+- `up-doc-collection-action.element.ts` — collection action (Create from Source button, **primary code path users actually use**)
 
 ### Workflow testing context
 
 Two workflows exist:
 - `group-tour-pdf` — original test workflow (Liverpool PDF)
-- `tailored-tour-pdf` — NEW (Andalucia PDF, updoc-test-03.pdf). Has organiser rules defined (Name, Telephone, Email, Address as createSection rules in Organiser Information area)
-
-### Full TODO list
-
-See `planning/TODO.md` for all tracked items including:
-- Separate Extract button from Save (UX)
-- Page selection not persisted from creation phase (Bug)
-- Destination picker tab layout (Bug)
-- Missing Tour Properties in destination picker (Bug)
-- Transformed tab redesign (UX)
-- Remove "Define Structure" button (Simplification)
-- Force explicit action selection in rules editor (UX)
+- `tailored-tour-pdf` — Andalucia PDF (updoc-test-03.pdf), has organiser rules, section rules, area rules defined
 
 ### Required reading
 
@@ -63,10 +67,9 @@ Before starting work, read these planning files (per CLAUDE.md session startup):
 3. `planning/CREATE_FROM_SOURCE_UI.md`
 4. `planning/DESTINATION_DRIVEN_MAPPING.md`
 
-And the key planning documents:
-5. `planning/SECTION_BUILDER.md` — action-based section composition
-6. `planning/TODO.md` — all tracked issues
+And the active planning document:
+5. `planning/RULES_AND_ACTIONS_V2.md` — Current rules redesign plan (v2a complete, Phase 4 complete, v2b planned)
 
 ### First action
 
-Start with the two quick wins (destination picker tab fix + Tour Properties tab), then continue with Section Builder Phase 1b.
+Ask the user what they'd like to test first, or what issues they've found during their testing.

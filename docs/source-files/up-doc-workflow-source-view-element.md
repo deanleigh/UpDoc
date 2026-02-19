@@ -84,12 +84,14 @@ Each label dynamically flips based on current state (e.g., "Collapse Areas" → 
 
 ### Transformed mode
 
-Shows assembled sections from the transform pipeline with:
+Shows assembled sections from the transform pipeline as individual `uui-box` cards:
 
-- Pattern badges (Bullet List, Paragraph, Sub-Headed, Preamble)
-- Page and area indicators
-- Mapping controls: "Map" button for unmapped sections, green badges for mapped ones
-- Markdown content rendered as HTML
+- Each section is a `uui-box` with the section heading as the headline
+- **Simple sections** (single content part): one body row with rendered Markdown content on the left and mapping badge + Map button on the right
+- **Multi-part sections** (heading + complex content): separate rows within the box for title and content, each with its own badge + Map button, separated by horizontal border lines
+- Map buttons are hidden by default and appear on box hover (like Umbraco's block grid editor)
+- Mapped sections show a green left border and green `uui-tag` badges with an "x" button to unmap directly
+- Markdown content is rendered as HTML via `markdownToHtml()` — headings, bullet lists, blockquotes, and inline formatting are all visible
 
 ### Section rules editing
 
@@ -99,7 +101,7 @@ The section-to-element lookup walks area detection pages to find elements belong
 
 ### Mapping
 
-From the Transformed view, users can map section headings and content to destination fields. `#onMapSection(sourceKey)` opens the `UMB_DESTINATION_PICKER_MODAL` and saves results to `map.json`. Mapped sections show green badges and a green left border.
+From the Transformed view, users can map section parts (title, content, description, summary) to destination fields. Each mappable part has its own Map button that opens `UMB_DESTINATION_PICKER_MODAL`. Results are saved to `map.json` using source keys in the format `${sectionId}.${partSuffix}` (e.g., `features.title`, `features.content`). Mapped parts show green `uui-tag` badges with an "x" button for inline unmapping. Mapped sections get a green left border on the `uui-box`.
 
 ### Empty state
 

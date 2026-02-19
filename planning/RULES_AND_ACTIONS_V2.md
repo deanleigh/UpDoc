@@ -445,19 +445,18 @@ Page 1                                         2 sections, 3 areas
 - "Area: {name}" — makes it clear this is an area grouping (yellow bar)
 - "Section: {name}" — makes it clear this is a section within the area
 
-### 6. Section Expand-to-Map (Option C Hybrid)
+### 6. Section Card Layout (uui-box per section) — IMPLEMENTED
 
-For sections that have both a title and content (Tour Details pattern):
+Each section is rendered as a `uui-box` card:
 
-**Collapsed (default):** Single row showing section name + content preview + mapping badges for both heading and content.
+**Simple sections** (Organisation, Tour Description, etc.): Box with headline, one body row showing content on the left and badge + Map button on the right.
 
-**Expanded (click chevron):** Reveals two separately-mappable sub-rows:
-- **Section Title**: "Features" — [Map button]
-- **Section Content**: "4* hotels throughout, 2 dinners included..." — [Map button]
+**Multi-part sections** (Features, What We Will See, etc.): Box with headline, separate rows for title and content within the box. Each row has content on the left and its own badge + Map button on the right. Rows are separated by horizontal border lines.
 
-Mapping badges on the collapsed row show at-a-glance status without expanding (e.g., `Features > Title` and `Features > Rich Text`).
-
-For sections that are standalone (Page Header pattern — just content, no title/content split): Single row with one Map button. No expand needed.
+- Map buttons appear on box hover (hidden by default), following the block grid editor pattern
+- Mapped sections show a green left border on the box
+- Green `uui-tag` badges with "x" button for inline unmapping
+- Multi-part detection: `hasMultipleParts` checks for heading + complex content (multi-line), or description/summary fields
 
 ### 7. Auto-Numbering for Numbered Lists
 
@@ -617,16 +616,17 @@ Refactor from Action+Format to Format+StartsSection+Exclude:
 - Add Exceptions section: "+ Add exception" with same condition dropdown/value as conditions
 - Match the UI layout in "Key Decisions > 3. UI Layout for Rule Definition"
 
-### Phase 4: Rendered Markdown View — NOT STARTED
+### Phase 4: Rendered Markdown View — COMPLETE
 
 **`up-doc-workflow-source-view.element.ts`:**
-- Replace the Transformed tab's data table with rendered Markdown
-- Use `marked` or `markdown-it` to convert Markdown → HTML
-- Style the rendered HTML to match Obsidian's reading mode
-- Area colour bars as containers around rendered content
-- Map buttons in the right margin next to each section
-- Section boundaries with visual separators
-- Mapping status badges (green when mapped)
+- ✅ Replaced Transformed tab data table with `uui-box` card layout
+- ✅ Each section is a `uui-box` with heading as headline
+- ✅ Simple sections: one body row (content left, badge + Map right)
+- ✅ Multi-part sections: separate rows for title + content, each with badge + Map, separated by border lines
+- ✅ Markdown rendered as HTML via `markdownToHtml()` (uses `marked` library)
+- ✅ Map buttons hidden by default, appear on box hover (block grid editor pattern)
+- ✅ Mapped sections show green left border + green `uui-tag` badges with inline unmap
+- Note: Area colour bars as containers around rendered content not yet implemented (sections are shown flat, not grouped by area)
 
 ### Phase 5: Unify "Define Structure" and "Edit Rules" — NOT STARTED
 
