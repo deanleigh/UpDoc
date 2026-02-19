@@ -1,4 +1,4 @@
-import { html as r, nothing as l, css as K, state as _, customElement as Q } from "@umbraco-cms/backoffice/external/lit";
+import { html as r, nothing as l, css as K, state as x, customElement as Q } from "@umbraco-cms/backoffice/external/lit";
 import { UmbModalBaseElement as X } from "@umbraco-cms/backoffice/modal";
 import { UmbTextStyles as Z } from "@umbraco-cms/backoffice/style";
 function I(e, t) {
@@ -20,13 +20,13 @@ function I(e, t) {
       return ["sectionContent", t ?? "paragraph"];
   }
 }
-var ee = Object.defineProperty, te = Object.getOwnPropertyDescriptor, x = (e) => {
+var ee = Object.defineProperty, te = Object.getOwnPropertyDescriptor, _ = (e) => {
   throw TypeError(e);
 }, g = (e, t, i, o) => {
   for (var s = o > 1 ? void 0 : o ? te(t, i) : t, c = e.length - 1, d; c >= 0; c--)
     (d = e[c]) && (s = (o ? d(t, i, s) : d(s)) || s);
   return o && s && ee(t, i, s), s;
-}, $ = (e, t, i) => t.has(e) || x("Cannot " + i), p = (e, t, i) => ($(e, t, "read from private field"), i ? i.call(e) : t.get(e)), ie = (e, t, i) => t.has(e) ? x("Cannot add the same private member more than once") : t instanceof WeakSet ? t.add(e) : t.set(e, i), a = (e, t, i) => ($(e, t, "access private method"), i), n, u, f, h, z, y, w, C, S, E, L, N, k, A, T, R, q, M, O, F, B, P, W, D, U, V, H, J, b, j;
+}, $ = (e, t, i) => t.has(e) || _("Cannot " + i), p = (e, t, i) => ($(e, t, "read from private field"), i ? i.call(e) : t.get(e)), ie = (e, t, i) => t.has(e) ? _("Cannot add the same private member more than once") : t instanceof WeakSet ? t.add(e) : t.set(e, i), a = (e, t, i) => ($(e, t, "access private method"), i), n, u, f, h, z, y, w, C, S, E, L, N, k, A, T, R, q, M, O, F, B, P, W, D, U, V, H, J, b, j;
 const G = {
   textBeginsWith: "Text begins with",
   textEndsWith: "Text ends with",
@@ -395,6 +395,7 @@ J = function(e, t, i) {
 					`}
 				</div>
 
+				${e.action !== "exclude" ? r`
 				<div class="format-area">
 					<div class="section-header collapsible" @click=${() => a(this, n, f).call(this, "format", t)}>
 						<uui-icon name=${a(this, n, u).call(this, "format", t) ? "icon-navigation-right" : "icon-navigation-down"}></uui-icon>
@@ -411,9 +412,10 @@ J = function(e, t, i) {
 						</select>
 					`}
 				</div>
+				` : l}
 
-				<div class="match-preview ${i.length > 0 ? "matched" : "no-match"}">
-					${i.length > 0 ? r`<uui-icon name="icon-check"></uui-icon> Matched <strong>${i.length}&times;</strong>${i.length <= 5 ? r`: ${i.map((o, s) => r`${s > 0 ? r`, ` : l}<strong>${a(this, n, b).call(this, o.text, 40)}</strong>`)}` : l}` : r`<uui-icon name="icon-alert"></uui-icon> ${e.conditions.length === 0 ? "Add conditions to match elements" : "No match"}`}
+				<div class="match-preview ${i.length > 0 ? e.action === "exclude" ? "excluded" : "matched" : "no-match"}">
+					${i.length > 0 ? r`<uui-icon name=${e.action === "exclude" ? "icon-block" : "icon-check"}></uui-icon> ${e.action === "exclude" ? "Excluded" : "Matched"} <strong>${i.length}&times;</strong>${i.length <= 5 ? r`: ${i.map((o, s) => r`${s > 0 ? r`, ` : l}<strong>${a(this, n, b).call(this, o.text, 40)}</strong>`)}` : l}` : r`<uui-icon name="icon-alert"></uui-icon> ${e.conditions.length === 0 ? "Add conditions to match elements" : "No match"}`}
 				</div>
 			</div>
 		`;
@@ -652,6 +654,11 @@ v.styles = [
 				color: var(--uui-color-positive-standalone);
 			}
 
+			.match-preview.excluded {
+				background: color-mix(in srgb, var(--uui-color-danger) 10%, transparent);
+				color: var(--uui-color-danger-standalone);
+			}
+
 			.match-preview.no-match {
 				background: color-mix(in srgb, var(--uui-color-warning) 10%, transparent);
 				color: var(--uui-color-warning-standalone);
@@ -705,10 +712,10 @@ v.styles = [
 		`
 ];
 g([
-  _()
+  x()
 ], v.prototype, "_rules", 2);
 g([
-  _()
+  x()
 ], v.prototype, "_collapsed", 2);
 v = g([
   Q("up-doc-section-rules-editor-modal")
@@ -718,4 +725,4 @@ export {
   v as UpDocSectionRulesEditorModalElement,
   ue as default
 };
-//# sourceMappingURL=section-rules-editor-modal.element-CPNZ1fKu.js.map
+//# sourceMappingURL=section-rules-editor-modal.element-Drngl34e.js.map

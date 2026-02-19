@@ -461,6 +461,7 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 					`}
 				</div>
 
+				${rule.action !== 'exclude' ? html`
 				<div class="format-area">
 					<div class="section-header collapsible" @click=${() => this.#toggleCollapsed('format', ruleIdx)}>
 						<uui-icon name=${this.#isCollapsed('format', ruleIdx) ? 'icon-navigation-right' : 'icon-navigation-down'}></uui-icon>
@@ -477,10 +478,11 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 						</select>
 					`}
 				</div>
+				` : nothing}
 
-				<div class="match-preview ${matchedElements.length > 0 ? 'matched' : 'no-match'}">
+				<div class="match-preview ${matchedElements.length > 0 ? (rule.action === 'exclude' ? 'excluded' : 'matched') : 'no-match'}">
 					${matchedElements.length > 0
-						? html`<uui-icon name="icon-check"></uui-icon> Matched <strong>${matchedElements.length}&times;</strong>${matchedElements.length <= 5 ? html`: ${matchedElements.map((el, i) => html`${i > 0 ? html`, ` : nothing}<strong>${this.#truncate(el.text, 40)}</strong>`)}` : nothing}`
+						? html`<uui-icon name=${rule.action === 'exclude' ? 'icon-block' : 'icon-check'}></uui-icon> ${rule.action === 'exclude' ? 'Excluded' : 'Matched'} <strong>${matchedElements.length}&times;</strong>${matchedElements.length <= 5 ? html`: ${matchedElements.map((el, i) => html`${i > 0 ? html`, ` : nothing}<strong>${this.#truncate(el.text, 40)}</strong>`)}` : nothing}`
 						: html`<uui-icon name="icon-alert"></uui-icon> ${rule.conditions.length === 0 ? 'Add conditions to match elements' : 'No match'}`}
 				</div>
 			</div>
@@ -774,6 +776,11 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 			.match-preview.matched {
 				background: color-mix(in srgb, var(--uui-color-positive) 10%, transparent);
 				color: var(--uui-color-positive-standalone);
+			}
+
+			.match-preview.excluded {
+				background: color-mix(in srgb, var(--uui-color-danger) 10%, transparent);
+				color: var(--uui-color-danger-standalone);
 			}
 
 			.match-preview.no-match {
