@@ -1,10 +1,10 @@
 import type { RichExtractionResult, DocumentTypeConfig, MappingDestination, AreaDetectionResult, DetectedArea, DetectedSection, AreaElement, TransformResult, TransformedSection, SourceConfig, AreaTemplate, SectionRuleSet, InferSectionPatternResponse, MapConfig, SectionMapping } from './workflow.types.js';
 import { fetchSampleExtraction, triggerSampleExtraction, fetchWorkflowByName, fetchAreaDetection, triggerTransform, fetchTransformResult, updateSectionInclusion, savePageSelection, fetchSourceConfig, fetchAreaTemplate, saveAreaTemplate, saveAreaRules, inferSectionPattern, saveMapConfig } from './workflow.service.js';
-import { normalizeToKebabCase } from './transforms.js';
+import { normalizeToKebabCase, markdownToHtml } from './transforms.js';
 import { UMB_AREA_EDITOR_MODAL } from './pdf-area-editor-modal.token.js';
 import { UMB_PAGE_PICKER_MODAL } from './page-picker-modal.token.js';
 import { UMB_SECTION_RULES_EDITOR_MODAL } from './section-rules-editor-modal.token.js';
-import { html, css, state, nothing } from '@umbraco-cms/backoffice/external/lit';
+import { html, css, state, nothing, unsafeHTML } from '@umbraco-cms/backoffice/external/lit';
 import { customElement } from '@umbraco-cms/backoffice/external/lit';
 import { UmbLitElement } from '@umbraco-cms/backoffice/lit-element';
 import { UmbTextStyles } from '@umbraco-cms/backoffice/style';
@@ -625,7 +625,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		);
 	}
 
-	async #onMapSection(section: TransformedSection) {
+	async #onMapSection(section: TransformedSection, partSuffix: string = 'content') {
 		if (!this._workflowName || !this._config?.destination) return;
 
 		const modalManager = await this.getContext(UMB_MODAL_MANAGER_CONTEXT);
@@ -645,7 +645,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 
 		if (!result?.selectedTargets?.length) return;
 
-		const sourceKey = `${section.id}.content`;
+		const sourceKey = `${section.id}.${partSuffix}`;
 		const existingMappings = this._config.map?.mappings ?? [];
 
 		const newMapping: SectionMapping = {
@@ -670,26 +670,52 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		}
 	}
 
+	/** Remove a specific mapping destination from a source key. */
+	async #onUnmap(sourceKey: string, dest: MappingDestination) {
+		if (!this._workflowName || !this._config?.map) return;
+
+		const existingMappings = this._config.map.mappings;
+		const mappingIndex = existingMappings.findIndex((m) => m.source === sourceKey);
+		if (mappingIndex < 0) return;
+
+		const mapping = existingMappings[mappingIndex];
+		const remainingDests = mapping.destinations.filter(
+			(d) => !(d.target === dest.target && d.blockKey === dest.blockKey),
+		);
+
+		let updatedMappings: SectionMapping[];
+		if (remainingDests.length === 0) {
+			// No destinations left — remove the entire mapping
+			updatedMappings = existingMappings.filter((_, i) => i !== mappingIndex);
+		} else {
+			updatedMappings = existingMappings.map((m, i) =>
+				i === mappingIndex ? { ...m, destinations: remainingDests } : m,
+			);
+		}
+
+		const updatedMap: MapConfig = { ...this._config.map, mappings: updatedMappings };
+		const saved = await saveMapConfig(this._workflowName, updatedMap, this.#token);
+		if (saved) {
+			this._config = { ...this._config, map: saved };
+		}
+	}
+
 	#renderComposedSectionRow(section: TransformedSection, showMapButton = true) {
 		const contentPreview =
 			section.content.length > 100
 				? section.content.substring(0, 100).replace(/\r?\n/g, ' ') + '\u2026'
 				: section.content.replace(/\r?\n/g, ' ');
 
-		// Check both .content and .heading keys — existing mappings may use either
-		const contentTargets = this.#getMappedTargets(`${section.id}.content`);
-		const headingTargets = this.#getMappedTargets(`${section.id}.heading`);
-		const targets = [...contentTargets, ...headingTargets];
-		const isMapped = targets.length > 0;
+		// Check all possible source key suffixes for mapping status
+		const suffixes = ['content', 'heading', 'title', 'description', 'summary'];
+		const hasMappings = suffixes.some((s) => this.#getMappedTargets(`${section.id}.${s}`).length > 0);
 
 		return html`
 			<div class="composed-section-row">
 				<span class="composed-role">${section.heading ?? 'Content'}</span>
 				<span class="composed-preview">${contentPreview}</span>
-				${isMapped
-					? targets.map((dest) => html`<span class="meta-badge mapped-target" title="${this.#resolveTargetLabel(dest)}">
-						<uui-icon name="icon-check" style="font-size:10px;"></uui-icon> ${this.#resolveTargetLabel(dest)}
-					</span>`)
+				${hasMappings
+					? suffixes.map((s) => this.#renderPartBadges(`${section.id}.${s}`))
 					: nothing}
 				${showMapButton ? html`
 					<uui-button
@@ -1151,6 +1177,37 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 			: this.#renderTransformed();
 	}
 
+	/** Build full Markdown for all included sections, concatenated as one document. */
+	#buildFullMarkdown(): string {
+		if (!this._transformResult) return '';
+
+		const includedSections = this._transformResult.sections.filter((s) => s.included);
+		const parts: string[] = [];
+
+		for (const section of includedSections) {
+			// Add heading if present
+			if (section.heading) {
+				parts.push(`## ${section.heading}`);
+			}
+			// Add content
+			if (section.content) {
+				parts.push(section.content);
+			}
+			// Add description if present
+			if (section.description) {
+				parts.push(section.description);
+			}
+			// Add summary if present
+			if (section.summary) {
+				parts.push(section.summary);
+			}
+			// Blank line between sections
+			parts.push('');
+		}
+
+		return parts.join('\n');
+	}
+
 	#renderTransformed() {
 		if (!this._transformResult) {
 			return html`
@@ -1165,56 +1222,125 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		const includedSections = this._transformResult.sections.filter((s) => s.included);
 		const totalSections = this._transformResult.sections.length;
 
-		// Group sections by page → area
-		const pages = new Map<number, Map<string, { name: string; color: string | null; sections: TransformedSection[] }>>();
-
-		for (const section of includedSections) {
-			if (!pages.has(section.page)) {
-				pages.set(section.page, new Map());
-			}
-			const areaMap = pages.get(section.page)!;
-			const areaKey = section.areaName ?? section.areaColor ?? 'unknown';
-			if (!areaMap.has(areaKey)) {
-				areaMap.set(areaKey, {
-					name: section.areaName ?? 'Ungrouped',
-					color: section.areaColor,
-					sections: [],
-				});
-			}
-			areaMap.get(areaKey)!.sections.push(section);
-		}
-
-		const sortedPages = [...pages.entries()].sort((a, b) => a[0] - b[0]);
-
 		return html`
-			${sortedPages.map(([pageNum, areaMap]) => {
-				const areas = [...areaMap.values()];
-				const sectionCount = areas.reduce((sum, a) => sum + a.sections.length, 0);
-				return html`
-					<uui-box class="page-box">
-						<div slot="header" class="tree-header">
-							<strong class="page-title">Page ${pageNum}</strong>
-						</div>
-						<div slot="header-actions" class="page-header-actions">
-							<span class="group-count">${sectionCount} section${sectionCount !== 1 ? 's' : ''}, ${areas.length} area${areas.length !== 1 ? 's' : ''}</span>
-						</div>
-						${areas.map((area) => html`
-							<div class="detected-area" style="border-left-color: ${area.color ?? 'var(--uui-color-divider)'};">
-								<div class="area-header">
-									<span class="area-name">${area.name}</span>
-									<span class="header-spacer"></span>
-									<span class="group-count">${area.sections.length} section${area.sections.length !== 1 ? 's' : ''}</span>
-								</div>
-								<div class="composed-sections">
-									${area.sections.map((section) => this.#renderComposedSectionRow(section))}
-								</div>
-							</div>
-						`)}
-					</uui-box>
-				`;
-			})}
+			<div class="markdown-reading-view">
+				${includedSections.map((section) => this.#renderMarkdownSection(section))}
+			</div>
 			<div class="diagnostics">
 				<span class="meta-badge">${includedSections.length}/${totalSections} sections included</span>
+			</div>
+		`;
+	}
+
+	/** Render mapping badges for a given source key, with an "x" to unmap. */
+	#renderPartBadges(sourceKey: string) {
+		const targets = this.#getMappedTargets(sourceKey);
+		if (targets.length === 0) return nothing;
+		return targets.map((dest) => html`<uui-tag color="positive" look="primary" class="mapped-tag" title="${this.#resolveTargetLabel(dest)}">
+			${this.#resolveTargetLabel(dest)}
+			<button class="unmap-x" title="Remove mapping" @click=${(e: Event) => { e.stopPropagation(); this.#onUnmap(sourceKey, dest); }}>&times;</button>
+		</uui-tag>`);
+	}
+
+	/** Render a single mappable part row (content, description, or summary). */
+	#renderPartRow(section: TransformedSection, partSuffix: string, partLabel: string, partContent: string) {
+		const sourceKey = `${section.id}.${partSuffix}`;
+		const targets = this.#getMappedTargets(sourceKey);
+		const isMapped = targets.length > 0;
+		const renderedHtml = markdownToHtml(partContent);
+
+		return html`
+			<div class="md-section-part ${isMapped ? 'md-part-mapped' : ''}">
+				<div class="md-part-label">${partLabel}</div>
+				<div class="md-section-content">${unsafeHTML(renderedHtml)}</div>
+				<div class="md-part-actions">
+					${this.#renderPartBadges(sourceKey)}
+					<uui-button
+						look="outline"
+						compact
+						label="Map ${partLabel}"
+						@click=${(e: Event) => { e.stopPropagation(); this.#onMapSection(section, partSuffix); }}>
+						Map
+					</uui-button>
+				</div>
+			</div>
+		`;
+	}
+
+	#renderMarkdownSection(section: TransformedSection) {
+		// For singleProperty sections (heading === content), one Map button for .content
+		const isDuplicate = section.heading && section.content && section.heading.trim() === section.content.trim();
+
+		const hasDescription = !!section.description;
+		const hasSummary = !!section.summary;
+		// Any section with a heading AND separate content should show per-part Map buttons
+		const hasHeadingAndContent = !!section.heading && !!section.content && !isDuplicate;
+		const hasMultipleParts = hasHeadingAndContent || hasDescription || hasSummary;
+
+		// Check all possible mapping keys for overall section highlight
+		const contentTargets = this.#getMappedTargets(`${section.id}.content`);
+		const headingTargets = this.#getMappedTargets(`${section.id}.heading`);
+		const titleTargets = this.#getMappedTargets(`${section.id}.title`);
+		const descTargets = hasDescription ? this.#getMappedTargets(`${section.id}.description`) : [];
+		const summaryTargets = hasSummary ? this.#getMappedTargets(`${section.id}.summary`) : [];
+		const allTargets = [...contentTargets, ...headingTargets, ...titleTargets, ...descTargets, ...summaryTargets];
+		const isMapped = allTargets.length > 0;
+
+		if (!hasMultipleParts) {
+			// Simple section: heading label + content with one Map button (existing behaviour)
+			const contentMarkdown = section.content ? markdownToHtml(section.content) : '';
+			return html`
+				<div class="md-section ${isMapped ? 'md-section-mapped' : ''}">
+					${section.heading ? html`<div class="md-section-label">${section.heading}</div>` : nothing}
+					${!isDuplicate && contentMarkdown ? html`
+						<div class="md-section-content">
+							${unsafeHTML(contentMarkdown)}
+						</div>
+					` : nothing}
+					<div class="md-section-actions">
+						${this.#renderPartBadges(`${section.id}.content`)}
+						${this.#renderPartBadges(`${section.id}.heading`)}
+						${this.#renderPartBadges(`${section.id}.title`)}
+						<uui-button
+							look="outline"
+							compact
+							label="Map"
+							@click=${() => this.#onMapSection(section, 'content')}>
+							Map
+						</uui-button>
+					</div>
+				</div>
+			`;
+		}
+
+		// Multi-part section: heading as title (separately mappable), then each part
+		return html`
+			<div class="md-section ${isMapped ? 'md-section-mapped' : ''}">
+				${section.heading ? html`
+					<div class="md-section-header">
+						<div class="md-section-label">${section.heading}</div>
+						<div class="md-part-actions">
+							${this.#renderPartBadges(`${section.id}.title`)}
+							${this.#renderPartBadges(`${section.id}.heading`)}
+							<uui-button
+								look="outline"
+								compact
+								label="Map Title"
+								@click=${(e: Event) => { e.stopPropagation(); this.#onMapSection(section, 'title'); }}>
+								Map Title
+							</uui-button>
+						</div>
+					</div>
+				` : nothing}
+				${section.content && !isDuplicate
+					? this.#renderPartRow(section, 'content', 'Content', section.content)
+					: nothing}
+				${hasDescription
+					? this.#renderPartRow(section, 'description', 'Description', section.description!)
+					: nothing}
+				${hasSummary
+					? this.#renderPartRow(section, 'summary', 'Summary', section.summary!)
+					: nothing}
 			</div>
 		`;
 	}
@@ -1609,12 +1735,23 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				color: var(--uui-color-text-alt);
 			}
 
-			.meta-badge.mapped-target {
-				background: var(--uui-color-positive);
-				color: #ffffff;
-				display: inline-flex;
-				align-items: center;
-				gap: 3px;
+			.mapped-tag {
+				font-size: 12px;
+			}
+
+			.unmap-x {
+				all: unset;
+				cursor: pointer;
+				font-size: 14px;
+				line-height: 1;
+				padding: 0 2px;
+				margin-left: 4px;
+				opacity: 0.7;
+				font-weight: 700;
+			}
+
+			.unmap-x:hover {
+				opacity: 1;
 			}
 
 			.diagnostics {
@@ -1858,6 +1995,210 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 			.teach-element.teach-clicked.teach-matched {
 				background: color-mix(in srgb, var(--uui-color-focus) 15%, transparent);
 				border-left: 3px solid var(--uui-color-focus);
+			}
+
+			/* ── Obsidian-style Markdown reading view ── */
+			.markdown-reading-view {
+				max-width: 750px;
+				margin: 0 auto;
+				padding: var(--uui-size-layout-1) var(--uui-size-space-6);
+			}
+
+			.md-section {
+				position: relative;
+				padding: var(--uui-size-space-2) 0;
+				border-bottom: 1px solid var(--uui-color-border);
+			}
+
+			.md-section:last-child {
+				border-bottom: none;
+			}
+
+			.md-section-mapped {
+				border-left: 3px solid var(--uui-color-positive);
+				padding-left: var(--uui-size-space-4);
+			}
+
+			.md-section-label {
+				font-size: 11px;
+				font-weight: 600;
+				text-transform: uppercase;
+				letter-spacing: 0.5px;
+				color: var(--uui-color-text-alt);
+				padding-bottom: var(--uui-size-space-2);
+			}
+
+			.md-section-content {
+				line-height: 1.75;
+				color: var(--uui-color-text);
+				font-size: 15px;
+			}
+
+			/* Headings */
+			.md-section-content h1 {
+				font-size: 2em;
+				font-weight: 700;
+				margin: 0.67em 0 0.4em;
+				line-height: 1.25;
+				color: var(--uui-color-text);
+			}
+
+			.md-section-content h2 {
+				font-size: 1.5em;
+				font-weight: 600;
+				margin: 1em 0 0.4em;
+				padding-bottom: 0.3em;
+				border-bottom: 1px solid var(--uui-color-border);
+				line-height: 1.3;
+				color: var(--uui-color-text);
+			}
+
+			.md-section-content h3 {
+				font-size: 1.25em;
+				font-weight: 600;
+				margin: 0.8em 0 0.3em;
+				line-height: 1.35;
+				color: var(--uui-color-text);
+			}
+
+			.md-section-content h4 {
+				font-size: 1.1em;
+				font-weight: 600;
+				margin: 0.6em 0 0.25em;
+				color: var(--uui-color-text);
+			}
+
+			.md-section-content h5,
+			.md-section-content h6 {
+				font-size: 1em;
+				font-weight: 600;
+				margin: 0.5em 0 0.2em;
+				color: var(--uui-color-text-alt);
+			}
+
+			/* Paragraphs */
+			.md-section-content p {
+				margin: 0.5em 0;
+			}
+
+			/* Lists */
+			.md-section-content ul,
+			.md-section-content ol {
+				padding-left: 1.75em;
+				margin: 0.5em 0;
+			}
+
+			.md-section-content li {
+				margin: 0.2em 0;
+			}
+
+			.md-section-content ul li::marker {
+				color: var(--uui-color-text-alt);
+			}
+
+			/* Blockquotes */
+			.md-section-content blockquote {
+				margin: 0.5em 0;
+				padding: 0.25em 1em;
+				border-left: 3px solid var(--uui-color-current);
+				color: var(--uui-color-text-alt);
+				background: color-mix(in srgb, var(--uui-color-current) 5%, transparent);
+				border-radius: 0 var(--uui-border-radius) var(--uui-border-radius) 0;
+			}
+
+			.md-section-content blockquote p {
+				margin: 0.25em 0;
+			}
+
+			/* Inline styles */
+			.md-section-content strong {
+				font-weight: 700;
+				color: var(--uui-color-text);
+			}
+
+			.md-section-content em {
+				font-style: italic;
+			}
+
+			.md-section-content code {
+				font-family: monospace;
+				font-size: 0.9em;
+				padding: 0.1em 0.35em;
+				border-radius: var(--uui-border-radius);
+				background: var(--uui-color-surface-alt);
+				color: var(--uui-color-danger);
+			}
+
+			.md-section-content mark {
+				background: color-mix(in srgb, var(--uui-color-warning) 30%, transparent);
+				padding: 0.1em 0.2em;
+				border-radius: 2px;
+			}
+
+			/* Section actions row */
+			.md-section-actions {
+				display: flex;
+				align-items: center;
+				gap: var(--uui-size-space-2);
+				padding: var(--uui-size-space-2) 0;
+				opacity: 0.6;
+				transition: opacity 0.15s;
+			}
+
+			.md-section:hover .md-section-actions {
+				opacity: 1;
+			}
+
+			/* Multi-part section header (title row with Map Title button) */
+			.md-section-header {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				gap: var(--uui-size-space-2);
+				padding-bottom: var(--uui-size-space-2);
+			}
+
+			.md-section-header .md-section-label {
+				padding-bottom: 0;
+			}
+
+			/* Individual part rows within a multi-part section */
+			.md-section-part {
+				padding: var(--uui-size-space-2) 0;
+				padding-left: var(--uui-size-space-4);
+				border-left: 2px solid var(--uui-color-border);
+				margin-bottom: var(--uui-size-space-2);
+			}
+
+			.md-section-part:last-child {
+				margin-bottom: 0;
+			}
+
+			.md-part-mapped {
+				border-left-color: var(--uui-color-positive);
+			}
+
+			.md-part-label {
+				font-size: 10px;
+				font-weight: 600;
+				text-transform: uppercase;
+				letter-spacing: 0.5px;
+				color: var(--uui-color-text-alt);
+				padding-bottom: var(--uui-size-space-1);
+			}
+
+			.md-part-actions {
+				display: flex;
+				align-items: center;
+				gap: var(--uui-size-space-2);
+				padding-top: var(--uui-size-space-1);
+				opacity: 0.6;
+				transition: opacity 0.15s;
+			}
+
+			.md-section-part:hover .md-part-actions,
+			.md-section-header:hover .md-part-actions {
+				opacity: 1;
 			}
 		`,
 	];

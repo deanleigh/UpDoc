@@ -16,12 +16,12 @@ public class SectionRuleSet
 /// A single rule that assigns a role name to elements matching all conditions.
 /// Rules are evaluated first-match-wins: an element claimed by one rule is excluded from later rules.
 ///
-/// Action values (v2): sectionTitle, sectionContent, exclude
+/// Action values (v2): singleProperty, sectionTitle, sectionContent, sectionDescription, sectionSummary, exclude
 /// Legacy values still accepted: createSection → sectionTitle, setAsHeading → sectionTitle,
 ///   addAsContent → sectionContent (format=paragraph), addAsList → sectionContent (format=bulletListItem)
 ///
-/// Format values (only when Action = sectionContent):
-///   paragraph, heading1, heading2, heading3, bulletListItem, numberedListItem
+/// Format values (only when Action = sectionContent/sectionDescription/sectionSummary):
+///   paragraph, heading1-6, bulletListItem, numberedListItem, quote
 /// </summary>
 public class SectionRule
 {
@@ -55,8 +55,12 @@ public class SectionRule
             "addAsContent" => ("sectionContent", Format ?? "paragraph"),
             "addAsList" => ("sectionContent", Format ?? "bulletListItem"),
             // v2 names pass through
+            "singleProperty" => ("singleProperty", Format ?? "paragraph"),
+            "sectionProperty" => ("singleProperty", Format ?? "paragraph"), // legacy name
             "sectionTitle" => ("sectionTitle", null),
             "sectionContent" => ("sectionContent", Format ?? "paragraph"),
+            "sectionDescription" => ("sectionDescription", Format ?? "paragraph"),
+            "sectionSummary" => ("sectionSummary", Format ?? "paragraph"),
             "exclude" => ("exclude", null),
             // Unknown → treat as sectionContent paragraph
             _ => ("sectionContent", Format ?? "paragraph"),

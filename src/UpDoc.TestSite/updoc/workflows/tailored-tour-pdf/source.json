@@ -15,8 +15,8 @@
     "organiser-information": {
       "rules": [
         {
-          "role": "Name",
-          "action": "sectionContent",
+          "role": "Organiser Name",
+          "action": "singleProperty",
           "format": "paragraph",
           "conditions": [
             {
@@ -38,8 +38,8 @@
           ]
         },
         {
-          "role": "Telephone",
-          "action": "sectionTitle",
+          "role": "Organiser Telephone",
+          "action": "singleProperty",
           "format": "paragraph",
           "conditions": [
             {
@@ -61,8 +61,8 @@
           ]
         },
         {
-          "role": "Email",
-          "action": "sectionTitle",
+          "role": "Organiser Email",
+          "action": "singleProperty",
           "format": "paragraph",
           "conditions": [
             {
@@ -84,8 +84,8 @@
           ]
         },
         {
-          "role": "Address",
-          "action": "sectionTitle",
+          "role": "Organiser Address",
+          "action": "singleProperty",
           "format": "paragraph",
           "conditions": [
             {
@@ -112,8 +112,8 @@
       "rules": [
         {
           "role": "Organisation",
-          "action": "createSection",
-          "format": null,
+          "action": "singleProperty",
+          "format": "paragraph",
           "conditions": [
             {
               "type": "fontSizeEquals",
@@ -135,8 +135,8 @@
         },
         {
           "role": "Tour Title",
-          "action": "createSection",
-          "format": null,
+          "action": "singleProperty",
+          "format": "heading1",
           "conditions": [
             {
               "type": "fontSizeEquals",
@@ -154,8 +154,8 @@
         },
         {
           "role": "Tour Description",
-          "action": "createSection",
-          "format": null,
+          "action": "singleProperty",
+          "format": "paragraph",
           "conditions": [
             {
               "type": "fontSizeEquals",
@@ -208,8 +208,8 @@
       "rules": [
         {
           "role": "Tour Details - Section Title",
-          "action": "createSection",
-          "format": null,
+          "action": "sectionTitle",
+          "format": "heading2",
           "conditions": [
             {
               "type": "fontSizeEquals",
@@ -227,8 +227,8 @@
         },
         {
           "role": "Tour Details - Section Content",
-          "action": "addAsContent",
-          "format": null,
+          "action": "sectionContent",
+          "format": "bulletListItem",
           "conditions": [
             {
               "type": "fontSizeEquals",

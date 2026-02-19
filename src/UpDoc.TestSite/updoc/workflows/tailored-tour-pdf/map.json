@@ -94,18 +94,6 @@
       "comment": null
     },
     {
-      "source": "features.heading",
-      "destinations": [
-        {
-          "target": "featurePropertyFeatureTitle",
-          "blockKey": "e8fa3567-798c-427f-8677-58bfd87b19cb",
-          "transforms": null
-        }
-      ],
-      "enabled": true,
-      "comment": null
-    },
-    {
       "source": "features.content",
       "destinations": [
         {
@@ -147,6 +135,102 @@
         {
           "target": "richTextContent",
           "blockKey": "1e424c30-f74a-43fe-8c93-b59a4e52fa8b",
+          "transforms": null
+        }
+      ],
+      "enabled": true,
+      "comment": null
+    },
+    {
+      "source": "tour-title.content",
+      "destinations": [
+        {
+          "target": "pageTitle",
+          "blockKey": null,
+          "transforms": null
+        }
+      ],
+      "enabled": true,
+      "comment": null
+    },
+    {
+      "source": "tour-description.content",
+      "destinations": [
+        {
+          "target": "pageDescription",
+          "blockKey": null,
+          "transforms": null
+        }
+      ],
+      "enabled": true,
+      "comment": null
+    },
+    {
+      "source": "organiser-name.content",
+      "destinations": [
+        {
+          "target": "organiserName",
+          "blockKey": null,
+          "transforms": null
+        }
+      ],
+      "enabled": true,
+      "comment": null
+    },
+    {
+      "source": "organiser-telephone.content",
+      "destinations": [
+        {
+          "target": "organiserTelephone",
+          "blockKey": null,
+          "transforms": null
+        }
+      ],
+      "enabled": true,
+      "comment": null
+    },
+    {
+      "source": "organiser-email.content",
+      "destinations": [
+        {
+          "target": "organiserEmail",
+          "blockKey": null,
+          "transforms": null
+        }
+      ],
+      "enabled": true,
+      "comment": null
+    },
+    {
+      "source": "organiser-address.content",
+      "destinations": [
+        {
+          "target": "organiserAddress",
+          "blockKey": null,
+          "transforms": null
+        }
+      ],
+      "enabled": true,
+      "comment": null
+    },
+    {
+      "source": "features.title",
+      "destinations": [
+        {
+          "target": "featurePropertyFeatureTitle",
+          "blockKey": "e8fa3567-798c-427f-8677-58bfd87b19cb",
+          "transforms": null
+        }
+      ],
+      "enabled": true,
+      "comment": null
+    },
+    {
+      "source": "organisation.content",
+      "destinations": [
+        {
+          "target": "organiserOrganisation",
+          "blockKey": null,
           "transforms": null
         }
       ],

@@ -1,4 +1,4 @@
-import { html as r, nothing as l, css as I, state as _, customElement as ee } from "@umbraco-cms/backoffice/external/lit";
+import { html as c, nothing as l, css as I, state as _, customElement as ee } from "@umbraco-cms/backoffice/external/lit";
 import { UmbModalBaseElement as te } from "@umbraco-cms/backoffice/modal";
 import { UmbTextStyles as ie } from "@umbraco-cms/backoffice/style";
 function oe(e, t) {
@@ -10,6 +10,9 @@ function oe(e, t) {
       return ["sectionContent", t ?? "paragraph"];
     case "addAsList":
       return ["sectionContent", t ?? "bulletListItem"];
+    case "singleProperty":
+    case "sectionProperty":
+      return ["singleProperty", t ?? "paragraph"];
     case "sectionTitle":
       return ["sectionTitle", void 0];
     case "sectionContent":
@@ -26,7 +29,7 @@ var se = Object.defineProperty, ae = Object.getOwnPropertyDescriptor, $ = (e) =>
   for (var s = o > 1 ? void 0 : o ? ae(t, i) : t, n = e.length - 1, d; n >= 0; n--)
     (d = e[n]) && (s = (o ? d(t, i, s) : d(s)) || s);
   return o && s && se(t, i, s), s;
-}, x = (e, t, i) => t.has(e) || $("Cannot " + i), p = (e, t, i) => (x(e, t, "read from private field"), i ? i.call(e) : t.get(e)), ne = (e, t, i) => t.has(e) ? $("Cannot add the same private member more than once") : t instanceof WeakSet ? t.add(e) : t.set(e, i), c = (e, t, i) => (x(e, t, "access private method"), i), a, u, f, h, y, z, w, S, C, k, E, L, A, N, T, R, F, O, M, B, q, P, D, W, V, H, U, Y, J, K, j, G, b, Q;
+}, y = (e, t, i) => t.has(e) || $("Cannot " + i), p = (e, t, i) => (y(e, t, "read from private field"), i ? i.call(e) : t.get(e)), ne = (e, t, i) => t.has(e) ? $("Cannot add the same private member more than once") : t instanceof WeakSet ? t.add(e) : t.set(e, i), r = (e, t, i) => (y(e, t, "access private method"), i), a, u, f, h, x, z, w, S, C, k, E, L, A, N, T, R, F, O, M, B, q, P, D, W, V, H, U, Y, J, K, j, G, b, Q;
 const X = {
   textBeginsWith: "Text begins with",
   textEndsWith: "Text ends with",
@@ -55,13 +58,14 @@ const X = {
   "colorEquals",
   "positionFirst",
   "positionLast"
-], ce = {
+], re = {
+  singleProperty: "Single Property",
   sectionTitle: "Section Title",
   sectionContent: "Section Content",
   sectionDescription: "Section Description",
   sectionSummary: "Section Summary",
   exclude: "Exclude"
-}, re = ["sectionTitle", "sectionContent", "sectionDescription", "sectionSummary", "exclude"], le = {
+}, ce = ["singleProperty", "sectionTitle", "sectionContent", "sectionDescription", "sectionSummary", "exclude"], le = {
   block: "Block",
   style: "Style"
 }, ue = ["block", "style"], de = {
@@ -108,7 +112,7 @@ let v = class extends te {
     }
   }
   render() {
-    const e = c(this, a, z).call(this), t = /* @__PURE__ */ new Map();
+    const e = r(this, a, z).call(this), t = /* @__PURE__ */ new Map();
     for (const [i, o] of e) {
       const s = p(this, a, h).find((n) => n.id === i);
       if (s) {
@@ -116,8 +120,8 @@ let v = class extends te {
         n.push(s), t.set(o, n);
       }
     }
-    return r`
-			<umb-body-layout headline="Edit Sections: ${p(this, a, y)}">
+    return c`
+			<umb-body-layout headline="Edit Sections: ${p(this, a, x)}">
 				<div id="main">
 					<div class="section-info">
 						<span class="meta-badge">${p(this, a, h).length} elements</span>
@@ -126,25 +130,25 @@ let v = class extends te {
 						<span class="meta-badge">${p(this, a, h).length - e.size} unmatched</span>
 					</div>
 
-					${this._rules.map((i, o) => c(this, a, G).call(this, i, o, t.get(o) ?? []))}
+					${this._rules.map((i, o) => r(this, a, G).call(this, i, o, t.get(o) ?? []))}
 
 					<uui-button
 						look="placeholder"
 						label="Add rule"
-						@click=${c(this, a, k)}>
+						@click=${r(this, a, k)}>
 						+ Add another rule
 					</uui-button>
 
-					${c(this, a, Q).call(this, e)}
+					${r(this, a, Q).call(this, e)}
 				</div>
 
 				<div slot="actions">
-					<uui-button label="Close" @click=${c(this, a, Y)}>Close</uui-button>
+					<uui-button label="Close" @click=${r(this, a, Y)}>Close</uui-button>
 					<uui-button
 						label="Save"
 						look="primary"
 						color="positive"
-						@click=${c(this, a, U)}>
+						@click=${r(this, a, U)}>
 						Save
 					</uui-button>
 				</div>
@@ -163,7 +167,7 @@ f = function(e, t) {
 h = function() {
   return this.data?.elements ?? [];
 };
-y = function() {
+x = function() {
   return this.data?.sectionHeading ?? "Section";
 };
 z = function() {
@@ -173,13 +177,13 @@ z = function() {
     if (o.conditions.length !== 0)
       for (let s = 0; s < t.length; s++) {
         const n = t[s];
-        e.has(n.id) || c(this, a, w).call(this, n, o.conditions, s, t.length) && e.set(n.id, i);
+        e.has(n.id) || r(this, a, w).call(this, n, o.conditions, s, t.length) && e.set(n.id, i);
       }
   }
   return e;
 };
 w = function(e, t, i, o) {
-  return t.every((s) => c(this, a, S).call(this, e, s, i, o));
+  return t.every((s) => r(this, a, S).call(this, e, s, i, o));
 };
 S = function(e, t, i, o) {
   const s = String(t.value ?? ""), n = Number(t.value);
@@ -232,7 +236,7 @@ E = function(e) {
   this._rules = this._rules.filter((t, i) => i !== e);
 };
 L = function(e, t) {
-  const i = c(this, a, C).call(this, e, t, p(this, a, h).length), o = e.text.split(/[\s:,]+/).slice(0, 3).join("-").toLowerCase().replace(/[^a-z0-9-]/g, "");
+  const i = r(this, a, C).call(this, e, t, p(this, a, h).length), o = e.text.split(/[\s:,]+/).slice(0, 3).join("-").toLowerCase().replace(/[^a-z0-9-]/g, "");
   this._rules = [...this._rules, {
     role: o,
     action: "sectionTitle",
@@ -323,29 +327,29 @@ Y = function() {
 };
 J = function(e, t, i) {
   const o = m.includes(i.type);
-  return r`
+  return c`
 			<div class="condition-row">
 				<select
 					class="condition-type-select"
 					.value=${i.type}
-					@change=${(s) => c(this, a, q).call(this, e, t, s.target.value)}>
-					${Z.map((s) => r`
+					@change=${(s) => r(this, a, q).call(this, e, t, s.target.value)}>
+					${Z.map((s) => c`
 						<option value=${s} ?selected=${s === i.type}>${X[s]}</option>
 					`)}
 				</select>
-				${o ? l : r`
+				${o ? l : c`
 					<input
 						type="text"
 						class="condition-value-input"
 						placeholder="Value..."
 						.value=${String(i.value ?? "")}
-						@input=${(s) => c(this, a, P).call(this, e, t, s.target.value)} />
+						@input=${(s) => r(this, a, P).call(this, e, t, s.target.value)} />
 				`}
 				<uui-button
 					compact
 					look="secondary"
 					label="Remove condition"
-					@click=${() => c(this, a, B).call(this, e, t)}>
+					@click=${() => r(this, a, B).call(this, e, t)}>
 					<uui-icon name="icon-trash"></uui-icon>
 				</uui-button>
 			</div>
@@ -353,29 +357,29 @@ J = function(e, t, i) {
 };
 K = function(e, t, i) {
   const o = m.includes(i.type);
-  return r`
+  return c`
 			<div class="condition-row">
 				<select
 					class="condition-type-select"
 					.value=${i.type}
-					@change=${(s) => c(this, a, V).call(this, e, t, s.target.value)}>
-					${Z.map((s) => r`
+					@change=${(s) => r(this, a, V).call(this, e, t, s.target.value)}>
+					${Z.map((s) => c`
 						<option value=${s} ?selected=${s === i.type}>${X[s]}</option>
 					`)}
 				</select>
-				${o ? l : r`
+				${o ? l : c`
 					<input
 						type="text"
 						class="condition-value-input"
 						placeholder="Value..."
 						.value=${String(i.value ?? "")}
-						@input=${(s) => c(this, a, H).call(this, e, t, s.target.value)} />
+						@input=${(s) => r(this, a, H).call(this, e, t, s.target.value)} />
 				`}
 				<uui-button
 					compact
 					look="secondary"
 					label="Remove exception"
-					@click=${() => c(this, a, W).call(this, e, t)}>
+					@click=${() => r(this, a, W).call(this, e, t)}>
 					<uui-icon name="icon-trash"></uui-icon>
 				</uui-button>
 			</div>
@@ -383,21 +387,21 @@ K = function(e, t, i) {
 };
 j = function(e, t, i) {
   const o = i.type === "block" ? pe : ve, s = i.type === "block" ? de : he;
-  return r`
+  return c`
 			<div class="condition-row">
 				<select
 					class="format-type-select"
 					.value=${i.type}
-					@change=${(n) => c(this, a, F).call(this, e, t, n.target.value)}>
-					${ue.map((n) => r`
+					@change=${(n) => r(this, a, F).call(this, e, t, n.target.value)}>
+					${ue.map((n) => c`
 						<option value=${n} ?selected=${n === i.type}>${le[n]}</option>
 					`)}
 				</select>
 				<select
 					class="format-value-select"
 					.value=${i.value}
-					@change=${(n) => c(this, a, O).call(this, e, t, n.target.value)}>
-					${o.map((n) => r`
+					@change=${(n) => r(this, a, O).call(this, e, t, n.target.value)}>
+					${o.map((n) => c`
 						<option value=${n} ?selected=${n === i.value}>${s[n]}</option>
 					`)}
 				</select>
@@ -405,14 +409,14 @@ j = function(e, t, i) {
 					compact
 					look="secondary"
 					label="Remove format"
-					@click=${() => c(this, a, R).call(this, e, t)}>
+					@click=${() => r(this, a, R).call(this, e, t)}>
 					<uui-icon name="icon-trash"></uui-icon>
 				</uui-button>
 			</div>
 		`;
 };
 G = function(e, t, i) {
-  return r`
+  return c`
 			<div class="rule-card">
 				<div class="rule-header">
 					<span class="rule-number">${t + 1}</span>
@@ -421,81 +425,81 @@ G = function(e, t, i) {
 						class="role-name-input"
 						placeholder="Section name (e.g. tour-title)"
 						.value=${e.role}
-						@input=${(o) => c(this, a, A).call(this, t, o.target.value)} />
+						@input=${(o) => r(this, a, A).call(this, t, o.target.value)} />
 					<uui-button
 						compact
 						look="secondary"
 						color="danger"
 						label="Remove rule"
-						@click=${() => c(this, a, E).call(this, t)}>
+						@click=${() => r(this, a, E).call(this, t)}>
 						<uui-icon name="icon-trash"></uui-icon>
 					</uui-button>
 				</div>
 
 				<div class="conditions-area">
-					<div class="section-header collapsible" @click=${() => c(this, a, f).call(this, "conditions", t)}>
-						<uui-icon name=${c(this, a, u).call(this, "conditions", t) ? "icon-navigation-right" : "icon-navigation-down"}></uui-icon>
+					<div class="section-header collapsible" @click=${() => r(this, a, f).call(this, "conditions", t)}>
+						<uui-icon name=${r(this, a, u).call(this, "conditions", t) ? "icon-navigation-right" : "icon-navigation-down"}></uui-icon>
 						Conditions${e.conditions.length > 0 ? ` (${e.conditions.length})` : ""}
 					</div>
-					${c(this, a, u).call(this, "conditions", t) ? l : r`
-						${e.conditions.map((o, s) => c(this, a, J).call(this, t, s, o))}
+					${r(this, a, u).call(this, "conditions", t) ? l : c`
+						${e.conditions.map((o, s) => r(this, a, J).call(this, t, s, o))}
 						<uui-button
 							compact
 							look="placeholder"
 							label="Add condition"
-							@click=${() => c(this, a, M).call(this, t)}>
+							@click=${() => r(this, a, M).call(this, t)}>
 							+ Add condition
 						</uui-button>
 					`}
 				</div>
 
 				<div class="exceptions-area">
-					<div class="section-header collapsible" @click=${() => c(this, a, f).call(this, "exceptions", t)}>
-						<uui-icon name=${c(this, a, u).call(this, "exceptions", t) ? "icon-navigation-right" : "icon-navigation-down"}></uui-icon>
+					<div class="section-header collapsible" @click=${() => r(this, a, f).call(this, "exceptions", t)}>
+						<uui-icon name=${r(this, a, u).call(this, "exceptions", t) ? "icon-navigation-right" : "icon-navigation-down"}></uui-icon>
 						Exceptions${(e.exceptions ?? []).length > 0 ? ` (${(e.exceptions ?? []).length})` : ""}
 					</div>
-					${c(this, a, u).call(this, "exceptions", t) ? l : r`
-						${(e.exceptions ?? []).map((o, s) => c(this, a, K).call(this, t, s, o))}
+					${r(this, a, u).call(this, "exceptions", t) ? l : c`
+						${(e.exceptions ?? []).map((o, s) => r(this, a, K).call(this, t, s, o))}
 						<uui-button
 							compact
 							look="placeholder"
 							label="Add exception"
-							@click=${() => c(this, a, D).call(this, t)}>
+							@click=${() => r(this, a, D).call(this, t)}>
 							+ Add exception
 						</uui-button>
 					`}
 				</div>
 
 				<div class="action-area">
-					<div class="section-header collapsible" @click=${() => c(this, a, f).call(this, "action", t)}>
-						<uui-icon name=${c(this, a, u).call(this, "action", t) ? "icon-navigation-right" : "icon-navigation-down"}></uui-icon>
+					<div class="section-header collapsible" @click=${() => r(this, a, f).call(this, "action", t)}>
+						<uui-icon name=${r(this, a, u).call(this, "action", t) ? "icon-navigation-right" : "icon-navigation-down"}></uui-icon>
 						Action
 					</div>
-					${c(this, a, u).call(this, "action", t) ? l : r`
+					${r(this, a, u).call(this, "action", t) ? l : c`
 						<select
 							class="action-select"
 							.value=${e.action ?? "sectionTitle"}
-							@change=${(o) => c(this, a, N).call(this, t, o.target.value)}>
-							${re.map((o) => r`
-								<option value=${o} ?selected=${o === (e.action ?? "sectionTitle")}>${ce[o]}</option>
+							@change=${(o) => r(this, a, N).call(this, t, o.target.value)}>
+							${ce.map((o) => c`
+								<option value=${o} ?selected=${o === (e.action ?? "sectionTitle")}>${re[o]}</option>
 							`)}
 						</select>
 					`}
 				</div>
 
-				${e.action !== "exclude" ? r`
+				${e.action !== "exclude" ? c`
 				<div class="format-area">
-					<div class="section-header collapsible" @click=${() => c(this, a, f).call(this, "format", t)}>
-						<uui-icon name=${c(this, a, u).call(this, "format", t) ? "icon-navigation-right" : "icon-navigation-down"}></uui-icon>
+					<div class="section-header collapsible" @click=${() => r(this, a, f).call(this, "format", t)}>
+						<uui-icon name=${r(this, a, u).call(this, "format", t) ? "icon-navigation-right" : "icon-navigation-down"}></uui-icon>
 						Format${(e.formats ?? []).length > 0 ? ` (${(e.formats ?? []).length})` : ""}
 					</div>
-					${c(this, a, u).call(this, "format", t) ? l : r`
-						${(e.formats ?? []).map((o, s) => c(this, a, j).call(this, t, s, o))}
+					${r(this, a, u).call(this, "format", t) ? l : c`
+						${(e.formats ?? []).map((o, s) => r(this, a, j).call(this, t, s, o))}
 						<uui-button
 							compact
 							look="placeholder"
 							label="Add format"
-							@click=${() => c(this, a, T).call(this, t)}>
+							@click=${() => r(this, a, T).call(this, t)}>
 							+ Add format
 						</uui-button>
 					`}
@@ -503,7 +507,7 @@ G = function(e, t, i) {
 				` : l}
 
 				<div class="match-preview ${i.length > 0 ? e.action === "exclude" ? "excluded" : "matched" : "no-match"}">
-					${i.length > 0 ? r`<uui-icon name=${e.action === "exclude" ? "icon-block" : "icon-check"}></uui-icon> ${e.action === "exclude" ? "Excluded" : "Matched"} <strong>${i.length}&times;</strong>${i.length <= 5 ? r`: ${i.map((o, s) => r`${s > 0 ? r`, ` : l}<strong>${c(this, a, b).call(this, o.text, 40)}</strong>`)}` : l}` : r`<uui-icon name="icon-alert"></uui-icon> ${e.conditions.length === 0 ? "Add conditions to match elements" : "No match"}`}
+					${i.length > 0 ? c`<uui-icon name=${e.action === "exclude" ? "icon-block" : "icon-check"}></uui-icon> ${e.action === "exclude" ? "Excluded" : "Matched"} <strong>${i.length}&times;</strong>${i.length <= 5 ? c`: ${i.map((o, s) => c`${s > 0 ? c`, ` : l}<strong>${r(this, a, b).call(this, o.text, 40)}</strong>`)}` : l}` : c`<uui-icon name="icon-alert"></uui-icon> ${e.conditions.length === 0 ? "Add conditions to match elements" : "No match"}`}
 				</div>
 			</div>
 		`;
@@ -513,24 +517,24 @@ b = function(e, t) {
 };
 Q = function(e) {
   const t = p(this, a, h), i = t.filter((o) => !e.has(o.id));
-  return i.length === 0 ? l : r`
+  return i.length === 0 ? l : c`
 			<div class="unmatched-section">
 				<h4>Unmatched elements (${i.length})</h4>
 				${i.map((o) => {
     const s = t.indexOf(o);
-    return r`
+    return c`
 						<div class="unmatched-element">
-							<div class="unmatched-text">${c(this, a, b).call(this, o.text, 80)}</div>
+							<div class="unmatched-text">${r(this, a, b).call(this, o.text, 80)}</div>
 							<div class="unmatched-meta">
 								<span class="meta-badge">${o.fontSize}pt</span>
 								<span class="meta-badge">${o.fontName}</span>
-								${o.color !== "#000000" ? r`<span class="meta-badge" style="border-left: 3px solid ${o.color};">${o.color}</span>` : l}
+								${o.color !== "#000000" ? c`<span class="meta-badge" style="border-left: 3px solid ${o.color};">${o.color}</span>` : l}
 							</div>
 							<uui-button
 								compact
 								look="outline"
 								label="Define rule from this"
-								@click=${() => c(this, a, L).call(this, o, s)}>
+								@click=${() => r(this, a, L).call(this, o, s)}>
 								Define rule
 							</uui-button>
 						</div>
@@ -844,4 +848,4 @@ export {
   v as UpDocSectionRulesEditorModalElement,
   be as default
 };
-//# sourceMappingURL=section-rules-editor-modal.element-m3o3f6Ae.js.map
+//# sourceMappingURL=section-rules-editor-modal.element-D1UWXTTy.js.map

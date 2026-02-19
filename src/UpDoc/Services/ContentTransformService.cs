@@ -133,6 +133,7 @@ public class ContentTransformService : IContentTransformService
     /// rules against the complete set (first-match-wins per element).
     ///
     /// v2 action names (normalized from legacy via SectionRule.GetNormalizedAction):
+    ///   singleProperty → flush + create a standalone section (role name = heading, element text = content)
     ///   sectionTitle → flush current section, start new section with this element as heading
     ///   sectionContent → append to current section using the rule's Format for Markdown output
     ///   exclude → skip element entirely
@@ -184,14 +185,14 @@ public class ContentTransformService : IContentTransformService
             normalizedActions[i] = elementRules[i]?.GetNormalizedAction();
         }
 
-        // Check if any rules use accumulating actions (sectionContent, exclude).
+        // Check if any rules use accumulating actions (sectionContent, sectionDescription, sectionSummary, exclude).
         // If so, use the action-driven loop. Otherwise, fall back to legacy behaviour
         // for backward compatibility with rules that only use sectionTitle.
         bool hasAccumulatingActions = false;
         for (int i = 0; i < elements.Count; i++)
         {
             var action = normalizedActions[i]?.Action;
-            if (action is "sectionContent" or "exclude")
+            if (action is "singleProperty" or "sectionContent" or "sectionDescription" or "sectionSummary" or "exclude")
             {
                 hasAccumulatingActions = true;
                 break;
@@ -201,13 +202,17 @@ public class ContentTransformService : IContentTransformService
         if (hasAccumulatingActions)
         {
             // ACTION-DRIVEN MODE: each element's normalized action determines behaviour.
+            // Sections have separately-mappable parts: content, description, summary.
             string? currentHeadingText = null;
             var currentContentLines = new List<string>();
+            var currentDescriptionLines = new List<string>();
+            var currentSummaryLines = new List<string>();
             int numberedListCounter = 0;
 
             void FlushSection()
             {
-                if (currentHeadingText == null && currentContentLines.Count == 0) return;
+                if (currentHeadingText == null && currentContentLines.Count == 0
+                    && currentDescriptionLines.Count == 0 && currentSummaryLines.Count == 0) return;
 
                 string id;
                 string? titleCasedHeading = null;
@@ -236,17 +241,25 @@ public class ContentTransformService : IContentTransformService
                     Heading = titleCasedHeading,
                     OriginalHeading = currentHeadingText,
                     Content = content,
+                    Description = currentDescriptionLines.Count > 0
+                        ? string.Join("\n", currentDescriptionLines)
+                        : null,
+                    Summary = currentSummaryLines.Count > 0
+                        ? string.Join("\n", currentSummaryLines)
+                        : null,
                     Pattern = pattern,
                     Page = page,
                     AreaColor = string.IsNullOrEmpty(area.Color) ? null : area.Color,
                     AreaName = area.Name,
-                    ChildCount = currentContentLines.Count,
+                    ChildCount = currentContentLines.Count + currentDescriptionLines.Count + currentSummaryLines.Count,
                 };
                 DeduplicateId(s, seenIds);
                 sections.Add(s);
                 UpdateDiagnostics(diagnostics, s.Pattern);
                 currentHeadingText = null;
                 currentContentLines = new List<string>();
+                currentDescriptionLines = new List<string>();
+                currentSummaryLines = new List<string>();
                 numberedListCounter = 0;
             }
 
@@ -258,14 +271,49 @@ public class ContentTransformService : IContentTransformService
 
                 switch (action)
                 {
+                    case "singleProperty":
+                        // Standalone section: flush any open section, then create a
+                        // complete section where the role name is the heading and
+                        // the element text is the content.
+                        FlushSection();
+                        var roleName = elementRules[i]?.Role ?? elements[i].Text;
+                        var propLine = FormatContentLine(elements[i].Text, format, ref numberedListCounter);
+                        var propId = NormalizeToKebabCase(roleName);
+                        var propSection = new TransformedSection
+                        {
+                            Id = propId,
+                            Heading = ToTitleCaseIfAllCaps(roleName),
+                            OriginalHeading = roleName,
+                            Content = propLine,
+                            Pattern = "role",
+                            Page = page,
+                            AreaColor = string.IsNullOrEmpty(area.Color) ? null : area.Color,
+                            AreaName = area.Name,
+                            ChildCount = 1,
+                        };
+                        DeduplicateId(propSection, seenIds);
+                        sections.Add(propSection);
+                        UpdateDiagnostics(diagnostics, propSection.Pattern);
+                        break;
+
                     case "sectionTitle":
                         FlushSection();
                         currentHeadingText = elements[i].Text;
                         break;
 
                     case "sectionContent":
-                        var line = FormatContentLine(elements[i].Text, format, ref numberedListCounter);
-                        currentContentLines.Add(line);
+                        var contentLine = FormatContentLine(elements[i].Text, format, ref numberedListCounter);
+                        currentContentLines.Add(contentLine);
+                        break;
+
+                    case "sectionDescription":
+                        var descLine = FormatContentLine(elements[i].Text, format, ref numberedListCounter);
+                        currentDescriptionLines.Add(descLine);
+                        break;
+
+                    case "sectionSummary":
+                        var summaryLine = FormatContentLine(elements[i].Text, format, ref numberedListCounter);
+                        currentSummaryLines.Add(summaryLine);
                         break;
 
                     case "exclude":
@@ -434,8 +482,12 @@ public class ContentTransformService : IContentTransformService
             "heading1" => $"# {text}",
             "heading2" => $"## {text}",
             "heading3" => $"### {text}",
+            "heading4" => $"#### {text}",
+            "heading5" => $"##### {text}",
+            "heading6" => $"###### {text}",
             "bulletListItem" => $"- {StripBulletPrefix(text)}",
             "numberedListItem" => $"{++numberedListCounter}. {text}",
+            "quote" => $"> {text}",
             "paragraph" => text,
             _ => text, // null or unknown → plain text
         };

@@ -23,7 +23,7 @@ export interface SectionRuleSet {
 	rules: SectionRule[];
 }
 
-export type RuleAction = 'sectionTitle' | 'sectionContent' | 'sectionDescription' | 'sectionSummary' | 'exclude';
+export type RuleAction = 'singleProperty' | 'sectionTitle' | 'sectionContent' | 'sectionDescription' | 'sectionSummary' | 'exclude';
 
 /** Legacy action names still accepted from existing source.json files */
 export type LegacyRuleAction = 'createSection' | 'setAsHeading' | 'addAsContent' | 'addAsList';
@@ -81,6 +81,9 @@ export function normalizeAction(action: string, format?: RuleContentFormat): [Ru
 			return ['sectionContent', format ?? 'paragraph'];
 		case 'addAsList':
 			return ['sectionContent', format ?? 'bulletListItem'];
+		case 'singleProperty':
+		case 'sectionProperty': // legacy name
+			return ['singleProperty', format ?? 'paragraph'];
 		case 'sectionTitle':
 			return ['sectionTitle', undefined];
 		case 'sectionContent':
@@ -436,6 +439,10 @@ export interface TransformedSection {
 	originalHeading: string | null;
 	heading: string | null;
 	content: string;
+	/** Assembled Markdown from sectionDescription elements. Null if none. */
+	description?: string | null;
+	/** Assembled Markdown from sectionSummary elements. Null if none. */
+	summary?: string | null;
 	pattern: 'bulletList' | 'paragraph' | 'subHeaded' | 'preamble' | 'mixed' | 'role';
 	page: number;
 	areaColor: string | null;

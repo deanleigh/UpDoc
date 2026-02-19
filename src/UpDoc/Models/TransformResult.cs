@@ -31,8 +31,14 @@ public class TransformedSection
     /// <summary>Title-cased heading (e.g., "Features"). Null for preamble sections.</summary>
     public string? Heading { get; set; }
 
-    /// <summary>Assembled Markdown content from section children.</summary>
+    /// <summary>Assembled Markdown content from section children (sectionContent elements).</summary>
     public string Content { get; set; } = string.Empty;
+
+    /// <summary>Assembled Markdown from sectionDescription elements. Null if none.</summary>
+    public string? Description { get; set; }
+
+    /// <summary>Assembled Markdown from sectionSummary elements. Null if none.</summary>
+    public string? Summary { get; set; }
 
     /// <summary>Which assembly pattern was applied: bulletList, paragraph, subHeaded, preamble.</summary>
     public string Pattern { get; set; } = "paragraph";

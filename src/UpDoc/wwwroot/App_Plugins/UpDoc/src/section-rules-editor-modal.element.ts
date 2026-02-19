@@ -36,6 +36,7 @@ const ALL_CONDITION_TYPES: RuleConditionType[] = [
 
 /** Friendly labels for rule actions */
 const ACTION_LABELS: Record<RuleAction, string> = {
+	singleProperty: 'Single Property',
 	sectionTitle: 'Section Title',
 	sectionContent: 'Section Content',
 	sectionDescription: 'Section Description',
@@ -44,7 +45,7 @@ const ACTION_LABELS: Record<RuleAction, string> = {
 };
 
 /** All available rule actions */
-const ALL_ACTIONS: RuleAction[] = ['sectionTitle', 'sectionContent', 'sectionDescription', 'sectionSummary', 'exclude'];
+const ALL_ACTIONS: RuleAction[] = ['singleProperty', 'sectionTitle', 'sectionContent', 'sectionDescription', 'sectionSummary', 'exclude'];
 
 /** Format entry type labels */
 const FORMAT_ENTRY_TYPE_LABELS: Record<FormatEntryType, string> = {

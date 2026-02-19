@@ -165,8 +165,18 @@ export class UpDocModalElement extends UmbModalBaseElement<
 					// Map .heading to the content so existing mappings resolve to actual text.
 					sectionLookup[`${section.id}.heading`] =
 						section.pattern === 'role' ? section.content : section.heading;
+					// .title is the new canonical key for heading text (backward compat: .heading still works)
+					sectionLookup[`${section.id}.title`] =
+						section.pattern === 'role' ? section.content : section.heading;
 				}
 				sectionLookup[`${section.id}.content`] = section.content;
+				// Add description and summary parts if present
+				if (section.description) {
+					sectionLookup[`${section.id}.description`] = section.description;
+				}
+				if (section.summary) {
+					sectionLookup[`${section.id}.summary`] = section.summary;
+				}
 			}
 			this._sectionLookup = sectionLookup;
 

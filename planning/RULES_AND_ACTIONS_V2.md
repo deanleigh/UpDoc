@@ -711,6 +711,80 @@ Shows the composable property pattern: choosing "Categorise" as the action revea
 
 ---
 
+## Text Transforms — PLANNED (Feb 2026)
+
+Rules currently match elements and assign actions/formats, but pass the raw PDF text through as-is. Real-world PDFs contain artifacts that need cleaning before the content reaches the CMS:
+
+### Observed Cases
+
+| Issue | Raw Text | Desired Output |
+|-------|---------|---------------|
+| **Label prefix** | `Tel: 01803 732173` | `01803 732173` |
+| **Label prefix** | `Email: john@frogmorecottage.org.uk` | `john@frogmorecottage.org.uk` |
+| **Dot leaders** | `john@frogmorecottage.org.uk ........` | `john@frogmorecottage.org.uk` |
+| **ALL CAPS** | `FROGMORE COTTAGE, ASHPRINGTON` | Already handled by `ToTitleCaseIfAllCaps()` for headings, but not for content |
+
+More cases will emerge as more PDFs are processed. The transform system needs a way to clean up text at the rule level.
+
+### Proposed: `textTransforms` Array on Rules
+
+Each rule can optionally specify text transforms that clean the matched element's text before it enters the section:
+
+```json
+{
+  "role": "organiser-telephone",
+  "action": "singleProperty",
+  "conditions": [{ "type": "textBeginsWith", "value": "Tel:" }],
+  "textTransforms": [
+    { "type": "stripPrefix", "value": "Tel:" },
+    { "type": "trim" }
+  ]
+}
+```
+
+```json
+{
+  "role": "organiser-email",
+  "action": "singleProperty",
+  "conditions": [{ "type": "textBeginsWith", "value": "Email:" }],
+  "textTransforms": [
+    { "type": "stripPrefix", "value": "Email:" },
+    { "type": "trimTrailingDots" },
+    { "type": "trim" }
+  ]
+}
+```
+
+### Transform Types (Initial Set)
+
+| Type | Value | Effect |
+|------|-------|--------|
+| `stripPrefix` | String to strip | Removes prefix if present (case-insensitive) |
+| `stripSuffix` | String to strip | Removes suffix if present |
+| `trim` | — | Trims leading/trailing whitespace |
+| `trimTrailingDots` | — | Removes trailing `.` characters and whitespace |
+| `regexReplace` | `{ pattern, replacement }` | General-purpose regex cleanup |
+| `lowercase` | — | Convert to lowercase |
+| `uppercase` | — | Convert to uppercase |
+| `titleCase` | — | Convert to Title Case |
+
+### Smart Prefix Stripping
+
+Since conditions already know the prefix (e.g., `textBeginsWith: "Tel:"`), we could auto-suggest or auto-apply prefix stripping when `singleProperty` + `textBeginsWith` are combined. The condition tells us what the prefix IS — no need to type it twice.
+
+### Implementation Notes
+
+- Transforms apply AFTER the element is matched by conditions but BEFORE the text enters `FormatContentLine()` or the section content
+- C#: `ContentTransformService` applies transforms in order (pipeline)
+- TypeScript: Rules editor shows "Text Cleanup" section within each rule card, same add/remove pattern as conditions
+- Backward compatible: rules without `textTransforms` work exactly as before
+
+### Scope
+
+This is a future enhancement — parked until the current rules rework (v2b three-property model) is complete. The observed cases are noted here so they don't get lost.
+
+---
+
 ## Open Questions
 
 1. **Default rule (no conditions):** Should a rule with no conditions be allowed as a catch-all for unmatched elements? Useful as "everything else is a paragraph".

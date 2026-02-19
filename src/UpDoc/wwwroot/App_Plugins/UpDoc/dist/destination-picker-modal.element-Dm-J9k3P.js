@@ -1,24 +1,24 @@
-import { html as r, nothing as d, css as M, state as k, customElement as D } from "@umbraco-cms/backoffice/external/lit";
+import { html as r, nothing as u, css as S, state as _, customElement as D } from "@umbraco-cms/backoffice/external/lit";
 import { UmbModalBaseElement as E } from "@umbraco-cms/backoffice/modal";
-import { UmbTextStyles as S } from "@umbraco-cms/backoffice/style";
-var G = Object.defineProperty, N = Object.getOwnPropertyDescriptor, _ = (e) => {
+import { UmbTextStyles as G } from "@umbraco-cms/backoffice/style";
+var U = Object.defineProperty, N = Object.getOwnPropertyDescriptor, y = (e) => {
   throw TypeError(e);
-}, g = (e, t, a, l) => {
-  for (var c = l > 1 ? void 0 : l ? N(t, a) : t, p = e.length - 1, b; p >= 0; p--)
-    (b = e[p]) && (c = (l ? b(t, a, c) : b(c)) || c);
-  return l && c && G(t, a, c), c;
-}, y = (e, t, a) => t.has(e) || _("Cannot " + a), o = (e, t, a) => (y(e, t, "read from private field"), a ? a.call(e) : t.get(e)), U = (e, t, a) => t.has(e) ? _("Cannot add the same private member more than once") : t instanceof WeakSet ? t.add(e) : t.set(e, a), s = (e, t, a) => (y(e, t, "access private method"), a), i, n, m, v, f, h, $, x, z, T, C, w, P;
-let u = class extends E {
+}, m = (e, t, i, l) => {
+  for (var c = l > 1 ? void 0 : l ? N(t, i) : t, d = e.length - 1, b; d >= 0; d--)
+    (b = e[d]) && (c = (l ? b(t, i, c) : b(c)) || c);
+  return l && c && U(t, i, c), c;
+}, $ = (e, t, i) => t.has(e) || y("Cannot " + i), o = (e, t, i) => ($(e, t, "read from private field"), i ? i.call(e) : t.get(e)), B = (e, t, i) => t.has(e) ? y("Cannot add the same private member more than once") : t instanceof WeakSet ? t.add(e) : t.set(e, i), s = (e, t, i) => ($(e, t, "access private method"), i), a, n, k, h, g, v, f, x, z, T, C, w, M, P;
+let p = class extends E {
   constructor() {
-    super(...arguments), U(this, i), this._activeTab = "", this._selectedTargets = /* @__PURE__ */ new Map();
+    super(...arguments), B(this, a), this._activeTab = "", this._selectedTargets = /* @__PURE__ */ new Map();
   }
   connectedCallback() {
     super.connectedCallback();
-    const e = s(this, i, v).call(this);
+    const e = s(this, a, g).call(this);
     e.length > 0 && (this._activeTab = e[0].id);
   }
   render() {
-    const e = s(this, i, v).call(this);
+    const e = s(this, a, g).call(this);
     return r`
 			<umb-body-layout headline="Pick destination field(s)">
 				<div class="tab-content">
@@ -37,17 +37,17 @@ let u = class extends E {
     )}
 					</uui-tab-group>
 
-					${s(this, i, P).call(this)}
+					${s(this, a, P).call(this)}
 				</div>
 
 				<div slot="actions">
-					<uui-button label="Cancel" @click=${s(this, i, x)}>Cancel</uui-button>
+					<uui-button label="Cancel" @click=${s(this, a, z)}>Cancel</uui-button>
 					<uui-button
 						look="primary"
 						color="positive"
 						label="Confirm"
 						?disabled=${this._selectedTargets.size === 0}
-						@click=${s(this, i, $)}>
+						@click=${s(this, a, x)}>
 						Map to ${this._selectedTargets.size} field${this._selectedTargets.size !== 1 ? "s" : ""}
 					</uui-button>
 				</div>
@@ -55,74 +55,77 @@ let u = class extends E {
 		`;
   }
 };
-i = /* @__PURE__ */ new WeakSet();
+a = /* @__PURE__ */ new WeakSet();
 n = function() {
   return this.data?.destination;
 };
-m = function() {
-  const e = /* @__PURE__ */ new Set();
+k = function() {
+  const e = /* @__PURE__ */ new Map();
   for (const t of this.data?.existingMappings ?? [])
     if (t.enabled !== !1)
-      for (const a of t.destinations)
-        e.add(s(this, i, f).call(this, a.target, a.blockKey));
+      for (const i of t.destinations)
+        e.set(s(this, a, v).call(this, i.target, i.blockKey), t.source);
   return e;
 };
-v = function() {
-  if (!o(this, i, n)) return [];
-  const e = [], t = new Set(o(this, i, n).fields.map((a) => a.tab).filter(Boolean));
-  for (const a of t)
-    e.push({
-      id: a.toLowerCase().replace(/\s+/g, "-"),
-      label: a
-    });
-  return o(this, i, n).blockGrids?.length && (t.has("Page Content") || e.push({ id: "page-content", label: "Page Content" })), e;
+h = function(e) {
+  return e.replace(/\.(content|heading)$/, "").split("-").map((i) => i.charAt(0).toUpperCase() + i.slice(1)).join(" ");
 };
-f = function(e, t) {
+g = function() {
+  if (!o(this, a, n)) return [];
+  const e = [], t = new Set(o(this, a, n).fields.map((i) => i.tab).filter(Boolean));
+  for (const i of t)
+    e.push({
+      id: i.toLowerCase().replace(/\s+/g, "-"),
+      label: i
+    });
+  return o(this, a, n).blockGrids?.length && (t.has("Page Content") || e.push({ id: "page-content", label: "Page Content" })), e;
+};
+v = function(e, t) {
   return t ? `${t}:${e}` : e;
 };
-h = function(e, t) {
-  const a = s(this, i, f).call(this, e, t), l = new Map(this._selectedTargets);
-  l.has(a) ? l.delete(a) : l.set(a, { target: e, blockKey: t }), this._selectedTargets = l;
-};
-$ = function() {
-  this.value = { selectedTargets: Array.from(this._selectedTargets.values()) }, this.modalContext?.submit();
+f = function(e, t) {
+  const i = s(this, a, v).call(this, e, t), l = new Map(this._selectedTargets);
+  l.has(i) ? l.delete(i) : l.set(i, { target: e, blockKey: t }), this._selectedTargets = l;
 };
 x = function() {
+  this.value = { selectedTargets: Array.from(this._selectedTargets.values()) }, this.modalContext?.submit();
+};
+z = function() {
   this.modalContext?.reject();
 };
-z = function(e) {
-  const t = this._selectedTargets.has(e.alias), a = o(this, i, m).has(e.alias);
+T = function(e) {
+  const t = this._selectedTargets.has(e.alias), i = o(this, a, k).get(e.alias);
   return r`
-			<div class="field-item ${t ? "field-selected" : ""}" @click=${() => s(this, i, h).call(this, e.alias)}>
+			<div class="field-item ${t ? "field-selected" : ""}" @click=${() => s(this, a, f).call(this, e.alias)}>
 				<uui-checkbox
 					label="Select ${e.label}"
 					?checked=${t}
 					@click=${(l) => l.stopPropagation()}
-					@change=${() => s(this, i, h).call(this, e.alias)}>
+					@change=${() => s(this, a, f).call(this, e.alias)}>
 				</uui-checkbox>
 				<div class="field-info">
 					<span class="field-label">${e.label}</span>
-					${a ? r`<span class="field-mapped">mapped</span>` : d}
+					${i ? r`<span class="field-mapped" title="Mapped from: ${s(this, a, h).call(this, i)}">${s(this, a, h).call(this, i)}</span>` : u}
 					<span class="field-type">${e.type}</span>
 				</div>
 			</div>
 		`;
 };
-T = function(e) {
-  if (!o(this, i, n)) return d;
-  const t = o(this, i, n).fields.filter((a) => a.tab === e);
+C = function(e) {
+  if (!o(this, a, n)) return u;
+  const t = o(this, a, n).fields.filter((i) => i.tab === e);
   return t.length === 0 ? r`<p class="empty-message">No fields in this tab.</p>` : r`
 			<div class="field-list">
-				${t.map((a) => s(this, i, z).call(this, a))}
+				${t.map((i) => s(this, a, T).call(this, i))}
 			</div>
 		`;
 };
-C = function() {
-  return o(this, i, n)?.blockGrids?.length ? r`
-			${o(this, i, n).blockGrids.map((e) => s(this, i, w).call(this, e))}
+w = function() {
+  return o(this, a, n)?.blockGrids?.length ? r`
+			${o(this, a, n).blockGrids.map((e) => s(this, a, M).call(this, e))}
 		` : r`<p class="empty-message">No block grids configured.</p>`;
 };
-w = function(e) {
+M = function(e) {
   return r`
 			<div class="block-grid">
 				<div class="block-grid-header">
@@ -138,24 +141,24 @@ w = function(e) {
 								</div>
 								${t.properties?.length ? r`
 										<div class="block-properties">
-											${t.properties.map((a) => {
-      const l = s(this, i, f).call(this, a.alias, t.key), c = this._selectedTargets.has(l), p = o(this, i, m).has(l);
+											${t.properties.map((i) => {
+      const l = s(this, a, v).call(this, i.alias, t.key), c = this._selectedTargets.has(l), d = o(this, a, k).get(l);
       return r`
-													<div class="block-property ${c ? "field-selected" : ""}" @click=${() => s(this, i, h).call(this, a.alias, t.key)}>
+													<div class="block-property ${c ? "field-selected" : ""}" @click=${() => s(this, a, f).call(this, i.alias, t.key)}>
 														<uui-checkbox
-															label="Select ${a.label || a.alias}"
+															label="Select ${i.label || i.alias}"
 															?checked=${c}
 															@click=${(b) => b.stopPropagation()}
-															@change=${() => s(this, i, h).call(this, a.alias, t.key)}>
+															@change=${() => s(this, a, f).call(this, i.alias, t.key)}>
 														</uui-checkbox>
-														<span class="block-property-label">${a.label || a.alias}</span>
-														${p ? r`<span class="field-mapped">mapped</span>` : d}
-														<span class="field-type">${a.type}</span>
+														<span class="block-property-label">${i.label || i.alias}</span>
+														${d ? r`<span class="field-mapped" title="Mapped from: ${s(this, a, h).call(this, d)}">${s(this, a, h).call(this, d)}</span>` : u}
+														<span class="field-type">${i.type}</span>
 													</div>
 												`;
     })}
 										</div>
-									` : d}
+									` : u}
 							</div>
 						`
   )}
@@ -164,17 +167,17 @@ w = function(e) {
 		`;
 };
 P = function() {
-  if (!o(this, i, n)) return d;
+  if (!o(this, a, n)) return u;
   if (this._activeTab === "page-content")
-    return s(this, i, C).call(this);
-  const e = o(this, i, n).fields.find(
+    return s(this, a, w).call(this);
+  const e = o(this, a, n).fields.find(
     (t) => t.tab && t.tab.toLowerCase().replace(/\s+/g, "-") === this._activeTab
   )?.tab;
-  return e ? s(this, i, T).call(this, e) : d;
+  return e ? s(this, a, C).call(this, e) : u;
 };
-u.styles = [
-  S,
-  M`
+p.styles = [
+  G,
+  S`
 			:host {
 				display: block;
 				height: 100%;
@@ -248,8 +251,8 @@ u.styles = [
 
 			.field-mapped {
 				font-size: var(--uui-type-small-size);
-				color: var(--uui-color-positive-standalone);
-				background: var(--uui-color-positive-emphasis);
+				color: #fff;
+				background: var(--uui-color-positive-standalone);
 				padding: 2px 8px;
 				border-radius: var(--uui-border-radius);
 			}
@@ -320,18 +323,18 @@ u.styles = [
 			}
 		`
 ];
-g([
-  k()
-], u.prototype, "_activeTab", 2);
-g([
-  k()
-], u.prototype, "_selectedTargets", 2);
-u = g([
+m([
+  _()
+], p.prototype, "_activeTab", 2);
+m([
+  _()
+], p.prototype, "_selectedTargets", 2);
+p = m([
   D("up-doc-destination-picker-modal")
-], u);
-const A = u;
+], p);
+const I = p;
 export {
-  u as UpDocDestinationPickerModalElement,
-  A as default
+  p as UpDocDestinationPickerModalElement,
+  I as default
 };
-//# sourceMappingURL=destination-picker-modal.element-C_2Bsi2m.js.map
+//# sourceMappingURL=destination-picker-modal.element-Dm-J9k3P.js.map

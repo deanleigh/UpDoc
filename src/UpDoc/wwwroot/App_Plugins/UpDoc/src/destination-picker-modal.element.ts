@@ -24,16 +24,26 @@ export class UpDocDestinationPickerModalElement extends UmbModalBaseElement<
 		return this.data?.destination;
 	}
 
-	/** Build a Set of compound keys (blockKey:alias or alias) that are already mapped */
-	get #alreadyMapped(): Set<string> {
-		const mapped = new Set<string>();
+	/** Build a Map of compound keys (blockKey:alias or alias) → source section ID for already-mapped fields */
+	get #alreadyMapped(): Map<string, string> {
+		const mapped = new Map<string, string>();
 		for (const mapping of this.data?.existingMappings ?? []) {
 			if (mapping.enabled === false) continue;
 			for (const dest of mapping.destinations) {
-				mapped.add(this.#makeKey(dest.target, dest.blockKey));
+				mapped.set(this.#makeKey(dest.target, dest.blockKey), mapping.source);
 			}
 		}
 		return mapped;
+	}
+
+	/** Convert source key to readable label: "tour-title.content" → "Tour Title" */
+	#formatSourceLabel(sourceKey: string): string {
+		// Strip .content / .heading suffix — these are internal conventions, not user-facing
+		const sectionId = sourceKey.replace(/\.(content|heading)$/, '');
+		return sectionId
+			.split('-')
+			.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+			.join(' ');
 	}
 
 	#getTabs(): Array<{ id: string; label: string }> {
@@ -84,7 +94,7 @@ export class UpDocDestinationPickerModalElement extends UmbModalBaseElement<
 
 	#renderField(field: DestinationField) {
 		const checked = this._selectedTargets.has(field.alias);
-		const mapped = this.#alreadyMapped.has(field.alias);
+		const mappedSource = this.#alreadyMapped.get(field.alias);
 		return html`
 			<div class="field-item ${checked ? 'field-selected' : ''}" @click=${() => this.#toggleTarget(field.alias)}>
 				<uui-checkbox
@@ -95,7 +105,7 @@ export class UpDocDestinationPickerModalElement extends UmbModalBaseElement<
 				</uui-checkbox>
 				<div class="field-info">
 					<span class="field-label">${field.label}</span>
-					${mapped ? html`<span class="field-mapped">mapped</span>` : nothing}
+					${mappedSource ? html`<span class="field-mapped" title="Mapped from: ${this.#formatSourceLabel(mappedSource)}">${this.#formatSourceLabel(mappedSource)}</span>` : nothing}
 					<span class="field-type">${field.type}</span>
 				</div>
 			</div>
@@ -145,7 +155,7 @@ export class UpDocDestinationPickerModalElement extends UmbModalBaseElement<
 											${block.properties.map((prop) => {
 												const compoundKey = this.#makeKey(prop.alias, block.key);
 												const checked = this._selectedTargets.has(compoundKey);
-												const mapped = this.#alreadyMapped.has(compoundKey);
+												const mappedSource = this.#alreadyMapped.get(compoundKey);
 												return html`
 													<div class="block-property ${checked ? 'field-selected' : ''}" @click=${() => this.#toggleTarget(prop.alias, block.key)}>
 														<uui-checkbox
@@ -155,7 +165,7 @@ export class UpDocDestinationPickerModalElement extends UmbModalBaseElement<
 															@change=${() => this.#toggleTarget(prop.alias, block.key)}>
 														</uui-checkbox>
 														<span class="block-property-label">${prop.label || prop.alias}</span>
-														${mapped ? html`<span class="field-mapped">mapped</span>` : nothing}
+														${mappedSource ? html`<span class="field-mapped" title="Mapped from: ${this.#formatSourceLabel(mappedSource)}">${this.#formatSourceLabel(mappedSource)}</span>` : nothing}
 														<span class="field-type">${prop.type}</span>
 													</div>
 												`;
@@ -302,8 +312,8 @@ export class UpDocDestinationPickerModalElement extends UmbModalBaseElement<
 
 			.field-mapped {
 				font-size: var(--uui-type-small-size);
-				color: var(--uui-color-positive-standalone);
-				background: var(--uui-color-positive-emphasis);
+				color: #fff;
+				background: var(--uui-color-positive-standalone);
 				padding: 2px 8px;
 				border-radius: var(--uui-border-radius);
 			}
