@@ -60,6 +60,23 @@ const ALL_FORMATS: RuleContentFormat[] = ['paragraph', 'heading1', 'heading2', '
 @customElement('up-doc-section-rules-editor-modal')
 export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<SectionRulesEditorModalData, SectionRulesEditorModalValue> {
 	@state() private _rules: SectionRule[] = [];
+	/** Track collapsed state per rule section: "conditions-0", "exceptions-1", etc. */
+	@state() private _collapsed: Set<string> = new Set();
+
+	#isCollapsed(section: string, ruleIdx: number): boolean {
+		return this._collapsed.has(`${section}-${ruleIdx}`);
+	}
+
+	#toggleCollapsed(section: string, ruleIdx: number) {
+		const key = `${section}-${ruleIdx}`;
+		const next = new Set(this._collapsed);
+		if (next.has(key)) {
+			next.delete(key);
+		} else {
+			next.add(key);
+		}
+		this._collapsed = next;
+	}
 
 	override firstUpdated() {
 		// Deep clone existing rules so edits don't mutate the original
@@ -205,13 +222,8 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 
 	#updateAction(ruleIdx: number, value: RuleAction) {
 		const updated = [...this._rules];
-		if (value === 'sectionContent') {
-			// Set default format when switching to sectionContent
-			updated[ruleIdx] = { ...updated[ruleIdx], action: value, format: updated[ruleIdx].format ?? 'paragraph' };
-		} else {
-			// Clear format for non-content actions
-			updated[ruleIdx] = { ...updated[ruleIdx], action: value, format: undefined };
-		}
+		// Always preserve format — it's now an independent section
+		updated[ruleIdx] = { ...updated[ruleIdx], action: value, format: updated[ruleIdx].format ?? 'paragraph' };
 		this._rules = updated;
 	}
 
@@ -261,6 +273,47 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 		this._rules = updated;
 	}
 
+	// ===== Exception CRUD =====
+
+	#addException(ruleIdx: number) {
+		const updated = [...this._rules];
+		const rule = { ...updated[ruleIdx] };
+		rule.exceptions = [...(rule.exceptions ?? []), { type: 'textContains' as RuleConditionType, value: '' }];
+		updated[ruleIdx] = rule;
+		this._rules = updated;
+	}
+
+	#removeException(ruleIdx: number, excIdx: number) {
+		const updated = [...this._rules];
+		const rule = { ...updated[ruleIdx] };
+		rule.exceptions = (rule.exceptions ?? []).filter((_, i) => i !== excIdx);
+		updated[ruleIdx] = rule;
+		this._rules = updated;
+	}
+
+	#updateExceptionType(ruleIdx: number, excIdx: number, type: RuleConditionType) {
+		const updated = [...this._rules];
+		const rule = { ...updated[ruleIdx] };
+		rule.exceptions = [...(rule.exceptions ?? [])];
+		rule.exceptions[excIdx] = {
+			type,
+			value: VALUELESS_CONDITIONS.includes(type) ? undefined : rule.exceptions[excIdx].value,
+		};
+		updated[ruleIdx] = rule;
+		this._rules = updated;
+	}
+
+	#updateExceptionValue(ruleIdx: number, excIdx: number, value: string) {
+		const updated = [...this._rules];
+		const rule = { ...updated[ruleIdx] };
+		rule.exceptions = [...(rule.exceptions ?? [])];
+		const exc = rule.exceptions[excIdx];
+		const isNumeric = exc.type === 'fontSizeEquals' || exc.type === 'fontSizeAbove' || exc.type === 'fontSizeBelow';
+		rule.exceptions[excIdx] = { ...exc, value: isNumeric && !isNaN(Number(value)) ? Number(value) : value };
+		updated[ruleIdx] = rule;
+		this._rules = updated;
+	}
+
 	// ===== Submit =====
 
 	#onSubmit() {
@@ -305,6 +358,37 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 		`;
 	}
 
+	#renderExceptionRow(ruleIdx: number, excIdx: number, exception: RuleCondition) {
+		const isValueless = VALUELESS_CONDITIONS.includes(exception.type);
+		return html`
+			<div class="condition-row">
+				<select
+					class="condition-type-select"
+					.value=${exception.type}
+					@change=${(e: Event) => this.#updateExceptionType(ruleIdx, excIdx, (e.target as HTMLSelectElement).value as RuleConditionType)}>
+					${ALL_CONDITION_TYPES.map((t) => html`
+						<option value=${t} ?selected=${t === exception.type}>${CONDITION_LABELS[t]}</option>
+					`)}
+				</select>
+				${isValueless ? nothing : html`
+					<input
+						type="text"
+						class="condition-value-input"
+						placeholder="Value..."
+						.value=${String(exception.value ?? '')}
+						@input=${(e: Event) => this.#updateExceptionValue(ruleIdx, excIdx, (e.target as HTMLInputElement).value)} />
+				`}
+				<uui-button
+					compact
+					look="secondary"
+					label="Remove exception"
+					@click=${() => this.#removeException(ruleIdx, excIdx)}>
+					<uui-icon name="icon-trash"></uui-icon>
+				</uui-button>
+			</div>
+		`;
+	}
+
 	#renderRuleCard(rule: SectionRule, ruleIdx: number, matchedElements: AreaElement[]) {
 		return html`
 			<div class="rule-card">
@@ -327,28 +411,62 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 				</div>
 
 				<div class="conditions-area">
-					${rule.conditions.map((cond, cIdx) => this.#renderConditionRow(ruleIdx, cIdx, cond))}
-					<uui-button
-						compact
-						look="placeholder"
-						label="Add condition"
-						@click=${() => this.#addCondition(ruleIdx)}>
-						+ Add condition
-					</uui-button>
+					<div class="section-header collapsible" @click=${() => this.#toggleCollapsed('conditions', ruleIdx)}>
+						<uui-icon name=${this.#isCollapsed('conditions', ruleIdx) ? 'icon-navigation-right' : 'icon-navigation-down'}></uui-icon>
+						Conditions${rule.conditions.length > 0 ? ` (${rule.conditions.length})` : ''}
+					</div>
+					${this.#isCollapsed('conditions', ruleIdx) ? nothing : html`
+						${rule.conditions.map((cond, cIdx) => this.#renderConditionRow(ruleIdx, cIdx, cond))}
+						<uui-button
+							compact
+							look="placeholder"
+							label="Add condition"
+							@click=${() => this.#addCondition(ruleIdx)}>
+							+ Add condition
+						</uui-button>
+					`}
+				</div>
+
+				<div class="exceptions-area">
+					<div class="section-header collapsible" @click=${() => this.#toggleCollapsed('exceptions', ruleIdx)}>
+						<uui-icon name=${this.#isCollapsed('exceptions', ruleIdx) ? 'icon-navigation-right' : 'icon-navigation-down'}></uui-icon>
+						Exceptions${(rule.exceptions ?? []).length > 0 ? ` (${(rule.exceptions ?? []).length})` : ''}
+					</div>
+					${this.#isCollapsed('exceptions', ruleIdx) ? nothing : html`
+						${(rule.exceptions ?? []).map((exc, eIdx) => this.#renderExceptionRow(ruleIdx, eIdx, exc))}
+						<uui-button
+							compact
+							look="placeholder"
+							label="Add exception"
+							@click=${() => this.#addException(ruleIdx)}>
+							+ Add exception
+						</uui-button>
+					`}
 				</div>
 
 				<div class="action-area">
-					<label class="action-label">Action:</label>
-					<select
-						class="action-select"
-						.value=${rule.action ?? 'sectionTitle'}
-						@change=${(e: Event) => this.#updateAction(ruleIdx, (e.target as HTMLSelectElement).value as RuleAction)}>
-						${ALL_ACTIONS.map((a) => html`
-							<option value=${a} ?selected=${a === (rule.action ?? 'sectionTitle')}>${ACTION_LABELS[a]}</option>
-						`)}
-					</select>
-					${rule.action === 'sectionContent' ? html`
-						<label class="action-label">Format:</label>
+					<div class="section-header collapsible" @click=${() => this.#toggleCollapsed('action', ruleIdx)}>
+						<uui-icon name=${this.#isCollapsed('action', ruleIdx) ? 'icon-navigation-right' : 'icon-navigation-down'}></uui-icon>
+						Action
+					</div>
+					${this.#isCollapsed('action', ruleIdx) ? nothing : html`
+						<select
+							class="action-select"
+							.value=${rule.action ?? 'sectionTitle'}
+							@change=${(e: Event) => this.#updateAction(ruleIdx, (e.target as HTMLSelectElement).value as RuleAction)}>
+							${ALL_ACTIONS.map((a) => html`
+								<option value=${a} ?selected=${a === (rule.action ?? 'sectionTitle')}>${ACTION_LABELS[a]}</option>
+							`)}
+						</select>
+					`}
+				</div>
+
+				<div class="format-area">
+					<div class="section-header collapsible" @click=${() => this.#toggleCollapsed('format', ruleIdx)}>
+						<uui-icon name=${this.#isCollapsed('format', ruleIdx) ? 'icon-navigation-right' : 'icon-navigation-down'}></uui-icon>
+						Format
+					</div>
+					${this.#isCollapsed('format', ruleIdx) ? nothing : html`
 						<select
 							class="action-select"
 							.value=${rule.format ?? 'paragraph'}
@@ -357,7 +475,7 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 								<option value=${f} ?selected=${f === (rule.format ?? 'paragraph')}>${FORMAT_LABELS[f]}</option>
 							`)}
 						</select>
-					` : nothing}
+					`}
 				</div>
 
 				<div class="match-preview ${matchedElements.length > 0 ? 'matched' : 'no-match'}">
@@ -531,12 +649,47 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 				border-color: var(--uui-color-focus);
 			}
 
+			/* Section headers within rule cards */
+			.section-header {
+				font-size: 11px;
+				font-weight: 700;
+				text-transform: uppercase;
+				letter-spacing: 0.5px;
+				color: var(--uui-color-text-alt);
+				margin-bottom: var(--uui-size-space-1);
+			}
+
+			.section-header.collapsible {
+				cursor: pointer;
+				display: flex;
+				align-items: center;
+				gap: var(--uui-size-space-1);
+				user-select: none;
+			}
+
+			.section-header.collapsible:hover {
+				color: var(--uui-color-text);
+			}
+
+			.section-header.collapsible uui-icon {
+				font-size: 10px;
+			}
+
 			/* Conditions */
 			.conditions-area {
 				padding: var(--uui-size-space-3) var(--uui-size-space-4);
 				display: flex;
 				flex-direction: column;
 				gap: var(--uui-size-space-2);
+			}
+
+			/* Exceptions */
+			.exceptions-area {
+				padding: var(--uui-size-space-3) var(--uui-size-space-4);
+				display: flex;
+				flex-direction: column;
+				gap: var(--uui-size-space-2);
+				border-top: 1px solid var(--uui-color-border);
 			}
 
 			.condition-row {
@@ -579,17 +732,19 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 			/* Action area */
 			.action-area {
 				display: flex;
-				align-items: center;
-				gap: var(--uui-size-space-3);
+				flex-direction: column;
+				gap: var(--uui-size-space-2);
 				padding: var(--uui-size-space-3) var(--uui-size-space-4);
 				border-top: 1px solid var(--uui-color-border);
 			}
 
-			.action-label {
-				font-size: var(--uui-type-small-size);
-				font-weight: 600;
-				color: var(--uui-color-text-alt);
-				flex-shrink: 0;
+			/* Format area */
+			.format-area {
+				display: flex;
+				flex-direction: column;
+				gap: var(--uui-size-space-2);
+				padding: var(--uui-size-space-3) var(--uui-size-space-4);
+				border-top: 1px solid var(--uui-color-border);
 			}
 
 			.action-select {

@@ -46,6 +46,8 @@ export interface SectionRule {
 	/** Markdown format — only meaningful when action = sectionContent */
 	format?: RuleContentFormat;
 	conditions: RuleCondition[];
+	/** UNLESS conditions — if any single exception matches, the rule does not apply. */
+	exceptions?: RuleCondition[];
 }
 
 /** Normalize legacy action names to v2. Returns [action, effectiveFormat]. */
