@@ -819,9 +819,7 @@ Le = function() {
 			`;
   const e = this._transformResult.sections.filter((i) => i.included), t = this._transformResult.sections.length;
   return l`
-			<div class="markdown-reading-view">
 				${e.map((i) => o(this, a, Oe).call(this, i))}
-			</div>
 			<div class="diagnostics">
 				<span class="meta-badge">${e.length}/${t} sections included</span>
 			</div>
@@ -1543,13 +1541,6 @@ f.styles = [
 				border-left: 3px solid var(--uui-color-focus);
 			}
 
-			/* ── Obsidian-style Markdown reading view ── */
-			.markdown-reading-view {
-				max-width: 750px;
-				margin: 0 auto;
-				padding: var(--uui-size-layout-1) var(--uui-size-space-6);
-			}
-
 			/* Section boxes */
 			.md-section-box {
 				margin-bottom: var(--uui-size-space-3);
@@ -1774,4 +1765,4 @@ export {
   f as UpDocWorkflowSourceViewElement,
   xt as default
 };
-//# sourceMappingURL=up-doc-workflow-source-view.element-BgIjYNTr.js.map
+//# sourceMappingURL=up-doc-workflow-source-view.element-BWPyS-uA.js.map

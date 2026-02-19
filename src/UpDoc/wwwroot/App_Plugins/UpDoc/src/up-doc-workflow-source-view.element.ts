@@ -1223,9 +1223,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		const totalSections = this._transformResult.sections.length;
 
 		return html`
-			<div class="markdown-reading-view">
 				${includedSections.map((section) => this.#renderMarkdownSection(section))}
-			</div>
 			<div class="diagnostics">
 				<span class="meta-badge">${includedSections.length}/${totalSections} sections included</span>
 			</div>
@@ -1981,13 +1979,6 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 			.teach-element.teach-clicked.teach-matched {
 				background: color-mix(in srgb, var(--uui-color-focus) 15%, transparent);
 				border-left: 3px solid var(--uui-color-focus);
-			}
-
-			/* ── Obsidian-style Markdown reading view ── */
-			.markdown-reading-view {
-				max-width: 750px;
-				margin: 0 auto;
-				padding: var(--uui-size-layout-1) var(--uui-size-space-6);
 			}
 
 			/* Section boxes */
