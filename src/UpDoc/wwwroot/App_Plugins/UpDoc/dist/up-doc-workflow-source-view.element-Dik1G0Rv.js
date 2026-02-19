@@ -226,10 +226,10 @@ Q = async function(e, t, i) {
       c.rules.rules.length > 0 ? d[e] = c.rules : delete d[e];
       const h = await je(this._workflowName, d, _(this, b));
       h && this._sourceConfig && (this._sourceConfig = { ...this._sourceConfig, areaRules: h });
-      const p = this._extraction?.source.mediaKey;
-      if (p) {
-        const u = await H(this._workflowName, p, _(this, b));
-        u && (this._transformResult = u);
+      const u = this._extraction?.source.mediaKey;
+      if (u) {
+        const p = await H(this._workflowName, u, _(this, b));
+        p && (this._transformResult = p);
       }
     }
   } catch {
@@ -412,22 +412,22 @@ y = async function(e, t = "content") {
     source: n,
     destinations: r.selectedTargets.map(($) => ({ target: $.target, blockKey: $.blockKey })),
     enabled: !0
-  }, h = c.findIndex(($) => $.source === n), p = h >= 0 ? c.map(($, z) => z === h ? d : $) : [...c, d], u = {
+  }, h = c.findIndex(($) => $.source === n), u = h >= 0 ? c.map(($, z) => z === h ? d : $) : [...c, d], p = {
     ...this._config.map ?? { version: "1.0", mappings: [] },
-    mappings: p
-  }, k = await se(this._workflowName, u, _(this, b));
+    mappings: u
+  }, k = await se(this._workflowName, p, _(this, b));
   k && (this._config = { ...this._config, map: k });
 };
 ke = async function(e, t) {
   if (!this._workflowName || !this._config?.map) return;
-  const i = this._config.map.mappings, s = i.findIndex((p) => p.source === e);
+  const i = this._config.map.mappings, s = i.findIndex((u) => u.source === e);
   if (s < 0) return;
   const n = i[s].destinations.filter(
-    (p) => !(p.target === t.target && p.blockKey === t.blockKey)
+    (u) => !(u.target === t.target && u.blockKey === t.blockKey)
   );
   let c;
-  n.length === 0 ? c = i.filter((p, u) => u !== s) : c = i.map(
-    (p, u) => u === s ? { ...p, destinations: n } : p
+  n.length === 0 ? c = i.filter((u, p) => p !== s) : c = i.map(
+    (u, p) => p === s ? { ...u, destinations: n } : u
   );
   const d = { ...this._config.map, mappings: c }, h = await se(this._workflowName, d, _(this, b));
   h && (this._config = { ...this._config, map: h });
@@ -486,34 +486,34 @@ Ce = function(e, t, i, s) {
 						<uui-toggle
 							label="${c ? "Included" : "Excluded"}"
 							?checked=${c}
-							@click=${(u) => u.stopPropagation()}
-							@change=${(u) => o(this, a, O).call(this, n, u.target.checked)}>
+							@click=${(p) => p.stopPropagation()}
+							@change=${(p) => o(this, a, O).call(this, n, p.target.checked)}>
 						</uui-toggle>
 					</div>
 					${c && !r ? l`
-						${e.children.map((u) => o(this, a, F).call(this, u))}
+						${e.children.map((p) => o(this, a, F).call(this, p))}
 					` : m}
 				</div>
 			`;
-  const d = e.heading, h = e.children.length, p = h > 0;
+  const d = e.heading, h = e.children.length, u = h > 0;
   return l`
 			<div class="area-section ${c ? "" : "excluded"}">
-				<div class="section-heading" @click=${p ? () => o(this, a, M).call(this, t) : m}>
-					${p ? l`<uui-icon class="collapse-chevron" name="${r ? "icon-navigation-right" : "icon-navigation-down"}"></uui-icon>` : l`<uui-icon class="collapse-chevron placeholder"></uui-icon>`}
+				<div class="section-heading" @click=${u ? () => o(this, a, M).call(this, t) : m}>
+					${u ? l`<uui-icon class="collapse-chevron" name="${r ? "icon-navigation-right" : "icon-navigation-down"}"></uui-icon>` : l`<uui-icon class="collapse-chevron placeholder"></uui-icon>`}
 					<span class="section-label">Section</span>
 					<span class="section-separator">–</span>
 					<span class="heading-text" title="${d.text}">${d.text}</span>
-					${p ? l`<span class="group-count">${h} element${h !== 1 ? "s" : ""}</span>` : m}
+					${u ? l`<span class="group-count">${h} element${h !== 1 ? "s" : ""}</span>` : m}
 					<uui-toggle
 						label="${c ? "Included" : "Excluded"}"
 						?checked=${c}
-						@click=${(u) => u.stopPropagation()}
-						@change=${(u) => o(this, a, O).call(this, n, u.target.checked)}>
+						@click=${(p) => p.stopPropagation()}
+						@change=${(p) => o(this, a, O).call(this, n, p.target.checked)}>
 					</uui-toggle>
 				</div>
-				${p && !r && c ? l`
+				${u && !r && c ? l`
 					<div class="section-children">
-						${e.children.map((u) => o(this, a, F).call(this, u))}
+						${e.children.map((p) => o(this, a, F).call(this, p))}
 					</div>
 				` : m}
 			</div>
@@ -576,17 +576,17 @@ Se = function() {
 		`;
 };
 Ae = function(e, t, i) {
-  const s = `area-p${t}-a${i}`, r = o(this, a, ve).call(this, t, i), n = this._teachingAreaIndex === r, c = n ? !1 : o(this, a, D).call(this, s), d = !this._excludedAreas.has(s), h = o(this, a, Z).call(this, e), p = o(this, a, $e).call(this, e), u = p && this._transformResult ? o(this, a, ye).call(this, e, t) : [], k = p && u.length > 0, $ = k ? u.length : e.sections.length, z = e.sectionPattern != null, te = z ? e.sectionPattern.conditions.length > 0 ? "Configured" : "Flat" : null, ie = this._sourceConfig?.areaRules?.[h]?.rules?.length ?? 0;
+  const s = `area-p${t}-a${i}`, r = o(this, a, ve).call(this, t, i), n = this._teachingAreaIndex === r, c = n ? !1 : o(this, a, D).call(this, s), d = !this._excludedAreas.has(s), h = o(this, a, Z).call(this, e), u = o(this, a, $e).call(this, e), p = u && this._transformResult ? o(this, a, ye).call(this, e, t) : [], k = u && p.length > 0, $ = k ? p.length : e.sections.length, z = e.sectionPattern != null, te = z ? e.sectionPattern.conditions.length > 0 ? "Configured" : "Flat" : null, ie = this._sourceConfig?.areaRules?.[h]?.rules?.length ?? 0;
   return l`
 			<div class="detected-area ${d ? "" : "area-excluded"} ${n ? "area-teaching" : ""}" style="border-left-color: ${e.color};">
 				<div class="area-header" @click=${() => !n && o(this, a, M).call(this, s)}>
 					<uui-icon class="collapse-chevron" name="${c ? "icon-navigation-right" : "icon-navigation-down"}"></uui-icon>
 					<span class="area-name">${e.name || `Area ${i + 1}`}</span>
-					${p ? l`<span class="meta-badge rules-badge">${ie} rule${ie !== 1 ? "s" : ""}</span>` : te ? l`<span class="meta-badge structure-badge">${te}</span>` : m}
+					${u ? l`<span class="meta-badge rules-badge">${ie} rule${ie !== 1 ? "s" : ""}</span>` : te ? l`<span class="meta-badge structure-badge">${te}</span>` : m}
 					<span class="header-spacer"></span>
 					<span class="group-count">${$} section${$ !== 1 ? "s" : ""}</span>
 					${n ? m : l`
-						${p ? l`
+						${u ? l`
 							<uui-button
 								look="outline"
 								compact
@@ -612,7 +612,7 @@ Ae = function(e, t, i) {
 							</uui-button>
 						`}
 					`}
-					${p ? m : l`
+					${u ? m : l`
 						<uui-toggle
 							label="${d ? "Included" : "Excluded"}"
 							?checked=${d}
@@ -629,7 +629,7 @@ Ae = function(e, t, i) {
 						</div>
 					` : k ? l`
 						<div class="composed-sections">
-							${u.map((x) => o(this, a, ze).call(this, x, !1))}
+							${p.map((x) => o(this, a, ze).call(this, x, !1))}
 						</div>
 					` : l`
 						${e.sections.map(
@@ -684,14 +684,14 @@ De = function() {
 Ne = function() {
   const e = this._areaDetection !== null, t = this._extraction !== null;
   if (!e && !t) return m;
-  const i = this._areaDetection?.totalPages ?? (t ? this._extraction.source.totalPages : 0), s = e ? this._areaDetection.pages.length : i, n = s < i ? `${s} of ${i}` : `${i}`, c = e ? this._areaDetection.diagnostics.areasDetected : 0, d = e ? o(this, a, Re).call(this) : 0, h = t ? this._extraction.source.fileName : "", p = t ? new Date(this._extraction.source.extractedDate).toLocaleString() : "";
+  const i = this._areaDetection?.totalPages ?? (t ? this._extraction.source.totalPages : 0), s = e ? this._areaDetection.pages.length : i, n = s < i ? `${s} of ${i}` : `${i}`, c = e ? this._areaDetection.diagnostics.areasDetected : 0, d = e ? o(this, a, Re).call(this) : 0, h = t ? this._extraction.source.fileName : "", u = t ? new Date(this._extraction.source.extractedDate).toLocaleString() : "";
   return l`
 			<div class="info-boxes">
 				<uui-box headline="Source" class="info-box-item">
 					<div class="box-content">
 						<h2 class="box-title">${h}</h2>
 						<uui-icon name="icon-document" class="box-icon"></uui-icon>
-						<span class="box-subtitle">${p}</span>
+						<span class="box-subtitle">${u}</span>
 						<div class="box-buttons">
 							<uui-button look="primary" color="default" label="Change PDF" @click=${o(this, a, R)} ?disabled=${this._extracting}>
 								<uui-icon name="icon-page-add"></uui-icon>
@@ -747,12 +747,12 @@ Ne = function() {
 									placement="bottom-end"
 									@toggle=${o(this, a, me)}>
 									<umb-popover-layout>
-										${o(this, a, he).call(this).map((u) => l`
+										${o(this, a, he).call(this).map((p) => l`
 											<uui-menu-item
-												label="${u.areaName}"
-												@click=${() => o(this, a, Q).call(this, u.areaKey, u.areaName, u.elements)}>
-												<uui-icon slot="icon" name="${u.hasRules ? "icon-check" : "icon-thumbnail-list"}"></uui-icon>
-												<span slot="badge" class="section-picker-meta">${u.elements.length} el</span>
+												label="${p.areaName}"
+												@click=${() => o(this, a, Q).call(this, p.areaKey, p.areaName, p.elements)}>
+												<uui-icon slot="icon" name="${p.hasRules ? "icon-check" : "icon-thumbnail-list"}"></uui-icon>
+												<span slot="badge" class="section-picker-meta">${p.elements.length} el</span>
 											</uui-menu-item>
 										`)}
 									</umb-popover-layout>
@@ -835,10 +835,9 @@ w = function(e) {
 		</uui-tag>`);
 };
 Oe = function(e) {
-  const t = e.heading && e.content && e.heading.trim() === e.content.trim(), i = !!e.description, s = !!e.summary, r = !!e.content && e.content.includes(`
-`), c = !!e.heading && !!e.content && !t && r || i || s, h = ["content", "heading", "title", "description", "summary"].some((u) => o(this, a, N).call(this, `${e.id}.${u}`).length > 0), p = e.content && !t ? I(e.content) : "";
-  return c ? l`
-			<uui-box headline="${e.heading || "Content"}" class="md-section-box ${h ? "mapped" : ""}">
+  const t = e.heading && e.content && e.heading.trim() === e.content.trim(), i = !!e.description, s = !!e.summary, n = !!e.heading && !!e.content && !t || i || s, d = ["content", "heading", "title", "description", "summary"].some((u) => o(this, a, N).call(this, `${e.id}.${u}`).length > 0), h = e.content && !t ? I(e.content) : "";
+  return n ? l`
+			<uui-box headline="${e.heading || "Content"}" class="md-section-box ${d ? "mapped" : ""}">
 				${e.heading ? l`
 					<div class="md-part-row">
 						<div class="md-part-content">
@@ -854,10 +853,10 @@ Oe = function(e) {
 						</div>
 					</div>
 				` : m}
-				${p ? l`
+				${h ? l`
 					<div class="md-part-row md-part-row-bordered">
 						<div class="md-part-content">
-							<div class="md-section-content">${A(p)}</div>
+							<div class="md-section-content">${A(h)}</div>
 						</div>
 						<div class="md-part-actions">
 							${o(this, a, w).call(this, `${e.id}.content`)}
@@ -898,10 +897,10 @@ Oe = function(e) {
 				` : m}
 			</uui-box>
 		` : l`
-				<uui-box headline="${e.heading || "Content"}" class="md-section-box ${h ? "mapped" : ""}">
+				<uui-box headline="${e.heading || "Content"}" class="md-section-box ${d ? "mapped" : ""}">
 					<div class="md-part-row">
 						<div class="md-part-content">
-							${p ? l`<div class="md-section-content">${A(p)}</div>` : m}
+							${h ? l`<div class="md-section-content">${A(h)}</div>` : m}
 						</div>
 						<div class="md-part-actions">
 							${o(this, a, w).call(this, `${e.id}.content`)}
@@ -1767,4 +1766,4 @@ export {
   f as UpDocWorkflowSourceViewElement,
   xt as default
 };
-//# sourceMappingURL=up-doc-workflow-source-view.element-B7lfvaXo.js.map
+//# sourceMappingURL=up-doc-workflow-source-view.element-Dik1G0Rv.js.map

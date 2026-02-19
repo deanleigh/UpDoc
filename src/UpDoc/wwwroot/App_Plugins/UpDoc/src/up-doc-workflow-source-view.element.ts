@@ -1244,8 +1244,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		const isDuplicate = section.heading && section.content && section.heading.trim() === section.content.trim();
 		const hasDescription = !!section.description;
 		const hasSummary = !!section.summary;
-		const isComplexContent = !!section.content && section.content.includes('\n');
-		const hasHeadingAndContent = !!section.heading && !!section.content && !isDuplicate && isComplexContent;
+		const hasHeadingAndContent = !!section.heading && !!section.content && !isDuplicate;
 		const hasMultipleParts = hasHeadingAndContent || hasDescription || hasSummary;
 
 		const suffixes = ['content', 'heading', 'title', 'description', 'summary'];

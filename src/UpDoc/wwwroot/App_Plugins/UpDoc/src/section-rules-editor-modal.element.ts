@@ -57,6 +57,7 @@ const ALL_FORMAT_ENTRY_TYPES: FormatEntryType[] = ['block', 'style'];
 
 /** Block format value labels (block-level Markdown elements) */
 const BLOCK_FORMAT_LABELS: Record<string, string> = {
+	auto: 'Auto',
 	paragraph: 'Paragraph',
 	heading1: 'Heading 1',
 	heading2: 'Heading 2',
@@ -70,7 +71,7 @@ const BLOCK_FORMAT_LABELS: Record<string, string> = {
 };
 
 const ALL_BLOCK_FORMATS: string[] = [
-	'paragraph', 'heading1', 'heading2', 'heading3', 'heading4', 'heading5', 'heading6',
+	'auto', 'paragraph', 'heading1', 'heading2', 'heading3', 'heading4', 'heading5', 'heading6',
 	'bulletListItem', 'numberedListItem', 'quote',
 ];
 
@@ -233,7 +234,7 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 			role: '',
 			action: 'sectionTitle' as RuleAction,
 			conditions: [],
-			formats: [{ type: 'block' as FormatEntryType, value: 'paragraph' }],
+			formats: [{ type: 'block' as FormatEntryType, value: 'auto' }],
 		}];
 	}
 
@@ -254,7 +255,7 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 			role: roleSuggestion,
 			action: 'sectionTitle' as RuleAction,
 			conditions,
-			formats: [{ type: 'block' as FormatEntryType, value: 'paragraph' }],
+			formats: [{ type: 'block' as FormatEntryType, value: 'auto' }],
 		}];
 	}
 
@@ -276,7 +277,7 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 	#addFormatEntry(ruleIdx: number) {
 		const updated = [...this._rules];
 		const rule = { ...updated[ruleIdx] };
-		rule.formats = [...(rule.formats ?? []), { type: 'block' as FormatEntryType, value: 'paragraph' }];
+		rule.formats = [...(rule.formats ?? []), { type: 'block' as FormatEntryType, value: 'auto' }];
 		updated[ruleIdx] = rule;
 		this._rules = updated;
 	}
@@ -294,7 +295,7 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 		const rule = { ...updated[ruleIdx] };
 		rule.formats = [...(rule.formats ?? [])];
 		// Reset value to first option when switching type
-		const defaultValue = type === 'block' ? 'paragraph' : 'bold';
+		const defaultValue = type === 'block' ? 'auto' : 'bold';
 		rule.formats[fmtIdx] = { type, value: defaultValue };
 		updated[ruleIdx] = rule;
 		this._rules = updated;
@@ -398,7 +399,7 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 			const blockEntry = (rule.formats ?? []).find(f => f.type === 'block');
 			return {
 				...rule,
-				format: (blockEntry?.value ?? 'paragraph') as RuleContentFormat,
+				format: (blockEntry?.value ?? 'auto') as RuleContentFormat,
 			};
 		});
 		this.value = { rules: { rules: rulesWithCompat } };

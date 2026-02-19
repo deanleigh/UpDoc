@@ -474,7 +474,7 @@ public class ContentTransformService : IContentTransformService
     private static string FormatContentLine(string text, string? format, ref int numberedListCounter)
     {
         // Reset numbered list counter when format is not numberedListItem
-        if (format != "numberedListItem")
+        if (format != "numberedListItem" && format != "auto")
             numberedListCounter = 0;
 
         return format switch
@@ -488,9 +488,37 @@ public class ContentTransformService : IContentTransformService
             "bulletListItem" => $"- {StripBulletPrefix(text)}",
             "numberedListItem" => $"{++numberedListCounter}. {text}",
             "quote" => $"> {text}",
+            "auto" => AutoFormatLine(text, ref numberedListCounter),
             "paragraph" => text,
             _ => text, // null or unknown → plain text
         };
+    }
+
+    /// <summary>
+    /// Auto-detects the appropriate Markdown format from text content.
+    /// Bullet-prefixed text → "- text", numbered "N." prefix → "N. text", otherwise → plain paragraph.
+    /// </summary>
+    private static string AutoFormatLine(string text, ref int numberedListCounter)
+    {
+        var trimmed = text.TrimStart();
+
+        // Check for bullet prefix
+        if (trimmed.Length > 0 && BulletChars.Contains(trimmed[0]))
+        {
+            numberedListCounter = 0;
+            return $"- {StripBulletPrefix(text)}";
+        }
+
+        // Check for numbered list prefix (e.g., "1. " or "1) ")
+        var match = System.Text.RegularExpressions.Regex.Match(trimmed, @"^\d+[\.\)]\s");
+        if (match.Success)
+        {
+            return $"{++numberedListCounter}. {trimmed[match.Length..]}";
+        }
+
+        // Plain paragraph
+        numberedListCounter = 0;
+        return text;
     }
 
     /// <summary>
