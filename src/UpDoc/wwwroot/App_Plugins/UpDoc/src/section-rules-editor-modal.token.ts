@@ -9,6 +9,8 @@ export interface SectionRulesEditorModalData {
 	elements: AreaElement[];
 	/** Existing rules for this section, if any. */
 	existingRules?: AreaRules | null;
+	/** Callback for "Save" (persist without closing). Called with the current rules value. */
+	onSave?: (rules: AreaRules) => Promise<void>;
 }
 
 export interface SectionRulesEditorModalValue {

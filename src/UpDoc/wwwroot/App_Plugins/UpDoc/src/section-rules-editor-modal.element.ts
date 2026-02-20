@@ -586,8 +586,8 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 		};
 	}
 
-	#onSubmit() {
-		// Auto-confirm any pending group rename before saving
+	#buildRulesValue(): AreaRules {
+		// Auto-confirm any pending group rename before building value
 		if (this._renamingGroup) {
 			this.#confirmRenameGroup();
 		}
@@ -603,7 +603,19 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 			.filter((r) => r._groupName === null)
 			.map((r) => this.#cleanRule(r));
 
-		this.value = { rules: { groups, rules: ungroupedRules } };
+		return { groups, rules: ungroupedRules };
+	}
+
+	async #onSave() {
+		const rules = this.#buildRulesValue();
+		if (this.data?.onSave) {
+			await this.data.onSave(rules);
+		}
+	}
+
+	#onSaveAndClose() {
+		const rules = this.#buildRulesValue();
+		this.value = { rules };
 		this.modalContext?.submit();
 	}
 
@@ -718,7 +730,7 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 		return this.#renderExpandedRule(rule, flatIdx, matchedElements);
 	}
 
-	#renderCollapsedRule(rule: EditableRule, _flatIdx: number, matchedElements: AreaElement[]) {
+	#renderCollapsedRule(rule: EditableRule, flatIdx: number, matchedElements: AreaElement[]) {
 		const isExcluded = rule.exclude;
 		const currentPart = rule.part ?? 'content';
 		const partLabel = isExcluded ? 'Exclude' : PART_LABELS[currentPart] ?? currentPart;
@@ -727,13 +739,24 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 
 		return html`
 			<div class="rule-row" @click=${() => this.#toggleRuleExpanded(rule._id)}>
-				<span class="rule-grip" title="Drag to reorder">⠿</span>
+				<span class="rule-grip" title="Drag to reorder" @click=${(e: Event) => e.stopPropagation()}>⠿</span>
+				<uui-icon class="rule-row-chevron" name="icon-navigation-right"></uui-icon>
 				<span class="rule-row-name">${roleName}</span>
 				<span class="rule-row-part ${isExcluded ? 'excluded' : ''}">${partLabel}</span>
 				${matchCount > 0
 					? html`<span class="rule-row-match ${isExcluded ? 'excluded' : 'matched'}">${matchCount}&times;</span>`
 					: html`<span class="rule-row-match no-match">0</span>`}
-				<uui-icon class="rule-row-chevron" name="icon-navigation-down"></uui-icon>
+				<uui-action-bar class="rule-row-actions"
+					@click=${(e: Event) => e.stopPropagation()}>
+					<uui-button pristine look="primary" label="Edit rule"
+						@click=${() => this.#toggleRuleExpanded(rule._id)}>
+						<uui-icon name="icon-edit"></uui-icon>
+					</uui-button>
+					<uui-button pristine look="primary" label="Delete rule"
+						@click=${() => this.#removeRule(flatIdx)}>
+						<uui-icon name="icon-trash"></uui-icon>
+					</uui-button>
+				</uui-action-bar>
 			</div>
 		`;
 	}
@@ -751,7 +774,10 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 		return html`
 			<div class="rule-card">
 				<div class="rule-header">
-					<span class="rule-grip" title="Drag to reorder">⠿</span>
+					<span class="rule-grip disabled" title="Collapse to drag">⠿</span>
+					<uui-icon class="rule-row-chevron expanded" name="icon-navigation-down"
+						@click=${() => this.#toggleRuleExpanded(rule._id)}
+						style="cursor:pointer"></uui-icon>
 					<input
 						type="text"
 						class="role-name-input"
@@ -765,13 +791,6 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 						label="Remove rule"
 						@click=${() => this.#removeRule(flatIdx)}>
 						<uui-icon name="icon-trash"></uui-icon>
-					</uui-button>
-					<uui-button
-						compact
-						look="secondary"
-						label="Collapse"
-						@click=${() => this.#toggleRuleExpanded(rule._id)}>
-						<uui-icon name="icon-navigation-up"></uui-icon>
 					</uui-button>
 				</div>
 
@@ -911,14 +930,16 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 			<div class="group-header">
 				<strong class="group-name">${name}</strong>
 				<span class="header-spacer"></span>
-				<uui-button compact look="outline" label="Rename" @click=${() => this.#startRenameGroup(name)}>
-					<uui-icon name="icon-edit"></uui-icon>
-				</uui-button>
-				<uui-button compact look="outline" color="danger" label="Delete group"
-					title="Delete group (rules move to ungrouped)"
-					@click=${() => this.#deleteGroup(name)}>
-					<uui-icon name="icon-trash"></uui-icon>
-				</uui-button>
+				<uui-action-bar class="group-header-actions">
+					<uui-button pristine look="primary" label="Rename" @click=${() => this.#startRenameGroup(name)}>
+						<uui-icon name="icon-edit"></uui-icon>
+					</uui-button>
+					<uui-button pristine look="primary" label="Delete group"
+						title="Delete group (rules move to ungrouped)"
+						@click=${() => this.#deleteGroup(name)}>
+						<uui-icon name="icon-trash"></uui-icon>
+					</uui-button>
+				</uui-action-bar>
 			</div>
 		`;
 	}
@@ -1037,10 +1058,16 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 					<uui-button label="Close" @click=${this.#onClose}>Close</uui-button>
 					<uui-button
 						label="Save"
+						look="secondary"
+						@click=${this.#onSave}>
+						Save
+					</uui-button>
+					<uui-button
+						label="Save and Close"
 						look="primary"
 						color="positive"
-						@click=${this.#onSubmit}>
-						Save
+						@click=${this.#onSaveAndClose}>
+						Save and Close
 					</uui-button>
 				</div>
 			</umb-body-layout>
@@ -1096,6 +1123,15 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 			.group-name {
 				font-size: var(--uui-type-default-size);
 				color: var(--uui-color-text);
+			}
+
+			.group-header-actions {
+				opacity: 0;
+				transition: opacity 120ms ease;
+			}
+
+			.group-header:hover .group-header-actions {
+				opacity: 1;
 			}
 
 			.group-rename-input {
@@ -1202,6 +1238,18 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 				font-size: 12px;
 				color: var(--uui-color-text-alt);
 				flex-shrink: 0;
+				transition: transform 120ms ease;
+			}
+
+			/* Action bar: hidden by default, appears on hover */
+			.rule-row-actions {
+				flex-shrink: 0;
+				opacity: 0;
+				transition: opacity 120ms ease;
+			}
+
+			.rule-row:hover .rule-row-actions {
+				opacity: 1;
 			}
 
 			/* Rule cards (expanded) */
@@ -1226,6 +1274,11 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 				font-size: 14px;
 				user-select: none;
 				flex-shrink: 0;
+			}
+
+			.rule-grip.disabled {
+				cursor: default;
+				opacity: 0.3;
 			}
 
 			.rule-grip:active {

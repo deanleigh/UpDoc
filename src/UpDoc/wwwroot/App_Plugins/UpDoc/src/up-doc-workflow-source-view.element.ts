@@ -295,6 +295,36 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		this._sectionPickerOpen = event.newState === 'open';
 	}
 
+	/** Saves area rules for a specific area key and re-triggers transform. */
+	async #saveAreaRulesForKey(areaKey: string, rules: AreaRules) {
+		if (!this._workflowName) return;
+
+		const allRules: Record<string, AreaRules> = {
+			...(this._sourceConfig?.areaRules ?? {}),
+		};
+
+		const hasAnyRules = rules.groups.length > 0 || rules.rules.length > 0;
+		if (hasAnyRules) {
+			allRules[areaKey] = rules;
+		} else {
+			delete allRules[areaKey];
+		}
+
+		const saved = await saveAreaRules(this._workflowName, allRules, this.#token);
+		if (saved && this._sourceConfig) {
+			this._sourceConfig = { ...this._sourceConfig, areaRules: saved };
+		}
+
+		// Re-trigger transform so the Extracted view reflects composed sections
+		const mediaKey = this._extraction?.source.mediaKey;
+		if (mediaKey) {
+			const updatedTransform = await triggerTransform(this._workflowName, mediaKey, this.#token);
+			if (updatedTransform) {
+				this._transformResult = updatedTransform;
+			}
+		}
+	}
+
 	/** Opens the rules editor modal for a specific area. */
 	async #onEditAreaRules(areaKey: string, areaName: string, elements: AreaElement[]) {
 		if (!this._workflowName) return;
@@ -309,39 +339,16 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				sectionHeading: areaName,
 				elements,
 				existingRules,
+				onSave: async (rules: AreaRules) => {
+					await this.#saveAreaRulesForKey(areaKey, rules);
+				},
 			},
 		});
 
 		try {
 			const result = await modal.onSubmit();
 			if (result?.rules) {
-				// Merge into existing areaRules and save
-				const allRules: Record<string, AreaRules> = {
-					...(this._sourceConfig?.areaRules ?? {}),
-				};
-
-				// Check if there are any rules (grouped or ungrouped)
-				const hasAnyRules = result.rules.groups.length > 0 || result.rules.rules.length > 0;
-				if (hasAnyRules) {
-					allRules[areaKey] = result.rules;
-				} else {
-					// No rules left — remove the entry
-					delete allRules[areaKey];
-				}
-
-				const saved = await saveAreaRules(this._workflowName, allRules, this.#token);
-				if (saved && this._sourceConfig) {
-					this._sourceConfig = { ...this._sourceConfig, areaRules: saved };
-				}
-
-				// Re-trigger transform so the Extracted view reflects composed sections
-				const mediaKey = this._extraction?.source.mediaKey;
-				if (mediaKey) {
-					const updatedTransform = await triggerTransform(this._workflowName, mediaKey, this.#token);
-					if (updatedTransform) {
-						this._transformResult = updatedTransform;
-					}
-				}
+				await this.#saveAreaRulesForKey(areaKey, result.rules);
 			}
 		} catch {
 			// Modal cancelled
