@@ -1,6 +1,9 @@
 import type { SectionRulesEditorModalData, SectionRulesEditorModalValue } from './section-rules-editor-modal.token.js';
 import type { SectionRule, RuleCondition, RuleConditionType, RulePart, BlockFormat, FormatEntry, FormatEntryType, AreaElement, AreaRules, RuleGroup } from './workflow.types.js';
+import type { SortChangeDetail, SortableRule } from './sortable-rules-container.element.js';
 import { getEffectivePart, getEffectiveFormat } from './workflow.types.js';
+import './sortable-rules-container.element.js';
+import { ruleCardStyles } from './rule-card-styles.js';
 import { html, css, state, nothing } from '@umbraco-cms/backoffice/external/lit';
 import { customElement } from '@umbraco-cms/backoffice/external/lit';
 import { UmbModalBaseElement } from '@umbraco-cms/backoffice/modal';
@@ -112,12 +115,12 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 	@state() private _renamingGroup: string | null = null;
 	@state() private _renameValue = '';
 
-	#isCollapsed(section: string, ruleIdx: number): boolean {
-		return this._collapsed.has(`${section}-${ruleIdx}`);
+	#isCollapsed(section: string, ruleId: string): boolean {
+		return this._collapsed.has(`${section}-${ruleId}`);
 	}
 
-	#toggleCollapsed(section: string, ruleIdx: number) {
-		const key = `${section}-${ruleIdx}`;
+	#toggleCollapsed(section: string, ruleId: string) {
+		const key = `${section}-${ruleId}`;
 		const next = new Set(this._collapsed);
 		if (next.has(key)) {
 			next.delete(key);
@@ -215,39 +218,35 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 
 	/**
 	 * Returns a grouped view for rendering: groups in order, then ungrouped.
-	 * Each entry has the group name (null = ungrouped) and rules with their flat indices.
 	 */
-	get #groupedView(): Array<{ group: string | null; rules: Array<{ rule: EditableRule; flatIndex: number }> }> {
-		const result: Array<{ group: string | null; rules: Array<{ rule: EditableRule; flatIndex: number }> }> = [];
+	get #groupedView(): Array<{ group: string | null; rules: EditableRule[] }> {
+		const result: Array<{ group: string | null; rules: EditableRule[] }> = [];
 
 		// Groups in order
 		for (const name of this._groupOrder) {
-			const groupRules: Array<{ rule: EditableRule; flatIndex: number }> = [];
-			this._rules.forEach((r, i) => {
-				if (r._groupName === name) groupRules.push({ rule: r, flatIndex: i });
+			result.push({
+				group: name,
+				rules: this._rules.filter((r) => r._groupName === name),
 			});
-			result.push({ group: name, rules: groupRules });
 		}
 
 		// Ungrouped
-		const ungrouped: Array<{ rule: EditableRule; flatIndex: number }> = [];
-		this._rules.forEach((r, i) => {
-			if (r._groupName === null) ungrouped.push({ rule: r, flatIndex: i });
+		result.push({
+			group: null,
+			rules: this._rules.filter((r) => r._groupName === null),
 		});
-		result.push({ group: null, rules: ungrouped });
 
 		return result;
 	}
 
 	// ===== Rule evaluation (first-match-wins) =====
 
-	/** Evaluate all rules against elements. Returns a map of elementId -> ruleIndex */
-	#evaluateRules(): Map<string, number> {
-		const claimed = new Map<string, number>();
+	/** Evaluate all rules against elements. Returns a map of elementId -> rule _id */
+	#evaluateRules(): Map<string, string> {
+		const claimed = new Map<string, string>();
 		const elements = this.#elements;
 
-		for (let ruleIdx = 0; ruleIdx < this._rules.length; ruleIdx++) {
-			const rule = this._rules[ruleIdx];
+		for (const rule of this._rules) {
 			if (rule.conditions.length === 0) continue;
 
 			for (let elIdx = 0; elIdx < elements.length; elIdx++) {
@@ -262,7 +261,7 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 						);
 						if (anyExceptionMatches) continue;
 					}
-					claimed.set(el.id, ruleIdx);
+					claimed.set(el.id, rule._id);
 				}
 			}
 		}
@@ -341,6 +340,11 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 
 	// ===== Rule CRUD =====
 
+	/** Generic helper: update a single rule by _id. */
+	#updateRuleById(id: string, updater: (rule: EditableRule) => EditableRule) {
+		this._rules = this._rules.map((r) => r._id === id ? updater(r) : r);
+	}
+
 	#addRule(groupName: string | null = null) {
 		const id = generateRuleId();
 		this._rules = [...this._rules, {
@@ -355,8 +359,8 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 		this.#expandRule(id);
 	}
 
-	#removeRule(ruleIdx: number) {
-		this._rules = this._rules.filter((_, i) => i !== ruleIdx);
+	#removeRuleById(id: string) {
+		this._rules = this._rules.filter((r) => r._id !== id);
 	}
 
 	#createRuleFromElement(el: AreaElement, elIndex: number) {
@@ -381,22 +385,16 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 		this.#expandRule(id);
 	}
 
-	#updateRoleName(ruleIdx: number, value: string) {
-		const updated = [...this._rules];
-		updated[ruleIdx] = { ...updated[ruleIdx], role: value };
-		this._rules = updated;
+	#updateRoleName(id: string, value: string) {
+		this.#updateRuleById(id, (r) => ({ ...r, role: value }));
 	}
 
-	#updatePart(ruleIdx: number, value: RulePart) {
-		const updated = [...this._rules];
-		updated[ruleIdx] = { ...updated[ruleIdx], part: value };
-		this._rules = updated;
+	#updatePart(id: string, value: RulePart) {
+		this.#updateRuleById(id, (r) => ({ ...r, part: value }));
 	}
 
-	#updateExclude(ruleIdx: number, value: boolean) {
-		const updated = [...this._rules];
-		updated[ruleIdx] = { ...updated[ruleIdx], exclude: value };
-		this._rules = updated;
+	#updateExclude(id: string, value: boolean) {
+		this.#updateRuleById(id, (r) => ({ ...r, exclude: value }));
 	}
 
 	// ===== Group CRUD =====
@@ -448,129 +446,144 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 		this._groupOrder = this._groupOrder.filter((n) => n !== name);
 	}
 
-	#moveRuleToGroup(ruleIdx: number, groupName: string | null) {
-		const updated = [...this._rules];
-		updated[ruleIdx] = { ...updated[ruleIdx], _groupName: groupName };
-		this._rules = updated;
+	// ===== Drag-and-drop sort handling =====
+
+	/**
+	 * Handles sort-change from an <updoc-sortable-rules> container.
+	 * Rebuilds the flat _rules array: rules arriving in this container get
+	 * their _groupName set; rules no longer in this container but still in
+	 * _rules keep their existing _groupName.
+	 */
+	#onSortChange(groupName: string | null, e: CustomEvent<SortChangeDetail>) {
+		const newRules = e.detail.rules as EditableRule[];
+		const newRuleIds = new Set(newRules.map((r) => r._id));
+
+		// Rebuild flat array: groups in order, then ungrouped
+		const allRules: EditableRule[] = [];
+
+		for (const gName of this._groupOrder) {
+			if (gName === groupName) {
+				// Use the new order for this group, set _groupName
+				allRules.push(...newRules.map((r) => ({ ...r, _groupName: gName })));
+			} else {
+				// Keep existing rules for other groups, exclude any that moved into the changed container
+				allRules.push(...this._rules.filter((r) => r._groupName === gName && !newRuleIds.has(r._id)));
+			}
+		}
+
+		// Ungrouped
+		if (groupName === null) {
+			allRules.push(...newRules.map((r) => ({ ...r, _groupName: null })));
+		} else {
+			allRules.push(...this._rules.filter((r) => r._groupName === null && !newRuleIds.has(r._id)));
+		}
+
+		this._rules = allRules;
 	}
 
 	// ===== Format entry CRUD =====
 
-	#addFormatEntry(ruleIdx: number) {
-		const updated = [...this._rules];
-		const rule = { ...updated[ruleIdx] };
-		rule.formats = [...(rule.formats ?? []), { type: 'block' as FormatEntryType, value: 'auto' }];
-		updated[ruleIdx] = rule;
-		this._rules = updated;
+	#addFormatEntry(id: string) {
+		this.#updateRuleById(id, (r) => ({
+			...r,
+			formats: [...(r.formats ?? []), { type: 'block' as FormatEntryType, value: 'auto' }],
+		}));
 	}
 
-	#removeFormatEntry(ruleIdx: number, fmtIdx: number) {
-		const updated = [...this._rules];
-		const rule = { ...updated[ruleIdx] };
-		rule.formats = (rule.formats ?? []).filter((_, i) => i !== fmtIdx);
-		updated[ruleIdx] = rule;
-		this._rules = updated;
+	#removeFormatEntry(id: string, fmtIdx: number) {
+		this.#updateRuleById(id, (r) => ({
+			...r,
+			formats: (r.formats ?? []).filter((_, i) => i !== fmtIdx),
+		}));
 	}
 
-	#updateFormatEntryType(ruleIdx: number, fmtIdx: number, type: FormatEntryType) {
-		const updated = [...this._rules];
-		const rule = { ...updated[ruleIdx] };
-		rule.formats = [...(rule.formats ?? [])];
-		// Reset value to first option when switching type
+	#updateFormatEntryType(id: string, fmtIdx: number, type: FormatEntryType) {
 		const defaultValue = type === 'block' ? 'auto' : 'bold';
-		rule.formats[fmtIdx] = { type, value: defaultValue };
-		updated[ruleIdx] = rule;
-		this._rules = updated;
+		this.#updateRuleById(id, (r) => {
+			const formats = [...(r.formats ?? [])];
+			formats[fmtIdx] = { type, value: defaultValue };
+			return { ...r, formats };
+		});
 	}
 
-	#updateFormatEntryValue(ruleIdx: number, fmtIdx: number, value: string) {
-		const updated = [...this._rules];
-		const rule = { ...updated[ruleIdx] };
-		rule.formats = [...(rule.formats ?? [])];
-		rule.formats[fmtIdx] = { ...rule.formats[fmtIdx], value: value as FormatEntry['value'] };
-		updated[ruleIdx] = rule;
-		this._rules = updated;
+	#updateFormatEntryValue(id: string, fmtIdx: number, value: string) {
+		this.#updateRuleById(id, (r) => {
+			const formats = [...(r.formats ?? [])];
+			formats[fmtIdx] = { ...formats[fmtIdx], value: value as FormatEntry['value'] };
+			return { ...r, formats };
+		});
 	}
 
-	#addCondition(ruleIdx: number) {
-		const updated = [...this._rules];
-		const rule = { ...updated[ruleIdx] };
-		rule.conditions = [...rule.conditions, { type: 'textBeginsWith', value: '' }];
-		updated[ruleIdx] = rule;
-		this._rules = updated;
+	#addCondition(id: string) {
+		this.#updateRuleById(id, (r) => ({
+			...r,
+			conditions: [...r.conditions, { type: 'textBeginsWith' as RuleConditionType, value: '' }],
+		}));
 	}
 
-	#removeCondition(ruleIdx: number, condIdx: number) {
-		const updated = [...this._rules];
-		const rule = { ...updated[ruleIdx] };
-		rule.conditions = rule.conditions.filter((_, i) => i !== condIdx);
-		updated[ruleIdx] = rule;
-		this._rules = updated;
+	#removeCondition(id: string, condIdx: number) {
+		this.#updateRuleById(id, (r) => ({
+			...r,
+			conditions: r.conditions.filter((_, i) => i !== condIdx),
+		}));
 	}
 
-	#updateConditionType(ruleIdx: number, condIdx: number, type: RuleConditionType) {
-		const updated = [...this._rules];
-		const rule = { ...updated[ruleIdx] };
-		rule.conditions = [...rule.conditions];
-		rule.conditions[condIdx] = {
-			type,
-			value: VALUELESS_CONDITIONS.includes(type) ? undefined : rule.conditions[condIdx].value,
-		};
-		updated[ruleIdx] = rule;
-		this._rules = updated;
+	#updateConditionType(id: string, condIdx: number, type: RuleConditionType) {
+		this.#updateRuleById(id, (r) => {
+			const conditions = [...r.conditions];
+			conditions[condIdx] = {
+				type,
+				value: VALUELESS_CONDITIONS.includes(type) ? undefined : conditions[condIdx].value,
+			};
+			return { ...r, conditions };
+		});
 	}
 
-	#updateConditionValue(ruleIdx: number, condIdx: number, value: string) {
-		const updated = [...this._rules];
-		const rule = { ...updated[ruleIdx] };
-		rule.conditions = [...rule.conditions];
-		const cond = rule.conditions[condIdx];
-		// Store as number for font size conditions
-		const isNumeric = cond.type === 'fontSizeEquals' || cond.type === 'fontSizeAbove' || cond.type === 'fontSizeBelow';
-		rule.conditions[condIdx] = { ...cond, value: isNumeric && !isNaN(Number(value)) ? Number(value) : value };
-		updated[ruleIdx] = rule;
-		this._rules = updated;
+	#updateConditionValue(id: string, condIdx: number, value: string) {
+		this.#updateRuleById(id, (r) => {
+			const conditions = [...r.conditions];
+			const cond = conditions[condIdx];
+			const isNumeric = cond.type === 'fontSizeEquals' || cond.type === 'fontSizeAbove' || cond.type === 'fontSizeBelow';
+			conditions[condIdx] = { ...cond, value: isNumeric && !isNaN(Number(value)) ? Number(value) : value };
+			return { ...r, conditions };
+		});
 	}
 
 	// ===== Exception CRUD =====
 
-	#addException(ruleIdx: number) {
-		const updated = [...this._rules];
-		const rule = { ...updated[ruleIdx] };
-		rule.exceptions = [...(rule.exceptions ?? []), { type: 'textContains' as RuleConditionType, value: '' }];
-		updated[ruleIdx] = rule;
-		this._rules = updated;
+	#addException(id: string) {
+		this.#updateRuleById(id, (r) => ({
+			...r,
+			exceptions: [...(r.exceptions ?? []), { type: 'textContains' as RuleConditionType, value: '' }],
+		}));
 	}
 
-	#removeException(ruleIdx: number, excIdx: number) {
-		const updated = [...this._rules];
-		const rule = { ...updated[ruleIdx] };
-		rule.exceptions = (rule.exceptions ?? []).filter((_, i) => i !== excIdx);
-		updated[ruleIdx] = rule;
-		this._rules = updated;
+	#removeException(id: string, excIdx: number) {
+		this.#updateRuleById(id, (r) => ({
+			...r,
+			exceptions: (r.exceptions ?? []).filter((_, i) => i !== excIdx),
+		}));
 	}
 
-	#updateExceptionType(ruleIdx: number, excIdx: number, type: RuleConditionType) {
-		const updated = [...this._rules];
-		const rule = { ...updated[ruleIdx] };
-		rule.exceptions = [...(rule.exceptions ?? [])];
-		rule.exceptions[excIdx] = {
-			type,
-			value: VALUELESS_CONDITIONS.includes(type) ? undefined : rule.exceptions[excIdx].value,
-		};
-		updated[ruleIdx] = rule;
-		this._rules = updated;
+	#updateExceptionType(id: string, excIdx: number, type: RuleConditionType) {
+		this.#updateRuleById(id, (r) => {
+			const exceptions = [...(r.exceptions ?? [])];
+			exceptions[excIdx] = {
+				type,
+				value: VALUELESS_CONDITIONS.includes(type) ? undefined : exceptions[excIdx].value,
+			};
+			return { ...r, exceptions };
+		});
 	}
 
-	#updateExceptionValue(ruleIdx: number, excIdx: number, value: string) {
-		const updated = [...this._rules];
-		const rule = { ...updated[ruleIdx] };
-		rule.exceptions = [...(rule.exceptions ?? [])];
-		const exc = rule.exceptions[excIdx];
-		const isNumeric = exc.type === 'fontSizeEquals' || exc.type === 'fontSizeAbove' || exc.type === 'fontSizeBelow';
-		rule.exceptions[excIdx] = { ...exc, value: isNumeric && !isNaN(Number(value)) ? Number(value) : value };
-		updated[ruleIdx] = rule;
-		this._rules = updated;
+	#updateExceptionValue(id: string, excIdx: number, value: string) {
+		this.#updateRuleById(id, (r) => {
+			const exceptions = [...(r.exceptions ?? [])];
+			const exc = exceptions[excIdx];
+			const isNumeric = exc.type === 'fontSizeEquals' || exc.type === 'fontSizeAbove' || exc.type === 'fontSizeBelow';
+			exceptions[excIdx] = { ...exc, value: isNumeric && !isNaN(Number(value)) ? Number(value) : value };
+			return { ...r, exceptions };
+		});
 	}
 
 	// ===== Submit =====
@@ -625,14 +638,14 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 
 	// ===== Rendering =====
 
-	#renderConditionRow(ruleIdx: number, condIdx: number, condition: RuleCondition) {
+	#renderConditionRow(ruleId: string, condIdx: number, condition: RuleCondition) {
 		const isValueless = VALUELESS_CONDITIONS.includes(condition.type);
 		return html`
 			<div class="condition-row">
 				<select
 					class="condition-type-select"
 					.value=${condition.type}
-					@change=${(e: Event) => this.#updateConditionType(ruleIdx, condIdx, (e.target as HTMLSelectElement).value as RuleConditionType)}>
+					@change=${(e: Event) => this.#updateConditionType(ruleId, condIdx, (e.target as HTMLSelectElement).value as RuleConditionType)}>
 					${ALL_CONDITION_TYPES.map((t) => html`
 						<option value=${t} ?selected=${t === condition.type}>${CONDITION_LABELS[t]}</option>
 					`)}
@@ -643,27 +656,27 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 						class="condition-value-input"
 						placeholder="Value..."
 						.value=${String(condition.value ?? '')}
-						@input=${(e: Event) => this.#updateConditionValue(ruleIdx, condIdx, (e.target as HTMLInputElement).value)} />
+						@input=${(e: Event) => this.#updateConditionValue(ruleId, condIdx, (e.target as HTMLInputElement).value)} />
 				`}
 				<uui-button
 					compact
 					look="secondary"
 					label="Remove condition"
-					@click=${() => this.#removeCondition(ruleIdx, condIdx)}>
+					@click=${() => this.#removeCondition(ruleId, condIdx)}>
 					<uui-icon name="icon-trash"></uui-icon>
 				</uui-button>
 			</div>
 		`;
 	}
 
-	#renderExceptionRow(ruleIdx: number, excIdx: number, exception: RuleCondition) {
+	#renderExceptionRow(ruleId: string, excIdx: number, exception: RuleCondition) {
 		const isValueless = VALUELESS_CONDITIONS.includes(exception.type);
 		return html`
 			<div class="condition-row">
 				<select
 					class="condition-type-select"
 					.value=${exception.type}
-					@change=${(e: Event) => this.#updateExceptionType(ruleIdx, excIdx, (e.target as HTMLSelectElement).value as RuleConditionType)}>
+					@change=${(e: Event) => this.#updateExceptionType(ruleId, excIdx, (e.target as HTMLSelectElement).value as RuleConditionType)}>
 					${ALL_CONDITION_TYPES.map((t) => html`
 						<option value=${t} ?selected=${t === exception.type}>${CONDITION_LABELS[t]}</option>
 					`)}
@@ -674,20 +687,20 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 						class="condition-value-input"
 						placeholder="Value..."
 						.value=${String(exception.value ?? '')}
-						@input=${(e: Event) => this.#updateExceptionValue(ruleIdx, excIdx, (e.target as HTMLInputElement).value)} />
+						@input=${(e: Event) => this.#updateExceptionValue(ruleId, excIdx, (e.target as HTMLInputElement).value)} />
 				`}
 				<uui-button
 					compact
 					look="secondary"
 					label="Remove exception"
-					@click=${() => this.#removeException(ruleIdx, excIdx)}>
+					@click=${() => this.#removeException(ruleId, excIdx)}>
 					<uui-icon name="icon-trash"></uui-icon>
 				</uui-button>
 			</div>
 		`;
 	}
 
-	#renderFormatRow(ruleIdx: number, fmtIdx: number, entry: FormatEntry) {
+	#renderFormatRow(ruleId: string, fmtIdx: number, entry: FormatEntry) {
 		const valueOptions = entry.type === 'block' ? ALL_BLOCK_FORMATS : ALL_STYLE_FORMATS;
 		const valueLabels = entry.type === 'block' ? BLOCK_FORMAT_LABELS : STYLE_FORMAT_LABELS;
 
@@ -696,7 +709,7 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 				<select
 					class="format-type-select"
 					.value=${entry.type}
-					@change=${(e: Event) => this.#updateFormatEntryType(ruleIdx, fmtIdx, (e.target as HTMLSelectElement).value as FormatEntryType)}>
+					@change=${(e: Event) => this.#updateFormatEntryType(ruleId, fmtIdx, (e.target as HTMLSelectElement).value as FormatEntryType)}>
 					${ALL_FORMAT_ENTRY_TYPES.map((t) => html`
 						<option value=${t} ?selected=${t === entry.type}>${FORMAT_ENTRY_TYPE_LABELS[t]}</option>
 					`)}
@@ -704,7 +717,7 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 				<select
 					class="format-value-select"
 					.value=${entry.value}
-					@change=${(e: Event) => this.#updateFormatEntryValue(ruleIdx, fmtIdx, (e.target as HTMLSelectElement).value)}>
+					@change=${(e: Event) => this.#updateFormatEntryValue(ruleId, fmtIdx, (e.target as HTMLSelectElement).value)}>
 					${valueOptions.map((v) => html`
 						<option value=${v} ?selected=${v === entry.value}>${valueLabels[v]}</option>
 					`)}
@@ -713,24 +726,24 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 					compact
 					look="secondary"
 					label="Remove format"
-					@click=${() => this.#removeFormatEntry(ruleIdx, fmtIdx)}>
+					@click=${() => this.#removeFormatEntry(ruleId, fmtIdx)}>
 					<uui-icon name="icon-trash"></uui-icon>
 				</uui-button>
 			</div>
 		`;
 	}
 
-	#renderRuleCard(rule: EditableRule, flatIdx: number, matchedElements: AreaElement[]) {
+	#renderRuleCard(rule: EditableRule, matchedElements: AreaElement[]) {
 		const isExpanded = this.#isRuleExpanded(rule._id);
 
 		if (!isExpanded) {
-			return this.#renderCollapsedRule(rule, flatIdx, matchedElements);
+			return this.#renderCollapsedRule(rule, matchedElements);
 		}
 
-		return this.#renderExpandedRule(rule, flatIdx, matchedElements);
+		return this.#renderExpandedRule(rule, matchedElements);
 	}
 
-	#renderCollapsedRule(rule: EditableRule, flatIdx: number, matchedElements: AreaElement[]) {
+	#renderCollapsedRule(rule: EditableRule, matchedElements: AreaElement[]) {
 		const isExcluded = rule.exclude;
 		const currentPart = rule.part ?? 'content';
 		const partLabel = isExcluded ? 'Exclude' : PART_LABELS[currentPart] ?? currentPart;
@@ -740,7 +753,6 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 		return html`
 			<div class="rule-row" @click=${() => this.#toggleRuleExpanded(rule._id)}>
 				<span class="rule-grip" title="Drag to reorder" @click=${(e: Event) => e.stopPropagation()}>⠿</span>
-				<uui-icon class="rule-row-chevron" name="icon-navigation-right"></uui-icon>
 				<span class="rule-row-name">${roleName}</span>
 				<span class="rule-row-part ${isExcluded ? 'excluded' : ''}">${partLabel}</span>
 				${matchCount > 0
@@ -753,7 +765,7 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 						<uui-icon name="icon-edit"></uui-icon>
 					</uui-button>
 					<uui-button pristine look="primary" label="Delete rule"
-						@click=${() => this.#removeRule(flatIdx)}>
+						@click=${() => this.#removeRuleById(rule._id)}>
 						<uui-icon name="icon-trash"></uui-icon>
 					</uui-button>
 				</uui-action-bar>
@@ -761,85 +773,79 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 		`;
 	}
 
-	#renderExpandedRule(rule: EditableRule, flatIdx: number, matchedElements: AreaElement[]) {
+	#renderExpandedRule(rule: EditableRule, matchedElements: AreaElement[]) {
 		const isExcluded = rule.exclude;
 		const currentPart = rule.part ?? 'content';
-
-		// Build group move options
-		const moveOptions: Array<{ label: string; value: string | null }> = [
-			{ label: 'Ungrouped', value: null },
-			...this._groupOrder.map((name) => ({ label: name, value: name })),
-		];
+		const id = rule._id;
 
 		return html`
 			<div class="rule-card">
 				<div class="rule-header">
-					<span class="rule-grip disabled" title="Collapse to drag">⠿</span>
 					<uui-icon class="rule-row-chevron expanded" name="icon-navigation-down"
-						@click=${() => this.#toggleRuleExpanded(rule._id)}
+						@click=${() => this.#toggleRuleExpanded(id)}
 						style="cursor:pointer"></uui-icon>
 					<input
 						type="text"
 						class="role-name-input"
 						placeholder="Section name (e.g. tour-title)"
 						.value=${rule.role}
-						@input=${(e: Event) => this.#updateRoleName(flatIdx, (e.target as HTMLInputElement).value)} />
+						@input=${(e: Event) => this.#updateRoleName(id, (e.target as HTMLInputElement).value)} />
 					<uui-button
 						compact
 						look="secondary"
 						color="danger"
 						label="Remove rule"
-						@click=${() => this.#removeRule(flatIdx)}>
+						@click=${() => this.#removeRuleById(id)}>
 						<uui-icon name="icon-trash"></uui-icon>
 					</uui-button>
 				</div>
 
 				<div class="conditions-area">
-					<div class="section-header collapsible" @click=${() => this.#toggleCollapsed('conditions', flatIdx)}>
-						<uui-icon name=${this.#isCollapsed('conditions', flatIdx) ? 'icon-navigation-right' : 'icon-navigation-down'}></uui-icon>
+					<div class="section-header collapsible" @click=${() => this.#toggleCollapsed('conditions', id)}>
+						<uui-icon name=${this.#isCollapsed('conditions', id) ? 'icon-navigation-right' : 'icon-navigation-down'}></uui-icon>
 						Conditions${rule.conditions.length > 0 ? ` (${rule.conditions.length})` : ''}
 					</div>
-					${this.#isCollapsed('conditions', flatIdx) ? nothing : html`
-						${rule.conditions.map((cond, cIdx) => this.#renderConditionRow(flatIdx, cIdx, cond))}
+					${this.#isCollapsed('conditions', id) ? nothing : html`
+						${rule.conditions.map((cond, cIdx) => this.#renderConditionRow(id, cIdx, cond))}
 						<uui-button
 							compact
 							look="placeholder"
 							label="Add condition"
-							@click=${() => this.#addCondition(flatIdx)}>
+							@click=${() => this.#addCondition(id)}>
 							+ Add condition
 						</uui-button>
 					`}
 				</div>
 
 				<div class="exceptions-area">
-					<div class="section-header collapsible" @click=${() => this.#toggleCollapsed('exceptions', flatIdx)}>
-						<uui-icon name=${this.#isCollapsed('exceptions', flatIdx) ? 'icon-navigation-right' : 'icon-navigation-down'}></uui-icon>
+					<div class="section-header collapsible" @click=${() => this.#toggleCollapsed('exceptions', id)}>
+						<uui-icon name=${this.#isCollapsed('exceptions', id) ? 'icon-navigation-right' : 'icon-navigation-down'}></uui-icon>
 						Exceptions${(rule.exceptions ?? []).length > 0 ? ` (${(rule.exceptions ?? []).length})` : ''}
 					</div>
-					${this.#isCollapsed('exceptions', flatIdx) ? nothing : html`
-						${(rule.exceptions ?? []).map((exc, eIdx) => this.#renderExceptionRow(flatIdx, eIdx, exc))}
+					${this.#isCollapsed('exceptions', id) ? nothing : html`
+						${(rule.exceptions ?? []).map((exc, eIdx) => this.#renderExceptionRow(id, eIdx, exc))}
 						<uui-button
 							compact
 							look="placeholder"
 							label="Add exception"
-							@click=${() => this.#addException(flatIdx)}>
+							@click=${() => this.#addException(id)}>
 							+ Add exception
 						</uui-button>
 					`}
 				</div>
 
 				<div class="part-area">
-					<div class="section-header collapsible" @click=${() => this.#toggleCollapsed('part', flatIdx)}>
-						<uui-icon name=${this.#isCollapsed('part', flatIdx) ? 'icon-navigation-right' : 'icon-navigation-down'}></uui-icon>
+					<div class="section-header collapsible" @click=${() => this.#toggleCollapsed('part', id)}>
+						<uui-icon name=${this.#isCollapsed('part', id) ? 'icon-navigation-right' : 'icon-navigation-down'}></uui-icon>
 						Part
 					</div>
-					${this.#isCollapsed('part', flatIdx) ? nothing : html`
+					${this.#isCollapsed('part', id) ? nothing : html`
 						<div class="part-controls">
 							<select
 								class="part-select"
 								.value=${currentPart}
 								?disabled=${isExcluded}
-								@change=${(e: Event) => this.#updatePart(flatIdx, (e.target as HTMLSelectElement).value as RulePart)}>
+								@change=${(e: Event) => this.#updatePart(id, (e.target as HTMLSelectElement).value as RulePart)}>
 								${ALL_PARTS.map((p) => html`
 									<option value=${p} ?selected=${p === currentPart}>${PART_LABELS[p]}</option>
 								`)}
@@ -848,42 +854,26 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 								<input
 									type="checkbox"
 									.checked=${isExcluded}
-									@change=${(e: Event) => this.#updateExclude(flatIdx, (e.target as HTMLInputElement).checked)} />
+									@change=${(e: Event) => this.#updateExclude(id, (e.target as HTMLInputElement).checked)} />
 								Exclude
 							</label>
 						</div>
-						${moveOptions.length > 1 ? html`
-							<div class="move-to-group">
-								<span class="move-label">Group:</span>
-								<select
-									class="group-select"
-									.value=${rule._groupName ?? ''}
-									@change=${(e: Event) => {
-										const val = (e.target as HTMLSelectElement).value;
-										this.#moveRuleToGroup(flatIdx, val || null);
-									}}>
-									${moveOptions.map((opt) => html`
-										<option value=${opt.value ?? ''} ?selected=${(opt.value ?? '') === (rule._groupName ?? '')}>${opt.label}</option>
-									`)}
-								</select>
-							</div>
-						` : nothing}
 					`}
 				</div>
 
 				${!isExcluded ? html`
 				<div class="format-area">
-					<div class="section-header collapsible" @click=${() => this.#toggleCollapsed('format', flatIdx)}>
-						<uui-icon name=${this.#isCollapsed('format', flatIdx) ? 'icon-navigation-right' : 'icon-navigation-down'}></uui-icon>
+					<div class="section-header collapsible" @click=${() => this.#toggleCollapsed('format', id)}>
+						<uui-icon name=${this.#isCollapsed('format', id) ? 'icon-navigation-right' : 'icon-navigation-down'}></uui-icon>
 						Format${(rule.formats ?? []).length > 0 ? ` (${(rule.formats ?? []).length})` : ''}
 					</div>
-					${this.#isCollapsed('format', flatIdx) ? nothing : html`
-						${(rule.formats ?? []).map((fmt, fIdx) => this.#renderFormatRow(flatIdx, fIdx, fmt))}
+					${this.#isCollapsed('format', id) ? nothing : html`
+						${(rule.formats ?? []).map((fmt, fIdx) => this.#renderFormatRow(id, fIdx, fmt))}
 						<uui-button
 							compact
 							look="placeholder"
 							label="Add format"
-							@click=${() => this.#addFormatEntry(flatIdx)}>
+							@click=${() => this.#addFormatEntry(id)}>
 							+ Add format
 						</uui-button>
 					`}
@@ -979,14 +969,14 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 	override render() {
 		const claimed = this.#evaluateRules();
 
-		// Build ruleIdx -> all matched elements lookup
-		const ruleMatches = new Map<number, AreaElement[]>();
-		for (const [elId, ruleIdx] of claimed) {
+		// Build rule _id -> all matched elements lookup
+		const ruleMatches = new Map<string, AreaElement[]>();
+		for (const [elId, ruleId] of claimed) {
 			const el = this.#elements.find((e) => e.id === elId);
 			if (el) {
-				const existing = ruleMatches.get(ruleIdx) ?? [];
+				const existing = ruleMatches.get(ruleId) ?? [];
 				existing.push(el);
-				ruleMatches.set(ruleIdx, existing);
+				ruleMatches.set(ruleId, existing);
 			}
 		}
 
@@ -1006,15 +996,21 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 					</div>
 
 					${groupedView.map((entry) => {
+						const renderItemCb = (rule: SortableRule) =>
+							this.#renderRuleCard(rule as EditableRule, ruleMatches.get(rule._id) ?? []);
+
 						if (entry.group !== null) {
 							// Render a named group
 							return html`
 								<div class="group-container">
 									${this.#renderGroupHeader(entry.group)}
 									<div class="group-rules">
-										${entry.rules.map(({ rule, flatIndex }) =>
-											this.#renderRuleCard(rule, flatIndex, ruleMatches.get(flatIndex) ?? []),
-										)}
+										<updoc-sortable-rules
+											.rules=${entry.rules}
+											.expandedIds=${this._expandedRules}
+											.renderItem=${renderItemCb}
+											@sort-change=${(e: CustomEvent<SortChangeDetail>) => this.#onSortChange(entry.group, e)}
+										></updoc-sortable-rules>
 										<uui-button
 											look="placeholder"
 											label="Add rule to ${entry.group}"
@@ -1031,9 +1027,12 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 							${this._groupOrder.length > 0 ? html`
 								<div class="ungrouped-label">Ungrouped</div>
 							` : nothing}
-							${entry.rules.map(({ rule, flatIndex }) =>
-								this.#renderRuleCard(rule, flatIndex, ruleMatches.get(flatIndex) ?? []),
-							)}
+							<updoc-sortable-rules
+								.rules=${entry.rules}
+								.expandedIds=${this._expandedRules}
+								.renderItem=${renderItemCb}
+								@sort-change=${(e: CustomEvent<SortChangeDetail>) => this.#onSortChange(null, e)}
+							></updoc-sortable-rules>
 							<uui-button
 								look="placeholder"
 								label="Add rule"
@@ -1076,6 +1075,7 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 
 	static override styles = [
 		UmbTextStyles,
+		ruleCardStyles,
 		css`
 			:host {
 				display: block;
@@ -1166,358 +1166,6 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 				letter-spacing: 0.5px;
 				color: var(--uui-color-text-alt);
 				padding-top: var(--uui-size-space-2);
-			}
-
-			/* Collapsed rule row */
-			.rule-row {
-				display: flex;
-				align-items: center;
-				gap: var(--uui-size-space-3);
-				padding: var(--uui-size-space-2) var(--uui-size-space-4);
-				border: 1px solid var(--uui-color-border);
-				border-radius: var(--uui-border-radius);
-				cursor: pointer;
-				user-select: none;
-				background: var(--uui-color-surface);
-				transition: background 120ms ease;
-			}
-
-			.rule-row:hover {
-				background: var(--uui-color-surface-alt);
-			}
-
-			.rule-row-name {
-				flex: 1;
-				font-size: var(--uui-type-default-size);
-				font-weight: 600;
-				min-width: 0;
-				overflow: hidden;
-				text-overflow: ellipsis;
-				white-space: nowrap;
-			}
-
-			.rule-row-part {
-				font-size: 11px;
-				font-weight: 600;
-				padding: 1px 8px;
-				border-radius: var(--uui-border-radius);
-				background: var(--uui-color-surface-alt);
-				color: var(--uui-color-text-alt);
-				flex-shrink: 0;
-			}
-
-			.rule-row-part.excluded {
-				background: color-mix(in srgb, var(--uui-color-danger) 15%, transparent);
-				color: var(--uui-color-danger-standalone);
-			}
-
-			.rule-row-match {
-				font-size: 11px;
-				font-weight: 700;
-				padding: 1px 6px;
-				border-radius: var(--uui-border-radius);
-				flex-shrink: 0;
-			}
-
-			.rule-row-match.matched {
-				background: color-mix(in srgb, var(--uui-color-positive) 15%, transparent);
-				color: var(--uui-color-positive-standalone);
-			}
-
-			.rule-row-match.excluded {
-				background: color-mix(in srgb, var(--uui-color-danger) 15%, transparent);
-				color: var(--uui-color-danger-standalone);
-			}
-
-			.rule-row-match.no-match {
-				background: color-mix(in srgb, var(--uui-color-warning) 15%, transparent);
-				color: var(--uui-color-warning-standalone);
-			}
-
-			.rule-row-chevron {
-				font-size: 12px;
-				color: var(--uui-color-text-alt);
-				flex-shrink: 0;
-				transition: transform 120ms ease;
-			}
-
-			/* Action bar: hidden by default, appears on hover */
-			.rule-row-actions {
-				flex-shrink: 0;
-				opacity: 0;
-				transition: opacity 120ms ease;
-			}
-
-			.rule-row:hover .rule-row-actions {
-				opacity: 1;
-			}
-
-			/* Rule cards (expanded) */
-			.rule-card {
-				border: 1px solid var(--uui-color-border);
-				border-radius: var(--uui-border-radius);
-				overflow: hidden;
-			}
-
-			.rule-header {
-				display: flex;
-				align-items: center;
-				gap: var(--uui-size-space-3);
-				padding: var(--uui-size-space-3) var(--uui-size-space-4);
-				background: var(--uui-color-surface-alt);
-				border-bottom: 1px solid var(--uui-color-border);
-			}
-
-			.rule-grip {
-				cursor: grab;
-				color: var(--uui-color-text-alt);
-				font-size: 14px;
-				user-select: none;
-				flex-shrink: 0;
-			}
-
-			.rule-grip.disabled {
-				cursor: default;
-				opacity: 0.3;
-			}
-
-			.rule-grip:active {
-				cursor: grabbing;
-			}
-
-			.role-name-input {
-				flex: 1;
-				padding: var(--uui-size-space-1) var(--uui-size-space-2);
-				border: 1px solid var(--uui-color-border);
-				border-radius: var(--uui-border-radius);
-				font-size: var(--uui-type-default-size);
-				font-family: monospace;
-				background: var(--uui-color-surface);
-				color: var(--uui-color-text);
-			}
-
-			.role-name-input:focus {
-				outline: none;
-				border-color: var(--uui-color-focus);
-			}
-
-			/* Section headers within rule cards */
-			.section-header {
-				font-size: 11px;
-				font-weight: 700;
-				text-transform: uppercase;
-				letter-spacing: 0.5px;
-				color: var(--uui-color-text-alt);
-				margin-bottom: var(--uui-size-space-1);
-			}
-
-			.section-header.collapsible {
-				cursor: pointer;
-				display: flex;
-				align-items: center;
-				gap: var(--uui-size-space-1);
-				user-select: none;
-			}
-
-			.section-header.collapsible:hover {
-				color: var(--uui-color-text);
-			}
-
-			.section-header.collapsible uui-icon {
-				font-size: 10px;
-			}
-
-			/* Conditions */
-			.conditions-area {
-				padding: var(--uui-size-space-3) var(--uui-size-space-4);
-				display: flex;
-				flex-direction: column;
-				gap: var(--uui-size-space-2);
-			}
-
-			/* Exceptions */
-			.exceptions-area {
-				padding: var(--uui-size-space-3) var(--uui-size-space-4);
-				display: flex;
-				flex-direction: column;
-				gap: var(--uui-size-space-2);
-				border-top: 1px solid var(--uui-color-border);
-			}
-
-			.condition-row {
-				display: flex;
-				align-items: center;
-				gap: var(--uui-size-space-2);
-			}
-
-			.condition-type-select {
-				min-width: 180px;
-				padding: var(--uui-size-space-1) var(--uui-size-space-2);
-				border: 1px solid var(--uui-color-border);
-				border-radius: var(--uui-border-radius);
-				font-size: var(--uui-type-small-size);
-				background: var(--uui-color-surface);
-				color: var(--uui-color-text);
-			}
-
-			.condition-type-select:focus {
-				outline: none;
-				border-color: var(--uui-color-focus);
-			}
-
-			.condition-value-input {
-				flex: 1;
-				padding: var(--uui-size-space-1) var(--uui-size-space-2);
-				border: 1px solid var(--uui-color-border);
-				border-radius: var(--uui-border-radius);
-				font-size: var(--uui-type-small-size);
-				font-family: monospace;
-				background: var(--uui-color-surface);
-				color: var(--uui-color-text);
-			}
-
-			.condition-value-input:focus {
-				outline: none;
-				border-color: var(--uui-color-focus);
-			}
-
-			/* Format row selects */
-			.format-type-select {
-				min-width: 100px;
-				padding: var(--uui-size-space-1) var(--uui-size-space-2);
-				border: 1px solid var(--uui-color-border);
-				border-radius: var(--uui-border-radius);
-				font-size: var(--uui-type-small-size);
-				background: var(--uui-color-surface);
-				color: var(--uui-color-text);
-			}
-
-			.format-type-select:focus {
-				outline: none;
-				border-color: var(--uui-color-focus);
-			}
-
-			.format-value-select {
-				flex: 1;
-				padding: var(--uui-size-space-1) var(--uui-size-space-2);
-				border: 1px solid var(--uui-color-border);
-				border-radius: var(--uui-border-radius);
-				font-size: var(--uui-type-small-size);
-				background: var(--uui-color-surface);
-				color: var(--uui-color-text);
-			}
-
-			.format-value-select:focus {
-				outline: none;
-				border-color: var(--uui-color-focus);
-			}
-
-			/* Part area (replaces old action area) */
-			.part-area {
-				display: flex;
-				flex-direction: column;
-				gap: var(--uui-size-space-2);
-				padding: var(--uui-size-space-3) var(--uui-size-space-4);
-				border-top: 1px solid var(--uui-color-border);
-			}
-
-			.part-controls {
-				display: flex;
-				align-items: center;
-				gap: var(--uui-size-space-3);
-			}
-
-			.part-select {
-				padding: var(--uui-size-space-1) var(--uui-size-space-2);
-				border: 1px solid var(--uui-color-border);
-				border-radius: var(--uui-border-radius);
-				font-size: var(--uui-type-small-size);
-				background: var(--uui-color-surface);
-				color: var(--uui-color-text);
-			}
-
-			.part-select:focus {
-				outline: none;
-				border-color: var(--uui-color-focus);
-			}
-
-			.part-select:disabled {
-				opacity: 0.5;
-			}
-
-			.exclude-label {
-				display: flex;
-				align-items: center;
-				gap: var(--uui-size-space-1);
-				font-size: var(--uui-type-small-size);
-				color: var(--uui-color-text-alt);
-				cursor: pointer;
-				user-select: none;
-			}
-
-			.move-to-group {
-				display: flex;
-				align-items: center;
-				gap: var(--uui-size-space-2);
-				margin-top: var(--uui-size-space-1);
-			}
-
-			.move-label {
-				font-size: var(--uui-type-small-size);
-				color: var(--uui-color-text-alt);
-			}
-
-			.group-select {
-				flex: 1;
-				padding: var(--uui-size-space-1) var(--uui-size-space-2);
-				border: 1px solid var(--uui-color-border);
-				border-radius: var(--uui-border-radius);
-				font-size: var(--uui-type-small-size);
-				background: var(--uui-color-surface);
-				color: var(--uui-color-text);
-			}
-
-			.group-select:focus {
-				outline: none;
-				border-color: var(--uui-color-focus);
-			}
-
-			/* Format area */
-			.format-area {
-				display: flex;
-				flex-direction: column;
-				gap: var(--uui-size-space-2);
-				padding: var(--uui-size-space-3) var(--uui-size-space-4);
-				border-top: 1px solid var(--uui-color-border);
-			}
-
-			/* Match preview */
-			.match-preview {
-				display: flex;
-				align-items: center;
-				gap: var(--uui-size-space-2);
-				padding: var(--uui-size-space-2) var(--uui-size-space-4);
-				font-size: var(--uui-type-small-size);
-				border-top: 1px solid var(--uui-color-border);
-			}
-
-			.match-preview.matched {
-				background: color-mix(in srgb, var(--uui-color-positive) 10%, transparent);
-				color: var(--uui-color-positive-standalone);
-			}
-
-			.match-preview.excluded {
-				background: color-mix(in srgb, var(--uui-color-danger) 10%, transparent);
-				color: var(--uui-color-danger-standalone);
-			}
-
-			.match-preview.no-match {
-				background: color-mix(in srgb, var(--uui-color-warning) 10%, transparent);
-				color: var(--uui-color-warning-standalone);
-			}
-
-			.match-preview strong {
-				font-weight: 600;
 			}
 
 			/* Unmatched elements */
