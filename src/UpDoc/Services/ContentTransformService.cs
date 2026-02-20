@@ -11,7 +11,7 @@ namespace UpDoc.Services;
 /// </summary>
 public interface IContentTransformService
 {
-    TransformResult Transform(AreaDetectionResult areaDetection, Dictionary<string, SectionRuleSet>? areaRules = null, TransformResult? previous = null);
+    TransformResult Transform(AreaDetectionResult areaDetection, Dictionary<string, AreaRules>? areaRules = null, TransformResult? previous = null);
 }
 
 public class ContentTransformService : IContentTransformService
@@ -21,7 +21,7 @@ public class ContentTransformService : IContentTransformService
         '•', '●', '○', '■', '□', '▪', '▫', '◆', '◇', '►', '▸', '\u2022'
     };
 
-    public TransformResult Transform(AreaDetectionResult areaDetection, Dictionary<string, SectionRuleSet>? areaRules = null, TransformResult? previous = null)
+    public TransformResult Transform(AreaDetectionResult areaDetection, Dictionary<string, AreaRules>? areaRules = null, TransformResult? previous = null)
     {
         var result = new TransformResult();
         var diagnostics = new TransformDiagnostics();
@@ -37,17 +37,17 @@ public class ContentTransformService : IContentTransformService
 
                 // Check if this area has rules that should produce individual sections
                 var areaKey = !string.IsNullOrEmpty(area.Name) ? NormalizeToKebabCase(area.Name) : null;
-                SectionRuleSet? ruleSet = null;
+                AreaRules? areaRule = null;
                 if (areaKey != null && areaRules != null)
                 {
-                    areaRules.TryGetValue(areaKey, out ruleSet);
+                    areaRules.TryGetValue(areaKey, out areaRule);
                 }
 
                 // When area rules exist, apply them to all elements in the area
-                if (ruleSet != null && ruleSet.Rules.Count > 0)
+                if (areaRule != null && areaRule.AllRules().Any())
                 {
                     var roleSections = TransformAreaWithRules(
-                        area, ruleSet, page.Page, areaIndex, seenIds, diagnostics);
+                        area, areaRule, page.Page, areaIndex, seenIds, diagnostics);
                     result.Sections.AddRange(roleSections);
                 }
                 else
@@ -128,23 +128,26 @@ public class ContentTransformService : IContentTransformService
     }
 
     /// <summary>
-    /// Transforms an area using area rules to produce sections driven by rule actions.
+    /// Transforms an area using area rules to produce sections driven by rule parts.
     /// Collects all elements from all sections (headings + children) and applies
     /// rules against the complete set (first-match-wins per element).
     ///
-    /// v2 action names (normalized from legacy via SectionRule.GetNormalizedAction):
-    ///   singleProperty → flush + create a standalone section (role name = heading, element text = content)
-    ///   sectionTitle → flush current section, start new section with this element as heading
-    ///   sectionContent → append to current section using the rule's Format for Markdown output
-    ///   exclude → skip element entirely
+    /// Ungrouped rules with part="content" → standalone section (role name = heading, element text = content)
+    /// Grouped rules:
+    ///   part="title" → flush current section, start new section with this element as heading
+    ///   part="content" → append to current section using the rule's Format for Markdown output
+    ///   part="description" → append to description part
+    ///   part="summary" → append to summary part
+    ///   exclude=true → skip element entirely
     ///
-    /// Format determines Markdown output for sectionContent:
-    ///   paragraph → plain text, heading1/2/3 → #/##/###, bulletListItem → "- ", numberedListItem → "N. "
+    /// Format determines Markdown output for content parts:
+    ///   auto → system decides, paragraph → plain text, heading1-6 → #..######,
+    ///   bulletListItem → "- ", numberedListItem → "N. "
     ///
     /// Unmatched elements are appended as paragraph content to the current open section.
     /// </summary>
     private static List<TransformedSection> TransformAreaWithRules(
-        DetectedArea area, SectionRuleSet ruleSet, int page, int areaIndex,
+        DetectedArea area, AreaRules areaRule, int page, int areaIndex,
         Dictionary<string, int> seenIds, TransformDiagnostics diagnostics)
     {
         var sections = new List<TransformedSection>();
@@ -160,15 +163,36 @@ public class ContentTransformService : IContentTransformService
 
         var total = elements.Count;
 
+        // Build a flat list of all rules for matching and a set of ungrouped rules
+        var allRules = areaRule.AllRules().ToList();
+        var ungroupedRules = new HashSet<SectionRule>(areaRule.Rules);
+
         // For each element, determine which rule (if any) claims it (first-match-wins)
         var elementRules = new SectionRule?[elements.Count];
         for (int i = 0; i < elements.Count; i++)
         {
-            foreach (var rule in ruleSet.Rules)
+            foreach (var rule in allRules)
             {
                 // Skip rules with no conditions — empty conditions match everything (vacuous truth)
                 if (rule.Conditions.Count == 0)
                     continue;
+
+                // Check exceptions: if any exception matches, skip this rule for this element
+                if (rule.Exceptions != null && rule.Exceptions.Count > 0)
+                {
+                    bool exceptionMatches = false;
+                    foreach (var exception in rule.Exceptions)
+                    {
+                        if (PdfPagePropertiesService.MatchesAllConditions(
+                            elements[i], new List<RuleCondition> { exception }, i, total))
+                        {
+                            exceptionMatches = true;
+                            break;
+                        }
+                    }
+                    if (exceptionMatches)
+                        continue;
+                }
 
                 if (PdfPagePropertiesService.MatchesAllConditions(elements[i], rule.Conditions, i, total))
                 {
@@ -178,30 +202,36 @@ public class ContentTransformService : IContentTransformService
             }
         }
 
-        // Normalize all matched rules to v2 action names
-        var normalizedActions = new (string Action, string? Format)?[elements.Count];
+        // Resolve effective parts and formats for matched elements
+        var elementParts = new string?[elements.Count];
+        var elementFormats = new string?[elements.Count];
+        var elementIsUngrouped = new bool[elements.Count];
         for (int i = 0; i < elements.Count; i++)
         {
-            normalizedActions[i] = elementRules[i]?.GetNormalizedAction();
+            if (elementRules[i] != null)
+            {
+                elementParts[i] = elementRules[i]!.GetEffectivePart();
+                elementFormats[i] = elementRules[i]!.GetEffectiveFormat();
+                elementIsUngrouped[i] = ungroupedRules.Contains(elementRules[i]!);
+            }
         }
 
-        // Check if any rules use accumulating actions (sectionContent, sectionDescription, sectionSummary, exclude).
-        // If so, use the action-driven loop. Otherwise, fall back to legacy behaviour
-        // for backward compatibility with rules that only use sectionTitle.
-        bool hasAccumulatingActions = false;
+        // Check if any rules use part-driven behavior (anything beyond just legacy title-only rules).
+        // Ungrouped content rules, grouped content/description/summary, or excludes → part-driven mode.
+        bool hasPartDrivenRules = false;
         for (int i = 0; i < elements.Count; i++)
         {
-            var action = normalizedActions[i]?.Action;
-            if (action is "singleProperty" or "sectionContent" or "sectionDescription" or "sectionSummary" or "exclude")
+            var part = elementParts[i];
+            if (part is "content" or "description" or "summary" or "exclude")
             {
-                hasAccumulatingActions = true;
+                hasPartDrivenRules = true;
                 break;
             }
         }
 
-        if (hasAccumulatingActions)
+        if (hasPartDrivenRules)
         {
-            // ACTION-DRIVEN MODE: each element's normalized action determines behaviour.
+            // PART-DRIVEN MODE: each element's part determines behaviour.
             // Sections have separately-mappable parts: content, description, summary.
             string? currentHeadingText = null;
             var currentContentLines = new List<string>();
@@ -265,53 +295,53 @@ public class ContentTransformService : IContentTransformService
 
             for (int i = 0; i < elements.Count; i++)
             {
-                var normalized = normalizedActions[i];
-                var action = normalized?.Action ?? "sectionContent";
-                var format = normalized?.Format ?? "paragraph";
+                var part = elementParts[i] ?? "content";
+                var format = elementFormats[i] ?? "auto";
+                var isUngrouped = elementIsUngrouped[i];
 
-                switch (action)
+                // Ungrouped content rules → standalone single-property section
+                if (isUngrouped && part == "content")
                 {
-                    case "singleProperty":
-                        // Standalone section: flush any open section, then create a
-                        // complete section where the role name is the heading and
-                        // the element text is the content.
-                        FlushSection();
-                        var roleName = elementRules[i]?.Role ?? elements[i].Text;
-                        var propLine = FormatContentLine(elements[i].Text, format, ref numberedListCounter);
-                        var propId = NormalizeToKebabCase(roleName);
-                        var propSection = new TransformedSection
-                        {
-                            Id = propId,
-                            Heading = ToTitleCaseIfAllCaps(roleName),
-                            OriginalHeading = roleName,
-                            Content = propLine,
-                            Pattern = "role",
-                            Page = page,
-                            AreaColor = string.IsNullOrEmpty(area.Color) ? null : area.Color,
-                            AreaName = area.Name,
-                            ChildCount = 1,
-                        };
-                        DeduplicateId(propSection, seenIds);
-                        sections.Add(propSection);
-                        UpdateDiagnostics(diagnostics, propSection.Pattern);
-                        break;
+                    FlushSection();
+                    var roleName = elementRules[i]?.Role ?? elements[i].Text;
+                    var propLine = FormatContentLine(elements[i].Text, format, ref numberedListCounter);
+                    var propId = NormalizeToKebabCase(roleName);
+                    var propSection = new TransformedSection
+                    {
+                        Id = propId,
+                        Heading = ToTitleCaseIfAllCaps(roleName),
+                        OriginalHeading = roleName,
+                        Content = propLine,
+                        Pattern = "role",
+                        Page = page,
+                        AreaColor = string.IsNullOrEmpty(area.Color) ? null : area.Color,
+                        AreaName = area.Name,
+                        ChildCount = 1,
+                    };
+                    DeduplicateId(propSection, seenIds);
+                    sections.Add(propSection);
+                    UpdateDiagnostics(diagnostics, propSection.Pattern);
+                    continue;
+                }
 
-                    case "sectionTitle":
+                switch (part)
+                {
+                    case "title":
                         FlushSection();
                         currentHeadingText = elements[i].Text;
                         break;
 
-                    case "sectionContent":
+                    case "content":
                         var contentLine = FormatContentLine(elements[i].Text, format, ref numberedListCounter);
                         currentContentLines.Add(contentLine);
                         break;
 
-                    case "sectionDescription":
+                    case "description":
                         var descLine = FormatContentLine(elements[i].Text, format, ref numberedListCounter);
                         currentDescriptionLines.Add(descLine);
                         break;
 
-                    case "sectionSummary":
+                    case "summary":
                         var summaryLine = FormatContentLine(elements[i].Text, format, ref numberedListCounter);
                         currentSummaryLines.Add(summaryLine);
                         break;
@@ -325,8 +355,8 @@ public class ContentTransformService : IContentTransformService
         }
         else
         {
-            // LEGACY MODE: no accumulating actions, use role-count heuristic for backward
-            // compatibility with rules that only use createSection.
+            // LEGACY MODE: no part-driven rules, use role-count heuristic for backward
+            // compatibility with rules that only use title parts (old createSection).
             var roleCounts = new Dictionary<string, int>();
             for (int i = 0; i < elements.Count; i++)
             {
@@ -418,7 +448,7 @@ public class ContentTransformService : IContentTransformService
                     }
                 }
 
-                foreach (var rule in ruleSet.Rules)
+                foreach (var rule in allRules)
                 {
                     if (roleElements.TryGetValue(rule.Role, out var roleEls) && roleEls.Count > 0)
                     {

@@ -480,7 +480,7 @@ public class WorkflowController : ControllerBase
     }
 
     [HttpPut("{name}/area-rules")]
-    public IActionResult UpdateAreaRules(string name, [FromBody] Dictionary<string, SectionRuleSet> areaRules)
+    public IActionResult UpdateAreaRules(string name, [FromBody] Dictionary<string, AreaRules> areaRules)
     {
         var sourceConfig = _workflowService.GetSourceConfig(name);
         if (sourceConfig == null)

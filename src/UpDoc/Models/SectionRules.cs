@@ -3,67 +3,194 @@ using System.Text.Json.Serialization;
 namespace UpDoc.Models;
 
 /// <summary>
-/// A set of rules for breaking a transform section into individually-mappable roles.
-/// Keyed by transform section ID in source.json's sectionRules dictionary.
+/// Top-level container for an area's rules. Rules are organized into named groups
+/// (for multi-part sections like Tour Details) and ungrouped rules (for single properties).
+///
+/// Backward compatible: when reading old format { "rules": [...] }, all rules go into
+/// the ungrouped Rules array with Groups empty.
+/// </summary>
+public class AreaRules
+{
+    [JsonPropertyName("groups")]
+    public List<RuleGroup> Groups { get; set; } = new();
+
+    /// <summary>Ungrouped rules (single properties).</summary>
+    [JsonPropertyName("rules")]
+    public List<SectionRule> Rules { get; set; } = new();
+
+    /// <summary>
+    /// Returns all rules across all groups and ungrouped, preserving order:
+    /// groups first (in group order, rules within each group in order), then ungrouped.
+    /// </summary>
+    public IEnumerable<SectionRule> AllRules()
+    {
+        foreach (var group in Groups)
+            foreach (var rule in group.Rules)
+                yield return rule;
+        foreach (var rule in Rules)
+            yield return rule;
+    }
+}
+
+/// <summary>
+/// A named group of rules. Groups represent multi-part sections (e.g., "Tour Detail"
+/// with title + content rules). The group name becomes the mapping key prefix.
+/// </summary>
+public class RuleGroup
+{
+    [JsonPropertyName("name")]
+    public string Name { get; set; } = string.Empty;
+
+    [JsonPropertyName("rules")]
+    public List<SectionRule> Rules { get; set; } = new();
+}
+
+/// <summary>
+/// Legacy flat rule set — kept for backward-compatible deserialization.
+/// Convert to AreaRules via ToAreaRules() for processing.
 /// </summary>
 public class SectionRuleSet
 {
     [JsonPropertyName("rules")]
     public List<SectionRule> Rules { get; set; } = new();
+
+    /// <summary>
+    /// Convert legacy flat rule set to AreaRules (all rules ungrouped).
+    /// </summary>
+    public AreaRules ToAreaRules()
+    {
+        return new AreaRules { Rules = Rules };
+    }
 }
 
 /// <summary>
 /// A single rule that assigns a role name to elements matching all conditions.
 /// Rules are evaluated first-match-wins: an element claimed by one rule is excluded from later rules.
 ///
-/// Action values (v2): singleProperty, sectionTitle, sectionContent, sectionDescription, sectionSummary, exclude
-/// Legacy values still accepted: createSection → sectionTitle, setAsHeading → sectionTitle,
-///   addAsContent → sectionContent (format=paragraph), addAsList → sectionContent (format=bulletListItem)
+/// Part values (v3): title, content, description, summary
+/// Legacy Action values still accepted on deserialization and normalized to Part via GetEffectivePart().
 ///
-/// Format values (only when Action = sectionContent/sectionDescription/sectionSummary):
-///   paragraph, heading1-6, bulletListItem, numberedListItem, quote
+/// Format values: auto, paragraph, heading1-6, bulletListItem, numberedListItem, quote
 /// </summary>
 public class SectionRule
 {
     [JsonPropertyName("role")]
     public string Role { get; set; } = string.Empty;
 
-    [JsonPropertyName("action")]
-    public string Action { get; set; } = "sectionTitle";
+    /// <summary>
+    /// Which slot this rule fills: "title", "content", "description", "summary".
+    /// Title triggers section boundaries in grouped rules.
+    /// </summary>
+    [JsonPropertyName("part")]
+    public string? Part { get; set; }
 
     /// <summary>
-    /// Markdown format for sectionContent: paragraph, heading1, heading2, heading3, bulletListItem, numberedListItem.
-    /// Null when Action is sectionTitle or exclude.
+    /// Legacy action field — kept for backward-compatible deserialization.
+    /// When Part is set, Action is ignored. When only Action is set, Part is derived from it.
+    /// Not written on new saves (only Part is written).
+    /// </summary>
+    [JsonPropertyName("action")]
+    public string? Action { get; set; }
+
+    /// <summary>
+    /// Markdown block format: auto, paragraph, heading1-6, bulletListItem, numberedListItem, quote.
+    /// "auto" = system decides based on content patterns. Default is "auto".
     /// </summary>
     [JsonPropertyName("format")]
     public string? Format { get; set; }
+
+    /// <summary>
+    /// When true, matched elements are skipped entirely (not included in any section).
+    /// Replaces the legacy action="exclude".
+    /// </summary>
+    [JsonPropertyName("exclude")]
+    public bool Exclude { get; set; }
 
     [JsonPropertyName("conditions")]
     public List<RuleCondition> Conditions { get; set; } = new();
 
     /// <summary>
-    /// Normalizes legacy action names to v2 names and infers format where applicable.
-    /// Returns (normalizedAction, effectiveFormat).
+    /// Negative conditions: if any exception matches, the rule does not apply to that element.
+    /// Uses the same condition vocabulary as Conditions.
+    /// </summary>
+    [JsonPropertyName("exceptions")]
+    public List<RuleCondition>? Exceptions { get; set; }
+
+    /// <summary>
+    /// Returns the effective part, normalizing legacy action values.
+    /// Priority: Exclude flag → Part field → Action field → default "content".
+    /// </summary>
+    public string GetEffectivePart()
+    {
+        if (Exclude) return "exclude";
+        if (!string.IsNullOrEmpty(Part)) return Part;
+
+        // Normalize from legacy Action field
+        return Action switch
+        {
+            "singleProperty" or "sectionProperty" => "content",
+            "sectionTitle" or "createSection" or "setAsHeading" => "title",
+            "sectionContent" or "addAsContent" => "content",
+            "addAsList" => "content",
+            "sectionDescription" => "description",
+            "sectionSummary" => "summary",
+            "exclude" => "exclude",
+            _ => "content",
+        };
+    }
+
+    /// <summary>
+    /// Returns the effective format, with defaults applied.
+    /// </summary>
+    public string GetEffectiveFormat()
+    {
+        // Explicit format always wins
+        if (!string.IsNullOrEmpty(Format)) return Format;
+
+        // Legacy action-derived defaults
+        if (!string.IsNullOrEmpty(Action))
+        {
+            return Action switch
+            {
+                "addAsList" => "bulletListItem",
+                _ => "auto",
+            };
+        }
+
+        return "auto";
+    }
+
+    /// <summary>
+    /// Returns whether this rule acts as a standalone single-property section.
+    /// In legacy format, this is action="singleProperty". In new format, it's
+    /// determined by the rule being ungrouped (not inside a RuleGroup).
+    /// This method checks the legacy action for backward compat; callers should
+    /// prefer checking group membership directly.
+    /// </summary>
+    public bool IsSinglePropertyLegacy()
+    {
+        return Action is "singleProperty" or "sectionProperty";
+    }
+
+    /// <summary>
+    /// Legacy normalization — kept for backward compatibility with code that
+    /// still uses the old (Action, Format) tuple pattern.
+    /// Prefer GetEffectivePart() and GetEffectiveFormat() for new code.
     /// </summary>
     public (string Action, string? Format) GetNormalizedAction()
     {
-        return Action switch
+        var part = GetEffectivePart();
+        var format = GetEffectiveFormat();
+
+        return part switch
         {
-            // Legacy → v2 mappings
-            "createSection" => ("sectionTitle", null),
-            "setAsHeading" => ("sectionTitle", null),
-            "addAsContent" => ("sectionContent", Format ?? "paragraph"),
-            "addAsList" => ("sectionContent", Format ?? "bulletListItem"),
-            // v2 names pass through
-            "singleProperty" => ("singleProperty", Format ?? "paragraph"),
-            "sectionProperty" => ("singleProperty", Format ?? "paragraph"), // legacy name
-            "sectionTitle" => ("sectionTitle", null),
-            "sectionContent" => ("sectionContent", Format ?? "paragraph"),
-            "sectionDescription" => ("sectionDescription", Format ?? "paragraph"),
-            "sectionSummary" => ("sectionSummary", Format ?? "paragraph"),
             "exclude" => ("exclude", null),
-            // Unknown → treat as sectionContent paragraph
-            _ => ("sectionContent", Format ?? "paragraph"),
+            "title" => ("sectionTitle", null),
+            "content" when IsSinglePropertyLegacy() => ("singleProperty", format),
+            "content" => ("sectionContent", format),
+            "description" => ("sectionDescription", format),
+            "summary" => ("sectionSummary", format),
+            _ => ("sectionContent", format),
         };
     }
 }
@@ -74,8 +201,8 @@ public class SectionRule
 public class RuleCondition
 {
     /// <summary>
-    /// Condition type: textBeginsWith, textEndsWith, textContains, textMatchesPattern,
-    /// fontSizeEquals, fontSizeAbove, fontSizeBelow, fontNameContains, colorEquals,
+    /// Condition type: textBeginsWith, textEndsWith, textContains, textEquals, textMatchesPattern,
+    /// fontSizeEquals, fontSizeAbove, fontSizeBelow, fontNameContains, fontNameEquals, colorEquals,
     /// positionFirst, positionLast
     /// </summary>
     [JsonPropertyName("type")]

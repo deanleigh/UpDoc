@@ -1,4 +1,4 @@
-import type { RichExtractionResult, DocumentTypeConfig, MappingDestination, AreaDetectionResult, DetectedArea, DetectedSection, AreaElement, TransformResult, TransformedSection, SourceConfig, AreaTemplate, SectionRuleSet, InferSectionPatternResponse, MapConfig, SectionMapping } from './workflow.types.js';
+import type { RichExtractionResult, DocumentTypeConfig, MappingDestination, AreaDetectionResult, DetectedArea, DetectedSection, AreaElement, TransformResult, TransformedSection, SourceConfig, AreaTemplate, AreaRules, InferSectionPatternResponse, MapConfig, SectionMapping } from './workflow.types.js';
 import { fetchSampleExtraction, triggerSampleExtraction, fetchWorkflowByName, fetchAreaDetection, triggerTransform, fetchTransformResult, updateSectionInclusion, savePageSelection, fetchSourceConfig, fetchAreaTemplate, saveAreaTemplate, saveAreaRules, inferSectionPattern, saveMapConfig } from './workflow.service.js';
 import { normalizeToKebabCase, markdownToHtml } from './transforms.js';
 import { UMB_AREA_EDITOR_MODAL } from './pdf-area-editor-modal.token.js';
@@ -283,7 +283,8 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				seenKeys.add(areaKey);
 
 				const elements = this.#getAreaElements(area);
-				const hasRules = !!(this._sourceConfig?.areaRules?.[areaKey]?.rules?.length);
+				const ar = this._sourceConfig?.areaRules?.[areaKey];
+				const hasRules = !!ar && ((ar.groups?.length ?? 0) > 0 || (ar.rules?.length ?? 0) > 0);
 				result.push({ areaKey, areaName, elements, hasRules });
 			}
 		}
@@ -315,11 +316,13 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 			const result = await modal.onSubmit();
 			if (result?.rules) {
 				// Merge into existing areaRules and save
-				const allRules: Record<string, SectionRuleSet> = {
+				const allRules: Record<string, AreaRules> = {
 					...(this._sourceConfig?.areaRules ?? {}),
 				};
 
-				if (result.rules.rules.length > 0) {
+				// Check if there are any rules (grouped or ungrouped)
+				const hasAnyRules = result.rules.groups.length > 0 || result.rules.rules.length > 0;
+				if (hasAnyRules) {
 					allRules[areaKey] = result.rules;
 				} else {
 					// No rules left — remove the entry
@@ -614,7 +617,9 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 
 	#hasAreaRules(area: DetectedArea): boolean {
 		const key = this.#getAreaRulesKey(area);
-		return !!(this._sourceConfig?.areaRules?.[key]?.rules?.length);
+		const areaRules = this._sourceConfig?.areaRules?.[key];
+		if (!areaRules) return false;
+		return (areaRules.groups?.length ?? 0) > 0 || (areaRules.rules?.length ?? 0) > 0;
 	}
 
 	/** Get transform sections that belong to a specific area (matched by color + page). */
@@ -917,7 +922,8 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 			? (area.sectionPattern!.conditions.length > 0 ? 'Configured' : 'Flat')
 			: null;
 
-		const ruleCount = this._sourceConfig?.areaRules?.[rulesAreaKey]?.rules?.length ?? 0;
+		const areaRulesObj = this._sourceConfig?.areaRules?.[rulesAreaKey];
+		const ruleCount = (areaRulesObj?.rules?.length ?? 0) + (areaRulesObj?.groups?.reduce((sum, g) => sum + g.rules.length, 0) ?? 0);
 
 		return html`
 			<div class="detected-area ${!isIncluded ? 'area-excluded' : ''} ${isTeaching ? 'area-teaching' : ''}" style="border-left-color: ${area.color};">

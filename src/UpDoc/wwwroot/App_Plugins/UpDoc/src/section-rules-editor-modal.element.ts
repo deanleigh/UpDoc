@@ -1,10 +1,24 @@
 import type { SectionRulesEditorModalData, SectionRulesEditorModalValue } from './section-rules-editor-modal.token.js';
-import type { SectionRule, RuleCondition, RuleConditionType, RuleAction, RuleContentFormat, FormatEntry, FormatEntryType, AreaElement } from './workflow.types.js';
-import { normalizeAction } from './workflow.types.js';
+import type { SectionRule, RuleCondition, RuleConditionType, RulePart, BlockFormat, FormatEntry, FormatEntryType, AreaElement, AreaRules, RuleGroup } from './workflow.types.js';
+import { getEffectivePart, getEffectiveFormat } from './workflow.types.js';
 import { html, css, state, nothing } from '@umbraco-cms/backoffice/external/lit';
 import { customElement } from '@umbraco-cms/backoffice/external/lit';
 import { UmbModalBaseElement } from '@umbraco-cms/backoffice/modal';
 import { UmbTextStyles } from '@umbraco-cms/backoffice/style';
+
+/**
+ * Editable rule: SectionRule + transient tracking fields for the modal.
+ * _id is used for drag-and-drop tracking. _groupName tracks which group the rule belongs to.
+ */
+interface EditableRule extends SectionRule {
+	_id: string;
+	_groupName: string | null;
+}
+
+let _nextRuleId = 0;
+function generateRuleId(): string {
+	return `r-${++_nextRuleId}`;
+}
 
 /** Friendly labels for condition types */
 const CONDITION_LABELS: Record<RuleConditionType, string> = {
@@ -34,18 +48,16 @@ const ALL_CONDITION_TYPES: RuleConditionType[] = [
 	'positionFirst', 'positionLast',
 ];
 
-/** Friendly labels for rule actions */
-const ACTION_LABELS: Record<RuleAction, string> = {
-	singleProperty: 'Single Property',
-	sectionTitle: 'Section Title',
-	sectionContent: 'Section Content',
-	sectionDescription: 'Section Description',
-	sectionSummary: 'Section Summary',
-	exclude: 'Exclude',
+/** Friendly labels for rule parts */
+const PART_LABELS: Record<RulePart, string> = {
+	title: 'Title',
+	content: 'Content',
+	description: 'Description',
+	summary: 'Summary',
 };
 
-/** All available rule actions */
-const ALL_ACTIONS: RuleAction[] = ['singleProperty', 'sectionTitle', 'sectionContent', 'sectionDescription', 'sectionSummary', 'exclude'];
+/** All available rule parts */
+const ALL_PARTS: RulePart[] = ['title', 'content', 'description', 'summary'];
 
 /** Format entry type labels */
 const FORMAT_ENTRY_TYPE_LABELS: Record<FormatEntryType, string> = {
@@ -88,9 +100,15 @@ const ALL_STYLE_FORMATS: string[] = ['bold', 'italic', 'strikethrough', 'code', 
 
 @customElement('up-doc-section-rules-editor-modal')
 export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<SectionRulesEditorModalData, SectionRulesEditorModalValue> {
-	@state() private _rules: SectionRule[] = [];
+	/** Flat array of all rules (grouped + ungrouped). Each carries _groupName for grouping. */
+	@state() private _rules: EditableRule[] = [];
+	/** Ordered list of group names. */
+	@state() private _groupOrder: string[] = [];
 	/** Track collapsed state per rule section: "conditions-0", "exceptions-1", etc. */
 	@state() private _collapsed: Set<string> = new Set();
+	/** Group currently being renamed (null = none). */
+	@state() private _renamingGroup: string | null = null;
+	@state() private _renameValue = '';
 
 	#isCollapsed(section: string, ruleIdx: number): boolean {
 		return this._collapsed.has(`${section}-${ruleIdx}`);
@@ -108,21 +126,59 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 	}
 
 	override firstUpdated() {
-		// Deep clone existing rules so edits don't mutate the original
-		if (this.data?.existingRules?.rules?.length) {
-			const cloned: SectionRule[] = JSON.parse(JSON.stringify(this.data.existingRules.rules));
-			// Normalize legacy action names to v2 and migrate format → formats
-			this._rules = cloned.map((rule) => {
-				const [action, format] = normalizeAction(rule.action, rule.format);
-				// Migrate old single format to formats array
-				let formats = rule.formats;
-				if (!formats || formats.length === 0) {
-					const blockValue = format ?? 'paragraph';
-					formats = [{ type: 'block' as FormatEntryType, value: blockValue }];
-				}
-				return { ...rule, action, format, formats };
-			});
+		const areaRules = this.data?.existingRules;
+		if (!areaRules) return;
+
+		const editableRules: EditableRule[] = [];
+		const groupOrder: string[] = [];
+
+		// Grouped rules first
+		for (const group of (areaRules.groups ?? [])) {
+			groupOrder.push(group.name);
+			for (const rule of group.rules) {
+				editableRules.push(this.#normalizeRule(rule, group.name));
+			}
 		}
+
+		// Ungrouped rules
+		for (const rule of (areaRules.rules ?? [])) {
+			editableRules.push(this.#normalizeRule(rule, null));
+		}
+
+		this._rules = editableRules;
+		this._groupOrder = groupOrder;
+	}
+
+	/** Normalize a rule on load: derive part from legacy action, migrate formats. */
+	#normalizeRule(rule: SectionRule, groupName: string | null): EditableRule {
+		let part = rule.part as RulePart | undefined;
+		let exclude = rule.exclude ?? false;
+
+		// Normalize from legacy action field
+		if (!part && !exclude) {
+			const derived = getEffectivePart(rule);
+			if (derived === 'exclude') {
+				exclude = true;
+			} else {
+				part = derived as RulePart;
+			}
+		}
+
+		// Migrate old single format to formats array
+		let formats = rule.formats;
+		if (!formats || formats.length === 0) {
+			const blockValue = rule.format ?? getEffectiveFormat(rule);
+			formats = [{ type: 'block' as FormatEntryType, value: blockValue }];
+		}
+
+		return {
+			...rule,
+			part,
+			exclude,
+			formats,
+			_id: generateRuleId(),
+			_groupName: groupName,
+		};
 	}
 
 	get #elements(): AreaElement[] {
@@ -131,6 +187,32 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 
 	get #sectionHeading(): string {
 		return this.data?.sectionHeading ?? 'Section';
+	}
+
+	/**
+	 * Returns a grouped view for rendering: groups in order, then ungrouped.
+	 * Each entry has the group name (null = ungrouped) and rules with their flat indices.
+	 */
+	get #groupedView(): Array<{ group: string | null; rules: Array<{ rule: EditableRule; flatIndex: number }> }> {
+		const result: Array<{ group: string | null; rules: Array<{ rule: EditableRule; flatIndex: number }> }> = [];
+
+		// Groups in order
+		for (const name of this._groupOrder) {
+			const groupRules: Array<{ rule: EditableRule; flatIndex: number }> = [];
+			this._rules.forEach((r, i) => {
+				if (r._groupName === name) groupRules.push({ rule: r, flatIndex: i });
+			});
+			result.push({ group: name, rules: groupRules });
+		}
+
+		// Ungrouped
+		const ungrouped: Array<{ rule: EditableRule; flatIndex: number }> = [];
+		this._rules.forEach((r, i) => {
+			if (r._groupName === null) ungrouped.push({ rule: r, flatIndex: i });
+		});
+		result.push({ group: null, rules: ungrouped });
+
+		return result;
 	}
 
 	// ===== Rule evaluation (first-match-wins) =====
@@ -149,8 +231,14 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 				if (claimed.has(el.id)) continue; // already claimed by an earlier rule
 
 				if (this.#elementMatchesAllConditions(el, rule.conditions, elIdx, elements.length)) {
+					// Check exceptions — if any exception matches, skip this element for this rule
+					if (rule.exceptions?.length) {
+						const anyExceptionMatches = rule.exceptions.some((exc) =>
+							this.#elementMatchesCondition(el, exc, elIdx, elements.length),
+						);
+						if (anyExceptionMatches) continue;
+					}
 					claimed.set(el.id, ruleIdx);
-					// No break — a rule can match multiple elements (e.g. repeating section headings)
 				}
 			}
 		}
@@ -229,12 +317,14 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 
 	// ===== Rule CRUD =====
 
-	#addRule() {
+	#addRule(groupName: string | null = null) {
 		this._rules = [...this._rules, {
 			role: '',
-			action: 'sectionTitle' as RuleAction,
+			part: 'content' as RulePart,
 			conditions: [],
 			formats: [{ type: 'block' as FormatEntryType, value: 'auto' }],
+			_id: generateRuleId(),
+			_groupName: groupName,
 		}];
 	}
 
@@ -253,9 +343,11 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 			.replace(/[^a-z0-9-]/g, '');
 		this._rules = [...this._rules, {
 			role: roleSuggestion,
-			action: 'sectionTitle' as RuleAction,
+			part: 'content' as RulePart,
 			conditions,
 			formats: [{ type: 'block' as FormatEntryType, value: 'auto' }],
+			_id: generateRuleId(),
+			_groupName: null,
 		}];
 	}
 
@@ -265,10 +357,70 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 		this._rules = updated;
 	}
 
-	#updateAction(ruleIdx: number, value: RuleAction) {
+	#updatePart(ruleIdx: number, value: RulePart) {
 		const updated = [...this._rules];
-		// Always preserve format — it's now an independent section
-		updated[ruleIdx] = { ...updated[ruleIdx], action: value, format: updated[ruleIdx].format ?? 'paragraph' };
+		updated[ruleIdx] = { ...updated[ruleIdx], part: value };
+		this._rules = updated;
+	}
+
+	#updateExclude(ruleIdx: number, value: boolean) {
+		const updated = [...this._rules];
+		updated[ruleIdx] = { ...updated[ruleIdx], exclude: value };
+		this._rules = updated;
+	}
+
+	// ===== Group CRUD =====
+
+	#addGroup() {
+		let name = 'New Group';
+		let counter = 1;
+		while (this._groupOrder.includes(name)) {
+			name = `New Group ${++counter}`;
+		}
+		this._groupOrder = [...this._groupOrder, name];
+		// Immediately enter rename mode
+		this._renamingGroup = name;
+		this._renameValue = name;
+	}
+
+	#startRenameGroup(name: string) {
+		this._renamingGroup = name;
+		this._renameValue = name;
+	}
+
+	#confirmRenameGroup() {
+		if (!this._renamingGroup || !this._renameValue.trim()) return;
+		const oldName = this._renamingGroup;
+		const newName = this._renameValue.trim();
+
+		if (oldName !== newName) {
+			// Update group order
+			this._groupOrder = this._groupOrder.map((n) => n === oldName ? newName : n);
+			// Update all rules in this group
+			this._rules = this._rules.map((r) =>
+				r._groupName === oldName ? { ...r, _groupName: newName } : r,
+			);
+		}
+		this._renamingGroup = null;
+		this._renameValue = '';
+	}
+
+	#cancelRenameGroup() {
+		this._renamingGroup = null;
+		this._renameValue = '';
+	}
+
+	#deleteGroup(name: string) {
+		// Move all rules from this group to ungrouped
+		this._rules = this._rules.map((r) =>
+			r._groupName === name ? { ...r, _groupName: null } : r,
+		);
+		this._groupOrder = this._groupOrder.filter((n) => n !== name);
+	}
+
+	#moveRuleToGroup(ruleIdx: number, groupName: string | null) {
+		const updated = [...this._rules];
+		updated[ruleIdx] = { ...updated[ruleIdx], _groupName: groupName };
 		this._rules = updated;
 	}
 
@@ -393,16 +545,30 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 
 	// ===== Submit =====
 
+	/** Strip transient fields and sync format for C# compatibility. */
+	#cleanRule(rule: EditableRule): SectionRule {
+		const blockEntry = (rule.formats ?? []).find((f) => f.type === 'block');
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		const { _id, _groupName, action, ...clean } = rule;
+		return {
+			...clean,
+			format: (blockEntry?.value ?? 'auto') as BlockFormat,
+		};
+	}
+
 	#onSubmit() {
-		// Sync backward-compat format field from formats array for C# transform
-		const rulesWithCompat = this._rules.map(rule => {
-			const blockEntry = (rule.formats ?? []).find(f => f.type === 'block');
-			return {
-				...rule,
-				format: (blockEntry?.value ?? 'auto') as RuleContentFormat,
-			};
-		});
-		this.value = { rules: { rules: rulesWithCompat } };
+		const groups: RuleGroup[] = [];
+		for (const name of this._groupOrder) {
+			const groupRules = this._rules
+				.filter((r) => r._groupName === name)
+				.map((r) => this.#cleanRule(r));
+			groups.push({ name, rules: groupRules });
+		}
+		const ungroupedRules = this._rules
+			.filter((r) => r._groupName === null)
+			.map((r) => this.#cleanRule(r));
+
+		this.value = { rules: { groups, rules: ungroupedRules } };
 		this.modalContext?.submit();
 	}
 
@@ -507,100 +673,135 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 		`;
 	}
 
-	#renderRuleCard(rule: SectionRule, ruleIdx: number, matchedElements: AreaElement[]) {
+	#renderRuleCard(rule: EditableRule, flatIdx: number, matchedElements: AreaElement[]) {
+		const isExcluded = rule.exclude;
+		const currentPart = rule.part ?? 'content';
+
+		// Build group move options
+		const moveOptions: Array<{ label: string; value: string | null }> = [
+			{ label: 'Ungrouped', value: null },
+			...this._groupOrder.map((name) => ({ label: name, value: name })),
+		];
+
 		return html`
 			<div class="rule-card">
 				<div class="rule-header">
-					<span class="rule-number">${ruleIdx + 1}</span>
+					<span class="rule-grip" title="Drag to reorder">⠿</span>
 					<input
 						type="text"
 						class="role-name-input"
 						placeholder="Section name (e.g. tour-title)"
 						.value=${rule.role}
-						@input=${(e: Event) => this.#updateRoleName(ruleIdx, (e.target as HTMLInputElement).value)} />
+						@input=${(e: Event) => this.#updateRoleName(flatIdx, (e.target as HTMLInputElement).value)} />
 					<uui-button
 						compact
 						look="secondary"
 						color="danger"
 						label="Remove rule"
-						@click=${() => this.#removeRule(ruleIdx)}>
+						@click=${() => this.#removeRule(flatIdx)}>
 						<uui-icon name="icon-trash"></uui-icon>
 					</uui-button>
 				</div>
 
 				<div class="conditions-area">
-					<div class="section-header collapsible" @click=${() => this.#toggleCollapsed('conditions', ruleIdx)}>
-						<uui-icon name=${this.#isCollapsed('conditions', ruleIdx) ? 'icon-navigation-right' : 'icon-navigation-down'}></uui-icon>
+					<div class="section-header collapsible" @click=${() => this.#toggleCollapsed('conditions', flatIdx)}>
+						<uui-icon name=${this.#isCollapsed('conditions', flatIdx) ? 'icon-navigation-right' : 'icon-navigation-down'}></uui-icon>
 						Conditions${rule.conditions.length > 0 ? ` (${rule.conditions.length})` : ''}
 					</div>
-					${this.#isCollapsed('conditions', ruleIdx) ? nothing : html`
-						${rule.conditions.map((cond, cIdx) => this.#renderConditionRow(ruleIdx, cIdx, cond))}
+					${this.#isCollapsed('conditions', flatIdx) ? nothing : html`
+						${rule.conditions.map((cond, cIdx) => this.#renderConditionRow(flatIdx, cIdx, cond))}
 						<uui-button
 							compact
 							look="placeholder"
 							label="Add condition"
-							@click=${() => this.#addCondition(ruleIdx)}>
+							@click=${() => this.#addCondition(flatIdx)}>
 							+ Add condition
 						</uui-button>
 					`}
 				</div>
 
 				<div class="exceptions-area">
-					<div class="section-header collapsible" @click=${() => this.#toggleCollapsed('exceptions', ruleIdx)}>
-						<uui-icon name=${this.#isCollapsed('exceptions', ruleIdx) ? 'icon-navigation-right' : 'icon-navigation-down'}></uui-icon>
+					<div class="section-header collapsible" @click=${() => this.#toggleCollapsed('exceptions', flatIdx)}>
+						<uui-icon name=${this.#isCollapsed('exceptions', flatIdx) ? 'icon-navigation-right' : 'icon-navigation-down'}></uui-icon>
 						Exceptions${(rule.exceptions ?? []).length > 0 ? ` (${(rule.exceptions ?? []).length})` : ''}
 					</div>
-					${this.#isCollapsed('exceptions', ruleIdx) ? nothing : html`
-						${(rule.exceptions ?? []).map((exc, eIdx) => this.#renderExceptionRow(ruleIdx, eIdx, exc))}
+					${this.#isCollapsed('exceptions', flatIdx) ? nothing : html`
+						${(rule.exceptions ?? []).map((exc, eIdx) => this.#renderExceptionRow(flatIdx, eIdx, exc))}
 						<uui-button
 							compact
 							look="placeholder"
 							label="Add exception"
-							@click=${() => this.#addException(ruleIdx)}>
+							@click=${() => this.#addException(flatIdx)}>
 							+ Add exception
 						</uui-button>
 					`}
 				</div>
 
-				<div class="action-area">
-					<div class="section-header collapsible" @click=${() => this.#toggleCollapsed('action', ruleIdx)}>
-						<uui-icon name=${this.#isCollapsed('action', ruleIdx) ? 'icon-navigation-right' : 'icon-navigation-down'}></uui-icon>
-						Action
+				<div class="part-area">
+					<div class="section-header collapsible" @click=${() => this.#toggleCollapsed('part', flatIdx)}>
+						<uui-icon name=${this.#isCollapsed('part', flatIdx) ? 'icon-navigation-right' : 'icon-navigation-down'}></uui-icon>
+						Part
 					</div>
-					${this.#isCollapsed('action', ruleIdx) ? nothing : html`
-						<select
-							class="action-select"
-							.value=${rule.action ?? 'sectionTitle'}
-							@change=${(e: Event) => this.#updateAction(ruleIdx, (e.target as HTMLSelectElement).value as RuleAction)}>
-							${ALL_ACTIONS.map((a) => html`
-								<option value=${a} ?selected=${a === (rule.action ?? 'sectionTitle')}>${ACTION_LABELS[a]}</option>
-							`)}
-						</select>
+					${this.#isCollapsed('part', flatIdx) ? nothing : html`
+						<div class="part-controls">
+							<select
+								class="part-select"
+								.value=${currentPart}
+								?disabled=${isExcluded}
+								@change=${(e: Event) => this.#updatePart(flatIdx, (e.target as HTMLSelectElement).value as RulePart)}>
+								${ALL_PARTS.map((p) => html`
+									<option value=${p} ?selected=${p === currentPart}>${PART_LABELS[p]}</option>
+								`)}
+							</select>
+							<label class="exclude-label">
+								<input
+									type="checkbox"
+									.checked=${isExcluded}
+									@change=${(e: Event) => this.#updateExclude(flatIdx, (e.target as HTMLInputElement).checked)} />
+								Exclude
+							</label>
+						</div>
+						${moveOptions.length > 1 ? html`
+							<div class="move-to-group">
+								<span class="move-label">Group:</span>
+								<select
+									class="group-select"
+									.value=${rule._groupName ?? ''}
+									@change=${(e: Event) => {
+										const val = (e.target as HTMLSelectElement).value;
+										this.#moveRuleToGroup(flatIdx, val || null);
+									}}>
+									${moveOptions.map((opt) => html`
+										<option value=${opt.value ?? ''} ?selected=${(opt.value ?? '') === (rule._groupName ?? '')}>${opt.label}</option>
+									`)}
+								</select>
+							</div>
+						` : nothing}
 					`}
 				</div>
 
-				${rule.action !== 'exclude' ? html`
+				${!isExcluded ? html`
 				<div class="format-area">
-					<div class="section-header collapsible" @click=${() => this.#toggleCollapsed('format', ruleIdx)}>
-						<uui-icon name=${this.#isCollapsed('format', ruleIdx) ? 'icon-navigation-right' : 'icon-navigation-down'}></uui-icon>
+					<div class="section-header collapsible" @click=${() => this.#toggleCollapsed('format', flatIdx)}>
+						<uui-icon name=${this.#isCollapsed('format', flatIdx) ? 'icon-navigation-right' : 'icon-navigation-down'}></uui-icon>
 						Format${(rule.formats ?? []).length > 0 ? ` (${(rule.formats ?? []).length})` : ''}
 					</div>
-					${this.#isCollapsed('format', ruleIdx) ? nothing : html`
-						${(rule.formats ?? []).map((fmt, fIdx) => this.#renderFormatRow(ruleIdx, fIdx, fmt))}
+					${this.#isCollapsed('format', flatIdx) ? nothing : html`
+						${(rule.formats ?? []).map((fmt, fIdx) => this.#renderFormatRow(flatIdx, fIdx, fmt))}
 						<uui-button
 							compact
 							look="placeholder"
 							label="Add format"
-							@click=${() => this.#addFormatEntry(ruleIdx)}>
+							@click=${() => this.#addFormatEntry(flatIdx)}>
 							+ Add format
 						</uui-button>
 					`}
 				</div>
 				` : nothing}
 
-				<div class="match-preview ${matchedElements.length > 0 ? (rule.action === 'exclude' ? 'excluded' : 'matched') : 'no-match'}">
+				<div class="match-preview ${matchedElements.length > 0 ? (isExcluded ? 'excluded' : 'matched') : 'no-match'}">
 					${matchedElements.length > 0
-						? html`<uui-icon name=${rule.action === 'exclude' ? 'icon-block' : 'icon-check'}></uui-icon> ${rule.action === 'exclude' ? 'Excluded' : 'Matched'} <strong>${matchedElements.length}&times;</strong>${matchedElements.length <= 5 ? html`: ${matchedElements.map((el, i) => html`${i > 0 ? html`, ` : nothing}<strong>${this.#truncate(el.text, 40)}</strong>`)}` : nothing}`
+						? html`<uui-icon name=${isExcluded ? 'icon-block' : 'icon-check'}></uui-icon> ${isExcluded ? 'Excluded' : 'Matched'} <strong>${matchedElements.length}&times;</strong>${matchedElements.length <= 5 ? html`: ${matchedElements.map((el, i) => html`${i > 0 ? html`, ` : nothing}<strong>${this.#truncate(el.text, 40)}</strong>`)}` : nothing}`
 						: html`<uui-icon name="icon-alert"></uui-icon> ${rule.conditions.length === 0 ? 'Add conditions to match elements' : 'No match'}`}
 				</div>
 			</div>
@@ -609,6 +810,45 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 
 	#truncate(text: string, max: number): string {
 		return text.length > max ? text.substring(0, max) + '...' : text;
+	}
+
+	#renderGroupHeader(name: string) {
+		if (this._renamingGroup === name) {
+			return html`
+				<div class="group-header">
+					<input
+						type="text"
+						class="group-rename-input"
+						.value=${this._renameValue}
+						@input=${(e: Event) => { this._renameValue = (e.target as HTMLInputElement).value; }}
+						@keydown=${(e: KeyboardEvent) => {
+							if (e.key === 'Enter') this.#confirmRenameGroup();
+							if (e.key === 'Escape') this.#cancelRenameGroup();
+						}} />
+					<uui-button compact look="primary" label="Confirm" @click=${() => this.#confirmRenameGroup()}>
+						<uui-icon name="icon-check"></uui-icon>
+					</uui-button>
+					<uui-button compact look="secondary" label="Cancel" @click=${() => this.#cancelRenameGroup()}>
+						<uui-icon name="icon-wrong"></uui-icon>
+					</uui-button>
+				</div>
+			`;
+		}
+
+		return html`
+			<div class="group-header">
+				<strong class="group-name">${name}</strong>
+				<span class="header-spacer"></span>
+				<uui-button compact look="outline" label="Rename" @click=${() => this.#startRenameGroup(name)}>
+					<uui-icon name="icon-edit"></uui-icon>
+				</uui-button>
+				<uui-button compact look="outline" color="danger" label="Delete group"
+					title="Delete group (rules move to ungrouped)"
+					@click=${() => this.#deleteGroup(name)}>
+					<uui-icon name="icon-trash"></uui-icon>
+				</uui-button>
+			</div>
+		`;
 	}
 
 	#renderUnmatchedElements(claimed: Map<string, number>) {
@@ -657,6 +897,8 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 			}
 		}
 
+		const groupedView = this.#groupedView;
+
 		return html`
 			<umb-body-layout headline="Edit Sections: ${this.#sectionHeading}">
 				<div id="main">
@@ -665,15 +907,55 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 						<span class="meta-badge">${this._rules.length} rules</span>
 						<span class="meta-badge">${claimed.size} matched</span>
 						<span class="meta-badge">${this.#elements.length - claimed.size} unmatched</span>
+						${this._groupOrder.length > 0
+							? html`<span class="meta-badge">${this._groupOrder.length} group${this._groupOrder.length !== 1 ? 's' : ''}</span>`
+							: nothing}
 					</div>
 
-					${this._rules.map((rule, idx) => this.#renderRuleCard(rule, idx, ruleMatches.get(idx) ?? []))}
+					${groupedView.map((entry) => {
+						if (entry.group !== null) {
+							// Render a named group
+							return html`
+								<div class="group-container">
+									${this.#renderGroupHeader(entry.group)}
+									<div class="group-rules">
+										${entry.rules.map(({ rule, flatIndex }) =>
+											this.#renderRuleCard(rule, flatIndex, ruleMatches.get(flatIndex) ?? []),
+										)}
+										<uui-button
+											look="placeholder"
+											label="Add rule to ${entry.group}"
+											@click=${() => this.#addRule(entry.group)}>
+											+ Add rule
+										</uui-button>
+									</div>
+								</div>
+							`;
+						}
+
+						// Render ungrouped rules
+						return html`
+							${this._groupOrder.length > 0 ? html`
+								<div class="ungrouped-label">Ungrouped</div>
+							` : nothing}
+							${entry.rules.map(({ rule, flatIndex }) =>
+								this.#renderRuleCard(rule, flatIndex, ruleMatches.get(flatIndex) ?? []),
+							)}
+							<uui-button
+								look="placeholder"
+								label="Add rule"
+								@click=${() => this.#addRule(null)}>
+								+ Add rule
+							</uui-button>
+						`;
+					})}
 
 					<uui-button
-						look="placeholder"
-						label="Add rule"
-						@click=${this.#addRule}>
-						+ Add another rule
+						look="outline"
+						label="Add group"
+						@click=${() => this.#addGroup()}>
+						<uui-icon name="icon-add"></uui-icon>
+						Add group
 					</uui-button>
 
 					${this.#renderUnmatchedElements(claimed)}
@@ -723,6 +1005,61 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 				color: var(--uui-color-text-alt);
 			}
 
+			/* Group containers */
+			.group-container {
+				border: 2px solid var(--uui-color-border);
+				border-radius: var(--uui-border-radius);
+				overflow: hidden;
+			}
+
+			.group-header {
+				display: flex;
+				align-items: center;
+				gap: var(--uui-size-space-2);
+				padding: var(--uui-size-space-3) var(--uui-size-space-4);
+				background: var(--uui-color-surface-alt);
+				border-bottom: 1px solid var(--uui-color-border);
+			}
+
+			.group-name {
+				font-size: var(--uui-type-default-size);
+				color: var(--uui-color-text);
+			}
+
+			.group-rename-input {
+				flex: 1;
+				padding: var(--uui-size-space-1) var(--uui-size-space-2);
+				border: 1px solid var(--uui-color-focus);
+				border-radius: var(--uui-border-radius);
+				font-size: var(--uui-type-default-size);
+				background: var(--uui-color-surface);
+				color: var(--uui-color-text);
+			}
+
+			.group-rename-input:focus {
+				outline: none;
+			}
+
+			.header-spacer {
+				flex: 1;
+			}
+
+			.group-rules {
+				padding: var(--uui-size-space-3);
+				display: flex;
+				flex-direction: column;
+				gap: var(--uui-size-space-3);
+			}
+
+			.ungrouped-label {
+				font-size: 11px;
+				font-weight: 700;
+				text-transform: uppercase;
+				letter-spacing: 0.5px;
+				color: var(--uui-color-text-alt);
+				padding-top: var(--uui-size-space-2);
+			}
+
 			/* Rule cards */
 			.rule-card {
 				border: 1px solid var(--uui-color-border);
@@ -739,18 +1076,16 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 				border-bottom: 1px solid var(--uui-color-border);
 			}
 
-			.rule-number {
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				width: 24px;
-				height: 24px;
-				border-radius: 50%;
-				background: var(--uui-color-default-emphasis);
-				color: var(--uui-color-default-contrast);
-				font-size: 12px;
-				font-weight: 700;
+			.rule-grip {
+				cursor: grab;
+				color: var(--uui-color-text-alt);
+				font-size: 14px;
+				user-select: none;
 				flex-shrink: 0;
+			}
+
+			.rule-grip:active {
+				cursor: grabbing;
 			}
 
 			.role-name-input {
@@ -880,13 +1215,74 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 				border-color: var(--uui-color-focus);
 			}
 
-			/* Action area */
-			.action-area {
+			/* Part area (replaces old action area) */
+			.part-area {
 				display: flex;
 				flex-direction: column;
 				gap: var(--uui-size-space-2);
 				padding: var(--uui-size-space-3) var(--uui-size-space-4);
 				border-top: 1px solid var(--uui-color-border);
+			}
+
+			.part-controls {
+				display: flex;
+				align-items: center;
+				gap: var(--uui-size-space-3);
+			}
+
+			.part-select {
+				padding: var(--uui-size-space-1) var(--uui-size-space-2);
+				border: 1px solid var(--uui-color-border);
+				border-radius: var(--uui-border-radius);
+				font-size: var(--uui-type-small-size);
+				background: var(--uui-color-surface);
+				color: var(--uui-color-text);
+			}
+
+			.part-select:focus {
+				outline: none;
+				border-color: var(--uui-color-focus);
+			}
+
+			.part-select:disabled {
+				opacity: 0.5;
+			}
+
+			.exclude-label {
+				display: flex;
+				align-items: center;
+				gap: var(--uui-size-space-1);
+				font-size: var(--uui-type-small-size);
+				color: var(--uui-color-text-alt);
+				cursor: pointer;
+				user-select: none;
+			}
+
+			.move-to-group {
+				display: flex;
+				align-items: center;
+				gap: var(--uui-size-space-2);
+				margin-top: var(--uui-size-space-1);
+			}
+
+			.move-label {
+				font-size: var(--uui-type-small-size);
+				color: var(--uui-color-text-alt);
+			}
+
+			.group-select {
+				flex: 1;
+				padding: var(--uui-size-space-1) var(--uui-size-space-2);
+				border: 1px solid var(--uui-color-border);
+				border-radius: var(--uui-border-radius);
+				font-size: var(--uui-type-small-size);
+				background: var(--uui-color-surface);
+				color: var(--uui-color-text);
+			}
+
+			.group-select:focus {
+				outline: none;
+				border-color: var(--uui-color-focus);
 			}
 
 			/* Format area */
@@ -896,20 +1292,6 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 				gap: var(--uui-size-space-2);
 				padding: var(--uui-size-space-3) var(--uui-size-space-4);
 				border-top: 1px solid var(--uui-color-border);
-			}
-
-			.action-select {
-				padding: var(--uui-size-space-1) var(--uui-size-space-2);
-				border: 1px solid var(--uui-color-border);
-				border-radius: var(--uui-border-radius);
-				font-size: var(--uui-type-small-size);
-				background: var(--uui-color-surface);
-				color: var(--uui-color-text);
-			}
-
-			.action-select:focus {
-				outline: none;
-				border-color: var(--uui-color-focus);
 			}
 
 			/* Match preview */

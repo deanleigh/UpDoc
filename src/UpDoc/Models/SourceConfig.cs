@@ -32,8 +32,7 @@ public class SourceConfig
     public List<SourceSection> Sections { get; set; } = new();
 
     /// <summary>
-    /// Rules for breaking transform sections into individually-mappable roles.
-    /// Keyed by transform section ID (e.g., "preamble-p1-z1", "features").
+    /// Legacy: rules keyed by transform section ID. Superseded by AreaRules.
     /// </summary>
     [JsonPropertyName("sectionRules")]
     public Dictionary<string, SectionRuleSet>? SectionRules { get; set; }
@@ -41,11 +40,11 @@ public class SourceConfig
     /// <summary>
     /// Rules for breaking area elements into individually-mappable sections.
     /// Keyed by area name in kebab-case (e.g., "page-header", "tour-details").
-    /// When a flat area has rules with roles, each role-matched element becomes
-    /// its own section in the transform output.
+    /// Supports both old flat format { "rules": [...] } and new grouped format
+    /// { "groups": [...], "rules": [...] } — backward compatible by design.
     /// </summary>
     [JsonPropertyName("areaRules")]
-    public Dictionary<string, SectionRuleSet>? AreaRules { get; set; }
+    public Dictionary<string, AreaRules>? AreaRules { get; set; }
 
     /// <summary>
     /// Resolves the list of page numbers to process, given the total page count.
