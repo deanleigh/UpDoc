@@ -106,6 +106,8 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 	@state() private _groupOrder: string[] = [];
 	/** Track collapsed state per rule section: "conditions-0", "exceptions-1", etc. */
 	@state() private _collapsed: Set<string> = new Set();
+	/** Track which rules are expanded (by _id). All collapsed by default. */
+	@state() private _expandedRules: Set<string> = new Set();
 	/** Group currently being renamed (null = none). */
 	@state() private _renamingGroup: string | null = null;
 	@state() private _renameValue = '';
@@ -123,6 +125,28 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 			next.add(key);
 		}
 		this._collapsed = next;
+	}
+
+	#isRuleExpanded(ruleId: string): boolean {
+		return this._expandedRules.has(ruleId);
+	}
+
+	#toggleRuleExpanded(ruleId: string) {
+		const next = new Set(this._expandedRules);
+		if (next.has(ruleId)) {
+			next.delete(ruleId);
+		} else {
+			next.add(ruleId);
+		}
+		this._expandedRules = next;
+	}
+
+	#expandRule(ruleId: string) {
+		if (!this._expandedRules.has(ruleId)) {
+			const next = new Set(this._expandedRules);
+			next.add(ruleId);
+			this._expandedRules = next;
+		}
 	}
 
 	override firstUpdated() {
@@ -318,14 +342,17 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 	// ===== Rule CRUD =====
 
 	#addRule(groupName: string | null = null) {
+		const id = generateRuleId();
 		this._rules = [...this._rules, {
 			role: '',
 			part: 'content' as RulePart,
 			conditions: [],
 			formats: [{ type: 'block' as FormatEntryType, value: 'auto' }],
-			_id: generateRuleId(),
+			_id: id,
 			_groupName: groupName,
 		}];
+		// Auto-expand new rules so user can fill in details
+		this.#expandRule(id);
 	}
 
 	#removeRule(ruleIdx: number) {
@@ -341,14 +368,17 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 			.join('-')
 			.toLowerCase()
 			.replace(/[^a-z0-9-]/g, '');
+		const id = generateRuleId();
 		this._rules = [...this._rules, {
 			role: roleSuggestion,
 			part: 'content' as RulePart,
 			conditions,
 			formats: [{ type: 'block' as FormatEntryType, value: 'auto' }],
-			_id: generateRuleId(),
+			_id: id,
 			_groupName: null,
 		}];
+		// Auto-expand so user can review auto-populated conditions
+		this.#expandRule(id);
 	}
 
 	#updateRoleName(ruleIdx: number, value: string) {
@@ -557,6 +587,11 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 	}
 
 	#onSubmit() {
+		// Auto-confirm any pending group rename before saving
+		if (this._renamingGroup) {
+			this.#confirmRenameGroup();
+		}
+
 		const groups: RuleGroup[] = [];
 		for (const name of this._groupOrder) {
 			const groupRules = this._rules
@@ -674,6 +709,36 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 	}
 
 	#renderRuleCard(rule: EditableRule, flatIdx: number, matchedElements: AreaElement[]) {
+		const isExpanded = this.#isRuleExpanded(rule._id);
+
+		if (!isExpanded) {
+			return this.#renderCollapsedRule(rule, flatIdx, matchedElements);
+		}
+
+		return this.#renderExpandedRule(rule, flatIdx, matchedElements);
+	}
+
+	#renderCollapsedRule(rule: EditableRule, _flatIdx: number, matchedElements: AreaElement[]) {
+		const isExcluded = rule.exclude;
+		const currentPart = rule.part ?? 'content';
+		const partLabel = isExcluded ? 'Exclude' : PART_LABELS[currentPart] ?? currentPart;
+		const matchCount = matchedElements.length;
+		const roleName = rule.role || '(unnamed rule)';
+
+		return html`
+			<div class="rule-row" @click=${() => this.#toggleRuleExpanded(rule._id)}>
+				<span class="rule-grip" title="Drag to reorder">⠿</span>
+				<span class="rule-row-name">${roleName}</span>
+				<span class="rule-row-part ${isExcluded ? 'excluded' : ''}">${partLabel}</span>
+				${matchCount > 0
+					? html`<span class="rule-row-match ${isExcluded ? 'excluded' : 'matched'}">${matchCount}&times;</span>`
+					: html`<span class="rule-row-match no-match">0</span>`}
+				<uui-icon class="rule-row-chevron" name="icon-navigation-down"></uui-icon>
+			</div>
+		`;
+	}
+
+	#renderExpandedRule(rule: EditableRule, flatIdx: number, matchedElements: AreaElement[]) {
 		const isExcluded = rule.exclude;
 		const currentPart = rule.part ?? 'content';
 
@@ -700,6 +765,13 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 						label="Remove rule"
 						@click=${() => this.#removeRule(flatIdx)}>
 						<uui-icon name="icon-trash"></uui-icon>
+					</uui-button>
+					<uui-button
+						compact
+						look="secondary"
+						label="Collapse"
+						@click=${() => this.#toggleRuleExpanded(rule._id)}>
+						<uui-icon name="icon-navigation-up"></uui-icon>
 					</uui-button>
 				</div>
 
@@ -1060,7 +1132,79 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 				padding-top: var(--uui-size-space-2);
 			}
 
-			/* Rule cards */
+			/* Collapsed rule row */
+			.rule-row {
+				display: flex;
+				align-items: center;
+				gap: var(--uui-size-space-3);
+				padding: var(--uui-size-space-2) var(--uui-size-space-4);
+				border: 1px solid var(--uui-color-border);
+				border-radius: var(--uui-border-radius);
+				cursor: pointer;
+				user-select: none;
+				background: var(--uui-color-surface);
+				transition: background 120ms ease;
+			}
+
+			.rule-row:hover {
+				background: var(--uui-color-surface-alt);
+			}
+
+			.rule-row-name {
+				flex: 1;
+				font-size: var(--uui-type-default-size);
+				font-weight: 600;
+				min-width: 0;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+			}
+
+			.rule-row-part {
+				font-size: 11px;
+				font-weight: 600;
+				padding: 1px 8px;
+				border-radius: var(--uui-border-radius);
+				background: var(--uui-color-surface-alt);
+				color: var(--uui-color-text-alt);
+				flex-shrink: 0;
+			}
+
+			.rule-row-part.excluded {
+				background: color-mix(in srgb, var(--uui-color-danger) 15%, transparent);
+				color: var(--uui-color-danger-standalone);
+			}
+
+			.rule-row-match {
+				font-size: 11px;
+				font-weight: 700;
+				padding: 1px 6px;
+				border-radius: var(--uui-border-radius);
+				flex-shrink: 0;
+			}
+
+			.rule-row-match.matched {
+				background: color-mix(in srgb, var(--uui-color-positive) 15%, transparent);
+				color: var(--uui-color-positive-standalone);
+			}
+
+			.rule-row-match.excluded {
+				background: color-mix(in srgb, var(--uui-color-danger) 15%, transparent);
+				color: var(--uui-color-danger-standalone);
+			}
+
+			.rule-row-match.no-match {
+				background: color-mix(in srgb, var(--uui-color-warning) 15%, transparent);
+				color: var(--uui-color-warning-standalone);
+			}
+
+			.rule-row-chevron {
+				font-size: 12px;
+				color: var(--uui-color-text-alt);
+				flex-shrink: 0;
+			}
+
+			/* Rule cards (expanded) */
 			.rule-card {
 				border: 1px solid var(--uui-color-border);
 				border-radius: var(--uui-border-radius);

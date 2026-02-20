@@ -648,7 +648,20 @@ public class WorkflowService : IWorkflowService
             return null;
 
         var json = File.ReadAllText(filePath);
-        return JsonSerializer.Deserialize<SourceConfig>(json, JsonOptions);
+        var config = JsonSerializer.Deserialize<SourceConfig>(json, JsonOptions);
+
+        // Normalize legacy flat rules into groups for backward compatibility.
+        // Old source.json files have sectionTitle/sectionContent as flat rules —
+        // these need to be grouped so ContentTransformService treats them correctly.
+        if (config?.AreaRules != null)
+        {
+            foreach (var (areaKey, areaRules) in config.AreaRules)
+            {
+                areaRules.NormalizeLegacyRules(areaKey);
+            }
+        }
+
+        return config;
     }
 
     public void SaveSourceConfig(string workflowName, SourceConfig config)

@@ -13,11 +13,14 @@
   "sectionRules": null,
   "areaRules": {
     "organiser-information": {
+      "groups": [],
       "rules": [
         {
           "role": "Organiser Name",
+          "part": null,
           "action": "singleProperty",
           "format": "paragraph",
+          "exclude": false,
           "conditions": [
             {
               "type": "fontSizeEquals",
@@ -35,12 +38,15 @@
               "type": "positionFirst",
               "value": null
             }
-          ]
+          ],
+          "exceptions": null
         },
         {
           "role": "Organiser Telephone",
+          "part": null,
           "action": "singleProperty",
           "format": "paragraph",
+          "exclude": false,
           "conditions": [
             {
               "type": "fontSizeEquals",
@@ -58,12 +64,15 @@
               "type": "textBeginsWith",
               "value": "Tel:"
             }
-          ]
+          ],
+          "exceptions": null
         },
         {
           "role": "Organiser Email",
+          "part": null,
           "action": "singleProperty",
           "format": "paragraph",
+          "exclude": false,
           "conditions": [
             {
               "type": "fontSizeEquals",
@@ -81,12 +90,15 @@
               "type": "textBeginsWith",
               "value": "Email:"
             }
-          ]
+          ],
+          "exceptions": null
         },
         {
           "role": "Organiser Address",
+          "part": null,
           "action": "singleProperty",
           "format": "paragraph",
+          "exclude": false,
           "conditions": [
             {
               "type": "fontSizeEquals",
@@ -104,16 +116,20 @@
               "type": "positionLast",
               "value": null
             }
-          ]
+          ],
+          "exceptions": null
         }
       ]
     },
     "page-header": {
+      "groups": [],
       "rules": [
         {
           "role": "Organisation",
+          "part": null,
           "action": "singleProperty",
           "format": "paragraph",
+          "exclude": false,
           "conditions": [
             {
               "type": "fontSizeEquals",
@@ -131,12 +147,15 @@
               "type": "positionFirst",
               "value": null
             }
-          ]
+          ],
+          "exceptions": null
         },
         {
           "role": "Tour Title",
+          "part": null,
           "action": "singleProperty",
           "format": "heading1",
+          "exclude": false,
           "conditions": [
             {
               "type": "fontSizeEquals",
@@ -150,12 +169,15 @@
               "type": "colorEquals",
               "value": "#FFFFFF"
             }
-          ]
+          ],
+          "exceptions": null
         },
         {
           "role": "Tour Description",
+          "part": null,
           "action": "singleProperty",
           "format": "paragraph",
+          "exclude": false,
           "conditions": [
             {
               "type": "fontSizeEquals",
@@ -173,120 +195,154 @@
               "type": "positionLast",
               "value": null
             }
-          ]
+          ],
+          "exceptions": null
         }
       ]
     },
     "test": {
-      "rules": [
+      "groups": [
         {
-          "role": "for-more-information",
-          "action": "createSection",
-          "format": null,
-          "conditions": [
+          "name": "test",
+          "rules": [
             {
-              "type": "fontSizeEquals",
-              "value": 9
-            },
-            {
-              "type": "fontNameContains",
-              "value": "LGPHPE\u002BHelveticaNeue"
-            },
-            {
-              "type": "colorEquals",
-              "value": "#FFFFFF"
-            },
-            {
-              "type": "positionFirst",
-              "value": null
+              "role": "for-more-information",
+              "part": null,
+              "action": "createSection",
+              "format": null,
+              "exclude": false,
+              "conditions": [
+                {
+                  "type": "fontSizeEquals",
+                  "value": 9
+                },
+                {
+                  "type": "fontNameContains",
+                  "value": "LGPHPE\u002BHelveticaNeue"
+                },
+                {
+                  "type": "colorEquals",
+                  "value": "#FFFFFF"
+                },
+                {
+                  "type": "positionFirst",
+                  "value": null
+                }
+              ],
+              "exceptions": null
             }
           ]
         }
-      ]
+      ],
+      "rules": []
     },
     "tour-details": {
-      "rules": [
+      "groups": [
         {
-          "role": "Tour Details - Section Title",
-          "action": "sectionTitle",
-          "format": "paragraph",
-          "conditions": [
+          "name": "Tour Details - Section",
+          "rules": [
             {
-              "type": "fontSizeEquals",
-              "value": 12
+              "role": "Tour Details - Section Title",
+              "part": "title",
+              "action": null,
+              "format": "paragraph",
+              "exclude": false,
+              "conditions": [
+                {
+                  "type": "fontSizeEquals",
+                  "value": 12
+                },
+                {
+                  "type": "fontNameContains",
+                  "value": "LGPHPF\u002BClarendon"
+                },
+                {
+                  "type": "colorEquals",
+                  "value": "#16549D"
+                }
+              ],
+              "exceptions": null
             },
             {
-              "type": "fontNameContains",
-              "value": "LGPHPF\u002BClarendon"
-            },
-            {
-              "type": "colorEquals",
-              "value": "#16549D"
-            }
-          ]
-        },
-        {
-          "role": "Tour Details - Section Content",
-          "action": "sectionContent",
-          "format": "auto",
-          "conditions": [
-            {
-              "type": "fontSizeEquals",
-              "value": 8.5
-            },
-            {
-              "type": "fontNameContains",
-              "value": "LGPHPE\u002BHelveticaNeue"
-            },
-            {
-              "type": "colorEquals",
-              "value": "#16549D"
+              "role": "Tour Details - Section Content",
+              "part": "content",
+              "action": null,
+              "format": "auto",
+              "exclude": false,
+              "conditions": [
+                {
+                  "type": "fontSizeEquals",
+                  "value": 8.5
+                },
+                {
+                  "type": "fontNameContains",
+                  "value": "LGPHPE\u002BHelveticaNeue"
+                },
+                {
+                  "type": "colorEquals",
+                  "value": "#16549D"
+                }
+              ],
+              "exceptions": null
             }
           ]
         }
-      ]
+      ],
+      "rules": []
     },
     "itinerary": {
-      "rules": [
+      "groups": [
         {
-          "role": "Day Number",
-          "action": "sectionContent",
-          "format": "heading3",
-          "conditions": [
+          "name": "itinerary",
+          "rules": [
             {
-              "type": "fontSizeEquals",
-              "value": 10
+              "role": "Day Number",
+              "part": null,
+              "action": "sectionContent",
+              "format": "heading3",
+              "exclude": false,
+              "conditions": [
+                {
+                  "type": "fontSizeEquals",
+                  "value": 10
+                },
+                {
+                  "type": "fontNameContains",
+                  "value": "LGPHPC\u002BHelveticaNeue-Medium"
+                },
+                {
+                  "type": "colorEquals",
+                  "value": "#16549D"
+                }
+              ],
+              "exceptions": null
             },
             {
-              "type": "fontNameContains",
-              "value": "LGPHPC\u002BHelveticaNeue-Medium"
-            },
-            {
-              "type": "colorEquals",
-              "value": "#16549D"
-            }
-          ]
-        },
-        {
-          "role": "Day Details",
-          "action": "sectionContent",
-          "format": "paragraph",
-          "conditions": [
-            {
-              "type": "fontSizeEquals",
-              "value": 10
-            },
-            {
-              "type": "fontNameContains",
-              "value": "LGPHPE\u002BHelveticaNeue"
-            },
-            {
-              "type": "colorEquals",
-              "value": "#221F1F"
+              "role": "Day Details",
+              "part": null,
+              "action": "sectionContent",
+              "format": "paragraph",
+              "exclude": false,
+              "conditions": [
+                {
+                  "type": "fontSizeEquals",
+                  "value": 10
+                },
+                {
+                  "type": "fontNameContains",
+                  "value": "LGPHPE\u002BHelveticaNeue"
+                },
+                {
+                  "type": "colorEquals",
+                  "value": "#221F1F"
+                }
+              ],
+              "exceptions": null
             }
           ]
         }
-      ]
+      ],
+      "rules": []
     }
   }
 }

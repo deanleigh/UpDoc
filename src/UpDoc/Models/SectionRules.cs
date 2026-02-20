@@ -30,6 +30,54 @@ public class AreaRules
         foreach (var rule in Rules)
             yield return rule;
     }
+
+    /// <summary>
+    /// Normalizes legacy flat rules into groups. Rules with section-scoped legacy actions
+    /// (sectionTitle, sectionContent, sectionDescription, sectionSummary, createSection,
+    /// setAsHeading, addAsContent, addAsList) are moved from the ungrouped Rules list
+    /// into a synthetic group. Rules with singleProperty action stay ungrouped.
+    ///
+    /// Only runs when Groups is empty (old format). If groups already exist, this is a no-op.
+    /// </summary>
+    /// <param name="groupName">Name for the auto-created group (typically the area name).</param>
+    public void NormalizeLegacyRules(string groupName)
+    {
+        // Already has groups → new format, nothing to do
+        if (Groups.Count > 0) return;
+
+        // Check if any rules have legacy section-scoped actions
+        var sectionRules = new List<SectionRule>();
+        var ungroupedRules = new List<SectionRule>();
+
+        foreach (var rule in Rules)
+        {
+            if (IsLegacySectionAction(rule.Action))
+            {
+                sectionRules.Add(rule);
+            }
+            else
+            {
+                ungroupedRules.Add(rule);
+            }
+        }
+
+        // Nothing to group → leave as-is
+        if (sectionRules.Count == 0) return;
+
+        // Move section rules into a group, keep single-property rules ungrouped
+        Groups.Add(new RuleGroup { Name = groupName, Rules = sectionRules });
+        Rules = ungroupedRules;
+    }
+
+    /// <summary>
+    /// Returns whether a legacy action value represents a section-scoped (grouped) concept.
+    /// </summary>
+    private static bool IsLegacySectionAction(string? action)
+    {
+        return action is "sectionTitle" or "sectionContent" or "sectionDescription"
+            or "sectionSummary" or "createSection" or "setAsHeading" or "addAsContent"
+            or "addAsList";
+    }
 }
 
 /// <summary>
