@@ -106,30 +106,6 @@
       "comment": null
     },
     {
-      "source": "accommodation.heading",
-      "destinations": [
-        {
-          "target": "featurePropertyFeatureTitle",
-          "blockKey": "bc5ae5e8-0f80-48b6-acbf-ef6eb7ebd69c",
-          "transforms": null
-        }
-      ],
-      "enabled": true,
-      "comment": null
-    },
-    {
-      "source": "accommodation.content",
-      "destinations": [
-        {
-          "target": "richTextContent",
-          "blockKey": "bc5ae5e8-0f80-48b6-acbf-ef6eb7ebd69c",
-          "transforms": null
-        }
-      ],
-      "enabled": true,
-      "comment": null
-    },
-    {
       "source": "preamble-p2-z0.content",
       "destinations": [
         {
@@ -231,6 +207,30 @@
         {
           "target": "organiserOrganisation",
           "blockKey": null,
+          "transforms": null
+        }
+      ],
+      "enabled": true,
+      "comment": null
+    },
+    {
+      "source": "accommodation.title",
+      "destinations": [
+        {
+          "target": "featurePropertyFeatureTitle",
+          "blockKey": "bc5ae5e8-0f80-48b6-acbf-ef6eb7ebd69c",
+          "transforms": null
+        }
+      ],
+      "enabled": true,
+      "comment": null
+    },
+    {
+      "source": "accommodation.content",
+      "destinations": [
+        {
+          "target": "richTextContent",
+          "blockKey": "bc5ae5e8-0f80-48b6-acbf-ef6eb7ebd69c",
           "transforms": null
         }
       ],

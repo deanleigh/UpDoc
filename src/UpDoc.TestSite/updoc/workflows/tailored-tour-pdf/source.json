@@ -209,7 +209,7 @@
         {
           "role": "Tour Details - Section Title",
           "action": "sectionTitle",
-          "format": "heading2",
+          "format": "paragraph",
           "conditions": [
             {
               "type": "fontSizeEquals",
@@ -228,7 +228,7 @@
         {
           "role": "Tour Details - Section Content",
           "action": "sectionContent",
-          "format": "bulletListItem",
+          "format": "auto",
           "conditions": [
             {
               "type": "fontSizeEquals",
@@ -251,7 +251,7 @@
         {
           "role": "Day Number",
           "action": "sectionContent",
-          "format": "paragraph",
+          "format": "heading3",
           "conditions": [
             {
               "type": "fontSizeEquals",

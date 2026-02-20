@@ -17,6 +17,7 @@
         {
           "role": "Organisation",
           "action": "createSection",
+          "format": null,
           "conditions": [
             {
               "type": "fontSizeEquals",
@@ -39,6 +40,7 @@
         {
           "role": "Tour Title",
           "action": "createSection",
+          "format": null,
           "conditions": [
             {
               "type": "fontSizeEquals",
@@ -57,6 +59,7 @@
         {
           "role": "Tour Description",
           "action": "createSection",
+          "format": null,
           "conditions": [
             {
               "type": "fontSizeEquals",
@@ -83,6 +86,7 @@
         {
           "role": "Organiser Name",
           "action": "createSection",
+          "format": null,
           "conditions": [
             {
               "type": "fontSizeEquals",
@@ -101,6 +105,7 @@
         {
           "role": "Organiser Telephone",
           "action": "createSection",
+          "format": null,
           "conditions": [
             {
               "type": "fontSizeEquals",
@@ -123,6 +128,7 @@
         {
           "role": "Organiser Email",
           "action": "createSection",
+          "format": null,
           "conditions": [
             {
               "type": "fontSizeEquals",
@@ -145,6 +151,7 @@
         {
           "role": "Organiser Address",
           "action": "createSection",
+          "format": null,
           "conditions": [
             {
               "type": "fontSizeEquals",
@@ -161,6 +168,90 @@
             {
               "type": "positionLast",
               "value": null
+            }
+          ]
+        }
+      ]
+    },
+    "itinery": {
+      "rules": [
+        {
+          "role": "Day Number",
+          "action": "sectionContent",
+          "format": "heading3",
+          "conditions": [
+            {
+              "type": "fontSizeEquals",
+              "value": 10.5
+            },
+            {
+              "type": "fontNameContains",
+              "value": "GHEALM\u002BHelveticaNeue-Medium"
+            },
+            {
+              "type": "colorEquals",
+              "value": "#16549D"
+            }
+          ]
+        },
+        {
+          "role": "Day Description",
+          "action": "sectionContent",
+          "format": "auto",
+          "conditions": [
+            {
+              "type": "fontSizeEquals",
+              "value": 10.5
+            },
+            {
+              "type": "fontNameContains",
+              "value": "GHEALO\u002BHelveticaNeue"
+            },
+            {
+              "type": "colorEquals",
+              "value": "#221F1F"
+            }
+          ]
+        }
+      ]
+    },
+    "tour-details": {
+      "rules": [
+        {
+          "role": "Tour details - Title",
+          "action": "sectionTitle",
+          "format": "paragraph",
+          "conditions": [
+            {
+              "type": "fontSizeEquals",
+              "value": 12
+            },
+            {
+              "type": "fontNameContains",
+              "value": "GHEALP\u002BClarendon"
+            },
+            {
+              "type": "colorEquals",
+              "value": "#16549D"
+            }
+          ]
+        },
+        {
+          "role": "Tour details - Content",
+          "action": "sectionContent",
+          "format": "auto",
+          "conditions": [
+            {
+              "type": "fontSizeEquals",
+              "value": 8.5
+            },
+            {
+              "type": "fontNameContains",
+              "value": "GHEALO\u002BHelveticaNeue"
+            },
+            {
+              "type": "colorEquals",
+              "value": "#16549D"
             }
           ]
         }
