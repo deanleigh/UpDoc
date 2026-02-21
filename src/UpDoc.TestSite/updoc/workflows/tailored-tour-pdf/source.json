@@ -338,6 +338,28 @@
                 }
               ],
               "exceptions": null
+            },
+            {
+              "role": "Disclaimer",
+              "part": "summary",
+              "action": null,
+              "format": "auto",
+              "exclude": false,
+              "conditions": [
+                {
+                  "type": "fontSizeEquals",
+                  "value": 8
+                },
+                {
+                  "type": "fontNameContains",
+                  "value": "LGPHPC\u002BHelveticaNeue-Medium"
+                },
+                {
+                  "type": "colorEquals",
+                  "value": "#16549D"
+                }
+              ],
+              "exceptions": null
             }
           ]
         }
