@@ -740,65 +740,75 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		const isGrouped = !!section.groupName;
 
 		return html`
-			<div class="composed-section-row">
-				<div class="composed-section-header" @click=${() => this.#toggleCollapse(collapseKey)}>
+			<div class="section-box">
+				<div class="section-box-header" @click=${() => this.#toggleCollapse(collapseKey)}>
 					<uui-icon class="collapse-chevron" name="${isCollapsed ? 'icon-navigation-right' : 'icon-navigation-down'}"></uui-icon>
 					<uui-icon class="level-icon" name="icon-thumbnail-list"></uui-icon>
-					<span class="composed-role">${sectionLabel}</span>
+					<span class="section-box-label">${sectionLabel}</span>
 					<span class="header-spacer"></span>
 					${hasMappings && isCollapsed
 						? suffixes.map((s) => this.#renderPartBadges(`${section.id}.${s}`))
 						: nothing}
 				</div>
 				${!isCollapsed ? html`
-					${isGrouped ? html`
-						${section.heading ? html`
-							<div class="composed-part-row">
-								<span class="part-label">Title</span>
-								<div class="part-content">${unsafeHTML(markdownToHtml(section.heading))}</div>
-								<div class="composed-part-actions">
-									${this.#renderPartBadges(`${section.id}.title`)}
-									${this.#renderPartBadges(`${section.id}.heading`)}
+					<div class="section-box-content">
+						${isGrouped ? html`
+							${section.heading ? html`
+								<div class="part-box">
+									<div class="part-box-row">
+										<span class="part-box-label">Title</span>
+										<div class="part-box-content">${unsafeHTML(markdownToHtml(section.heading))}</div>
+										<div class="part-box-actions">
+											${this.#renderPartBadges(`${section.id}.title`)}
+											${this.#renderPartBadges(`${section.id}.heading`)}
+										</div>
+									</div>
 								</div>
-							</div>
-						` : nothing}
-						${section.content ? html`
-							<div class="composed-part-row composed-part-row-bordered">
-								<span class="part-label">Content</span>
-								<div class="part-content">${unsafeHTML(markdownToHtml(section.content))}</div>
-								<div class="composed-part-actions">
-									${this.#renderPartBadges(`${section.id}.content`)}
+							` : nothing}
+							${section.content ? html`
+								<div class="part-box">
+									<div class="part-box-row">
+										<span class="part-box-label">Content</span>
+										<div class="part-box-content">${unsafeHTML(markdownToHtml(section.content))}</div>
+										<div class="part-box-actions">
+											${this.#renderPartBadges(`${section.id}.content`)}
+										</div>
+									</div>
 								</div>
-							</div>
-						` : nothing}
-						${section.description ? html`
-							<div class="composed-part-row composed-part-row-bordered">
-								<span class="part-label">Description</span>
-								<div class="part-content">${unsafeHTML(markdownToHtml(section.description))}</div>
-								<div class="composed-part-actions">
-									${this.#renderPartBadges(`${section.id}.description`)}
+							` : nothing}
+							${section.description ? html`
+								<div class="part-box">
+									<div class="part-box-row">
+										<span class="part-box-label">Description</span>
+										<div class="part-box-content">${unsafeHTML(markdownToHtml(section.description))}</div>
+										<div class="part-box-actions">
+											${this.#renderPartBadges(`${section.id}.description`)}
+										</div>
+									</div>
 								</div>
-							</div>
-						` : nothing}
-						${section.summary ? html`
-							<div class="composed-part-row composed-part-row-bordered">
-								<span class="part-label">Summary</span>
-								<div class="part-content">${unsafeHTML(markdownToHtml(section.summary))}</div>
-								<div class="composed-part-actions">
-									${this.#renderPartBadges(`${section.id}.summary`)}
+							` : nothing}
+							${section.summary ? html`
+								<div class="part-box">
+									<div class="part-box-row">
+										<span class="part-box-label">Summary</span>
+										<div class="part-box-content">${unsafeHTML(markdownToHtml(section.summary))}</div>
+										<div class="part-box-actions">
+											${this.#renderPartBadges(`${section.id}.summary`)}
+										</div>
+									</div>
 								</div>
-							</div>
-						` : nothing}
-					` : html`
-						${section.content ? html`
-							<div class="composed-part-row">
-								<div class="part-content">${unsafeHTML(markdownToHtml(section.content))}</div>
-								<div class="composed-part-actions">
-									${suffixes.map((s) => this.#renderPartBadges(`${section.id}.${s}`))}
+							` : nothing}
+						` : html`
+							${section.content ? html`
+								<div class="part-box-row">
+									<div class="part-box-content">${unsafeHTML(markdownToHtml(section.content))}</div>
+									<div class="part-box-actions">
+										${suffixes.map((s) => this.#renderPartBadges(`${section.id}.${s}`))}
+									</div>
 								</div>
-							</div>
-						` : nothing}
-					`}
+							` : nothing}
+						`}
+					</div>
 				` : nothing}
 			</div>
 		`;
@@ -2011,61 +2021,68 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				font-weight: 500;
 			}
 
-			/* Composed sections (Phase 1b — areas with rules) */
+			/* Section boxes — bordered containers for each section */
 			.composed-sections {
 				margin-left: var(--uui-size-space-3);
 			}
 
-			.composed-section-row {
-				display: flex;
-				flex-direction: column;
-				padding: var(--uui-size-space-3) var(--uui-size-space-4);
-				border-bottom: 1px solid var(--uui-color-border);
+			.section-box {
+				border: 1px solid var(--uui-color-border);
+				border-radius: var(--uui-border-radius);
+				margin: var(--uui-size-space-3) 0;
 			}
 
-			.composed-section-row:last-child {
-				border-bottom: none;
+			.section-box:first-child {
+				margin-top: 0;
 			}
 
-			.composed-section-header {
+			.section-box-header {
 				display: flex;
 				align-items: center;
 				gap: var(--uui-size-space-2);
-				padding: var(--uui-size-space-2) var(--uui-size-space-3);
+				padding: var(--uui-size-space-3) var(--uui-size-space-4);
 				cursor: pointer;
 			}
 
-			.composed-section-header:hover {
+			.section-box-header:hover {
 				background: var(--uui-color-surface-emphasis);
+				border-radius: var(--uui-border-radius);
 			}
 
-			.composed-section-header:hover .collapse-chevron {
+			.section-box-header:hover .collapse-chevron {
 				color: var(--uui-color-text);
 			}
 
-			.composed-role {
+			.section-box-label {
 				font-weight: 600;
 				color: var(--uui-color-text);
 				flex-shrink: 0;
 			}
 
-			.composed-part-row {
+			.section-box-content {
+				padding: 0 var(--uui-size-space-4) var(--uui-size-space-4);
+			}
+
+			/* Part boxes — nested bordered containers for grouped parts */
+			.part-box {
+				border: 1px solid var(--uui-color-border);
+				border-radius: var(--uui-border-radius);
+				margin-bottom: var(--uui-size-space-3);
+			}
+
+			.part-box:last-child {
+				margin-bottom: 0;
+			}
+
+			/* Part row — flex layout for label + content + actions */
+			.part-box-row {
 				display: flex;
 				align-items: flex-start;
 				gap: var(--uui-size-space-3);
-				padding: var(--uui-size-space-3) var(--uui-size-space-3) var(--uui-size-space-3);
-				padding-left: calc(var(--uui-size-space-3) + 12px + var(--uui-size-space-2));
+				padding: var(--uui-size-space-3) var(--uui-size-space-4);
 			}
 
-			.composed-part-row:first-child {
-				padding-top: var(--uui-size-space-1);
-			}
-
-			.composed-part-row-bordered {
-				border-top: 1px solid var(--uui-color-border);
-			}
-
-			.part-label {
+			.part-box-label {
 				font-size: var(--uui-type-small-size);
 				color: var(--uui-color-text-alt);
 				min-width: 80px;
@@ -2073,14 +2090,36 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				padding-top: 2px;
 			}
 
-			.part-content {
+			.part-box-content {
 				flex: 1;
 				font-size: var(--uui-type-default-size);
-				color: var(--uui-color-text-alt);
+				color: var(--uui-color-text);
 				min-width: 0;
 			}
 
-			.composed-part-actions {
+			/* Headings inside part content render as plain bold text */
+			.part-box-content h1,
+			.part-box-content h2,
+			.part-box-content h3,
+			.part-box-content h4,
+			.part-box-content h5,
+			.part-box-content h6 {
+				font-size: inherit;
+				font-weight: 600;
+				margin: 0.75em 0 0.25em;
+				line-height: 1.4;
+			}
+
+			.part-box-content h1:first-child,
+			.part-box-content h2:first-child,
+			.part-box-content h3:first-child,
+			.part-box-content h4:first-child,
+			.part-box-content h5:first-child,
+			.part-box-content h6:first-child {
+				margin-top: 0;
+			}
+
+			.part-box-actions {
 				display: flex;
 				align-items: center;
 				gap: var(--uui-size-space-2);

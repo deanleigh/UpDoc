@@ -449,63 +449,73 @@ Pe = async function(e, t) {
 Me = function(e) {
   const t = ["content", "heading", "title", "description", "summary"], i = t.some((u) => s(this, a, I).call(this, `${e.id}.${u}`).length > 0), o = `composed-${e.id}`, r = s(this, a, C).call(this, o), n = e.groupName ?? e.ruleName ?? (e.areaName ? `${e.areaName} - Section` : "Section"), c = !!e.groupName;
   return l`
-			<div class="composed-section-row">
-				<div class="composed-section-header" @click=${() => s(this, a, z).call(this, o)}>
+			<div class="section-box">
+				<div class="section-box-header" @click=${() => s(this, a, z).call(this, o)}>
 					<uui-icon class="collapse-chevron" name="${r ? "icon-navigation-right" : "icon-navigation-down"}"></uui-icon>
 					<uui-icon class="level-icon" name="icon-thumbnail-list"></uui-icon>
-					<span class="composed-role">${n}</span>
+					<span class="section-box-label">${n}</span>
 					<span class="header-spacer"></span>
 					${i && r ? t.map((u) => s(this, a, _).call(this, `${e.id}.${u}`)) : p}
 				</div>
 				${r ? p : l`
-					${c ? l`
-						${e.heading ? l`
-							<div class="composed-part-row">
-								<span class="part-label">Title</span>
-								<div class="part-content">${w(k(e.heading))}</div>
-								<div class="composed-part-actions">
-									${s(this, a, _).call(this, `${e.id}.title`)}
-									${s(this, a, _).call(this, `${e.id}.heading`)}
+					<div class="section-box-content">
+						${c ? l`
+							${e.heading ? l`
+								<div class="part-box">
+									<div class="part-box-row">
+										<span class="part-box-label">Title</span>
+										<div class="part-box-content">${w(k(e.heading))}</div>
+										<div class="part-box-actions">
+											${s(this, a, _).call(this, `${e.id}.title`)}
+											${s(this, a, _).call(this, `${e.id}.heading`)}
+										</div>
+									</div>
 								</div>
-							</div>
-						` : p}
-						${e.content ? l`
-							<div class="composed-part-row composed-part-row-bordered">
-								<span class="part-label">Content</span>
-								<div class="part-content">${w(k(e.content))}</div>
-								<div class="composed-part-actions">
-									${s(this, a, _).call(this, `${e.id}.content`)}
+							` : p}
+							${e.content ? l`
+								<div class="part-box">
+									<div class="part-box-row">
+										<span class="part-box-label">Content</span>
+										<div class="part-box-content">${w(k(e.content))}</div>
+										<div class="part-box-actions">
+											${s(this, a, _).call(this, `${e.id}.content`)}
+										</div>
+									</div>
 								</div>
-							</div>
-						` : p}
-						${e.description ? l`
-							<div class="composed-part-row composed-part-row-bordered">
-								<span class="part-label">Description</span>
-								<div class="part-content">${w(k(e.description))}</div>
-								<div class="composed-part-actions">
-									${s(this, a, _).call(this, `${e.id}.description`)}
+							` : p}
+							${e.description ? l`
+								<div class="part-box">
+									<div class="part-box-row">
+										<span class="part-box-label">Description</span>
+										<div class="part-box-content">${w(k(e.description))}</div>
+										<div class="part-box-actions">
+											${s(this, a, _).call(this, `${e.id}.description`)}
+										</div>
+									</div>
 								</div>
-							</div>
-						` : p}
-						${e.summary ? l`
-							<div class="composed-part-row composed-part-row-bordered">
-								<span class="part-label">Summary</span>
-								<div class="part-content">${w(k(e.summary))}</div>
-								<div class="composed-part-actions">
-									${s(this, a, _).call(this, `${e.id}.summary`)}
+							` : p}
+							${e.summary ? l`
+								<div class="part-box">
+									<div class="part-box-row">
+										<span class="part-box-label">Summary</span>
+										<div class="part-box-content">${w(k(e.summary))}</div>
+										<div class="part-box-actions">
+											${s(this, a, _).call(this, `${e.id}.summary`)}
+										</div>
+									</div>
 								</div>
-							</div>
-						` : p}
-					` : l`
-						${e.content ? l`
-							<div class="composed-part-row">
-								<div class="part-content">${w(k(e.content))}</div>
-								<div class="composed-part-actions">
-									${t.map((u) => s(this, a, _).call(this, `${e.id}.${u}`))}
+							` : p}
+						` : l`
+							${e.content ? l`
+								<div class="part-box-row">
+									<div class="part-box-content">${w(k(e.content))}</div>
+									<div class="part-box-actions">
+										${t.map((u) => s(this, a, _).call(this, `${e.id}.${u}`))}
+									</div>
 								</div>
-							</div>
-						` : p}
-					`}
+							` : p}
+						`}
+					</div>
 				`}
 			</div>
 		`;
@@ -1533,61 +1543,68 @@ f.styles = [
 				font-weight: 500;
 			}
 
-			/* Composed sections (Phase 1b — areas with rules) */
+			/* Section boxes — bordered containers for each section */
 			.composed-sections {
 				margin-left: var(--uui-size-space-3);
 			}
 
-			.composed-section-row {
-				display: flex;
-				flex-direction: column;
-				padding: var(--uui-size-space-3) var(--uui-size-space-4);
-				border-bottom: 1px solid var(--uui-color-border);
+			.section-box {
+				border: 1px solid var(--uui-color-border);
+				border-radius: var(--uui-border-radius);
+				margin: var(--uui-size-space-3) 0;
 			}
 
-			.composed-section-row:last-child {
-				border-bottom: none;
+			.section-box:first-child {
+				margin-top: 0;
 			}
 
-			.composed-section-header {
+			.section-box-header {
 				display: flex;
 				align-items: center;
 				gap: var(--uui-size-space-2);
-				padding: var(--uui-size-space-2) var(--uui-size-space-3);
+				padding: var(--uui-size-space-3) var(--uui-size-space-4);
 				cursor: pointer;
 			}
 
-			.composed-section-header:hover {
+			.section-box-header:hover {
 				background: var(--uui-color-surface-emphasis);
+				border-radius: var(--uui-border-radius);
 			}
 
-			.composed-section-header:hover .collapse-chevron {
+			.section-box-header:hover .collapse-chevron {
 				color: var(--uui-color-text);
 			}
 
-			.composed-role {
+			.section-box-label {
 				font-weight: 600;
 				color: var(--uui-color-text);
 				flex-shrink: 0;
 			}
 
-			.composed-part-row {
+			.section-box-content {
+				padding: 0 var(--uui-size-space-4) var(--uui-size-space-4);
+			}
+
+			/* Part boxes — nested bordered containers for grouped parts */
+			.part-box {
+				border: 1px solid var(--uui-color-border);
+				border-radius: var(--uui-border-radius);
+				margin-bottom: var(--uui-size-space-3);
+			}
+
+			.part-box:last-child {
+				margin-bottom: 0;
+			}
+
+			/* Part row — flex layout for label + content + actions */
+			.part-box-row {
 				display: flex;
 				align-items: flex-start;
 				gap: var(--uui-size-space-3);
-				padding: var(--uui-size-space-3) var(--uui-size-space-3) var(--uui-size-space-3);
-				padding-left: calc(var(--uui-size-space-3) + 12px + var(--uui-size-space-2));
+				padding: var(--uui-size-space-3) var(--uui-size-space-4);
 			}
 
-			.composed-part-row:first-child {
-				padding-top: var(--uui-size-space-1);
-			}
-
-			.composed-part-row-bordered {
-				border-top: 1px solid var(--uui-color-border);
-			}
-
-			.part-label {
+			.part-box-label {
 				font-size: var(--uui-type-small-size);
 				color: var(--uui-color-text-alt);
 				min-width: 80px;
@@ -1595,14 +1612,36 @@ f.styles = [
 				padding-top: 2px;
 			}
 
-			.part-content {
+			.part-box-content {
 				flex: 1;
 				font-size: var(--uui-type-default-size);
-				color: var(--uui-color-text-alt);
+				color: var(--uui-color-text);
 				min-width: 0;
 			}
 
-			.composed-part-actions {
+			/* Headings inside part content render as plain bold text */
+			.part-box-content h1,
+			.part-box-content h2,
+			.part-box-content h3,
+			.part-box-content h4,
+			.part-box-content h5,
+			.part-box-content h6 {
+				font-size: inherit;
+				font-weight: 600;
+				margin: 0.75em 0 0.25em;
+				line-height: 1.4;
+			}
+
+			.part-box-content h1:first-child,
+			.part-box-content h2:first-child,
+			.part-box-content h3:first-child,
+			.part-box-content h4:first-child,
+			.part-box-content h5:first-child,
+			.part-box-content h6:first-child {
+				margin-top: 0;
+			}
+
+			.part-box-actions {
 				display: flex;
 				align-items: center;
 				gap: var(--uui-size-space-2);
@@ -1952,4 +1991,4 @@ export {
   f as UpDocWorkflowSourceViewElement,
   Ct as default
 };
-//# sourceMappingURL=up-doc-workflow-source-view.element-DXeExaHo.js.map
+//# sourceMappingURL=up-doc-workflow-source-view.element-Zsw4F-pL.js.map
