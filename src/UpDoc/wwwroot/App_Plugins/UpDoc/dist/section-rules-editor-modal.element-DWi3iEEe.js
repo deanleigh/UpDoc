@@ -1,35 +1,9 @@
-import { UmbSorterController as Re } from "@umbraco-cms/backoffice/sorter";
-import { css as L, property as A, state as g, customElement as B, nothing as d, repeat as Ne, html as u } from "@umbraco-cms/backoffice/external/lit";
-import { UmbLitElement as Le } from "@umbraco-cms/backoffice/lit-element";
-import { UmbModalBaseElement as Ae } from "@umbraco-cms/backoffice/modal";
-import { UmbTextStyles as Oe } from "@umbraco-cms/backoffice/style";
-function Te(e) {
-  if (e.exclude) return "exclude";
-  if (e.part) return e.part;
-  switch (e.action) {
-    case "singleProperty":
-    case "sectionProperty":
-    case "sectionContent":
-    case "addAsContent":
-    case "addAsList":
-      return "content";
-    case "sectionTitle":
-    case "createSection":
-    case "setAsHeading":
-      return "title";
-    case "sectionDescription":
-      return "description";
-    case "sectionSummary":
-      return "summary";
-    case "exclude":
-      return "exclude";
-    default:
-      return "content";
-  }
-}
-function Pe(e) {
-  return e.format ? e.format : e.action === "addAsList" ? "bulletListItem" : "auto";
-}
+import { g as Re, a as Ne } from "./workflow.types-BgUyfmVM.js";
+import { UmbSorterController as Le } from "@umbraco-cms/backoffice/sorter";
+import { css as L, property as O, state as g, customElement as B, nothing as d, repeat as Oe, html as u } from "@umbraco-cms/backoffice/external/lit";
+import { UmbLitElement as Ae } from "@umbraco-cms/backoffice/lit-element";
+import { UmbModalBaseElement as Te } from "@umbraco-cms/backoffice/modal";
+import { UmbTextStyles as Pe } from "@umbraco-cms/backoffice/style";
 const q = L`
 	/* Collapsed rule row */
 	.rule-row {
@@ -358,9 +332,9 @@ var Me = Object.defineProperty, Fe = Object.getOwnPropertyDescriptor, G = (e) =>
     (l = e[r]) && (o = (a ? l(t, i, o) : l(o)) || o);
   return a && o && Me(t, i, o), o;
 }, Ve = (e, t, i) => t.has(e) || G("Cannot " + i), Be = (e, t, i) => (Ve(e, t, "read from private field"), i ? i.call(e) : t.get(e)), qe = (e, t, i) => t.has(e) ? G("Cannot add the same private member more than once") : t instanceof WeakSet ? t.add(e) : t.set(e, i), k;
-let m = class extends Le {
+let m = class extends Ae {
   constructor() {
-    super(...arguments), qe(this, k, new Re(this, {
+    super(...arguments), qe(this, k, new Le(this, {
       getUniqueOfElement: (e) => e.dataset.sortId ?? "",
       getUniqueOfModel: (e) => e._id,
       identifier: "updoc-rules-sorter",
@@ -387,7 +361,7 @@ let m = class extends Le {
   render() {
     return this._rules.length === 0 && !this.renderItem ? d : u`
 			<div class="rules-container">
-				${Ne(
+				${Oe(
       this._rules,
       (e) => e._id,
       (e) => u`
@@ -423,16 +397,16 @@ m.styles = [
 		`
 ];
 x([
-  A({ attribute: !1 })
+  O({ attribute: !1 })
 ], m.prototype, "rules", 1);
 x([
   g()
 ], m.prototype, "_rules", 2);
 x([
-  A({ attribute: !1 })
+  O({ attribute: !1 })
 ], m.prototype, "expandedIds", 2);
 x([
-  A({ attribute: !1 })
+  O({ attribute: !1 })
 ], m.prototype, "renderItem", 2);
 m = x([
   B("updoc-sortable-rules")
@@ -443,12 +417,12 @@ var Ge = Object.defineProperty, De = Object.getOwnPropertyDescriptor, D = (e) =>
   for (var o = a > 1 ? void 0 : a ? De(t, i) : t, r = e.length - 1, l; r >= 0; r--)
     (l = e[r]) && (o = (a ? l(t, i, o) : l(o)) || o);
   return a && o && Ge(t, i, o), o;
-}, U = (e, t, i) => t.has(e) || D("Cannot " + i), f = (e, t, i) => (U(e, t, "read from private field"), i ? i.call(e) : t.get(e)), Ue = (e, t, i) => t.has(e) ? D("Cannot add the same private member more than once") : t instanceof WeakSet ? t.add(e) : t.set(e, i), n = (e, t, i) => (U(e, t, "access private method"), i), s, h, _, I, $, O, S, v, W, H, Y, K, T, Q, c, E, P, J, X, Z, j, ee, te, y, C, ie, R, oe, ae, se, re, ne, ue, le, ce, de, pe, he, fe, N, M, ve, me, ge, be, _e, xe, $e, ye, we, F, ze, ke;
-let Ie = 0;
+}, U = (e, t, i) => t.has(e) || D("Cannot " + i), f = (e, t, i) => (U(e, t, "read from private field"), i ? i.call(e) : t.get(e)), Ue = (e, t, i) => t.has(e) ? D("Cannot add the same private member more than once") : t instanceof WeakSet ? t.add(e) : t.set(e, i), n = (e, t, i) => (U(e, t, "access private method"), i), s, h, _, W, $, A, E, v, I, H, Y, K, T, Q, c, S, P, J, X, Z, j, ee, te, y, C, ie, R, oe, ae, se, re, ne, ue, le, ce, de, pe, he, fe, N, M, ve, me, ge, be, _e, xe, $e, ye, we, F, ze, ke;
+let We = 0;
 function V() {
-  return `r-${++Ie}`;
+  return `r-${++We}`;
 }
-const Se = {
+const Ee = {
   textBeginsWith: "Text begins with",
   textEndsWith: "Text ends with",
   textContains: "Text contains",
@@ -462,7 +436,7 @@ const Se = {
   colorEquals: "Color equals",
   positionFirst: "Position: first",
   positionLast: "Position: last"
-}, w = ["positionFirst", "positionLast"], Ee = [
+}, w = ["positionFirst", "positionLast"], Se = [
   "textBeginsWith",
   "textEndsWith",
   "textContains",
@@ -481,7 +455,7 @@ const Se = {
   content: "Content",
   description: "Description",
   summary: "Summary"
-}, We = ["title", "content", "description", "summary"], He = {
+}, Ie = ["title", "content", "description", "summary"], He = {
   block: "Block",
   style: "Style"
 }, Ye = ["block", "style"], Ke = {
@@ -515,7 +489,7 @@ const Se = {
   code: "Code",
   highlight: "Highlight"
 }, Xe = ["bold", "italic", "strikethrough", "code", "highlight"];
-let p = class extends Ae {
+let p = class extends Te {
   constructor() {
     super(...arguments), Ue(this, s), this._rules = [], this._groupOrder = [], this._collapsed = /* @__PURE__ */ new Set(), this._expandedRules = /* @__PURE__ */ new Set(), this._renamingGroup = null, this._renameValue = "";
   }
@@ -526,10 +500,10 @@ let p = class extends Ae {
     for (const a of e.groups ?? []) {
       i.push(a.name);
       for (const o of a.rules)
-        t.push(n(this, s, S).call(this, o, a.name));
+        t.push(n(this, s, E).call(this, o, a.name));
     }
     for (const a of e.rules ?? [])
-      t.push(n(this, s, S).call(this, a, null));
+      t.push(n(this, s, E).call(this, a, null));
     this._rules = t, this._groupOrder = i;
   }
   render() {
@@ -543,7 +517,7 @@ let p = class extends Ae {
     }
     const i = f(this, s, H);
     return u`
-			<umb-body-layout headline="Edit Sections: ${f(this, s, W)}">
+			<umb-body-layout headline="Edit Sections: ${f(this, s, I)}">
 				<div id="main">
 					<div class="section-info">
 						<span class="meta-badge">${f(this, s, v).length} elements</span>
@@ -568,7 +542,7 @@ let p = class extends Ae {
 										<uui-button
 											look="placeholder"
 											label="Add rule to ${a.group}"
-											@click=${() => n(this, s, E).call(this, a.group)}>
+											@click=${() => n(this, s, S).call(this, a.group)}>
 											+ Add rule
 										</uui-button>
 									</div>
@@ -586,7 +560,7 @@ let p = class extends Ae {
 							<uui-button
 								look="placeholder"
 								label="Add rule"
-								@click=${() => n(this, s, E).call(this, null)}>
+								@click=${() => n(this, s, S).call(this, null)}>
 								+ Add rule
 							</uui-button>
 						`;
@@ -631,27 +605,27 @@ _ = function(e, t) {
   const i = `${e}-${t}`, a = new Set(this._collapsed);
   a.has(i) ? a.delete(i) : a.add(i), this._collapsed = a;
 };
-I = function(e) {
+W = function(e) {
   return this._expandedRules.has(e);
 };
 $ = function(e) {
   const t = new Set(this._expandedRules);
   t.has(e) ? t.delete(e) : t.add(e), this._expandedRules = t;
 };
-O = function(e) {
+A = function(e) {
   if (!this._expandedRules.has(e)) {
     const t = new Set(this._expandedRules);
     t.add(e), this._expandedRules = t;
   }
 };
-S = function(e, t) {
+E = function(e, t) {
   let i = e.part, a = e.exclude ?? !1;
   if (!i && !a) {
-    const r = Te(e);
+    const r = Re(e);
     r === "exclude" ? a = !0 : i = r;
   }
   let o = e.formats;
-  return (!o || o.length === 0) && (o = [{ type: "block", value: e.format ?? Pe(e) }]), {
+  return (!o || o.length === 0) && (o = [{ type: "block", value: e.format ?? Ne(e) }]), {
     ...e,
     part: i,
     exclude: a,
@@ -663,7 +637,7 @@ S = function(e, t) {
 v = function() {
   return this.data?.elements ?? [];
 };
-W = function() {
+I = function() {
   return this.data?.sectionHeading ?? "Section";
 };
 H = function() {
@@ -739,7 +713,7 @@ Q = function(e, t, i) {
 c = function(e, t) {
   this._rules = this._rules.map((i) => i._id === e ? t(i) : i);
 };
-E = function(e = null) {
+S = function(e = null) {
   const t = V();
   this._rules = [...this._rules, {
     role: "",
@@ -748,7 +722,7 @@ E = function(e = null) {
     formats: [{ type: "block", value: "auto" }],
     _id: t,
     _groupName: e
-  }], n(this, s, O).call(this, t);
+  }], n(this, s, A).call(this, t);
 };
 P = function(e) {
   this._rules = this._rules.filter((t) => t._id !== e);
@@ -762,7 +736,7 @@ J = function(e, t) {
     formats: [{ type: "block", value: "auto" }],
     _id: o,
     _groupName: null
-  }], n(this, s, O).call(this, o);
+  }], n(this, s, A).call(this, o);
 };
 X = function(e, t) {
   n(this, s, c).call(this, e, (i) => ({ ...i, role: t }));
@@ -918,8 +892,8 @@ be = function(e, t, i) {
 					class="condition-type-select"
 					.value=${i.type}
 					@change=${(o) => n(this, s, le).call(this, e, t, o.target.value)}>
-					${Ee.map((o) => u`
-						<option value=${o} ?selected=${o === i.type}>${Se[o]}</option>
+					${Se.map((o) => u`
+						<option value=${o} ?selected=${o === i.type}>${Ee[o]}</option>
 					`)}
 				</select>
 				${a ? d : u`
@@ -948,8 +922,8 @@ _e = function(e, t, i) {
 					class="condition-type-select"
 					.value=${i.type}
 					@change=${(o) => n(this, s, he).call(this, e, t, o.target.value)}>
-					${Ee.map((o) => u`
-						<option value=${o} ?selected=${o === i.type}>${Se[o]}</option>
+					${Se.map((o) => u`
+						<option value=${o} ?selected=${o === i.type}>${Ee[o]}</option>
 					`)}
 				</select>
 				${a ? d : u`
@@ -1001,7 +975,7 @@ xe = function(e, t, i) {
 		`;
 };
 $e = function(e, t) {
-  return n(this, s, I).call(this, e._id) ? n(this, s, we).call(this, e, t) : n(this, s, ye).call(this, e, t);
+  return n(this, s, W).call(this, e._id) ? n(this, s, we).call(this, e, t) : n(this, s, ye).call(this, e, t);
 };
 ye = function(e, t) {
   const i = e.exclude, a = e.part ?? "content", o = i ? "Exclude" : Ce[a] ?? a, r = t.length, l = e.role || "(unnamed rule)";
@@ -1095,7 +1069,7 @@ we = function(e, t) {
 								.value=${a}
 								?disabled=${i}
 								@change=${(r) => n(this, s, Z).call(this, o, r.target.value)}>
-								${We.map((r) => u`
+								${Ie.map((r) => u`
 									<option value=${r} ?selected=${r === a}>${Ce[r]}</option>
 								`)}
 							</select>
@@ -1204,7 +1178,7 @@ ke = function(e) {
 		`;
 };
 p.styles = [
-  Oe,
+  Pe,
   q,
   L`
 			:host {
@@ -1362,9 +1336,9 @@ b([
 p = b([
   B("up-doc-section-rules-editor-modal")
 ], p);
-const ot = p;
+const at = p;
 export {
   p as UpDocSectionRulesEditorModalElement,
-  ot as default
+  at as default
 };
-//# sourceMappingURL=section-rules-editor-modal.element-Bb12Okfr.js.map
+//# sourceMappingURL=section-rules-editor-modal.element-DWi3iEEe.js.map

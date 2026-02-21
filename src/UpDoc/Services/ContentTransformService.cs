@@ -35,6 +35,13 @@ public class ContentTransformService : IContentTransformService
             {
                 var area = page.Areas[areaIndex];
 
+                var transformArea = new TransformArea
+                {
+                    Name = area.Name ?? "",
+                    Color = string.IsNullOrEmpty(area.Color) ? null : area.Color,
+                    Page = page.Page,
+                };
+
                 // Check if this area has rules that should produce individual sections
                 var areaKey = !string.IsNullOrEmpty(area.Name) ? NormalizeToKebabCase(area.Name) : null;
                 AreaRules? areaRule = null;
@@ -48,7 +55,32 @@ public class ContentTransformService : IContentTransformService
                 {
                     var roleSections = TransformAreaWithRules(
                         area, areaRule, page.Page, areaIndex, seenIds, diagnostics);
-                    result.Sections.AddRange(roleSections);
+
+                    // Partition sections into groups and ungrouped by GroupName
+                    var grouped = new Dictionary<string, List<TransformedSection>>();
+                    foreach (var s in roleSections)
+                    {
+                        if (s.GroupName != null)
+                        {
+                            if (!grouped.ContainsKey(s.GroupName))
+                                grouped[s.GroupName] = new List<TransformedSection>();
+                            grouped[s.GroupName].Add(s);
+                        }
+                        else
+                        {
+                            transformArea.Sections.Add(s);
+                        }
+                    }
+
+                    // Create TransformGroup objects preserving insertion order
+                    foreach (var kvp in grouped)
+                    {
+                        transformArea.Groups.Add(new TransformGroup
+                        {
+                            Name = kvp.Key,
+                            Sections = kvp.Value,
+                        });
+                    }
                 }
                 else
                 {
@@ -57,10 +89,12 @@ public class ContentTransformService : IContentTransformService
                     {
                         var transformed = TransformSection(section, page.Page, area.Color, area.Name, areaIndex);
                         DeduplicateId(transformed, seenIds);
-                        result.Sections.Add(transformed);
+                        transformArea.Sections.Add(transformed);
                         UpdateDiagnostics(diagnostics, transformed.Pattern);
                     }
                 }
+
+                result.Areas.Add(transformArea);
             }
         }
 
@@ -68,12 +102,12 @@ public class ContentTransformService : IContentTransformService
         if (previous != null)
         {
             var previousInclusion = new Dictionary<string, bool>();
-            foreach (var s in previous.Sections)
+            foreach (var s in previous.AllSections)
             {
                 previousInclusion.TryAdd(s.Id, s.Included);
             }
 
-            foreach (var section in result.Sections)
+            foreach (var section in result.AllSections)
             {
                 if (previousInclusion.TryGetValue(section.Id, out var included))
                 {
@@ -82,7 +116,8 @@ public class ContentTransformService : IContentTransformService
             }
         }
 
-        diagnostics.TotalSections = result.Sections.Count;
+        var allSections = result.AllSections.ToList();
+        diagnostics.TotalSections = allSections.Count;
         result.Diagnostics = diagnostics;
         return result;
     }

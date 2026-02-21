@@ -9,9 +9,60 @@ namespace UpDoc.Models;
 /// </summary>
 public class TransformResult
 {
-    public string Version { get; set; } = "1.0";
-    public List<TransformedSection> Sections { get; set; } = new();
+    public string Version { get; set; } = "2.0";
+
+    /// <summary>Hierarchical structure: areas containing groups and ungrouped sections.</summary>
+    public List<TransformArea> Areas { get; set; } = new();
+
     public TransformDiagnostics Diagnostics { get; set; } = new();
+
+    /// <summary>
+    /// Flat accessor over all sections in all areas (groups + ungrouped).
+    /// Use for code that needs to iterate every section regardless of hierarchy.
+    /// </summary>
+    [JsonIgnore]
+    public IEnumerable<TransformedSection> AllSections =>
+        Areas.SelectMany(a => a.AllSections);
+}
+
+/// <summary>
+/// An area from the PDF page (e.g., "Page Header", "Tour Details", "Organiser Information").
+/// Contains groups (multi-part sections from grouped rules) and ungrouped sections.
+/// </summary>
+public class TransformArea
+{
+    /// <summary>Area name from the area template (e.g., "Tour Details").</summary>
+    public string Name { get; set; } = "";
+
+    /// <summary>Hex color of the area boundary.</summary>
+    public string? Color { get; set; }
+
+    /// <summary>Source page number.</summary>
+    public int Page { get; set; }
+
+    /// <summary>Named groups of multi-part sections (e.g., "Tour Details - Section" with title + content).</summary>
+    public List<TransformGroup> Groups { get; set; } = new();
+
+    /// <summary>Sections not belonging to any group (ungrouped rules or standard heading detection).</summary>
+    public List<TransformedSection> Sections { get; set; } = new();
+
+    /// <summary>Flat accessor: all sections from groups + ungrouped.</summary>
+    [JsonIgnore]
+    public IEnumerable<TransformedSection> AllSections =>
+        Groups.SelectMany(g => g.Sections).Concat(Sections);
+}
+
+/// <summary>
+/// A named group of sections produced by grouped rules (e.g., "Tour Details - Section").
+/// Each section in the group has a title + content + optional description/summary.
+/// </summary>
+public class TransformGroup
+{
+    /// <summary>Group name from the rule group (e.g., "Tour Details - Section").</summary>
+    public string Name { get; set; } = "";
+
+    /// <summary>Sections belonging to this group.</summary>
+    public List<TransformedSection> Sections { get; set; } = new();
 }
 
 /// <summary>

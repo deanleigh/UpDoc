@@ -1,4 +1,5 @@
-import type { RichExtractionResult, DocumentTypeConfig, MappingDestination, AreaDetectionResult, DetectedArea, DetectedSection, AreaElement, TransformResult, TransformedSection, SourceConfig, AreaTemplate, AreaRules, InferSectionPatternResponse, MapConfig, SectionMapping } from './workflow.types.js';
+import type { RichExtractionResult, DocumentTypeConfig, MappingDestination, AreaDetectionResult, DetectedArea, DetectedSection, AreaElement, TransformResult, TransformArea, TransformedSection, SourceConfig, AreaTemplate, AreaRules, InferSectionPatternResponse, MapConfig, SectionMapping } from './workflow.types.js';
+import { allTransformSections } from './workflow.types.js';
 import { fetchSampleExtraction, triggerSampleExtraction, fetchWorkflowByName, fetchAreaDetection, triggerTransform, fetchTransformResult, updateSectionInclusion, savePageSelection, fetchSourceConfig, fetchAreaTemplate, saveAreaTemplate, saveAreaRules, inferSectionPattern, saveMapConfig } from './workflow.service.js';
 import { normalizeToKebabCase, markdownToHtml } from './transforms.js';
 import { UMB_AREA_EDITOR_MODAL } from './pdf-area-editor-modal.token.js';
@@ -458,7 +459,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 
 	#isSectionIncluded(sectionId: string): boolean {
 		if (!this._transformResult) return true;
-		const section = this._transformResult.sections.find((s) => s.id === sectionId);
+		const section = allTransformSections(this._transformResult).find((s) => s.id === sectionId);
 		return section?.included ?? true;
 	}
 
@@ -638,9 +639,18 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 	/** Get transform sections that belong to a specific area (matched by color + page). */
 	#getTransformSectionsForArea(area: DetectedArea, pageNum: number): TransformedSection[] {
 		if (!this._transformResult) return [];
-		return this._transformResult.sections.filter(
-			(s) => s.areaColor === area.color && s.page === pageNum,
+		// Find matching area in the hierarchical tree
+		const matchingArea = this._transformResult.areas.find(
+			(a) => a.color === area.color && a.page === pageNum,
 		);
+		if (!matchingArea) return [];
+		// Return all sections (grouped + ungrouped) from this area
+		const sections: TransformedSection[] = [];
+		for (const group of matchingArea.groups) {
+			sections.push(...group.sections);
+		}
+		sections.push(...matchingArea.sections);
+		return sections;
 	}
 
 	async #onMapSection(section: TransformedSection, partSuffix: string = 'content') {
@@ -1242,7 +1252,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 	#buildFullMarkdown(): string {
 		if (!this._transformResult) return '';
 
-		const includedSections = this._transformResult.sections.filter((s) => s.included);
+		const includedSections = allTransformSections(this._transformResult).filter((s) => s.included);
 		const parts: string[] = [];
 
 		for (const section of includedSections) {
@@ -1280,34 +1290,42 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 			`;
 		}
 
-		const includedSections = this._transformResult.sections.filter((s) => s.included);
-		const totalSections = this._transformResult.sections.length;
+		const allSections = allTransformSections(this._transformResult);
+		const includedSections = allSections.filter((s) => s.included);
+		const totalSections = allSections.length;
 
-		// Group sections by page, then by area within each page
-		const pageMap = new Map<number, Map<string, TransformedSection[]>>();
-		for (const section of includedSections) {
-			if (!pageMap.has(section.page)) pageMap.set(section.page, new Map());
-			const areaMap = pageMap.get(section.page)!;
-			const areaKey = section.areaName || 'Uncategorized';
-			if (!areaMap.has(areaKey)) areaMap.set(areaKey, []);
-			areaMap.get(areaKey)!.push(section);
+		// Group areas by page using the hierarchical tree
+		const pageMap = new Map<number, TransformArea[]>();
+		for (const area of this._transformResult.areas) {
+			// Skip areas with no included sections
+			const areaAllSections: TransformedSection[] = [];
+			for (const g of area.groups) areaAllSections.push(...g.sections);
+			areaAllSections.push(...area.sections);
+			if (!areaAllSections.some((s) => s.included)) continue;
+
+			if (!pageMap.has(area.page)) pageMap.set(area.page, []);
+			pageMap.get(area.page)!.push(area);
 		}
 
 		const pages = [...pageMap.entries()].sort((a, b) => a[0] - b[0]);
 
 		return html`
-			${pages.map(([pageNum, areaMap]) => this.#renderTransformedPage(pageNum, areaMap))}
+			${pages.map(([pageNum, areas]) => this.#renderTransformedPage(pageNum, areas))}
 			<div class="diagnostics">
 				<span class="meta-badge">${includedSections.length}/${totalSections} sections included</span>
 			</div>
 		`;
 	}
 
-	#renderTransformedPage(pageNum: number, areaMap: Map<string, TransformedSection[]>) {
+	#renderTransformedPage(pageNum: number, areas: TransformArea[]) {
 		const pageKey = `tx-page-${pageNum}`;
 		const isCollapsed = this.#isCollapsed(pageKey);
-		const sectionCount = [...areaMap.values()].reduce((sum, sections) => sum + sections.length, 0);
-		const areaCount = areaMap.size;
+		const sectionCount = areas.reduce((sum, a) => {
+			let count = a.sections.filter((s) => s.included).length;
+			for (const g of a.groups) count += g.sections.filter((s) => s.included).length;
+			return sum + count;
+		}, 0);
+		const areaCount = areas.length;
 
 		return html`
 			<uui-box class="page-box">
@@ -1320,30 +1338,31 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 					<span class="group-count">${sectionCount} section${sectionCount !== 1 ? 's' : ''}, ${areaCount} area${areaCount !== 1 ? 's' : ''}</span>
 				</div>
 				${!isCollapsed ? html`
-					${[...areaMap.entries()].map(([areaName, sections]) =>
-						this.#renderTransformedArea(areaName, sections, pageNum)
-					)}
+					${areas.map((area) => this.#renderTransformedArea(area))}
 				` : nothing}
 			</uui-box>
 		`;
 	}
 
-	#renderTransformedArea(areaName: string, sections: TransformedSection[], pageNum: number) {
-		const areaKey = `tx-area-${pageNum}-${areaName}`;
+	#renderTransformedArea(area: TransformArea) {
+		const areaKey = `tx-area-${area.page}-${area.name}`;
 		const isCollapsed = this.#isCollapsed(areaKey);
-		const areaColor = sections[0]?.areaColor || 'var(--uui-color-border)';
+		const areaColor = area.color || 'var(--uui-color-border)';
+		const includedSections: TransformedSection[] = [];
+		for (const g of area.groups) includedSections.push(...g.sections.filter((s) => s.included));
+		includedSections.push(...area.sections.filter((s) => s.included));
 
 		return html`
 			<div class="detected-area" style="border-left-color: ${areaColor};">
 				<div class="area-header" @click=${() => this.#toggleCollapse(areaKey)}>
 					<uui-icon class="collapse-chevron" name="${isCollapsed ? 'icon-navigation-right' : 'icon-navigation-down'}"></uui-icon>
-					<span class="area-name">${areaName}</span>
+					<span class="area-name">${area.name || 'Uncategorized'}</span>
 					<span class="header-spacer"></span>
-					<span class="group-count">${sections.length} section${sections.length !== 1 ? 's' : ''}</span>
+					<span class="group-count">${includedSections.length} section${includedSections.length !== 1 ? 's' : ''}</span>
 				</div>
 				${!isCollapsed ? html`
 					<div class="tx-area-sections">
-						${sections.map((section) => this.#renderMarkdownSection(section))}
+						${includedSections.map((section) => this.#renderMarkdownSection(section))}
 					</div>
 				` : nothing}
 			</div>

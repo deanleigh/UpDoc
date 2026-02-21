@@ -520,8 +520,35 @@ export interface AreaDiagnosticInfo {
 
 export interface TransformResult {
 	version: string;
-	sections: TransformedSection[];
+	areas: TransformArea[];
 	diagnostics: TransformDiagnostics;
+}
+
+/** An area from the PDF page containing groups and ungrouped sections. */
+export interface TransformArea {
+	name: string;
+	color: string | null;
+	page: number;
+	groups: TransformGroup[];
+	sections: TransformedSection[];
+}
+
+/** A named group of multi-part sections from grouped rules. */
+export interface TransformGroup {
+	name: string;
+	sections: TransformedSection[];
+}
+
+/** Helper: get all sections from a TransformResult as a flat array. */
+export function allTransformSections(result: TransformResult): TransformedSection[] {
+	const sections: TransformedSection[] = [];
+	for (const area of result.areas) {
+		for (const group of area.groups) {
+			sections.push(...group.sections);
+		}
+		sections.push(...area.sections);
+	}
+	return sections;
 }
 
 export interface TransformedSection {
