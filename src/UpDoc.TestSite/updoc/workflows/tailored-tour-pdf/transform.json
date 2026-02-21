@@ -192,7 +192,7 @@
       "Page": 2,
       "AreaColor": "#5bba6f",
       "AreaName": "Itinerary",
-      "GroupName": null,
+      "GroupName": "Itinerary",
       "ChildCount": 14,
       "Included": true
     }

@@ -344,16 +344,23 @@ public class ContentTransformService : IContentTransformService
                         break;
 
                     case "content":
+                        // Capture group name from first grouped element if not already set (covers content-only groups)
+                        if (currentGroupName == null && elementGroupNames[i] != null)
+                            currentGroupName = elementGroupNames[i];
                         var contentLine = FormatContentLine(elements[i].Text, format, ref numberedListCounter);
                         currentContentLines.Add(contentLine);
                         break;
 
                     case "description":
+                        if (currentGroupName == null && elementGroupNames[i] != null)
+                            currentGroupName = elementGroupNames[i];
                         var descLine = FormatContentLine(elements[i].Text, format, ref numberedListCounter);
                         currentDescriptionLines.Add(descLine);
                         break;
 
                     case "summary":
+                        if (currentGroupName == null && elementGroupNames[i] != null)
+                            currentGroupName = elementGroupNames[i];
                         var summaryLine = FormatContentLine(elements[i].Text, format, ref numberedListCounter);
                         currentSummaryLines.Add(summaryLine);
                         break;

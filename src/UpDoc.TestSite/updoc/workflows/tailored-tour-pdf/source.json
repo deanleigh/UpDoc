@@ -245,7 +245,7 @@
               "role": "Tour Details - Section Title",
               "part": "title",
               "action": null,
-              "format": "paragraph",
+              "format": "heading2",
               "exclude": false,
               "conditions": [
                 {
@@ -293,12 +293,12 @@
     "itinerary": {
       "groups": [
         {
-          "name": "itinerary",
+          "name": "Itinerary",
           "rules": [
             {
               "role": "Day Number",
-              "part": null,
-              "action": "sectionContent",
+              "part": "content",
+              "action": null,
               "format": "heading3",
               "exclude": false,
               "conditions": [
@@ -319,8 +319,8 @@
             },
             {
               "role": "Day Details",
-              "part": null,
-              "action": "sectionContent",
+              "part": "content",
+              "action": null,
               "format": "paragraph",
               "exclude": false,
               "conditions": [
