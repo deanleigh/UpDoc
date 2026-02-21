@@ -539,6 +539,8 @@ export interface TransformedSection {
 	areaName: string | null;
 	/** Rule group name for grouped sections (e.g., "Tour Details - Section"). Null for ungrouped. */
 	groupName?: string | null;
+	/** Individual rule name (from SectionRule.Role). For ungrouped: the rule name. For grouped: the title rule's name. Null for non-rule sections. */
+	ruleName?: string | null;
 	childCount: number;
 	included: boolean;
 }

@@ -60,6 +60,14 @@ public class TransformedSection
     /// </summary>
     public string? GroupName { get; set; }
 
+    /// <summary>
+    /// Name of the individual rule that produced this section (from SectionRule.Role).
+    /// For ungrouped rules: the rule's Role (e.g., "Organiser Name").
+    /// For grouped rules: the title rule's Role that started this section.
+    /// Null for sections not produced by rules (standard heading detection, preamble).
+    /// </summary>
+    public string? RuleName { get; set; }
+
     /// <summary>Number of children that were assembled.</summary>
     public int ChildCount { get; set; }
 

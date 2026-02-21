@@ -243,6 +243,7 @@ public class ContentTransformService : IContentTransformService
             // Sections have separately-mappable parts: content, description, summary.
             string? currentHeadingText = null;
             string? currentGroupName = null;
+            string? currentRuleName = null;
             var currentContentLines = new List<string>();
             var currentDescriptionLines = new List<string>();
             var currentSummaryLines = new List<string>();
@@ -291,6 +292,7 @@ public class ContentTransformService : IContentTransformService
                     AreaColor = string.IsNullOrEmpty(area.Color) ? null : area.Color,
                     AreaName = area.Name,
                     GroupName = currentGroupName,
+                    RuleName = currentRuleName,
                     ChildCount = currentContentLines.Count + currentDescriptionLines.Count + currentSummaryLines.Count,
                 };
                 DeduplicateId(s, seenIds);
@@ -298,6 +300,7 @@ public class ContentTransformService : IContentTransformService
                 UpdateDiagnostics(diagnostics, s.Pattern);
                 currentHeadingText = null;
                 currentGroupName = null;
+                currentRuleName = null;
                 currentContentLines = new List<string>();
                 currentDescriptionLines = new List<string>();
                 currentSummaryLines = new List<string>();
@@ -323,6 +326,7 @@ public class ContentTransformService : IContentTransformService
                         Heading = ToTitleCaseIfAllCaps(roleName),
                         OriginalHeading = roleName,
                         Content = propLine,
+                        RuleName = elementRules[i]?.Role,
                         Pattern = "role",
                         Page = page,
                         AreaColor = string.IsNullOrEmpty(area.Color) ? null : area.Color,
@@ -341,6 +345,7 @@ public class ContentTransformService : IContentTransformService
                         FlushSection();
                         currentHeadingText = FormatContentLine(elements[i].Text, format, ref numberedListCounter);
                         currentGroupName = elementGroupNames[i];
+                        currentRuleName = elementRules[i]?.Role;
                         break;
 
                     case "content":
@@ -478,6 +483,7 @@ public class ContentTransformService : IContentTransformService
                             Heading = rule.Role,
                             OriginalHeading = rule.Role,
                             Content = content,
+                            RuleName = rule.Role,
                             Pattern = "role",
                             Page = page,
                             AreaColor = string.IsNullOrEmpty(area.Color) ? null : area.Color,

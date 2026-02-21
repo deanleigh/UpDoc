@@ -725,20 +725,59 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 
 		const collapseKey = `composed-${section.id}`;
 		const isCollapsed = this.#isCollapsed(collapseKey);
+		const sectionLabel = section.groupName ?? section.ruleName ?? (section.areaName ? `${section.areaName} - Section` : 'Section');
+
+		const isGrouped = !!section.groupName;
 
 		return html`
 			<div class="composed-section-row">
 				<div class="composed-section-header" @click=${() => this.#toggleCollapse(collapseKey)}>
 					<uui-icon class="collapse-chevron" name="${isCollapsed ? 'icon-navigation-right' : 'icon-navigation-down'}"></uui-icon>
 					<uui-icon class="level-icon" name="icon-thumbnail-list"></uui-icon>
-					<span class="composed-role">${(section.heading ?? 'Content').replace(/^#+\s*/, '')}</span>
+					<span class="composed-role">${sectionLabel}</span>
 					<span class="header-spacer"></span>
-					${hasMappings
+					${hasMappings && isCollapsed
 						? suffixes.map((s) => this.#renderPartBadges(`${section.id}.${s}`))
 						: nothing}
 				</div>
-				${!isCollapsed && section.content ? html`
-					<div class="composed-section-content">${unsafeHTML(markdownToHtml(section.content))}</div>
+				${!isCollapsed ? html`
+					${isGrouped ? html`
+						${section.heading ? html`
+							<div class="composed-part-block">
+								<div class="composed-part-header">
+									<span class="section-label">${sectionLabel} Title</span>
+									<div class="composed-part-actions">
+										${this.#renderPartBadges(`${section.id}.title`)}
+										${this.#renderPartBadges(`${section.id}.heading`)}
+									</div>
+								</div>
+								<div class="composed-section-content">${unsafeHTML(markdownToHtml(section.heading))}</div>
+							</div>
+						` : nothing}
+						${section.content ? html`
+							<div class="composed-part-block composed-part-block-bordered">
+								<div class="composed-part-header">
+									<span class="section-label">${sectionLabel} Content</span>
+									<div class="composed-part-actions">
+										${this.#renderPartBadges(`${section.id}.content`)}
+									</div>
+								</div>
+								<div class="composed-section-content">${unsafeHTML(markdownToHtml(section.content))}</div>
+							</div>
+						` : nothing}
+					` : html`
+						<div class="composed-part-block">
+							<div class="composed-part-header">
+								<span class="header-spacer"></span>
+								<div class="composed-part-actions">
+									${suffixes.map((s) => this.#renderPartBadges(`${section.id}.${s}`))}
+								</div>
+							</div>
+							<div class="composed-section-content">
+								${section.content ? unsafeHTML(markdownToHtml(section.content)) : nothing}
+							</div>
+						</div>
+					`}
 				` : nothing}
 			</div>
 		`;
@@ -1335,7 +1374,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		if (!isGrouped) {
 			// Ungrouped: box title = role name (label), content = mappable data
 			return html`
-				<uui-box headline="${section.heading || 'Content'}" class="md-section-box ${isMapped ? 'mapped' : ''}">
+				<uui-box headline="${section.ruleName || section.heading || 'Content'}" class="md-section-box ${isMapped ? 'mapped' : ''}">
 					<div class="md-part-row">
 						<div class="md-part-content">
 							${contentHtml ? html`<div class="md-section-content">${unsafeHTML(contentHtml)}</div>` : nothing}
@@ -1985,6 +2024,34 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				color: var(--uui-color-text-alt);
 				padding: var(--uui-size-space-2) var(--uui-size-space-3) var(--uui-size-space-3);
 				padding-left: calc(var(--uui-size-space-3) + 12px + var(--uui-size-space-2));
+			}
+
+			.composed-part-block {
+				padding: var(--uui-size-space-4) 0;
+				padding-left: calc(var(--uui-size-space-3) + 12px + var(--uui-size-space-2));
+			}
+
+			.composed-part-block:first-child {
+				padding-top: 0;
+			}
+
+			.composed-part-block-bordered {
+				border-top: 1px solid var(--uui-color-border);
+			}
+
+			.composed-part-header {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				margin-bottom: var(--uui-size-space-2);
+			}
+
+			.composed-part-actions {
+				display: flex;
+				align-items: center;
+				gap: var(--uui-size-space-2);
+				flex-shrink: 0;
+				margin-left: auto;
 			}
 
 			.composed-unmapped {
