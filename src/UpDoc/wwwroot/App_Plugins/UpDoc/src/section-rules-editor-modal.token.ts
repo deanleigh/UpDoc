@@ -1,5 +1,5 @@
 import { UmbModalToken } from '@umbraco-cms/backoffice/modal';
-import type { AreaElement, SectionRuleSet } from './workflow.types.js';
+import type { AreaElement, AreaRules } from './workflow.types.js';
 
 export interface SectionRulesEditorModalData {
 	workflowName: string;
@@ -8,11 +8,13 @@ export interface SectionRulesEditorModalData {
 	/** The elements belonging to this section (from area detection). */
 	elements: AreaElement[];
 	/** Existing rules for this section, if any. */
-	existingRules?: SectionRuleSet | null;
+	existingRules?: AreaRules | null;
+	/** Callback for "Save" (persist without closing). Called with the current rules value. */
+	onSave?: (rules: AreaRules) => Promise<void>;
 }
 
 export interface SectionRulesEditorModalValue {
-	rules: SectionRuleSet;
+	rules: AreaRules;
 }
 
 export const UMB_SECTION_RULES_EDITOR_MODAL = new UmbModalToken<SectionRulesEditorModalData, SectionRulesEditorModalValue>(

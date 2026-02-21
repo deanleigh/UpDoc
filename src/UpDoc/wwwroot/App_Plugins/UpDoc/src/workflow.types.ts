@@ -9,41 +9,66 @@ export interface SourceConfig {
 	/** Top-level page selection: "all" or array of page numbers. */
 	pages?: number[] | 'all';
 	sections: SourceSection[];
-	/** Rules for breaking transform sections into individually-mappable roles, keyed by section ID. */
+	/** Legacy: rules keyed by section ID. Superseded by areaRules. */
 	sectionRules?: Record<string, SectionRuleSet>;
-	/** Rules for breaking area elements into individually-mappable sections, keyed by area name in kebab-case. */
-	areaRules?: Record<string, SectionRuleSet>;
+	/** Rules for breaking area elements into individually-mappable sections, keyed by area name in kebab-case.
+	 * Supports both old flat format { rules: [...] } and new grouped format { groups: [...], rules: [...] }. */
+	areaRules?: Record<string, AreaRules>;
 }
 
 // ============================================================================
 // Section Rules Types (stored in source.json under sectionRules)
 // ============================================================================
 
+/** Legacy flat rule set — kept for backward-compatible deserialization of sectionRules. */
 export interface SectionRuleSet {
 	rules: SectionRule[];
 }
 
-export type RuleAction = 'singleProperty' | 'sectionTitle' | 'sectionContent' | 'sectionDescription' | 'sectionSummary' | 'exclude';
+// ============================================================================
+// v3 Area Rules Types (groups + ungrouped)
+// ============================================================================
 
-/** Legacy action names still accepted from existing source.json files */
+/** Which slot a rule fills within a group. Title triggers section boundaries. */
+export type RulePart = 'title' | 'content' | 'description' | 'summary';
+
+/** Top-level container for an area's rules. Groups contain multi-part sections; ungrouped rules are single properties. */
+export interface AreaRules {
+	groups: RuleGroup[];
+	rules: SectionRule[];  // Ungrouped
+}
+
+/** A named group of rules representing a multi-part section (e.g., "Tour Detail" with title + content). */
+export interface RuleGroup {
+	name: string;
+	rules: SectionRule[];
+}
+
+/** Legacy action names — kept for backward compat deserialization */
+export type RuleAction = 'singleProperty' | 'sectionTitle' | 'sectionContent' | 'sectionDescription' | 'sectionSummary' | 'exclude';
 export type LegacyRuleAction = 'createSection' | 'setAsHeading' | 'addAsContent' | 'addAsList';
 
 /**
- * Markdown format for sectionContent action.
+ * Block-level Markdown format.
  * Determines what Markdown syntax the matched content produces.
  */
-export type RuleContentFormat =
+export type BlockFormat =
+	| 'auto'
 	| 'paragraph'
 	| 'heading1' | 'heading2' | 'heading3'
 	| 'heading4' | 'heading5' | 'heading6'
 	| 'bulletListItem' | 'numberedListItem'
 	| 'quote';
 
+/** Legacy alias — kept for backward compat */
+export type RuleContentFormat = BlockFormat;
+
 /** Format entry types — Block (block-level Markdown) or Style (inline Markdown) */
 export type FormatEntryType = 'block' | 'style';
 
 /** Block-level format values — each maps to a Markdown block element */
 export type BlockFormatValue =
+	| 'auto'
 	| 'paragraph'
 	| 'heading1' | 'heading2' | 'heading3'
 	| 'heading4' | 'heading5' | 'heading6'
@@ -61,17 +86,59 @@ export interface FormatEntry {
 
 export interface SectionRule {
 	role: string;
-	action: RuleAction | LegacyRuleAction;
-	/** Legacy: single block format. Kept for backward compat with C# transform. */
-	format?: RuleContentFormat;
-	/** New: array of format entries (Block + Style rows). */
+	/** v3: which slot this rule fills. */
+	part?: RulePart;
+	/** Legacy: action name. When part is set, action is ignored. */
+	action?: RuleAction | LegacyRuleAction;
+	/** Block format: auto, paragraph, heading1-6, etc. */
+	format?: BlockFormat;
+	/** Array of format entries (Block + Style rows). */
 	formats?: FormatEntry[];
+	/** When true, matched elements are skipped entirely. */
+	exclude?: boolean;
 	conditions: RuleCondition[];
 	/** UNLESS conditions — if any single exception matches, the rule does not apply. */
 	exceptions?: RuleCondition[];
+	/** Transient: unique ID for drag-and-drop tracking. Not persisted. */
+	_id?: string;
 }
 
-/** Normalize legacy action names to v2. Returns [action, effectiveFormat]. */
+/** Get the effective part for a rule, normalizing from legacy action if needed. */
+export function getEffectivePart(rule: SectionRule): RulePart | 'exclude' {
+	if (rule.exclude) return 'exclude';
+	if (rule.part) return rule.part;
+
+	// Normalize from legacy action
+	switch (rule.action) {
+		case 'singleProperty':
+		case 'sectionProperty':
+		case 'sectionContent':
+		case 'addAsContent':
+		case 'addAsList':
+			return 'content';
+		case 'sectionTitle':
+		case 'createSection':
+		case 'setAsHeading':
+			return 'title';
+		case 'sectionDescription':
+			return 'description';
+		case 'sectionSummary':
+			return 'summary';
+		case 'exclude':
+			return 'exclude';
+		default:
+			return 'content';
+	}
+}
+
+/** Get the effective block format for a rule. */
+export function getEffectiveFormat(rule: SectionRule): BlockFormat {
+	if (rule.format) return rule.format;
+	if (rule.action === 'addAsList') return 'bulletListItem';
+	return 'auto';
+}
+
+/** Legacy normalize helper — kept for backward compat. Prefer getEffectivePart/getEffectiveFormat. */
 export function normalizeAction(action: string, format?: RuleContentFormat): [RuleAction, RuleContentFormat | undefined] {
 	switch (action) {
 		case 'createSection':
@@ -82,7 +149,7 @@ export function normalizeAction(action: string, format?: RuleContentFormat): [Ru
 		case 'addAsList':
 			return ['sectionContent', format ?? 'bulletListItem'];
 		case 'singleProperty':
-		case 'sectionProperty': // legacy name
+		case 'sectionProperty':
 			return ['singleProperty', format ?? 'paragraph'];
 		case 'sectionTitle':
 			return ['sectionTitle', undefined];
@@ -93,6 +160,29 @@ export function normalizeAction(action: string, format?: RuleContentFormat): [Ru
 		default:
 			return ['sectionContent', format ?? 'paragraph'];
 	}
+}
+
+/**
+ * Convert a legacy SectionRuleSet (flat rules) to AreaRules.
+ * All rules go into the ungrouped array; groups is empty.
+ */
+export function toAreaRules(ruleSet: SectionRuleSet | AreaRules): AreaRules {
+	// Already an AreaRules (has groups property)
+	if ('groups' in ruleSet && Array.isArray(ruleSet.groups)) {
+		return ruleSet as AreaRules;
+	}
+	// Legacy SectionRuleSet — wrap
+	return { groups: [], rules: (ruleSet as SectionRuleSet).rules };
+}
+
+/** Get all rules from an AreaRules in order: grouped first, then ungrouped. */
+export function allRules(areaRules: AreaRules): SectionRule[] {
+	const result: SectionRule[] = [];
+	for (const group of areaRules.groups) {
+		result.push(...group.rules);
+	}
+	result.push(...areaRules.rules);
+	return result;
 }
 
 export interface RuleCondition {
@@ -430,8 +520,35 @@ export interface AreaDiagnosticInfo {
 
 export interface TransformResult {
 	version: string;
-	sections: TransformedSection[];
+	areas: TransformArea[];
 	diagnostics: TransformDiagnostics;
+}
+
+/** An area from the PDF page containing groups and ungrouped sections. */
+export interface TransformArea {
+	name: string;
+	color: string | null;
+	page: number;
+	groups: TransformGroup[];
+	sections: TransformedSection[];
+}
+
+/** A named group of multi-part sections from grouped rules. */
+export interface TransformGroup {
+	name: string;
+	sections: TransformedSection[];
+}
+
+/** Helper: get all sections from a TransformResult as a flat array. */
+export function allTransformSections(result: TransformResult): TransformedSection[] {
+	const sections: TransformedSection[] = [];
+	for (const area of result.areas) {
+		for (const group of area.groups) {
+			sections.push(...group.sections);
+		}
+		sections.push(...area.sections);
+	}
+	return sections;
 }
 
 export interface TransformedSection {
@@ -447,6 +564,10 @@ export interface TransformedSection {
 	page: number;
 	areaColor: string | null;
 	areaName: string | null;
+	/** Rule group name for grouped sections (e.g., "Tour Details - Section"). Null for ungrouped. */
+	groupName?: string | null;
+	/** Individual rule name (from SectionRule.Role). For ungrouped: the rule name. For grouped: the title rule's name. Null for non-rule sections. */
+	ruleName?: string | null;
 	childCount: number;
 	included: boolean;
 }

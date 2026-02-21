@@ -606,7 +606,7 @@ public class WorkflowService : IWorkflowService
         File.WriteAllText(filePath, json);
 
         _logger.LogInformation("Saved transform result to {Path} ({Sections} sections)",
-            filePath, result.Sections.Count);
+            filePath, result.AllSections.Count());
     }
 
     public TransformResult? GetTransformResult(string workflowName)
@@ -618,7 +618,16 @@ public class WorkflowService : IWorkflowService
             return null;
 
         var json = File.ReadAllText(filePath);
-        return JsonSerializer.Deserialize<TransformResult>(json, JsonOptions);
+        var result = JsonSerializer.Deserialize<TransformResult>(json, JsonOptions);
+
+        // v1.0 files have flat "sections" array, no "areas". Return null to force re-transform.
+        if (result != null && result.Areas.Count == 0 && result.Version != "2.0")
+        {
+            _logger.LogInformation("Transform result for '{Name}' is v1.0 format, needs re-transform", workflowName);
+            return null;
+        }
+
+        return result;
     }
 
     public TransformResult? UpdateSectionInclusion(string workflowName, string sectionId, bool included)
@@ -626,7 +635,7 @@ public class WorkflowService : IWorkflowService
         var result = GetTransformResult(workflowName);
         if (result == null) return null;
 
-        var section = result.Sections.FirstOrDefault(s =>
+        var section = result.AllSections.FirstOrDefault(s =>
             string.Equals(s.Id, sectionId, StringComparison.OrdinalIgnoreCase));
         if (section == null) return null;
 
@@ -648,7 +657,20 @@ public class WorkflowService : IWorkflowService
             return null;
 
         var json = File.ReadAllText(filePath);
-        return JsonSerializer.Deserialize<SourceConfig>(json, JsonOptions);
+        var config = JsonSerializer.Deserialize<SourceConfig>(json, JsonOptions);
+
+        // Normalize legacy flat rules into groups for backward compatibility.
+        // Old source.json files have sectionTitle/sectionContent as flat rules —
+        // these need to be grouped so ContentTransformService treats them correctly.
+        if (config?.AreaRules != null)
+        {
+            foreach (var (areaKey, areaRules) in config.AreaRules)
+            {
+                areaRules.NormalizeLegacyRules(areaKey);
+            }
+        }
+
+        return config;
     }
 
     public void SaveSourceConfig(string workflowName, SourceConfig config)

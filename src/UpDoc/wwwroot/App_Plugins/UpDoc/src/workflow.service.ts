@@ -1,4 +1,4 @@
-import type { DocumentTypeConfig, ExtractSectionsResponse, MapConfig, RichExtractionResult, SectionRuleSet, TransformResult, AreaDetectionResult, AreaTemplate, InferSectionPatternResponse } from './workflow.types.js';
+import type { DocumentTypeConfig, ExtractSectionsResponse, MapConfig, RichExtractionResult, SectionRuleSet, AreaRules, TransformResult, AreaDetectionResult, AreaTemplate, InferSectionPatternResponse } from './workflow.types.js';
 
 const configCache = new Map<string, DocumentTypeConfig>();
 
@@ -542,9 +542,9 @@ export async function saveSectionRules(
  */
 export async function saveAreaRules(
 	workflowName: string,
-	areaRules: Record<string, SectionRuleSet>,
+	areaRules: Record<string, AreaRules>,
 	token: string
-): Promise<Record<string, SectionRuleSet> | null> {
+): Promise<Record<string, AreaRules> | null> {
 	const response = await fetch(
 		`/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(workflowName)}/area-rules`,
 		{

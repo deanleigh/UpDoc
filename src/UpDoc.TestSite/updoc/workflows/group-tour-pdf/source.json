@@ -13,11 +13,14 @@
   "sectionRules": null,
   "areaRules": {
     "page-header": {
+      "groups": [],
       "rules": [
         {
           "role": "Organisation",
+          "part": null,
           "action": "createSection",
           "format": null,
+          "exclude": false,
           "conditions": [
             {
               "type": "fontSizeEquals",
@@ -35,12 +38,15 @@
               "type": "positionFirst",
               "value": null
             }
-          ]
+          ],
+          "exceptions": null
         },
         {
           "role": "Tour Title",
+          "part": null,
           "action": "createSection",
           "format": null,
+          "exclude": false,
           "conditions": [
             {
               "type": "fontSizeEquals",
@@ -54,12 +60,15 @@
               "type": "colorEquals",
               "value": "#FFFFFF"
             }
-          ]
+          ],
+          "exceptions": null
         },
         {
           "role": "Tour Description",
+          "part": null,
           "action": "createSection",
           "format": null,
+          "exclude": false,
           "conditions": [
             {
               "type": "fontSizeEquals",
@@ -77,16 +86,20 @@
               "type": "positionLast",
               "value": null
             }
-          ]
+          ],
+          "exceptions": null
         }
       ]
     },
     "organiser-info": {
+      "groups": [],
       "rules": [
         {
           "role": "Organiser Name",
+          "part": null,
           "action": "createSection",
           "format": null,
+          "exclude": false,
           "conditions": [
             {
               "type": "fontSizeEquals",
@@ -100,12 +113,15 @@
               "type": "colorEquals",
               "value": "#FFD200"
             }
-          ]
+          ],
+          "exceptions": null
         },
         {
           "role": "Organiser Telephone",
+          "part": null,
           "action": "createSection",
           "format": null,
+          "exclude": false,
           "conditions": [
             {
               "type": "fontSizeEquals",
@@ -123,12 +139,15 @@
               "type": "textBeginsWith",
               "value": "Tel:"
             }
-          ]
+          ],
+          "exceptions": null
         },
         {
           "role": "Organiser Email",
+          "part": null,
           "action": "createSection",
           "format": null,
+          "exclude": false,
           "conditions": [
             {
               "type": "fontSizeEquals",
@@ -146,12 +165,15 @@
               "type": "textBeginsWith",
               "value": "Email:"
             }
-          ]
+          ],
+          "exceptions": null
         },
         {
           "role": "Organiser Address",
+          "part": null,
           "action": "createSection",
           "format": null,
+          "exclude": false,
           "conditions": [
             {
               "type": "fontSizeEquals",
@@ -169,16 +191,20 @@
               "type": "positionLast",
               "value": null
             }
-          ]
+          ],
+          "exceptions": null
         }
       ]
     },
     "itinery": {
+      "groups": [],
       "rules": [
         {
           "role": "Day Number",
+          "part": null,
           "action": "sectionContent",
           "format": "heading3",
+          "exclude": false,
           "conditions": [
             {
               "type": "fontSizeEquals",
@@ -192,12 +218,15 @@
               "type": "colorEquals",
               "value": "#16549D"
             }
-          ]
+          ],
+          "exceptions": null
         },
         {
           "role": "Day Description",
+          "part": null,
           "action": "sectionContent",
           "format": "auto",
+          "exclude": false,
           "conditions": [
             {
               "type": "fontSizeEquals",
@@ -211,51 +240,64 @@
               "type": "colorEquals",
               "value": "#221F1F"
             }
-          ]
+          ],
+          "exceptions": null
         }
       ]
     },
     "tour-details": {
-      "rules": [
+      "groups": [
         {
-          "role": "Tour details - Title",
-          "action": "sectionTitle",
-          "format": "paragraph",
-          "conditions": [
+          "name": "Tour details - Section",
+          "rules": [
             {
-              "type": "fontSizeEquals",
-              "value": 12
+              "role": "Tour details - Title",
+              "part": "title",
+              "action": null,
+              "format": "paragraph",
+              "exclude": false,
+              "conditions": [
+                {
+                  "type": "fontSizeEquals",
+                  "value": 12
+                },
+                {
+                  "type": "fontNameContains",
+                  "value": "GHEALP\u002BClarendon"
+                },
+                {
+                  "type": "colorEquals",
+                  "value": "#16549D"
+                }
+              ],
+              "exceptions": null
             },
             {
-              "type": "fontNameContains",
-              "value": "GHEALP\u002BClarendon"
-            },
-            {
-              "type": "colorEquals",
-              "value": "#16549D"
-            }
-          ]
-        },
-        {
-          "role": "Tour details - Content",
-          "action": "sectionContent",
-          "format": "auto",
-          "conditions": [
-            {
-              "type": "fontSizeEquals",
-              "value": 8.5
-            },
-            {
-              "type": "fontNameContains",
-              "value": "GHEALO\u002BHelveticaNeue"
-            },
-            {
-              "type": "colorEquals",
-              "value": "#16549D"
+              "role": "Tour details - Content",
+              "part": "content",
+              "action": null,
+              "format": "auto",
+              "exclude": false,
+              "conditions": [
+                {
+                  "type": "fontSizeEquals",
+                  "value": 8.5
+                },
+                {
+                  "type": "fontNameContains",
+                  "value": "GHEALO\u002BHelveticaNeue"
+                },
+                {
+                  "type": "colorEquals",
+                  "value": "#16549D"
+                }
+              ],
+              "exceptions": null
             }
           ]
         }
-      ]
+      ],
+      "rules": []
     }
   }
 }
