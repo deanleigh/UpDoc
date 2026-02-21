@@ -339,7 +339,7 @@ public class ContentTransformService : IContentTransformService
                 {
                     case "title":
                         FlushSection();
-                        currentHeadingText = elements[i].Text;
+                        currentHeadingText = FormatContentLine(elements[i].Text, format, ref numberedListCounter);
                         currentGroupName = elementGroupNames[i];
                         break;
 

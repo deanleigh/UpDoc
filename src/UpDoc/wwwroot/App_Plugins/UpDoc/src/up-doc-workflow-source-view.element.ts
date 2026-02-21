@@ -1320,6 +1320,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		const isMapped = suffixes.some((s) => this.#getMappedTargets(`${section.id}.${s}`).length > 0);
 
 		const contentHtml = section.content ? markdownToHtml(section.content) : '';
+		const headingHtml = section.heading ? markdownToHtml(section.heading) : '';
 
 		if (!isGrouped) {
 			// Ungrouped: box title = role name (label), content = mappable data
@@ -1356,7 +1357,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 							</div>
 						</div>
 						<div class="md-part-content">
-							<span>${section.heading}</span>
+							<div class="md-section-content">${unsafeHTML(headingHtml)}</div>
 						</div>
 					</div>
 				` : nothing}
