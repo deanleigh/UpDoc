@@ -1,4 +1,4 @@
-import { b as A, d as N, m as P } from "./workflow.service-CCTLt2Zy.js";
+import { b as A, d as N, p as P } from "./workflow.service-8lXLgP5U.js";
 import { g as R, r as V, a as F } from "./destination-utils-CEQ5Lbpg.js";
 import { html as s, nothing as z, css as I, state as x, customElement as X } from "@umbraco-cms/backoffice/external/lit";
 import { UmbLitElement as j } from "@umbraco-cms/backoffice/lit-element";
@@ -11,10 +11,10 @@ var Q = Object.defineProperty, Y = Object.getOwnPropertyDescriptor, C = (t) => {
   for (var o = a > 1 ? void 0 : a ? Y(e, i) : e, _ = t.length - 1, h; _ >= 0; _--)
     (h = t[_]) && (o = (a ? h(e, i, o) : h(o)) || o);
   return a && o && Q(e, i, o), o;
-}, M = (t, e, i) => e.has(t) || C("Cannot " + i), f = (t, e, i) => (M(t, e, "read from private field"), i ? i.call(t) : e.get(t)), $ = (t, e, i) => e.has(t) ? C("Cannot add the same private member more than once") : e instanceof WeakSet ? e.add(t) : e.set(t, i), D = (t, e, i, a) => (M(t, e, "write to private field"), e.set(t, i), i), c = (t, e, i) => (M(t, e, "access private method"), i), g, b, n, E, T, L, U, K, S, W, G, O;
+}, M = (t, e, i) => e.has(t) || C("Cannot " + i), f = (t, e, i) => (M(t, e, "read from private field"), i ? i.call(t) : e.get(t)), $ = (t, e, i) => e.has(t) ? C("Cannot add the same private member more than once") : e instanceof WeakSet ? e.add(t) : e.set(t, i), D = (t, e, i, a) => (M(t, e, "write to private field"), e.set(t, i), i), c = (t, e, i) => (M(t, e, "access private method"), i), g, m, n, E, T, L, U, K, S, W, G, O;
 let u = class extends j {
   constructor() {
-    super(...arguments), $(this, n), this._config = null, this._extraction = null, this._loading = !0, this._error = null, $(this, g, ""), $(this, b, "");
+    super(...arguments), $(this, n), this._config = null, this._extraction = null, this._loading = !0, this._error = null, $(this, g, ""), $(this, m, "");
   }
   connectedCallback() {
     super.connectedCallback(), this.consumeContext(J, (t) => {
@@ -34,17 +34,17 @@ let u = class extends j {
   }
 };
 g = /* @__PURE__ */ new WeakMap();
-b = /* @__PURE__ */ new WeakMap();
+m = /* @__PURE__ */ new WeakMap();
 n = /* @__PURE__ */ new WeakSet();
 E = async function() {
   this._loading = !0, this._error = null;
   try {
     const t = await this.getContext(q);
-    if (D(this, b, await t.getLatestToken()), this._config = await A(f(this, g), f(this, b)), !this._config) {
+    if (D(this, m, await t.getLatestToken()), this._config = await A(f(this, g), f(this, m)), !this._config) {
       this._error = `Workflow "${f(this, g)}" not found`;
       return;
     }
-    this._extraction = await N(f(this, g), f(this, b));
+    this._extraction = await N(f(this, g), f(this, m));
   } catch (t) {
     this._error = t instanceof Error ? t.message : "Failed to load workflow", console.error("Failed to load workflow config:", t);
   } finally {
@@ -81,7 +81,7 @@ U = async function(t) {
     ...this._config.map,
     mappings: this._config.map.mappings.filter((a, o) => o !== t)
   };
-  await P(f(this, g), e, f(this, b)) && (this._config = { ...this._config, map: e });
+  await P(f(this, g), e, f(this, m)) && (this._config = { ...this._config, map: e });
 };
 K = function() {
   return s`
@@ -130,10 +130,10 @@ W = function() {
   for (let r = 0; r < this._config.map.mappings.length; r++) {
     const p = this._config.map.mappings[r], v = p.destinations[0];
     if (!v) continue;
-    const l = V(v, t) ?? "unmapped", m = e.find((B) => B.id === l)?.label ?? "Unmapped", d = v.blockKey, k = d ? F(d, t) : void 0, w = d ? `${l}:${d}` : l;
+    const l = V(v, t) ?? "unmapped", b = e.find((B) => B.id === l)?.label ?? "Unmapped", d = v.blockKey, k = d ? F(d, t) : void 0, w = d ? `${l}:${d}` : l;
     i.has(w) || i.set(w, {
       tabId: l,
-      tabLabel: m,
+      tabLabel: b,
       blockKey: d ?? void 0,
       blockLabel: k ?? void 0,
       mappings: []
@@ -147,8 +147,8 @@ W = function() {
   for (const r of e) {
     const p = i.get(r.id);
     p && a.push(p);
-    const v = Array.from(i.entries()).filter(([l, m]) => m.tabId === r.id && m.blockKey).sort(([, l], [, m]) => {
-      const d = o.get(l.blockKey) ?? 999, k = o.get(m.blockKey) ?? 999;
+    const v = Array.from(i.entries()).filter(([l, b]) => b.tabId === r.id && b.blockKey).sort(([, l], [, b]) => {
+      const d = o.get(l.blockKey) ?? 999, k = o.get(b.blockKey) ?? 999;
       return d - k;
     }).map(([, l]) => l);
     a.push(...v);
@@ -341,4 +341,4 @@ export {
   u as UpDocWorkflowMapViewElement,
   st as default
 };
-//# sourceMappingURL=up-doc-workflow-map-view.element-B0JmZc0y.js.map
+//# sourceMappingURL=up-doc-workflow-map-view.element-Cxqdz0WC.js.map
