@@ -180,8 +180,14 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				page.areas.forEach((_z, aIdx) => keys.push(`area-p${pageNum}-a${aIdx}`));
 			}
 			if (level === 'sections') {
+				// Raw section keys
 				page.areas.forEach((_z, aIdx) => {
 					_z.sections.forEach((_s, sIdx) => keys.push(`p${pageNum}-a${aIdx}-s${sIdx}`));
+				});
+				// Composed section keys (from transform rules)
+				page.areas.forEach((area) => {
+					const composed = this.#getTransformSectionsForArea(area, pageNum);
+					composed.forEach((s) => keys.push(`composed-${s.id}`));
 				});
 			}
 		}
@@ -724,7 +730,8 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 			<div class="composed-section-row">
 				<div class="composed-section-header" @click=${() => this.#toggleCollapse(collapseKey)}>
 					<uui-icon class="collapse-chevron" name="${isCollapsed ? 'icon-navigation-right' : 'icon-navigation-down'}"></uui-icon>
-					<span class="composed-role">Section – ${section.heading ?? 'Content'}</span>
+					<uui-icon class="level-icon" name="icon-thumbnail-list"></uui-icon>
+					<span class="composed-role">${section.heading ?? 'Content'}</span>
 					<span class="header-spacer"></span>
 					${hasMappings
 						? suffixes.map((s) => this.#renderPartBadges(`${section.id}.${s}`))
@@ -806,8 +813,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 					${hasChildren
 						? html`<uui-icon class="collapse-chevron" name="${isCollapsed ? 'icon-navigation-right' : 'icon-navigation-down'}"></uui-icon>`
 						: html`<uui-icon class="collapse-chevron placeholder"></uui-icon>`}
-					<span class="section-label">Section</span>
-					<span class="section-separator">–</span>
+					<uui-icon class="level-icon" name="icon-thumbnail-list"></uui-icon>
 					<span class="heading-text" title="${heading.text}">${heading.text}</span>
 					${hasChildren ? html`<span class="group-count">${elementCount} element${elementCount !== 1 ? 's' : ''}</span>` : nothing}
 					<uui-toggle
@@ -931,7 +937,8 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 			<div class="detected-area ${!isIncluded ? 'area-excluded' : ''} ${isTeaching ? 'area-teaching' : ''}" style="border-left-color: ${area.color};">
 				<div class="area-header" @click=${() => !isTeaching && this.#toggleCollapse(areaKey)}>
 					<uui-icon class="collapse-chevron" name="${isCollapsed ? 'icon-navigation-right' : 'icon-navigation-down'}"></uui-icon>
-					<span class="area-name">Area – ${area.name || `${areaIndex + 1}`}</span>
+					<uui-icon class="level-icon" name="icon-grid"></uui-icon>
+					<span class="area-name">${area.name || `${areaIndex + 1}`}</span>
 					${hasRules
 						? html`<span class="meta-badge rules-badge">${ruleCount} rule${ruleCount !== 1 ? 's' : ''}</span>`
 						: patternLabel ? html`<span class="meta-badge structure-badge">${patternLabel}</span>` : nothing}
@@ -1614,6 +1621,12 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				font-size: 12px;
 			}
 
+			.level-icon {
+				color: var(--uui-color-text-alt);
+				flex-shrink: 0;
+				font-size: 12px;
+			}
+
 			/* Detected areas (Level 2) */
 			.detected-area {
 				border-left: 4px solid var(--uui-color-border);
@@ -1678,16 +1691,6 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 
 			.section-heading:hover .collapse-chevron {
 				color: var(--uui-color-text);
-			}
-
-			.section-label {
-				font-size: var(--uui-type-default-size);
-				color: var(--uui-color-text);
-				font-weight: 700;
-			}
-
-			.section-separator {
-				color: var(--uui-color-text-alt);
 			}
 
 			.heading-text {
