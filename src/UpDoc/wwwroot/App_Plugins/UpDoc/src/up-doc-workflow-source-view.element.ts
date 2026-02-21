@@ -1006,6 +1006,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 			<uui-box class="page-box ${!isIncluded ? 'page-excluded' : ''}">
 				<div slot="header" class="tree-header" @click=${() => this.#toggleCollapse(pageKey)}>
 					<uui-icon class="collapse-chevron" name="${isCollapsed ? 'icon-navigation-right' : 'icon-navigation-down'}"></uui-icon>
+					<uui-icon class="level-icon" name="icon-document"></uui-icon>
 					<strong class="page-title">Page ${pageNum}</strong>
 				</div>
 				<div slot="header-actions" class="page-header-actions">
@@ -1065,11 +1066,14 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 
 		return html`
 			<div class="info-boxes">
-				<uui-box headline="Source" class="info-box-item">
+				<uui-box class="info-box-item">
+					<div slot="headline" class="box-headline-row">
+						<span>Source</span>
+						<span class="box-headline-meta">${extractedDate}</span>
+					</div>
 					<div class="box-content">
-						<h2 class="box-title">${fileName}</h2>
-						<uui-icon name="icon-document" class="box-icon"></uui-icon>
-						<span class="box-subtitle">${extractedDate}</span>
+						<uui-icon name="icon-page-add" class="box-icon"></uui-icon>
+						<span class="box-stat box-filename" title="${fileName}">${fileName}</span>
 						<div class="box-buttons">
 							<uui-button look="primary" color="default" label="Change PDF" @click=${this.#onPickMedia} ?disabled=${this._extracting}>
 								<uui-icon name="icon-page-add"></uui-icon>
@@ -1081,10 +1085,11 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 
 				<uui-box headline="Pages" class="info-box-item">
 					<div class="box-content">
+						<uui-icon name="icon-document" class="box-icon"></uui-icon>
 						<span class="box-stat">${pagesLabel}</span>
 						<div class="box-buttons">
 							<uui-button look="primary" color="default" label="Choose Pages" @click=${this.#onOpenPagePicker}>
-								<uui-icon name="icon-thumbnails-small"></uui-icon>
+								<uui-icon name="icon-document"></uui-icon>
 								Choose Pages
 							</uui-button>
 						</div>
@@ -1093,11 +1098,12 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 
 				<uui-box headline="Areas" class="info-box-item">
 					<div class="box-content">
+						<uui-icon name="icon-grid" class="box-icon"></uui-icon>
 						<span class="box-stat">${this._areaTemplate ? this._areaTemplate.areas.length : areas}</span>
 						<div class="box-buttons">
 							${this._areaTemplate
 								? html`<uui-button look="primary" color="default" label="Edit Areas" @click=${this.#onEditAreas}>
-									<uui-icon name="icon-edit"></uui-icon>
+									<uui-icon name="icon-grid"></uui-icon>
 									Edit Areas
 								</uui-button>`
 								: html`<uui-button look="primary" color="default" label="Define Areas" @click=${this.#onEditAreas}>
@@ -1110,6 +1116,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 
 				<uui-box headline="Sections" class="info-box-item">
 					<div class="box-content">
+						<uui-icon name="icon-thumbnail-list" class="box-icon"></uui-icon>
 						<span class="box-stat">${sections}</span>
 						${this._transformResult && this._areaDetection ? html`
 							<div class="box-buttons">
@@ -1118,7 +1125,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 									color="default"
 									label="Edit Sections"
 									popovertarget="section-picker-popover">
-									<uui-icon name="icon-settings"></uui-icon>
+									<uui-icon name="icon-thumbnail-list"></uui-icon>
 									Edit Sections
 									<uui-symbol-expand .open=${this._sectionPickerOpen}></uui-symbol-expand>
 								</uui-button>
@@ -1267,6 +1274,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 			<uui-box class="page-box">
 				<div slot="header" class="tree-header" @click=${() => this.#toggleCollapse(pageKey)}>
 					<uui-icon class="collapse-chevron" name="${isCollapsed ? 'icon-navigation-right' : 'icon-navigation-down'}"></uui-icon>
+					<uui-icon class="level-icon" name="icon-document"></uui-icon>
 					<strong class="page-title">Page ${pageNum}</strong>
 				</div>
 				<div slot="header-actions" class="page-header-actions">
@@ -1534,23 +1542,31 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 			}
 
 			.box-icon {
-				font-size: 32px;
+				font-size: 48px;
+				color: var(--uui-color-text-alt);
+				margin-top: var(--uui-size-space-3);
+			}
+
+			.box-headline-row {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				width: 100%;
+			}
+
+			.box-headline-meta {
+				font-size: var(--uui-type-small-size);
+				font-weight: 400;
 				color: var(--uui-color-text-alt);
 			}
 
-			.box-title {
-				font-size: var(--uui-type-default-size);
+			.box-filename {
 				font-weight: 600;
-				margin: 0;
+				font-size: var(--uui-type-default-size) !important;
 				overflow: hidden;
 				text-overflow: ellipsis;
 				white-space: nowrap;
 				max-width: 100%;
-			}
-
-			.box-subtitle {
-				font-size: var(--uui-type-small-size);
-				color: var(--uui-color-text-alt);
 			}
 
 			.box-buttons {
@@ -1561,7 +1577,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 			}
 
 			.box-stat {
-				font-size: var(--uui-type-h3-size);
+				font-size: var(--uui-type-h4-size);
 				font-weight: 700;
 				color: var(--uui-color-text);
 				flex: 1;

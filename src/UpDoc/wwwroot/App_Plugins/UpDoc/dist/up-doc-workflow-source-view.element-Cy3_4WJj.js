@@ -1,5 +1,5 @@
-import { d as Ge, g as ce, b as je, h as We, i as qe, j as Xe, k as V, l as Je, s as G, m as le, n as Qe, o as Ye, u as Ze, p as et } from "./workflow.service-CCTLt2Zy.js";
-import { m as A, n as j } from "./transforms-deUehta3.js";
+import { d as je, g as ce, b as Ge, h as We, i as qe, j as Xe, k as V, l as Je, s as j, m as le, n as Qe, o as Ye, u as Ze, p as et } from "./workflow.service-CCTLt2Zy.js";
+import { m as A, n as G } from "./transforms-deUehta3.js";
 import { UmbModalToken as W, UMB_MODAL_MANAGER_CONTEXT as R } from "@umbraco-cms/backoffice/modal";
 import { U as tt } from "./page-picker-modal.token-B0CgP9f1.js";
 import { html as l, nothing as p, unsafeHTML as M, css as it, state as v, customElement as at } from "@umbraco-cms/backoffice/external/lit";
@@ -36,7 +36,7 @@ var dt = Object.defineProperty, pt = Object.getOwnPropertyDescriptor, de = (e) =
   for (var n = o > 1 ? void 0 : o ? pt(t, i) : t, r = e.length - 1, c; r >= 0; r--)
     (c = e[r]) && (n = (o ? c(t, i, n) : c(n)) || n);
   return o && n && dt(t, i, n), n;
-}, q = (e, t, i) => t.has(e) || de("Cannot " + i), _ = (e, t, i) => (q(e, t, "read from private field"), i ? i.call(e) : t.get(e)), re = (e, t, i) => t.has(e) ? de("Cannot add the same private member more than once") : t instanceof WeakSet ? t.add(e) : t.set(e, i), ht = (e, t, i, o) => (q(e, t, "write to private field"), t.set(e, i), i), s = (e, t, i) => (q(e, t, "access private method"), i), b, a, pe, X, J, Q, he, me, Y, S, E, fe, ge, N, O, ve, be, U, Z, _e, T, ee, k, y, xe, K, I, F, $e, D, we, ye, ke, ze, H, te, Ce, ie, z, Pe, Me, ae, B, Se, Re, Te, Ae, Ee, De, Ne, Ie, Le, Oe, Ue, Ke, Fe, He, $, Be, Ve;
+}, q = (e, t, i) => t.has(e) || de("Cannot " + i), x = (e, t, i) => (q(e, t, "read from private field"), i ? i.call(e) : t.get(e)), re = (e, t, i) => t.has(e) ? de("Cannot add the same private member more than once") : t instanceof WeakSet ? t.add(e) : t.set(e, i), ht = (e, t, i, o) => (q(e, t, "write to private field"), t.set(e, i), i), s = (e, t, i) => (q(e, t, "access private method"), i), b, a, pe, X, J, Q, he, me, Y, S, E, fe, ge, N, O, ve, be, U, Z, xe, T, ee, k, y, _e, K, I, F, $e, D, we, ye, ke, ze, H, te, Ce, ie, z, Pe, Me, ae, B, Se, Re, Te, Ae, Ee, De, Ne, Ie, Le, Oe, Ue, Ke, Fe, He, $, Be, Ve;
 let m = class extends st {
   constructor() {
     super(...arguments), re(this, a), this._extraction = null, this._areaDetection = null, this._config = null, this._workflowName = null, this._loading = !0, this._extracting = !1, this._error = null, this._successMessage = null, this._collapsed = /* @__PURE__ */ new Set(), this._transformResult = null, this._viewMode = "elements", this._sourceConfig = null, this._pageMode = "all", this._pageInputValue = "", this._collapsePopoverOpen = !1, this._excludedAreas = /* @__PURE__ */ new Set(), this._areaTemplate = null, this._sectionPickerOpen = !1, this._teachingAreaIndex = null, this._inferenceResult = null, this._inferring = !1, re(this, b, "");
@@ -76,17 +76,17 @@ pe = async function() {
       const e = await this.getContext(ue);
       ht(this, b, await e.getLatestToken());
       const [t, i, o, n, r, c] = await Promise.all([
-        Ge(this._workflowName, _(this, b)),
-        ce(this._workflowName, _(this, b)),
-        je(this._workflowName, _(this, b)),
-        We(this._workflowName, _(this, b)),
-        qe(this._workflowName, _(this, b)),
-        Xe(this._workflowName, _(this, b))
+        je(this._workflowName, x(this, b)),
+        ce(this._workflowName, x(this, b)),
+        Ge(this._workflowName, x(this, b)),
+        We(this._workflowName, x(this, b)),
+        qe(this._workflowName, x(this, b)),
+        Xe(this._workflowName, x(this, b))
       ]);
       this._extraction = t, this._areaDetection = i, this._config = o, this._transformResult = n, this._sourceConfig = r, this._areaTemplate = c;
       const u = t?.source.mediaKey;
       if (u && i) {
-        const d = await V(this._workflowName, u, _(this, b));
+        const d = await V(this._workflowName, u, x(this, b));
         d && (this._transformResult = d);
       }
       r?.pages && Array.isArray(r.pages) && r.pages.length > 0 ? (this._pageMode = "custom", this._pageInputValue = s(this, a, J).call(this, r.pages)) : (this._pageMode = "all", this._pageInputValue = "");
@@ -132,7 +132,7 @@ he = function(e) {
 me = async function() {
   if (!this._workflowName) return;
   const e = s(this, a, Q).call(this);
-  await Qe(this._workflowName, e, _(this, b));
+  await Qe(this._workflowName, e, x(this, b));
 };
 Y = function(e) {
   if (!this._areaDetection) return [];
@@ -186,7 +186,7 @@ O = async function() {
   try {
     const i = await t.onSubmit();
     if (i?.template) {
-      const o = await G(this._workflowName, i.template, _(this, b));
+      const o = await j(this._workflowName, i.template, x(this, b));
       o && (this._areaTemplate = o, await s(this, a, T).call(this));
     }
   } catch {
@@ -197,7 +197,7 @@ ve = function() {
   const e = [], t = /* @__PURE__ */ new Set();
   for (const i of this._areaDetection.pages)
     for (const o of i.areas) {
-      const n = o.name || "Area", r = j(n);
+      const n = o.name || "Area", r = G(n);
       if (t.has(r)) continue;
       t.add(r);
       const c = s(this, a, D).call(this, o), u = this._sourceConfig?.areaRules?.[r], d = !!u && ((u.groups?.length ?? 0) > 0 || (u.rules?.length ?? 0) > 0);
@@ -214,11 +214,11 @@ U = async function(e, t) {
     ...this._sourceConfig?.areaRules ?? {}
   };
   t.groups.length > 0 || t.rules.length > 0 ? i[e] = t : delete i[e];
-  const n = await Ye(this._workflowName, i, _(this, b));
+  const n = await Ye(this._workflowName, i, x(this, b));
   n && this._sourceConfig && (this._sourceConfig = { ...this._sourceConfig, areaRules: n });
   const r = this._extraction?.source.mediaKey;
   if (r) {
-    const c = await V(this._workflowName, r, _(this, b));
+    const c = await V(this._workflowName, r, x(this, b));
     c && (this._transformResult = c);
   }
 };
@@ -242,7 +242,7 @@ Z = async function(e, t, i) {
   } catch {
   }
 };
-_e = async function() {
+xe = async function() {
   const e = this._extraction?.source.mediaKey;
   if (!e) return;
   const t = this._areaDetection?.totalPages ?? this._extraction?.source.totalPages ?? 0;
@@ -291,12 +291,12 @@ y = function(e) {
   const t = new Set(this._collapsed);
   t.has(e) ? t.delete(e) : t.add(e), this._collapsed = t;
 };
-xe = function(e) {
+_e = function(e) {
   return this._transformResult ? this._transformResult.sections.find((i) => i.id === e)?.included ?? !0 : !0;
 };
 K = async function(e, t) {
   if (!this._workflowName) return;
-  const i = await Ze(this._workflowName, e, t, _(this, b));
+  const i = await Ze(this._workflowName, e, t, x(this, b));
   i && (this._transformResult = i);
 };
 I = function(e) {
@@ -357,7 +357,7 @@ ye = async function(e) {
         this._workflowName,
         this._teachingAreaIndex,
         e,
-        _(this, b)
+        x(this, b)
       );
       this._inferenceResult = t;
     } catch (t) {
@@ -373,7 +373,7 @@ ke = async function() {
   if (e < 0 || e >= this._areaTemplate.areas.length) return;
   const t = [...this._areaTemplate.areas];
   t[e] = { ...t[e], sectionPattern: this._inferenceResult.pattern };
-  const i = { ...this._areaTemplate, areas: t }, o = await G(this._workflowName, i, _(this, b));
+  const i = { ...this._areaTemplate, areas: t }, o = await j(this._workflowName, i, x(this, b));
   o && (this._areaTemplate = o, this._teachingAreaIndex = null, this._inferenceResult = null, await s(this, a, T).call(this));
 };
 ze = async function() {
@@ -382,14 +382,14 @@ ze = async function() {
   if (e < 0 || e >= this._areaTemplate.areas.length) return;
   const t = [...this._areaTemplate.areas];
   t[e] = { ...t[e], sectionPattern: { conditions: [] } };
-  const i = { ...this._areaTemplate, areas: t }, o = await G(this._workflowName, i, _(this, b));
+  const i = { ...this._areaTemplate, areas: t }, o = await j(this._workflowName, i, x(this, b));
   o && (this._areaTemplate = o, this._teachingAreaIndex = null, this._inferenceResult = null, await s(this, a, T).call(this));
 };
 H = function() {
   this._teachingAreaIndex = null, this._inferenceResult = null, this._inferring = !1;
 };
 te = function(e) {
-  return j(e.name || "");
+  return G(e.name || "");
 };
 Ce = function(e) {
   const t = s(this, a, te).call(this, e), i = this._sourceConfig?.areaRules?.[t];
@@ -422,7 +422,7 @@ z = async function(e, t = "content") {
   }, d = c.findIndex((w) => w.source === r), f = d >= 0 ? c.map((w, P) => P === d ? u : w) : [...c, u], h = {
     ...this._config.map ?? { version: "1.0", mappings: [] },
     mappings: f
-  }, C = await le(this._workflowName, h, _(this, b));
+  }, C = await le(this._workflowName, h, x(this, b));
   C && (this._config = { ...this._config, map: C });
 };
 Pe = async function(e, t) {
@@ -436,7 +436,7 @@ Pe = async function(e, t) {
   r.length === 0 ? c = i.filter((f, h) => h !== o) : c = i.map(
     (f, h) => h === o ? { ...f, destinations: r } : f
   );
-  const u = { ...this._config.map, mappings: c }, d = await le(this._workflowName, u, _(this, b));
+  const u = { ...this._config.map, mappings: c }, d = await le(this._workflowName, u, x(this, b));
   d && (this._config = { ...this._config, map: d });
 };
 Me = function(e) {
@@ -478,7 +478,7 @@ B = function(e, t) {
 		`;
 };
 Se = function(e, t, i, o) {
-  const n = s(this, a, k).call(this, t), r = e.heading ? j(e.heading.text) : `preamble-p${i}-a${o}`, c = s(this, a, xe).call(this, r);
+  const n = s(this, a, k).call(this, t), r = e.heading ? G(e.heading.text) : `preamble-p${i}-a${o}`, c = s(this, a, _e).call(this, r);
   if (!e.heading)
     return l`
 				<div class="area-section ${c ? "" : "excluded"}">
@@ -578,7 +578,7 @@ Ae = function() {
 		`;
 };
 Ee = function(e, t, i) {
-  const o = `area-p${t}-a${i}`, n = s(this, a, $e).call(this, t, i), r = this._teachingAreaIndex === n, c = r ? !1 : s(this, a, k).call(this, o), u = !this._excludedAreas.has(o), d = s(this, a, te).call(this, e), f = s(this, a, Ce).call(this, e), h = f && this._transformResult ? s(this, a, ie).call(this, e, t) : [], C = f && h.length > 0, w = C ? h.length : e.sections.length, P = e.sectionPattern != null, se = P ? e.sectionPattern.conditions.length > 0 ? "Configured" : "Flat" : null, oe = this._sourceConfig?.areaRules?.[d], ne = (oe?.rules?.length ?? 0) + (oe?.groups?.reduce((x, L) => x + L.rules.length, 0) ?? 0);
+  const o = `area-p${t}-a${i}`, n = s(this, a, $e).call(this, t, i), r = this._teachingAreaIndex === n, c = r ? !1 : s(this, a, k).call(this, o), u = !this._excludedAreas.has(o), d = s(this, a, te).call(this, e), f = s(this, a, Ce).call(this, e), h = f && this._transformResult ? s(this, a, ie).call(this, e, t) : [], C = f && h.length > 0, w = C ? h.length : e.sections.length, P = e.sectionPattern != null, se = P ? e.sectionPattern.conditions.length > 0 ? "Configured" : "Flat" : null, oe = this._sourceConfig?.areaRules?.[d], ne = (oe?.rules?.length ?? 0) + (oe?.groups?.reduce((_, L) => _ + L.rules.length, 0) ?? 0);
   return l`
 			<div class="detected-area ${u ? "" : "area-excluded"} ${r ? "area-teaching" : ""}" style="border-left-color: ${e.color};">
 				<div class="area-header" @click=${() => !r && s(this, a, y).call(this, o)}>
@@ -594,8 +594,8 @@ Ee = function(e, t, i) {
 								look="outline"
 								compact
 								label="Edit Rules"
-								@click=${(x) => {
-    x.stopPropagation(), s(this, a, Z).call(this, d, e.name || "", s(this, a, D).call(this, e));
+								@click=${(_) => {
+    _.stopPropagation(), s(this, a, Z).call(this, d, e.name || "", s(this, a, D).call(this, e));
   }}
 								?disabled=${this._teachingAreaIndex !== null}>
 								<uui-icon name="icon-settings"></uui-icon>
@@ -606,8 +606,8 @@ Ee = function(e, t, i) {
 								look="outline"
 								compact
 								label="${P ? "Redefine Structure" : "Define Structure"}"
-								@click=${(x) => {
-    x.stopPropagation(), s(this, a, we).call(this, n, o);
+								@click=${(_) => {
+    _.stopPropagation(), s(this, a, we).call(this, n, o);
   }}
 								?disabled=${this._teachingAreaIndex !== null && !r}>
 								<uui-icon name="icon-axis-rotation"></uui-icon>
@@ -619,7 +619,7 @@ Ee = function(e, t, i) {
 						<uui-toggle
 							label="${u ? "Included" : "Excluded"}"
 							?checked=${u}
-							@click=${(x) => x.stopPropagation()}
+							@click=${(_) => _.stopPropagation()}
 							@change=${() => s(this, a, Re).call(this, o)}>
 						</uui-toggle>
 					`}
@@ -628,15 +628,15 @@ Ee = function(e, t, i) {
 					${r ? l`
 						${s(this, a, Ae).call(this)}
 						<div class="teach-elements">
-							${s(this, a, D).call(this, e).map((x) => s(this, a, Te).call(this, x))}
+							${s(this, a, D).call(this, e).map((_) => s(this, a, Te).call(this, _))}
 						</div>
 					` : C ? l`
 						<div class="composed-sections">
-							${h.map((x) => s(this, a, Me).call(this, x))}
+							${h.map((_) => s(this, a, Me).call(this, _))}
 						</div>
 					` : l`
 						${e.sections.map(
-    (x, L) => s(this, a, Se).call(this, x, `p${t}-a${i}-s${L}`, t, i)
+    (_, L) => s(this, a, Se).call(this, _, `p${t}-a${i}-s${L}`, t, i)
   )}
 					`}
 				`}
@@ -649,6 +649,7 @@ De = function(e, t) {
 			<uui-box class="page-box ${c ? "" : "page-excluded"}">
 				<div slot="header" class="tree-header" @click=${() => s(this, a, y).call(this, i)}>
 					<uui-icon class="collapse-chevron" name="${o ? "icon-navigation-right" : "icon-navigation-down"}"></uui-icon>
+					<uui-icon class="level-icon" name="icon-document"></uui-icon>
 					<strong class="page-title">Page ${e}</strong>
 				</div>
 				<div slot="header-actions" class="page-header-actions">
@@ -690,11 +691,14 @@ Oe = function() {
   const i = this._areaDetection?.totalPages ?? (t ? this._extraction.source.totalPages : 0), o = e ? this._areaDetection.pages.length : i, r = o < i ? `${o} of ${i}` : `${i}`, c = e ? this._areaDetection.diagnostics.areasDetected : 0, u = e ? s(this, a, Ie).call(this) : 0, d = t ? this._extraction.source.fileName : "", f = t ? new Date(this._extraction.source.extractedDate).toLocaleString() : "";
   return l`
 			<div class="info-boxes">
-				<uui-box headline="Source" class="info-box-item">
+				<uui-box class="info-box-item">
+					<div slot="headline" class="box-headline-row">
+						<span>Source</span>
+						<span class="box-headline-meta">${f}</span>
+					</div>
 					<div class="box-content">
-						<h2 class="box-title">${d}</h2>
-						<uui-icon name="icon-document" class="box-icon"></uui-icon>
-						<span class="box-subtitle">${f}</span>
+						<uui-icon name="icon-page-add" class="box-icon"></uui-icon>
+						<span class="box-stat box-filename" title="${d}">${d}</span>
 						<div class="box-buttons">
 							<uui-button look="primary" color="default" label="Change PDF" @click=${s(this, a, N)} ?disabled=${this._extracting}>
 								<uui-icon name="icon-page-add"></uui-icon>
@@ -706,10 +710,11 @@ Oe = function() {
 
 				<uui-box headline="Pages" class="info-box-item">
 					<div class="box-content">
+						<uui-icon name="icon-document" class="box-icon"></uui-icon>
 						<span class="box-stat">${r}</span>
 						<div class="box-buttons">
-							<uui-button look="primary" color="default" label="Choose Pages" @click=${s(this, a, _e)}>
-								<uui-icon name="icon-thumbnails-small"></uui-icon>
+							<uui-button look="primary" color="default" label="Choose Pages" @click=${s(this, a, xe)}>
+								<uui-icon name="icon-document"></uui-icon>
 								Choose Pages
 							</uui-button>
 						</div>
@@ -718,10 +723,11 @@ Oe = function() {
 
 				<uui-box headline="Areas" class="info-box-item">
 					<div class="box-content">
+						<uui-icon name="icon-grid" class="box-icon"></uui-icon>
 						<span class="box-stat">${this._areaTemplate ? this._areaTemplate.areas.length : c}</span>
 						<div class="box-buttons">
 							${this._areaTemplate ? l`<uui-button look="primary" color="default" label="Edit Areas" @click=${s(this, a, O)}>
-									<uui-icon name="icon-edit"></uui-icon>
+									<uui-icon name="icon-grid"></uui-icon>
 									Edit Areas
 								</uui-button>` : l`<uui-button look="primary" color="default" label="Define Areas" @click=${s(this, a, O)}>
 									<uui-icon name="icon-grid"></uui-icon>
@@ -733,6 +739,7 @@ Oe = function() {
 
 				<uui-box headline="Sections" class="info-box-item">
 					<div class="box-content">
+						<uui-icon name="icon-thumbnail-list" class="box-icon"></uui-icon>
 						<span class="box-stat">${u}</span>
 						${this._transformResult && this._areaDetection ? l`
 							<div class="box-buttons">
@@ -741,7 +748,7 @@ Oe = function() {
 									color="default"
 									label="Edit Sections"
 									popovertarget="section-picker-popover">
-									<uui-icon name="icon-settings"></uui-icon>
+									<uui-icon name="icon-thumbnail-list"></uui-icon>
 									Edit Sections
 									<uui-symbol-expand .open=${this._sectionPickerOpen}></uui-symbol-expand>
 								</uui-button>
@@ -840,6 +847,7 @@ Fe = function(e, t) {
 			<uui-box class="page-box">
 				<div slot="header" class="tree-header" @click=${() => s(this, a, y).call(this, i)}>
 					<uui-icon class="collapse-chevron" name="${o ? "icon-navigation-right" : "icon-navigation-down"}"></uui-icon>
+					<uui-icon class="level-icon" name="icon-document"></uui-icon>
 					<strong class="page-title">Page ${e}</strong>
 				</div>
 				<div slot="header-actions" class="page-header-actions">
@@ -1068,23 +1076,31 @@ m.styles = [
 			}
 
 			.box-icon {
-				font-size: 32px;
+				font-size: 48px;
+				color: var(--uui-color-text-alt);
+				margin-top: var(--uui-size-space-3);
+			}
+
+			.box-headline-row {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				width: 100%;
+			}
+
+			.box-headline-meta {
+				font-size: var(--uui-type-small-size);
+				font-weight: 400;
 				color: var(--uui-color-text-alt);
 			}
 
-			.box-title {
-				font-size: var(--uui-type-default-size);
+			.box-filename {
 				font-weight: 600;
-				margin: 0;
+				font-size: var(--uui-type-default-size) !important;
 				overflow: hidden;
 				text-overflow: ellipsis;
 				white-space: nowrap;
 				max-width: 100%;
-			}
-
-			.box-subtitle {
-				font-size: var(--uui-type-small-size);
-				color: var(--uui-color-text-alt);
 			}
 
 			.box-buttons {
@@ -1095,7 +1111,7 @@ m.styles = [
 			}
 
 			.box-stat {
-				font-size: var(--uui-type-h3-size);
+				font-size: var(--uui-type-h4-size);
 				font-weight: 700;
 				color: var(--uui-color-text);
 				flex: 1;
@@ -1848,4 +1864,4 @@ export {
   m as UpDocWorkflowSourceViewElement,
   kt as default
 };
-//# sourceMappingURL=up-doc-workflow-source-view.element-Bdefjc5I.js.map
+//# sourceMappingURL=up-doc-workflow-source-view.element-Cy3_4WJj.js.map
