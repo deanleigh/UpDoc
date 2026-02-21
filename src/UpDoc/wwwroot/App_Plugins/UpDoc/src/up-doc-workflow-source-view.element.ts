@@ -712,31 +712,26 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		}
 	}
 
-	#renderComposedSectionRow(section: TransformedSection, showMapButton = true) {
-		const contentPreview =
-			section.content.length > 100
-				? section.content.substring(0, 100).replace(/\r?\n/g, ' ') + '\u2026'
-				: section.content.replace(/\r?\n/g, ' ');
-
+	#renderComposedSectionRow(section: TransformedSection) {
 		// Check all possible source key suffixes for mapping status
 		const suffixes = ['content', 'heading', 'title', 'description', 'summary'];
 		const hasMappings = suffixes.some((s) => this.#getMappedTargets(`${section.id}.${s}`).length > 0);
 
+		const collapseKey = `composed-${section.id}`;
+		const isCollapsed = this.#isCollapsed(collapseKey);
+
 		return html`
 			<div class="composed-section-row">
-				<span class="composed-role">${section.heading ?? 'Content'}</span>
-				<span class="composed-preview">${contentPreview}</span>
-				${hasMappings
-					? suffixes.map((s) => this.#renderPartBadges(`${section.id}.${s}`))
-					: nothing}
-				${showMapButton ? html`
-					<uui-button
-						look="outline"
-						compact
-						label="Map"
-						@click=${(e: Event) => { e.stopPropagation(); this.#onMapSection(section); }}>
-						Map
-					</uui-button>
+				<div class="composed-section-header" @click=${() => this.#toggleCollapse(collapseKey)}>
+					<uui-icon class="collapse-chevron" name="${isCollapsed ? 'icon-navigation-right' : 'icon-navigation-down'}"></uui-icon>
+					<span class="composed-role">Section – ${section.heading ?? 'Content'}</span>
+					<span class="header-spacer"></span>
+					${hasMappings
+						? suffixes.map((s) => this.#renderPartBadges(`${section.id}.${s}`))
+						: nothing}
+				</div>
+				${!isCollapsed ? html`
+					<div class="composed-section-content">${section.content}</div>
 				` : nothing}
 			</div>
 		`;
@@ -936,7 +931,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 			<div class="detected-area ${!isIncluded ? 'area-excluded' : ''} ${isTeaching ? 'area-teaching' : ''}" style="border-left-color: ${area.color};">
 				<div class="area-header" @click=${() => !isTeaching && this.#toggleCollapse(areaKey)}>
 					<uui-icon class="collapse-chevron" name="${isCollapsed ? 'icon-navigation-right' : 'icon-navigation-down'}"></uui-icon>
-					<span class="area-name">${area.name || `Area ${areaIndex + 1}`}</span>
+					<span class="area-name">Area – ${area.name || `${areaIndex + 1}`}</span>
 					${hasRules
 						? html`<span class="meta-badge rules-badge">${ruleCount} rule${ruleCount !== 1 ? 's' : ''}</span>`
 						: patternLabel ? html`<span class="meta-badge structure-badge">${patternLabel}</span>` : nothing}
@@ -982,7 +977,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 						</div>
 					` : useComposed ? html`
 						<div class="composed-sections">
-							${composedSections.map((section) => this.#renderComposedSectionRow(section, false))}
+							${composedSections.map((section) => this.#renderComposedSectionRow(section))}
 						</div>
 					` : html`
 						${area.sections.map((section, sIdx) =>
@@ -1935,8 +1930,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 
 			.composed-section-row {
 				display: flex;
-				align-items: center;
-				gap: var(--uui-size-space-3);
+				flex-direction: column;
 				padding: var(--uui-size-space-3) var(--uui-size-space-4);
 				border-bottom: 1px solid var(--uui-color-border);
 			}
@@ -1945,24 +1939,34 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				border-bottom: none;
 			}
 
+			.composed-section-header {
+				display: flex;
+				align-items: center;
+				gap: var(--uui-size-space-2);
+				padding: var(--uui-size-space-2) var(--uui-size-space-3);
+				cursor: pointer;
+			}
+
+			.composed-section-header:hover {
+				background: var(--uui-color-surface-emphasis);
+			}
+
+			.composed-section-header:hover .collapse-chevron {
+				color: var(--uui-color-text);
+			}
+
 			.composed-role {
 				font-weight: 600;
 				color: var(--uui-color-text);
 				flex-shrink: 0;
-				white-space: nowrap;
-				overflow: hidden;
-				text-overflow: ellipsis;
-				max-width: 200px;
 			}
 
-			.composed-preview {
-				font-size: var(--uui-type-small-size);
+			.composed-section-content {
+				font-size: var(--uui-type-default-size);
 				color: var(--uui-color-text-alt);
-				min-width: 0;
-				flex: 1;
-				overflow: hidden;
-				text-overflow: ellipsis;
-				white-space: nowrap;
+				padding: var(--uui-size-space-2) var(--uui-size-space-3) var(--uui-size-space-3);
+				padding-left: calc(var(--uui-size-space-3) + 12px + var(--uui-size-space-2));
+				white-space: pre-line;
 			}
 
 			.composed-unmapped {

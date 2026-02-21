@@ -36,7 +36,7 @@ var dt = Object.defineProperty, pt = Object.getOwnPropertyDescriptor, ue = (e) =
   for (var n = o > 1 ? void 0 : o ? pt(t, a) : t, r = e.length - 1, c; r >= 0; r--)
     (c = e[r]) && (n = (o ? c(t, a, n) : c(n)) || n);
   return o && n && dt(t, a, n), n;
-}, q = (e, t, a) => t.has(e) || ue("Cannot " + a), _ = (e, t, a) => (q(e, t, "read from private field"), a ? a.call(e) : t.get(e)), ne = (e, t, a) => t.has(e) ? ue("Cannot add the same private member more than once") : t instanceof WeakSet ? t.add(e) : t.set(e, a), ht = (e, t, a, o) => (q(e, t, "write to private field"), t.set(e, a), a), s = (e, t, a) => (q(e, t, "access private method"), a), b, i, de, X, J, Q, pe, he, Y, S, E, me, fe, N, O, ge, ve, U, Z, be, T, ee, z, k, _e, K, I, F, xe, D, we, $e, ye, ke, H, te, ze, Ce, y, Pe, Me, ae, B, Se, Re, Te, Ae, Ee, De, Ne, Ie, Le, Oe, Ue, Ke, Fe, He, w, Be, Ve;
+}, q = (e, t, a) => t.has(e) || ue("Cannot " + a), _ = (e, t, a) => (q(e, t, "read from private field"), a ? a.call(e) : t.get(e)), ne = (e, t, a) => t.has(e) ? ue("Cannot add the same private member more than once") : t instanceof WeakSet ? t.add(e) : t.set(e, a), ht = (e, t, a, o) => (q(e, t, "write to private field"), t.set(e, a), a), s = (e, t, a) => (q(e, t, "access private method"), a), b, i, de, X, J, Q, pe, he, Y, S, E, me, fe, N, O, ge, ve, U, Z, be, T, ee, k, y, _e, K, I, F, xe, D, $e, we, ye, ke, H, te, ze, Ce, z, Pe, Me, ae, B, Se, Re, Te, Ae, Ee, De, Ne, Ie, Le, Oe, Ue, Ke, Fe, He, $, Be, Ve;
 let m = class extends st {
   constructor() {
     super(...arguments), ne(this, i), this._extraction = null, this._areaDetection = null, this._config = null, this._workflowName = null, this._loading = !0, this._extracting = !1, this._error = null, this._successMessage = null, this._collapsed = /* @__PURE__ */ new Set(), this._transformResult = null, this._viewMode = "elements", this._sourceConfig = null, this._pageMode = "all", this._pageInputValue = "", this._collapsePopoverOpen = !1, this._excludedAreas = /* @__PURE__ */ new Set(), this._areaTemplate = null, this._sectionPickerOpen = !1, this._teachingAreaIndex = null, this._inferenceResult = null, this._inferring = !1, ne(this, b, "");
@@ -282,10 +282,10 @@ ee = async function(e) {
     }
   }
 };
-z = function(e) {
+k = function(e) {
   return this._collapsed.has(e);
 };
-k = function(e) {
+y = function(e) {
   const t = new Set(this._collapsed);
   t.has(e) ? t.delete(e) : t.add(e), this._collapsed = t;
 };
@@ -341,13 +341,13 @@ D = function(e) {
     a.heading && t.push(a.heading), t.push(...a.children);
   return t;
 };
-we = function(e, t) {
+$e = function(e, t) {
   if (this._teachingAreaIndex = e, this._inferenceResult = null, this._inferring = !1, this._collapsed.has(t)) {
     const a = new Set(this._collapsed);
     a.delete(t), this._collapsed = a;
   }
 };
-$e = async function(e) {
+we = async function(e) {
   if (!(this._teachingAreaIndex === null || !this._workflowName || this._inferring)) {
     this._inferring = !0, this._inferenceResult = null;
     try {
@@ -398,7 +398,7 @@ Ce = function(e, t) {
     (a) => a.areaColor === e.color && a.page === t
   ) : [];
 };
-y = async function(e, t = "content") {
+z = async function(e, t = "content") {
   if (!this._workflowName || !this._config?.destination) return;
   const o = (await this.getContext(R)).open(this, ut, {
     data: {
@@ -415,9 +415,9 @@ y = async function(e, t = "content") {
   if (!n?.selectedTargets?.length) return;
   const r = `${e.id}.${t}`, c = this._config.map?.mappings ?? [], u = {
     source: r,
-    destinations: n.selectedTargets.map(($) => ({ target: $.target, blockKey: $.blockKey })),
+    destinations: n.selectedTargets.map((w) => ({ target: w.target, blockKey: w.blockKey })),
     enabled: !0
-  }, d = c.findIndex(($) => $.source === r), f = d >= 0 ? c.map(($, P) => P === d ? u : $) : [...c, u], h = {
+  }, d = c.findIndex((w) => w.source === r), f = d >= 0 ? c.map((w, P) => P === d ? u : w) : [...c, u], h = {
     ...this._config.map ?? { version: "1.0", mappings: [] },
     mappings: f
   }, C = await ce(this._workflowName, h, _(this, b));
@@ -437,24 +437,19 @@ Pe = async function(e, t) {
   const u = { ...this._config.map, mappings: c }, d = await ce(this._workflowName, u, _(this, b));
   d && (this._config = { ...this._config, map: d });
 };
-Me = function(e, t = !0) {
-  const a = e.content.length > 100 ? e.content.substring(0, 100).replace(/\r?\n/g, " ") + "…" : e.content.replace(/\r?\n/g, " "), o = ["content", "heading", "title", "description", "summary"], n = o.some((r) => s(this, i, I).call(this, `${e.id}.${r}`).length > 0);
+Me = function(e) {
+  const t = ["content", "heading", "title", "description", "summary"], a = t.some((r) => s(this, i, I).call(this, `${e.id}.${r}`).length > 0), o = `composed-${e.id}`, n = s(this, i, k).call(this, o);
   return l`
 			<div class="composed-section-row">
-				<span class="composed-role">${e.heading ?? "Content"}</span>
-				<span class="composed-preview">${a}</span>
-				${n ? o.map((r) => s(this, i, w).call(this, `${e.id}.${r}`)) : p}
-				${t ? l`
-					<uui-button
-						look="outline"
-						compact
-						label="Map"
-						@click=${(r) => {
-    r.stopPropagation(), s(this, i, y).call(this, e);
-  }}>
-						Map
-					</uui-button>
-				` : p}
+				<div class="composed-section-header" @click=${() => s(this, i, y).call(this, o)}>
+					<uui-icon class="collapse-chevron" name="${n ? "icon-navigation-right" : "icon-navigation-down"}"></uui-icon>
+					<span class="composed-role">Section – ${e.heading ?? "Content"}</span>
+					<span class="header-spacer"></span>
+					${a ? t.map((r) => s(this, i, $).call(this, `${e.id}.${r}`)) : p}
+				</div>
+				${n ? p : l`
+					<div class="composed-section-content">${e.content}</div>
+				`}
 			</div>
 		`;
 };
@@ -480,11 +475,11 @@ B = function(e, t) {
 		`;
 };
 Se = function(e, t, a, o) {
-  const n = s(this, i, z).call(this, t), r = e.heading ? j(e.heading.text) : `preamble-p${a}-a${o}`, c = s(this, i, _e).call(this, r);
+  const n = s(this, i, k).call(this, t), r = e.heading ? j(e.heading.text) : `preamble-p${a}-a${o}`, c = s(this, i, _e).call(this, r);
   if (!e.heading)
     return l`
 				<div class="area-section ${c ? "" : "excluded"}">
-					<div class="section-heading preamble" @click=${() => s(this, i, k).call(this, t)}>
+					<div class="section-heading preamble" @click=${() => s(this, i, y).call(this, t)}>
 						<uui-icon class="collapse-chevron" name="${n ? "icon-navigation-right" : "icon-navigation-down"}"></uui-icon>
 						<span class="heading-text preamble-label">Content</span>
 						<span class="group-count">${e.children.length} element${e.children.length !== 1 ? "s" : ""}</span>
@@ -503,7 +498,7 @@ Se = function(e, t, a, o) {
   const u = e.heading, d = e.children.length, f = d > 0;
   return l`
 			<div class="area-section ${c ? "" : "excluded"}">
-				<div class="section-heading" @click=${f ? () => s(this, i, k).call(this, t) : p}>
+				<div class="section-heading" @click=${f ? () => s(this, i, y).call(this, t) : p}>
 					${f ? l`<uui-icon class="collapse-chevron" name="${n ? "icon-navigation-right" : "icon-navigation-down"}"></uui-icon>` : l`<uui-icon class="collapse-chevron placeholder"></uui-icon>`}
 					<span class="section-label">Section</span>
 					<span class="section-separator">–</span>
@@ -532,7 +527,7 @@ Te = function(e) {
   const t = this._inferenceResult?.clickedElementId === e.id, a = this._inferenceResult?.matchingElementIds?.includes(e.id) ?? !1, o = s(this, i, ae).call(this, e.text), n = o === "list" ? "List Item" : "Paragraph";
   return l`
 			<div class="element-item teach-element ${t ? "teach-clicked" : ""} ${a ? "teach-matched" : ""}"
-				@click=${() => s(this, i, $e).call(this, e.id)}>
+				@click=${() => s(this, i, we).call(this, e.id)}>
 				<div class="element-content">
 					<div class="element-text">${e.text}</div>
 					<div class="element-meta">
@@ -581,15 +576,15 @@ Ae = function() {
 		`;
 };
 Ee = function(e, t, a) {
-  const o = `area-p${t}-a${a}`, n = s(this, i, xe).call(this, t, a), r = this._teachingAreaIndex === n, c = r ? !1 : s(this, i, z).call(this, o), u = !this._excludedAreas.has(o), d = s(this, i, te).call(this, e), f = s(this, i, ze).call(this, e), h = f && this._transformResult ? s(this, i, Ce).call(this, e, t) : [], C = f && h.length > 0, $ = C ? h.length : e.sections.length, P = e.sectionPattern != null, ie = P ? e.sectionPattern.conditions.length > 0 ? "Configured" : "Flat" : null, se = this._sourceConfig?.areaRules?.[d], oe = (se?.rules?.length ?? 0) + (se?.groups?.reduce((x, L) => x + L.rules.length, 0) ?? 0);
+  const o = `area-p${t}-a${a}`, n = s(this, i, xe).call(this, t, a), r = this._teachingAreaIndex === n, c = r ? !1 : s(this, i, k).call(this, o), u = !this._excludedAreas.has(o), d = s(this, i, te).call(this, e), f = s(this, i, ze).call(this, e), h = f && this._transformResult ? s(this, i, Ce).call(this, e, t) : [], C = f && h.length > 0, w = C ? h.length : e.sections.length, P = e.sectionPattern != null, ie = P ? e.sectionPattern.conditions.length > 0 ? "Configured" : "Flat" : null, se = this._sourceConfig?.areaRules?.[d], oe = (se?.rules?.length ?? 0) + (se?.groups?.reduce((x, L) => x + L.rules.length, 0) ?? 0);
   return l`
 			<div class="detected-area ${u ? "" : "area-excluded"} ${r ? "area-teaching" : ""}" style="border-left-color: ${e.color};">
-				<div class="area-header" @click=${() => !r && s(this, i, k).call(this, o)}>
+				<div class="area-header" @click=${() => !r && s(this, i, y).call(this, o)}>
 					<uui-icon class="collapse-chevron" name="${c ? "icon-navigation-right" : "icon-navigation-down"}"></uui-icon>
-					<span class="area-name">${e.name || `Area ${a + 1}`}</span>
+					<span class="area-name">Area – ${e.name || `${a + 1}`}</span>
 					${f ? l`<span class="meta-badge rules-badge">${oe} rule${oe !== 1 ? "s" : ""}</span>` : ie ? l`<span class="meta-badge structure-badge">${ie}</span>` : p}
 					<span class="header-spacer"></span>
-					<span class="group-count">${$} section${$ !== 1 ? "s" : ""}</span>
+					<span class="group-count">${w} section${w !== 1 ? "s" : ""}</span>
 					${r ? p : l`
 						${f ? l`
 							<uui-button
@@ -609,7 +604,7 @@ Ee = function(e, t, a) {
 								compact
 								label="${P ? "Redefine Structure" : "Define Structure"}"
 								@click=${(x) => {
-    x.stopPropagation(), s(this, i, we).call(this, n, o);
+    x.stopPropagation(), s(this, i, $e).call(this, n, o);
   }}
 								?disabled=${this._teachingAreaIndex !== null && !r}>
 								<uui-icon name="icon-axis-rotation"></uui-icon>
@@ -634,7 +629,7 @@ Ee = function(e, t, a) {
 						</div>
 					` : C ? l`
 						<div class="composed-sections">
-							${h.map((x) => s(this, i, Me).call(this, x, !1))}
+							${h.map((x) => s(this, i, Me).call(this, x))}
 						</div>
 					` : l`
 						${e.sections.map(
@@ -646,10 +641,10 @@ Ee = function(e, t, a) {
 		`;
 };
 De = function(e, t) {
-  const a = `page-${e}`, o = s(this, i, z).call(this, a), n = t.length, r = t.reduce((u, d) => u + d.sections.length, 0), c = s(this, i, pe).call(this, e);
+  const a = `page-${e}`, o = s(this, i, k).call(this, a), n = t.length, r = t.reduce((u, d) => u + d.sections.length, 0), c = s(this, i, pe).call(this, e);
   return l`
 			<uui-box class="page-box ${c ? "" : "page-excluded"}">
-				<div slot="header" class="tree-header" @click=${() => s(this, i, k).call(this, a)}>
+				<div slot="header" class="tree-header" @click=${() => s(this, i, y).call(this, a)}>
 					<uui-icon class="collapse-chevron" name="${o ? "icon-navigation-right" : "icon-navigation-down"}"></uui-icon>
 					<strong class="page-title">Page ${e}</strong>
 				</div>
@@ -837,10 +832,10 @@ Ke = function() {
 		`;
 };
 Fe = function(e, t) {
-  const a = `tx-page-${e}`, o = s(this, i, z).call(this, a), n = [...t.values()].reduce((c, u) => c + u.length, 0), r = t.size;
+  const a = `tx-page-${e}`, o = s(this, i, k).call(this, a), n = [...t.values()].reduce((c, u) => c + u.length, 0), r = t.size;
   return l`
 			<uui-box class="page-box">
-				<div slot="header" class="tree-header" @click=${() => s(this, i, k).call(this, a)}>
+				<div slot="header" class="tree-header" @click=${() => s(this, i, y).call(this, a)}>
 					<uui-icon class="collapse-chevron" name="${o ? "icon-navigation-right" : "icon-navigation-down"}"></uui-icon>
 					<strong class="page-title">Page ${e}</strong>
 				</div>
@@ -856,10 +851,10 @@ Fe = function(e, t) {
 		`;
 };
 He = function(e, t, a) {
-  const o = `tx-area-${a}-${e}`, n = s(this, i, z).call(this, o), r = t[0]?.areaColor || "var(--uui-color-border)";
+  const o = `tx-area-${a}-${e}`, n = s(this, i, k).call(this, o), r = t[0]?.areaColor || "var(--uui-color-border)";
   return l`
 			<div class="detected-area" style="border-left-color: ${r};">
-				<div class="area-header" @click=${() => s(this, i, k).call(this, o)}>
+				<div class="area-header" @click=${() => s(this, i, y).call(this, o)}>
 					<uui-icon class="collapse-chevron" name="${n ? "icon-navigation-right" : "icon-navigation-down"}"></uui-icon>
 					<span class="area-name">${e}</span>
 					<span class="header-spacer"></span>
@@ -873,7 +868,7 @@ He = function(e, t, a) {
 			</div>
 		`;
 };
-w = function(e) {
+$ = function(e) {
   const t = s(this, i, I).call(this, e);
   return t.length === 0 ? p : t.map((a) => l`<uui-tag color="positive" look="primary" class="mapped-tag" title="${s(this, i, F).call(this, a)}">
 			${s(this, i, F).call(this, a)}
@@ -891,11 +886,11 @@ Be = function(e) {
 						<div class="md-part-header">
 							<span class="section-label">${e.groupName} Title</span>
 							<div class="md-part-actions">
-								${s(this, i, w).call(this, `${e.id}.title`)}
-								${s(this, i, w).call(this, `${e.id}.heading`)}
+								${s(this, i, $).call(this, `${e.id}.title`)}
+								${s(this, i, $).call(this, `${e.id}.heading`)}
 								<uui-button class="md-map-btn" look="outline" compact label="Map"
 									@click=${(d) => {
-    d.stopPropagation(), s(this, i, y).call(this, e, "title");
+    d.stopPropagation(), s(this, i, z).call(this, e, "title");
   }}>Map</uui-button>
 							</div>
 						</div>
@@ -909,10 +904,10 @@ Be = function(e) {
 						<div class="md-part-header">
 							<span class="section-label">${e.groupName} Content</span>
 							<div class="md-part-actions">
-								${s(this, i, w).call(this, `${e.id}.content`)}
+								${s(this, i, $).call(this, `${e.id}.content`)}
 								<uui-button class="md-map-btn" look="outline" compact label="Map"
 									@click=${(d) => {
-    d.stopPropagation(), s(this, i, y).call(this, e, "content");
+    d.stopPropagation(), s(this, i, z).call(this, e, "content");
   }}>Map</uui-button>
 							</div>
 						</div>
@@ -926,10 +921,10 @@ Be = function(e) {
 						<div class="md-part-header">
 							<span class="section-label">${e.groupName} Description</span>
 							<div class="md-part-actions">
-								${s(this, i, w).call(this, `${e.id}.description`)}
+								${s(this, i, $).call(this, `${e.id}.description`)}
 								<uui-button class="md-map-btn" look="outline" compact label="Map"
 									@click=${(d) => {
-    d.stopPropagation(), s(this, i, y).call(this, e, "description");
+    d.stopPropagation(), s(this, i, z).call(this, e, "description");
   }}>Map</uui-button>
 							</div>
 						</div>
@@ -943,10 +938,10 @@ Be = function(e) {
 						<div class="md-part-header">
 							<span class="section-label">${e.groupName} Summary</span>
 							<div class="md-part-actions">
-								${s(this, i, w).call(this, `${e.id}.summary`)}
+								${s(this, i, $).call(this, `${e.id}.summary`)}
 								<uui-button class="md-map-btn" look="outline" compact label="Map"
 									@click=${(d) => {
-    d.stopPropagation(), s(this, i, y).call(this, e, "summary");
+    d.stopPropagation(), s(this, i, z).call(this, e, "summary");
   }}>Map</uui-button>
 							</div>
 						</div>
@@ -963,11 +958,11 @@ Be = function(e) {
 							${c ? l`<div class="md-section-content">${M(c)}</div>` : p}
 						</div>
 						<div class="md-part-actions">
-							${s(this, i, w).call(this, `${e.id}.content`)}
-							${s(this, i, w).call(this, `${e.id}.heading`)}
-							${s(this, i, w).call(this, `${e.id}.title`)}
+							${s(this, i, $).call(this, `${e.id}.content`)}
+							${s(this, i, $).call(this, `${e.id}.heading`)}
+							${s(this, i, $).call(this, `${e.id}.title`)}
 							<uui-button class="md-map-btn" look="outline" compact label="Map"
-								@click=${() => s(this, i, y).call(this, e, "content")}>Map</uui-button>
+								@click=${() => s(this, i, z).call(this, e, "content")}>Map</uui-button>
 						</div>
 					</div>
 				</uui-box>
@@ -1473,8 +1468,7 @@ m.styles = [
 
 			.composed-section-row {
 				display: flex;
-				align-items: center;
-				gap: var(--uui-size-space-3);
+				flex-direction: column;
 				padding: var(--uui-size-space-3) var(--uui-size-space-4);
 				border-bottom: 1px solid var(--uui-color-border);
 			}
@@ -1483,24 +1477,34 @@ m.styles = [
 				border-bottom: none;
 			}
 
+			.composed-section-header {
+				display: flex;
+				align-items: center;
+				gap: var(--uui-size-space-2);
+				padding: var(--uui-size-space-2) var(--uui-size-space-3);
+				cursor: pointer;
+			}
+
+			.composed-section-header:hover {
+				background: var(--uui-color-surface-emphasis);
+			}
+
+			.composed-section-header:hover .collapse-chevron {
+				color: var(--uui-color-text);
+			}
+
 			.composed-role {
 				font-weight: 600;
 				color: var(--uui-color-text);
 				flex-shrink: 0;
-				white-space: nowrap;
-				overflow: hidden;
-				text-overflow: ellipsis;
-				max-width: 200px;
 			}
 
-			.composed-preview {
-				font-size: var(--uui-type-small-size);
+			.composed-section-content {
+				font-size: var(--uui-type-default-size);
 				color: var(--uui-color-text-alt);
-				min-width: 0;
-				flex: 1;
-				overflow: hidden;
-				text-overflow: ellipsis;
-				white-space: nowrap;
+				padding: var(--uui-size-space-2) var(--uui-size-space-3) var(--uui-size-space-3);
+				padding-left: calc(var(--uui-size-space-3) + 12px + var(--uui-size-space-2));
+				white-space: pre-line;
 			}
 
 			.composed-unmapped {
@@ -1845,4 +1849,4 @@ export {
   m as UpDocWorkflowSourceViewElement,
   kt as default
 };
-//# sourceMappingURL=up-doc-workflow-source-view.element-DOGEx9Bg.js.map
+//# sourceMappingURL=up-doc-workflow-source-view.element-C2oaVbWK.js.map
