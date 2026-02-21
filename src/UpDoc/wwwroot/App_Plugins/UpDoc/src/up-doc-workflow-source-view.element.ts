@@ -753,40 +753,51 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				${!isCollapsed ? html`
 					${isGrouped ? html`
 						${section.heading ? html`
-							<div class="composed-part-block">
-								<div class="composed-part-header">
-									<span class="section-label">${sectionLabel} Title</span>
-									<div class="composed-part-actions">
-										${this.#renderPartBadges(`${section.id}.title`)}
-										${this.#renderPartBadges(`${section.id}.heading`)}
-									</div>
+							<div class="composed-part-row">
+								<span class="part-label">Title</span>
+								<div class="part-content">${unsafeHTML(markdownToHtml(section.heading))}</div>
+								<div class="composed-part-actions">
+									${this.#renderPartBadges(`${section.id}.title`)}
+									${this.#renderPartBadges(`${section.id}.heading`)}
 								</div>
-								<div class="composed-section-content">${unsafeHTML(markdownToHtml(section.heading))}</div>
 							</div>
 						` : nothing}
 						${section.content ? html`
-							<div class="composed-part-block composed-part-block-bordered">
-								<div class="composed-part-header">
-									<span class="section-label">${sectionLabel} Content</span>
-									<div class="composed-part-actions">
-										${this.#renderPartBadges(`${section.id}.content`)}
-									</div>
+							<div class="composed-part-row composed-part-row-bordered">
+								<span class="part-label">Content</span>
+								<div class="part-content">${unsafeHTML(markdownToHtml(section.content))}</div>
+								<div class="composed-part-actions">
+									${this.#renderPartBadges(`${section.id}.content`)}
 								</div>
-								<div class="composed-section-content">${unsafeHTML(markdownToHtml(section.content))}</div>
+							</div>
+						` : nothing}
+						${section.description ? html`
+							<div class="composed-part-row composed-part-row-bordered">
+								<span class="part-label">Description</span>
+								<div class="part-content">${unsafeHTML(markdownToHtml(section.description))}</div>
+								<div class="composed-part-actions">
+									${this.#renderPartBadges(`${section.id}.description`)}
+								</div>
+							</div>
+						` : nothing}
+						${section.summary ? html`
+							<div class="composed-part-row composed-part-row-bordered">
+								<span class="part-label">Summary</span>
+								<div class="part-content">${unsafeHTML(markdownToHtml(section.summary))}</div>
+								<div class="composed-part-actions">
+									${this.#renderPartBadges(`${section.id}.summary`)}
+								</div>
 							</div>
 						` : nothing}
 					` : html`
-						<div class="composed-part-block">
-							<div class="composed-part-header">
-								<span class="header-spacer"></span>
+						${section.content ? html`
+							<div class="composed-part-row">
+								<div class="part-content">${unsafeHTML(markdownToHtml(section.content))}</div>
 								<div class="composed-part-actions">
 									${suffixes.map((s) => this.#renderPartBadges(`${section.id}.${s}`))}
 								</div>
 							</div>
-							<div class="composed-section-content">
-								${section.content ? unsafeHTML(markdownToHtml(section.content)) : nothing}
-							</div>
-						</div>
+						` : nothing}
 					`}
 				` : nothing}
 			</div>
@@ -2038,31 +2049,35 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				flex-shrink: 0;
 			}
 
-			.composed-section-content {
-				font-size: var(--uui-type-default-size);
-				color: var(--uui-color-text-alt);
-				padding: var(--uui-size-space-2) var(--uui-size-space-3) var(--uui-size-space-3);
+			.composed-part-row {
+				display: flex;
+				align-items: flex-start;
+				gap: var(--uui-size-space-3);
+				padding: var(--uui-size-space-3) var(--uui-size-space-3) var(--uui-size-space-3);
 				padding-left: calc(var(--uui-size-space-3) + 12px + var(--uui-size-space-2));
 			}
 
-			.composed-part-block {
-				padding: var(--uui-size-space-4) 0;
-				padding-left: calc(var(--uui-size-space-3) + 12px + var(--uui-size-space-2));
+			.composed-part-row:first-child {
+				padding-top: var(--uui-size-space-1);
 			}
 
-			.composed-part-block:first-child {
-				padding-top: 0;
-			}
-
-			.composed-part-block-bordered {
+			.composed-part-row-bordered {
 				border-top: 1px solid var(--uui-color-border);
 			}
 
-			.composed-part-header {
-				display: flex;
-				align-items: center;
-				justify-content: space-between;
-				margin-bottom: var(--uui-size-space-2);
+			.part-label {
+				font-size: var(--uui-type-small-size);
+				color: var(--uui-color-text-alt);
+				min-width: 80px;
+				flex-shrink: 0;
+				padding-top: 2px;
+			}
+
+			.part-content {
+				flex: 1;
+				font-size: var(--uui-type-default-size);
+				color: var(--uui-color-text-alt);
+				min-width: 0;
 			}
 
 			.composed-part-actions {
@@ -2070,7 +2085,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				align-items: center;
 				gap: var(--uui-size-space-2);
 				flex-shrink: 0;
-				margin-left: auto;
+				padding-top: 2px;
 			}
 
 			.composed-unmapped {
