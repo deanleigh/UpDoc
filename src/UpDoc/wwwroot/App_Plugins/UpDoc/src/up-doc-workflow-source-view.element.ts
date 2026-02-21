@@ -731,14 +731,14 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				<div class="composed-section-header" @click=${() => this.#toggleCollapse(collapseKey)}>
 					<uui-icon class="collapse-chevron" name="${isCollapsed ? 'icon-navigation-right' : 'icon-navigation-down'}"></uui-icon>
 					<uui-icon class="level-icon" name="icon-thumbnail-list"></uui-icon>
-					<span class="composed-role">${section.heading ?? 'Content'}</span>
+					<span class="composed-role">${(section.heading ?? 'Content').replace(/^#+\s*/, '')}</span>
 					<span class="header-spacer"></span>
 					${hasMappings
 						? suffixes.map((s) => this.#renderPartBadges(`${section.id}.${s}`))
 						: nothing}
 				</div>
-				${!isCollapsed ? html`
-					<div class="composed-section-content">${section.content}</div>
+				${!isCollapsed && section.content ? html`
+					<div class="composed-section-content">${unsafeHTML(markdownToHtml(section.content))}</div>
 				` : nothing}
 			</div>
 		`;
@@ -1985,7 +1985,6 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				color: var(--uui-color-text-alt);
 				padding: var(--uui-size-space-2) var(--uui-size-space-3) var(--uui-size-space-3);
 				padding-left: calc(var(--uui-size-space-3) + 12px + var(--uui-size-space-2));
-				white-space: pre-line;
 			}
 
 			.composed-unmapped {
