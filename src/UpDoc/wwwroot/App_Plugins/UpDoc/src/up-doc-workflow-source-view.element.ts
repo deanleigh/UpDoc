@@ -1254,19 +1254,17 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 	}
 
 	#renderMarkdownSection(section: TransformedSection) {
-		const isDuplicate = section.heading && section.content && section.heading.trim() === section.content.trim();
+		const isGrouped = !!section.groupName;
 		const hasDescription = !!section.description;
 		const hasSummary = !!section.summary;
-		const hasHeadingAndContent = !!section.heading && !!section.content && !isDuplicate;
-		const hasMultipleParts = hasHeadingAndContent || hasDescription || hasSummary;
 
 		const suffixes = ['content', 'heading', 'title', 'description', 'summary'];
 		const isMapped = suffixes.some((s) => this.#getMappedTargets(`${section.id}.${s}`).length > 0);
 
-		const contentHtml = section.content && !isDuplicate ? markdownToHtml(section.content) : '';
+		const contentHtml = section.content ? markdownToHtml(section.content) : '';
 
-		if (!hasMultipleParts) {
-			// Simple section: headline + one content row with badge + Map
+		if (!isGrouped) {
+			// Ungrouped: box title = role name (label), content = mappable data
 			return html`
 				<uui-box headline="${section.heading || 'Content'}" class="md-section-box ${isMapped ? 'mapped' : ''}">
 					<div class="md-part-row">
@@ -1285,11 +1283,12 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 			`;
 		}
 
-		// Multi-part: title row + content row(s), each with badge + Map
+		// Grouped: box title = group name, sub-labeled title + content parts
 		return html`
-			<uui-box headline="${section.heading || 'Content'}" class="md-section-box ${isMapped ? 'mapped' : ''}">
+			<uui-box headline="${section.groupName}" class="md-section-box ${isMapped ? 'mapped' : ''}">
 				${section.heading ? html`
 					<div class="md-part-row">
+						<span class="section-label">${section.groupName} Title</span>
 						<div class="md-part-content">
 							<span>${section.heading}</span>
 						</div>
@@ -1303,6 +1302,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				` : nothing}
 				${contentHtml ? html`
 					<div class="md-part-row md-part-row-bordered">
+						<span class="section-label">${section.groupName} Content</span>
 						<div class="md-part-content">
 							<div class="md-section-content">${unsafeHTML(contentHtml)}</div>
 						</div>
@@ -1315,6 +1315,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				` : nothing}
 				${hasDescription ? html`
 					<div class="md-part-row md-part-row-bordered">
+						<span class="section-label">${section.groupName} Description</span>
 						<div class="md-part-content">
 							<div class="md-section-content">${unsafeHTML(markdownToHtml(section.description!))}</div>
 						</div>
@@ -1327,6 +1328,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				` : nothing}
 				${hasSummary ? html`
 					<div class="md-part-row md-part-row-bordered">
+						<span class="section-label">${section.groupName} Summary</span>
 						<div class="md-part-content">
 							<div class="md-section-content">${unsafeHTML(markdownToHtml(section.summary!))}</div>
 						</div>

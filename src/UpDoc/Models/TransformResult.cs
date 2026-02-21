@@ -52,6 +52,14 @@ public class TransformedSection
     /// <summary>Name of the area this section belongs to (e.g., "Page Header", "Tour Details").</summary>
     public string? AreaName { get; set; }
 
+    /// <summary>
+    /// Name of the rule group that produced this section (e.g., "Tour Details - Section").
+    /// Null for ungrouped (single-property) rules. Used by the frontend to distinguish
+    /// grouped sections (box title = group name, sub-labeled parts) from ungrouped sections
+    /// (box title = role name, content only).
+    /// </summary>
+    public string? GroupName { get; set; }
+
     /// <summary>Number of children that were assembled.</summary>
     public int ChildCount { get; set; }
 

@@ -163,9 +163,14 @@ public class ContentTransformService : IContentTransformService
 
         var total = elements.Count;
 
-        // Build a flat list of all rules for matching and a set of ungrouped rules
+        // Build a flat list of all rules for matching, a set of ungrouped rules,
+        // and a rule-to-group-name mapping for grouped rules
         var allRules = areaRule.AllRules().ToList();
         var ungroupedRules = new HashSet<SectionRule>(areaRule.Rules);
+        var ruleGroupNames = new Dictionary<SectionRule, string>();
+        foreach (var group in areaRule.Groups)
+            foreach (var rule in group.Rules)
+                ruleGroupNames[rule] = group.Name;
 
         // For each element, determine which rule (if any) claims it (first-match-wins)
         var elementRules = new SectionRule?[elements.Count];
@@ -202,10 +207,11 @@ public class ContentTransformService : IContentTransformService
             }
         }
 
-        // Resolve effective parts and formats for matched elements
+        // Resolve effective parts, formats, group membership, and group names for matched elements
         var elementParts = new string?[elements.Count];
         var elementFormats = new string?[elements.Count];
         var elementIsUngrouped = new bool[elements.Count];
+        var elementGroupNames = new string?[elements.Count];
         for (int i = 0; i < elements.Count; i++)
         {
             if (elementRules[i] != null)
@@ -213,6 +219,8 @@ public class ContentTransformService : IContentTransformService
                 elementParts[i] = elementRules[i]!.GetEffectivePart();
                 elementFormats[i] = elementRules[i]!.GetEffectiveFormat();
                 elementIsUngrouped[i] = ungroupedRules.Contains(elementRules[i]!);
+                ruleGroupNames.TryGetValue(elementRules[i]!, out var gn);
+                elementGroupNames[i] = gn;
             }
         }
 
@@ -234,6 +242,7 @@ public class ContentTransformService : IContentTransformService
             // PART-DRIVEN MODE: each element's part determines behaviour.
             // Sections have separately-mappable parts: content, description, summary.
             string? currentHeadingText = null;
+            string? currentGroupName = null;
             var currentContentLines = new List<string>();
             var currentDescriptionLines = new List<string>();
             var currentSummaryLines = new List<string>();
@@ -281,12 +290,14 @@ public class ContentTransformService : IContentTransformService
                     Page = page,
                     AreaColor = string.IsNullOrEmpty(area.Color) ? null : area.Color,
                     AreaName = area.Name,
+                    GroupName = currentGroupName,
                     ChildCount = currentContentLines.Count + currentDescriptionLines.Count + currentSummaryLines.Count,
                 };
                 DeduplicateId(s, seenIds);
                 sections.Add(s);
                 UpdateDiagnostics(diagnostics, s.Pattern);
                 currentHeadingText = null;
+                currentGroupName = null;
                 currentContentLines = new List<string>();
                 currentDescriptionLines = new List<string>();
                 currentSummaryLines = new List<string>();
@@ -329,6 +340,7 @@ public class ContentTransformService : IContentTransformService
                     case "title":
                         FlushSection();
                         currentHeadingText = elements[i].Text;
+                        currentGroupName = elementGroupNames[i];
                         break;
 
                     case "content":

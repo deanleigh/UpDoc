@@ -537,6 +537,8 @@ export interface TransformedSection {
 	page: number;
 	areaColor: string | null;
 	areaName: string | null;
+	/** Rule group name for grouped sections (e.g., "Tour Details - Section"). Null for ungrouped. */
+	groupName?: string | null;
 	childCount: number;
 	included: boolean;
 }
