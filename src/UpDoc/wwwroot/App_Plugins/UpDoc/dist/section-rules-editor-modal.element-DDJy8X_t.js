@@ -417,12 +417,12 @@ var Ge = Object.defineProperty, De = Object.getOwnPropertyDescriptor, D = (e) =>
   for (var o = a > 1 ? void 0 : a ? De(t, i) : t, r = e.length - 1, l; r >= 0; r--)
     (l = e[r]) && (o = (a ? l(t, i, o) : l(o)) || o);
   return a && o && Ge(t, i, o), o;
-}, U = (e, t, i) => t.has(e) || D("Cannot " + i), f = (e, t, i) => (U(e, t, "read from private field"), i ? i.call(e) : t.get(e)), Ue = (e, t, i) => t.has(e) ? D("Cannot add the same private member more than once") : t instanceof WeakSet ? t.add(e) : t.set(e, i), n = (e, t, i) => (U(e, t, "access private method"), i), s, h, _, W, $, A, E, v, I, H, Y, K, T, Q, c, S, P, J, X, Z, j, ee, te, y, C, ie, R, oe, ae, se, re, ne, ue, le, ce, de, pe, he, fe, N, M, ve, me, ge, be, _e, xe, $e, ye, we, F, ze, ke;
+}, U = (e, t, i) => t.has(e) || D("Cannot " + i), f = (e, t, i) => (U(e, t, "read from private field"), i ? i.call(e) : t.get(e)), Ue = (e, t, i) => t.has(e) ? D("Cannot add the same private member more than once") : t instanceof WeakSet ? t.add(e) : t.set(e, i), n = (e, t, i) => (U(e, t, "access private method"), i), s, h, _, W, $, A, S, v, I, H, Y, K, T, Q, c, E, P, J, X, Z, j, ee, te, y, C, ie, R, oe, ae, se, re, ne, ue, le, ce, de, pe, he, fe, N, M, ve, me, ge, be, _e, xe, $e, ye, we, F, ze, ke;
 let We = 0;
 function V() {
   return `r-${++We}`;
 }
-const Ee = {
+const Se = {
   textBeginsWith: "Text begins with",
   textEndsWith: "Text ends with",
   textContains: "Text contains",
@@ -436,7 +436,7 @@ const Ee = {
   colorEquals: "Color equals",
   positionFirst: "Position: first",
   positionLast: "Position: last"
-}, w = ["positionFirst", "positionLast"], Se = [
+}, w = ["positionFirst", "positionLast"], Ee = [
   "textBeginsWith",
   "textEndsWith",
   "textContains",
@@ -491,7 +491,7 @@ const Ee = {
 }, Xe = ["bold", "italic", "strikethrough", "code", "highlight"];
 let p = class extends Te {
   constructor() {
-    super(...arguments), Ue(this, s), this._rules = [], this._groupOrder = [], this._collapsed = /* @__PURE__ */ new Set(), this._expandedRules = /* @__PURE__ */ new Set(), this._renamingGroup = null, this._renameValue = "";
+    super(...arguments), Ue(this, s), this._rules = [], this._groupOrder = [], this._expandedSections = /* @__PURE__ */ new Set(), this._expandedRules = /* @__PURE__ */ new Set(), this._renamingGroup = null, this._renameValue = "";
   }
   firstUpdated() {
     const e = this.data?.existingRules;
@@ -500,10 +500,10 @@ let p = class extends Te {
     for (const a of e.groups ?? []) {
       i.push(a.name);
       for (const o of a.rules)
-        t.push(n(this, s, E).call(this, o, a.name));
+        t.push(n(this, s, S).call(this, o, a.name));
     }
     for (const a of e.rules ?? [])
-      t.push(n(this, s, E).call(this, a, null));
+      t.push(n(this, s, S).call(this, a, null));
     this._rules = t, this._groupOrder = i;
   }
   render() {
@@ -542,7 +542,7 @@ let p = class extends Te {
 										<uui-button
 											look="placeholder"
 											label="Add rule to ${a.group}"
-											@click=${() => n(this, s, S).call(this, a.group)}>
+											@click=${() => n(this, s, E).call(this, a.group)}>
 											+ Add rule
 										</uui-button>
 									</div>
@@ -560,7 +560,7 @@ let p = class extends Te {
 							<uui-button
 								look="placeholder"
 								label="Add rule"
-								@click=${() => n(this, s, S).call(this, null)}>
+								@click=${() => n(this, s, E).call(this, null)}>
 								+ Add rule
 							</uui-button>
 						`;
@@ -599,11 +599,11 @@ let p = class extends Te {
 };
 s = /* @__PURE__ */ new WeakSet();
 h = function(e, t) {
-  return this._collapsed.has(`${e}-${t}`);
+  return this._expandedSections.has(`${e}-${t}`);
 };
 _ = function(e, t) {
-  const i = `${e}-${t}`, a = new Set(this._collapsed);
-  a.has(i) ? a.delete(i) : a.add(i), this._collapsed = a;
+  const i = `${e}-${t}`, a = new Set(this._expandedSections);
+  a.has(i) ? a.delete(i) : a.add(i), this._expandedSections = a;
 };
 W = function(e) {
   return this._expandedRules.has(e);
@@ -618,7 +618,7 @@ A = function(e) {
     t.add(e), this._expandedRules = t;
   }
 };
-E = function(e, t) {
+S = function(e, t) {
   let i = e.part, a = e.exclude ?? !1;
   if (!i && !a) {
     const r = Re(e);
@@ -713,7 +713,7 @@ Q = function(e, t, i) {
 c = function(e, t) {
   this._rules = this._rules.map((i) => i._id === e ? t(i) : i);
 };
-S = function(e = null) {
+E = function(e = null) {
   const t = V();
   this._rules = [...this._rules, {
     role: "",
@@ -892,8 +892,8 @@ be = function(e, t, i) {
 					class="condition-type-select"
 					.value=${i.type}
 					@change=${(o) => n(this, s, le).call(this, e, t, o.target.value)}>
-					${Se.map((o) => u`
-						<option value=${o} ?selected=${o === i.type}>${Ee[o]}</option>
+					${Ee.map((o) => u`
+						<option value=${o} ?selected=${o === i.type}>${Se[o]}</option>
 					`)}
 				</select>
 				${a ? d : u`
@@ -922,8 +922,8 @@ _e = function(e, t, i) {
 					class="condition-type-select"
 					.value=${i.type}
 					@change=${(o) => n(this, s, he).call(this, e, t, o.target.value)}>
-					${Se.map((o) => u`
-						<option value=${o} ?selected=${o === i.type}>${Ee[o]}</option>
+					${Ee.map((o) => u`
+						<option value=${o} ?selected=${o === i.type}>${Se[o]}</option>
 					`)}
 				</select>
 				${a ? d : u`
@@ -1025,10 +1025,10 @@ we = function(e, t) {
 
 				<div class="conditions-area">
 					<div class="section-header collapsible" @click=${() => n(this, s, _).call(this, "conditions", o)}>
-						<uui-icon name=${n(this, s, h).call(this, "conditions", o) ? "icon-navigation-right" : "icon-navigation-down"}></uui-icon>
+						<uui-icon name=${n(this, s, h).call(this, "conditions", o) ? "icon-navigation-down" : "icon-navigation-right"}></uui-icon>
 						Conditions${e.conditions.length > 0 ? ` (${e.conditions.length})` : ""}
 					</div>
-					${n(this, s, h).call(this, "conditions", o) ? d : u`
+					${n(this, s, h).call(this, "conditions", o) ? u`
 						${e.conditions.map((r, l) => n(this, s, be).call(this, o, l, r))}
 						<uui-button
 							compact
@@ -1037,15 +1037,15 @@ we = function(e, t) {
 							@click=${() => n(this, s, ne).call(this, o)}>
 							+ Add condition
 						</uui-button>
-					`}
+					` : d}
 				</div>
 
 				<div class="exceptions-area">
 					<div class="section-header collapsible" @click=${() => n(this, s, _).call(this, "exceptions", o)}>
-						<uui-icon name=${n(this, s, h).call(this, "exceptions", o) ? "icon-navigation-right" : "icon-navigation-down"}></uui-icon>
+						<uui-icon name=${n(this, s, h).call(this, "exceptions", o) ? "icon-navigation-down" : "icon-navigation-right"}></uui-icon>
 						Exceptions${(e.exceptions ?? []).length > 0 ? ` (${(e.exceptions ?? []).length})` : ""}
 					</div>
-					${n(this, s, h).call(this, "exceptions", o) ? d : u`
+					${n(this, s, h).call(this, "exceptions", o) ? u`
 						${(e.exceptions ?? []).map((r, l) => n(this, s, _e).call(this, o, l, r))}
 						<uui-button
 							compact
@@ -1054,15 +1054,15 @@ we = function(e, t) {
 							@click=${() => n(this, s, de).call(this, o)}>
 							+ Add exception
 						</uui-button>
-					`}
+					` : d}
 				</div>
 
 				<div class="part-area">
 					<div class="section-header collapsible" @click=${() => n(this, s, _).call(this, "part", o)}>
-						<uui-icon name=${n(this, s, h).call(this, "part", o) ? "icon-navigation-right" : "icon-navigation-down"}></uui-icon>
+						<uui-icon name=${n(this, s, h).call(this, "part", o) ? "icon-navigation-down" : "icon-navigation-right"}></uui-icon>
 						Part
 					</div>
-					${n(this, s, h).call(this, "part", o) ? d : u`
+					${n(this, s, h).call(this, "part", o) ? u`
 						<div class="part-controls">
 							<select
 								class="part-select"
@@ -1081,16 +1081,16 @@ we = function(e, t) {
 								Exclude
 							</label>
 						</div>
-					`}
+					` : d}
 				</div>
 
 				${i ? d : u`
 				<div class="format-area">
 					<div class="section-header collapsible" @click=${() => n(this, s, _).call(this, "format", o)}>
-						<uui-icon name=${n(this, s, h).call(this, "format", o) ? "icon-navigation-right" : "icon-navigation-down"}></uui-icon>
+						<uui-icon name=${n(this, s, h).call(this, "format", o) ? "icon-navigation-down" : "icon-navigation-right"}></uui-icon>
 						Format${(e.formats ?? []).length > 0 ? ` (${(e.formats ?? []).length})` : ""}
 					</div>
-					${n(this, s, h).call(this, "format", o) ? d : u`
+					${n(this, s, h).call(this, "format", o) ? u`
 						${(e.formats ?? []).map((r, l) => n(this, s, xe).call(this, o, l, r))}
 						<uui-button
 							compact
@@ -1099,7 +1099,7 @@ we = function(e, t) {
 							@click=${() => n(this, s, oe).call(this, o)}>
 							+ Add format
 						</uui-button>
-					`}
+					` : d}
 				</div>
 				`}
 
@@ -1323,7 +1323,7 @@ b([
 ], p.prototype, "_groupOrder", 2);
 b([
   g()
-], p.prototype, "_collapsed", 2);
+], p.prototype, "_expandedSections", 2);
 b([
   g()
 ], p.prototype, "_expandedRules", 2);
@@ -1341,4 +1341,4 @@ export {
   p as UpDocSectionRulesEditorModalElement,
   at as default
 };
-//# sourceMappingURL=section-rules-editor-modal.element-DWi3iEEe.js.map
+//# sourceMappingURL=section-rules-editor-modal.element-DDJy8X_t.js.map

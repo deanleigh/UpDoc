@@ -107,27 +107,27 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 	@state() private _rules: EditableRule[] = [];
 	/** Ordered list of group names. */
 	@state() private _groupOrder: string[] = [];
-	/** Track collapsed state per rule section: "conditions-0", "exceptions-1", etc. */
-	@state() private _collapsed: Set<string> = new Set();
+	/** Track which inner sections are expanded (by "section-ruleId" key). All collapsed by default. */
+	@state() private _expandedSections: Set<string> = new Set();
 	/** Track which rules are expanded (by _id). All collapsed by default. */
 	@state() private _expandedRules: Set<string> = new Set();
 	/** Group currently being renamed (null = none). */
 	@state() private _renamingGroup: string | null = null;
 	@state() private _renameValue = '';
 
-	#isCollapsed(section: string, ruleId: string): boolean {
-		return this._collapsed.has(`${section}-${ruleId}`);
+	#isSectionExpanded(section: string, ruleId: string): boolean {
+		return this._expandedSections.has(`${section}-${ruleId}`);
 	}
 
-	#toggleCollapsed(section: string, ruleId: string) {
+	#toggleSection(section: string, ruleId: string) {
 		const key = `${section}-${ruleId}`;
-		const next = new Set(this._collapsed);
+		const next = new Set(this._expandedSections);
 		if (next.has(key)) {
 			next.delete(key);
 		} else {
 			next.add(key);
 		}
-		this._collapsed = next;
+		this._expandedSections = next;
 	}
 
 	#isRuleExpanded(ruleId: string): boolean {
@@ -801,11 +801,11 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 				</div>
 
 				<div class="conditions-area">
-					<div class="section-header collapsible" @click=${() => this.#toggleCollapsed('conditions', id)}>
-						<uui-icon name=${this.#isCollapsed('conditions', id) ? 'icon-navigation-right' : 'icon-navigation-down'}></uui-icon>
+					<div class="section-header collapsible" @click=${() => this.#toggleSection('conditions', id)}>
+						<uui-icon name=${this.#isSectionExpanded('conditions', id) ? 'icon-navigation-down' : 'icon-navigation-right'}></uui-icon>
 						Conditions${rule.conditions.length > 0 ? ` (${rule.conditions.length})` : ''}
 					</div>
-					${this.#isCollapsed('conditions', id) ? nothing : html`
+					${this.#isSectionExpanded('conditions', id) ? html`
 						${rule.conditions.map((cond, cIdx) => this.#renderConditionRow(id, cIdx, cond))}
 						<uui-button
 							compact
@@ -814,15 +814,15 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 							@click=${() => this.#addCondition(id)}>
 							+ Add condition
 						</uui-button>
-					`}
+					` : nothing}
 				</div>
 
 				<div class="exceptions-area">
-					<div class="section-header collapsible" @click=${() => this.#toggleCollapsed('exceptions', id)}>
-						<uui-icon name=${this.#isCollapsed('exceptions', id) ? 'icon-navigation-right' : 'icon-navigation-down'}></uui-icon>
+					<div class="section-header collapsible" @click=${() => this.#toggleSection('exceptions', id)}>
+						<uui-icon name=${this.#isSectionExpanded('exceptions', id) ? 'icon-navigation-down' : 'icon-navigation-right'}></uui-icon>
 						Exceptions${(rule.exceptions ?? []).length > 0 ? ` (${(rule.exceptions ?? []).length})` : ''}
 					</div>
-					${this.#isCollapsed('exceptions', id) ? nothing : html`
+					${this.#isSectionExpanded('exceptions', id) ? html`
 						${(rule.exceptions ?? []).map((exc, eIdx) => this.#renderExceptionRow(id, eIdx, exc))}
 						<uui-button
 							compact
@@ -831,15 +831,15 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 							@click=${() => this.#addException(id)}>
 							+ Add exception
 						</uui-button>
-					`}
+					` : nothing}
 				</div>
 
 				<div class="part-area">
-					<div class="section-header collapsible" @click=${() => this.#toggleCollapsed('part', id)}>
-						<uui-icon name=${this.#isCollapsed('part', id) ? 'icon-navigation-right' : 'icon-navigation-down'}></uui-icon>
+					<div class="section-header collapsible" @click=${() => this.#toggleSection('part', id)}>
+						<uui-icon name=${this.#isSectionExpanded('part', id) ? 'icon-navigation-down' : 'icon-navigation-right'}></uui-icon>
 						Part
 					</div>
-					${this.#isCollapsed('part', id) ? nothing : html`
+					${this.#isSectionExpanded('part', id) ? html`
 						<div class="part-controls">
 							<select
 								class="part-select"
@@ -858,16 +858,16 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 								Exclude
 							</label>
 						</div>
-					`}
+					` : nothing}
 				</div>
 
 				${!isExcluded ? html`
 				<div class="format-area">
-					<div class="section-header collapsible" @click=${() => this.#toggleCollapsed('format', id)}>
-						<uui-icon name=${this.#isCollapsed('format', id) ? 'icon-navigation-right' : 'icon-navigation-down'}></uui-icon>
+					<div class="section-header collapsible" @click=${() => this.#toggleSection('format', id)}>
+						<uui-icon name=${this.#isSectionExpanded('format', id) ? 'icon-navigation-down' : 'icon-navigation-right'}></uui-icon>
 						Format${(rule.formats ?? []).length > 0 ? ` (${(rule.formats ?? []).length})` : ''}
 					</div>
-					${this.#isCollapsed('format', id) ? nothing : html`
+					${this.#isSectionExpanded('format', id) ? html`
 						${(rule.formats ?? []).map((fmt, fIdx) => this.#renderFormatRow(id, fIdx, fmt))}
 						<uui-button
 							compact
@@ -876,7 +876,7 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 							@click=${() => this.#addFormatEntry(id)}>
 							+ Add format
 						</uui-button>
-					`}
+					` : nothing}
 				</div>
 				` : nothing}
 
