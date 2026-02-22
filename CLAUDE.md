@@ -13,6 +13,14 @@ These files contain agreed-upon design decisions, config schemas, and implementa
 
 ---
 
+## Work Approval (MANDATORY)
+
+**Do NOT start implementing a new piece of work without asking the user first.** When the user describes a task or feature, your first response must be to discuss the approach — explain what you'd change, where, and why — then wait for explicit approval before writing any code. This applies to the initial start of each new task, not to every individual edit within an approved task. Once the user approves the approach, proceed without asking for permission on each step.
+
+This does not apply to trivial fixes the user explicitly asks for (e.g., "fix this typo", "commit this").
+
+---
+
 ## Project Structure
 
 This project is a two-project solution:
