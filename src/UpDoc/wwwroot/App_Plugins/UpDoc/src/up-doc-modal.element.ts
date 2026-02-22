@@ -1,5 +1,5 @@
 import type { UmbUpDocModalData, UmbUpDocModalValue, SourceType } from './up-doc-modal.token.js';
-import type { DocumentTypeConfig } from './workflow.types.js';
+import { allTransformSections, type DocumentTypeConfig } from './workflow.types.js';
 import { fetchConfig, transformAdhoc } from './workflow.service.js';
 import { getDestinationTabs, resolveDestinationTab, resolveBlockLabel } from './destination-utils.js';
 import { html, customElement, css, state, nothing } from '@umbraco-cms/backoffice/external/lit';
@@ -151,14 +151,15 @@ export class UpDocModalElement extends UmbModalBaseElement<
 			// Run area-aware transform — produces section IDs matching map.json
 			const transformResult = await transformAdhoc(workflowName, mediaUnique, token);
 
-			if (!transformResult?.sections?.length) {
+			const allSections = allTransformSections(transformResult);
+			if (!allSections.length) {
 				this._extractionError = 'Failed to extract content from source';
 				return;
 			}
 
 			// Build section ID → text lookup (e.g., "features.heading", "features.content")
 			const sectionLookup: Record<string, string> = {};
-			for (const section of transformResult.sections) {
+			for (const section of allSections) {
 				if (!section.included) continue;
 				if (section.heading) {
 					// For role sections, heading is just a label (e.g., "Tour Title"), not document text.

@@ -1,4 +1,4 @@
-import { g as Pe, a as Be } from "./workflow.types-BgUyfmVM.js";
+import { g as Pe, b as Be } from "./workflow.types-sXs8a86t.js";
 import { UmbSorterController as Me } from "@umbraco-cms/backoffice/sorter";
 import { css as N, property as A, state as g, customElement as W, nothing as d, repeat as Ve, html as l } from "@umbraco-cms/backoffice/external/lit";
 import { UmbLitElement as We } from "@umbraco-cms/backoffice/lit-element";
@@ -1455,4 +1455,4 @@ export {
   h as UpDocSectionRulesEditorModalElement,
   ht as default
 };
-//# sourceMappingURL=section-rules-editor-modal.element-BgZWV3oZ.js.map
+//# sourceMappingURL=section-rules-editor-modal.element-DeB1BXOW.js.map
