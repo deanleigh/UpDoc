@@ -151,7 +151,17 @@ export class UpDocModalElement extends UmbModalBaseElement<
 			// Run area-aware transform — produces section IDs matching map.json
 			const transformResult = await transformAdhoc(workflowName, mediaUnique, token);
 
+			// DEBUG: Log the raw transform result
+			console.log('[UpDoc] transformAdhoc result:', transformResult);
+			if (transformResult) {
+				console.log('[UpDoc] Areas:', transformResult.areas?.length ?? 0,
+					transformResult.areas?.map((a: { name: string; groups: unknown[]; sections: unknown[] }) =>
+						`${a.name} (groups: ${a.groups?.length ?? 0}, sections: ${a.sections?.length ?? 0})`));
+			}
+
 			const allSections = allTransformSections(transformResult);
+			console.log('[UpDoc] allSections:', allSections.length,
+				allSections.map((s) => `${s.id} [${s.pattern}] included=${s.included}`));
 			if (!allSections.length) {
 				this._extractionError = 'Failed to extract content from source';
 				return;
@@ -180,6 +190,17 @@ export class UpDocModalElement extends UmbModalBaseElement<
 				}
 			}
 			this._sectionLookup = sectionLookup;
+			console.log('[UpDoc] sectionLookup keys:', Object.keys(sectionLookup));
+
+			// DEBUG: Check which map.json sources are missing from lookup
+			if (this._config?.map?.mappings) {
+				const missing = this._config.map.mappings
+					.filter((m) => m.enabled !== false && !sectionLookup[m.source])
+					.map((m) => m.source);
+				if (missing.length) {
+					console.warn('[UpDoc] Map sources NOT found in sectionLookup:', missing);
+				}
+			}
 
 			// Pre-fill document name from mapped title sections
 			if (!this._documentName && this._config) {

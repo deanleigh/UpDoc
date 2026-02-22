@@ -242,6 +242,45 @@ public class ContentTransformService : IContentTransformService
             }
         }
 
+        // DEBUG: Dump element properties and rule matching results for this area
+        var areaName = area.Name ?? "(unnamed)";
+        Console.WriteLine($"\n[UpDoc DEBUG] ===== Area: {areaName} | Elements: {elements.Count} | Rules: {allRules.Count} =====");
+        for (int i = 0; i < elements.Count; i++)
+        {
+            var el = elements[i];
+            var textPreview = el.Text.Length > 60 ? el.Text[..60] + "..." : el.Text;
+            var matched = elementRules[i] != null;
+            var status = matched ? $"MATCHED → \"{elementRules[i]!.Role}\"" : "UNMATCHED";
+            Console.WriteLine($"  [{i}/{total}] {status} | text=\"{textPreview}\" | fontSize={el.FontSize} fontName=\"{el.FontName}\" color=\"{el.Color}\"");
+
+            if (!matched)
+            {
+                // Show per-condition breakdown for each rule that was tested
+                foreach (var rule in allRules)
+                {
+                    if (rule.Conditions.Count == 0) continue;
+                    var condResults = new List<string>();
+                    foreach (var cond in rule.Conditions)
+                    {
+                        var pass = PdfPagePropertiesService.MatchesCondition(el, cond, i, total);
+                        var detail = cond.Type switch
+                        {
+                            "fontSizeEquals" => $"expected={cond.Value} actual={el.FontSize} diff={Math.Abs(el.FontSize - double.Parse(cond.Value?.ToString() ?? "0", System.Globalization.CultureInfo.InvariantCulture)):F1}",
+                            "fontNameContains" => $"looking for \"{cond.Value}\" in \"{el.FontName}\"",
+                            "colorEquals" => $"expected=\"{cond.Value}\" actual=\"{el.Color}\"",
+                            "positionFirst" => $"index={i} (need 0)",
+                            "positionLast" => $"index={i} total={total} (need {total - 1})",
+                            "textBeginsWith" => $"looking for \"{cond.Value}\" at start of \"{textPreview}\"",
+                            _ => $"value={cond.Value}"
+                        };
+                        condResults.Add($"{cond.Type}:{(pass ? "PASS" : "FAIL")} ({detail})");
+                    }
+                    Console.WriteLine($"    vs rule \"{rule.Role}\": {string.Join(" | ", condResults)}");
+                }
+            }
+        }
+        Console.WriteLine($"[UpDoc DEBUG] ===== End Area: {areaName} =====\n");
+
         // Resolve effective parts, formats, group membership, and group names for matched elements
         var elementParts = new string?[elements.Count];
         var elementFormats = new string?[elements.Count];
