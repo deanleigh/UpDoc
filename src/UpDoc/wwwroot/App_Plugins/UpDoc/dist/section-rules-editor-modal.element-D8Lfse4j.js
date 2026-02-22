@@ -1,10 +1,10 @@
 import { g as Pe, b as Be } from "./workflow.types-sXs8a86t.js";
 import { UmbSorterController as Me } from "@umbraco-cms/backoffice/sorter";
-import { css as N, property as A, state as g, customElement as W, nothing as d, repeat as Ve, html as l } from "@umbraco-cms/backoffice/external/lit";
+import { css as L, property as A, state as g, customElement as W, nothing as d, repeat as Ve, html as l } from "@umbraco-cms/backoffice/external/lit";
 import { UmbLitElement as We } from "@umbraco-cms/backoffice/lit-element";
 import { UmbModalBaseElement as qe } from "@umbraco-cms/backoffice/modal";
 import { UmbTextStyles as Ge } from "@umbraco-cms/backoffice/style";
-const q = N`
+const q = L`
 	/* Collapsed rule row */
 	.rule-row {
 		display: flex;
@@ -351,7 +351,7 @@ var De = Object.defineProperty, Ue = Object.getOwnPropertyDescriptor, G = (e) =>
     (u = e[r]) && (i = (a ? u(t, o, i) : u(i)) || i);
   return a && i && De(t, o, i), i;
 }, He = (e, t, o) => t.has(e) || G("Cannot " + o), Ye = (e, t, o) => (He(e, t, "read from private field"), o ? o.call(e) : t.get(e)), Ie = (e, t, o) => t.has(e) ? G("Cannot add the same private member more than once") : t instanceof WeakSet ? t.add(e) : t.set(e, o), k;
-let m = class extends We {
+let v = class extends We {
   constructor() {
     super(...arguments), Ie(this, k, new Me(this, {
       getUniqueOfElement: (e) => e.dataset.sortId ?? "",
@@ -396,9 +396,9 @@ let m = class extends We {
   }
 };
 k = /* @__PURE__ */ new WeakMap();
-m.styles = [
+v.styles = [
   q,
-  N`
+  L`
 			:host {
 				display: block;
 			}
@@ -417,26 +417,26 @@ m.styles = [
 ];
 _([
   A({ attribute: !1 })
-], m.prototype, "rules", 1);
+], v.prototype, "rules", 1);
 _([
   g()
-], m.prototype, "_rules", 2);
+], v.prototype, "_rules", 2);
 _([
   A({ attribute: !1 })
-], m.prototype, "expandedIds", 2);
+], v.prototype, "expandedIds", 2);
 _([
   A({ attribute: !1 })
-], m.prototype, "renderItem", 2);
-m = _([
+], v.prototype, "renderItem", 2);
+v = _([
   W("updoc-sortable-rules")
-], m);
+], v);
 var Ke = Object.defineProperty, Qe = Object.getOwnPropertyDescriptor, D = (e) => {
   throw TypeError(e);
 }, b = (e, t, o, a) => {
   for (var i = a > 1 ? void 0 : a ? Qe(t, o) : t, r = e.length - 1, u; r >= 0; r--)
     (u = e[r]) && (i = (a ? u(t, o, i) : u(i)) || i);
   return a && i && Ke(t, o, i), i;
-}, U = (e, t, o) => t.has(e) || D("Cannot " + o), f = (e, t, o) => (U(e, t, "read from private field"), o ? o.call(e) : t.get(e)), Je = (e, t, o) => t.has(e) ? D("Cannot add the same private member more than once") : t instanceof WeakSet ? t.add(e) : t.set(e, o), n = (e, t, o) => (U(e, t, "access private method"), o), s, p, x, H, $, T, R, v, Y, I, K, Q, O, J, c, E, F, X, Z, j, ee, te, ie, y, S, oe, C, ae, se, ne, re, le, ue, ce, de, pe, he, fe, ve, me, ge, be, xe, _e, L, P, $e, ye, we, ze, ke, Re, Ee, Se, Ce, Le, B, Ne, Ae;
+}, U = (e, t, o) => t.has(e) || D("Cannot " + o), f = (e, t, o) => (U(e, t, "read from private field"), o ? o.call(e) : t.get(e)), Je = (e, t, o) => t.has(e) ? D("Cannot add the same private member more than once") : t instanceof WeakSet ? t.add(e) : t.set(e, o), n = (e, t, o) => (U(e, t, "access private method"), o), s, p, x, H, $, T, R, m, Y, I, K, Q, O, J, c, E, F, X, Z, j, ee, te, ie, y, S, oe, C, ae, se, ne, re, le, ue, ce, de, pe, he, fe, me, ve, ge, be, xe, _e, N, P, $e, ye, we, ze, ke, Re, Ee, Se, Ce, Ne, B, Le, Ae;
 let Xe = 0;
 function M() {
   return `r-${++Xe}`;
@@ -535,7 +535,7 @@ let h = class extends qe {
   render() {
     const e = n(this, s, K).call(this), t = /* @__PURE__ */ new Map();
     for (const [a, i] of e) {
-      const r = f(this, s, v).find((u) => u.id === a);
+      const r = f(this, s, m).find((u) => u.id === a);
       if (r) {
         const u = t.get(i) ?? [];
         u.push(r), t.set(i, u);
@@ -546,10 +546,10 @@ let h = class extends qe {
 			<umb-body-layout headline="Edit Sections: ${f(this, s, Y)}">
 				<div id="main">
 					<div class="section-info">
-						<span class="meta-badge">${f(this, s, v).length} elements</span>
+						<span class="meta-badge">${f(this, s, m).length} elements</span>
 						<span class="meta-badge">${this._rules.length} rules</span>
 						<span class="meta-badge">${e.size} matched</span>
-						<span class="meta-badge">${f(this, s, v).length - e.size} unmatched</span>
+						<span class="meta-badge">${f(this, s, m).length - e.size} unmatched</span>
 						${this._groupOrder.length > 0 ? l`<span class="meta-badge">${this._groupOrder.length} group${this._groupOrder.length !== 1 ? "s" : ""}</span>` : d}
 					</div>
 
@@ -557,7 +557,7 @@ let h = class extends qe {
       const i = (r) => n(this, s, Se).call(this, r, t.get(r._id) ?? []);
       return a.group !== null ? l`
 								<div class="group-container">
-									${n(this, s, Ne).call(this, a.group)}
+									${n(this, s, Le).call(this, a.group)}
 									<div class="group-rules">
 										<updoc-sortable-rules
 											.rules=${a.rules}
@@ -660,7 +660,7 @@ R = function(e, t) {
     _groupName: t
   };
 };
-v = function() {
+m = function() {
   return this.data?.elements ?? [];
 };
 Y = function() {
@@ -679,7 +679,7 @@ I = function() {
   }), e;
 };
 K = function() {
-  const e = /* @__PURE__ */ new Map(), t = f(this, s, v);
+  const e = /* @__PURE__ */ new Map(), t = f(this, s, m);
   for (const o of this._rules)
     if (o.conditions.length !== 0)
       for (let a = 0; a < t.length; a++) {
@@ -732,7 +732,11 @@ O = function(e, t, o, a) {
 };
 J = function(e, t, o) {
   const a = [];
-  a.push({ type: "fontSizeEquals", value: e.fontSize }), e.fontName && a.push({ type: "fontNameContains", value: e.fontName }), e.color && e.color.toLowerCase() !== "#000000" && e.color.toLowerCase() !== "#000" && a.push({ type: "colorEquals", value: e.color });
+  if (a.push({ type: "fontSizeEquals", value: e.fontSize }), e.fontName) {
+    const r = e.fontName.includes("+") ? e.fontName.substring(e.fontName.indexOf("+") + 1) : e.fontName;
+    a.push({ type: "fontNameContains", value: r });
+  }
+  e.color && e.color.toLowerCase() !== "#000000" && e.color.toLowerCase() !== "#000" && a.push({ type: "colorEquals", value: e.color });
   const i = e.text.indexOf(":");
   return i > 0 && i < 30 && a.push({ type: "textBeginsWith", value: e.text.substring(0, i + 1) }), t === 0 ? a.push({ type: "positionFirst" }) : t === o - 1 && a.push({ type: "positionLast" }), a;
 };
@@ -754,7 +758,7 @@ F = function(e) {
   this._rules = this._rules.filter((t) => t._id !== e);
 };
 X = function(e, t) {
-  const o = n(this, s, J).call(this, e, t, f(this, s, v).length), a = e.text.split(/[\s:,]+/).slice(0, 3).join("-").toLowerCase().replace(/[^a-z0-9-]/g, ""), i = M();
+  const o = n(this, s, J).call(this, e, t, f(this, s, m).length), a = e.text.split(/[\s:,]+/).slice(0, 3).join("-").toLowerCase().replace(/[^a-z0-9-]/g, ""), i = M();
   this._rules = [...this._rules, {
     role: a,
     part: "content",
@@ -876,13 +880,13 @@ fe = function(e, t, o) {
     }, { ...a, exceptions: i };
   });
 };
-ve = function(e, t, o) {
+me = function(e, t, o) {
   n(this, s, c).call(this, e, (a) => {
     const i = [...a.exceptions ?? []], r = i[t], u = r.type === "fontSizeEquals" || r.type === "fontSizeAbove" || r.type === "fontSizeBelow";
     return i[t] = { ...r, value: u && !isNaN(Number(o)) ? Number(o) : o }, { ...a, exceptions: i };
   });
 };
-me = function(e) {
+ve = function(e) {
   n(this, s, c).call(this, e, (t) => ({
     ...t,
     textReplacements: [...t.textReplacements ?? [], { findType: "textBeginsWith", find: "", replaceType: "replaceWith", replace: "" }]
@@ -912,7 +916,7 @@ _e = function(e, t, o) {
     return i[t] = { ...i[t], replace: o }, { ...a, textReplacements: i };
   });
 };
-L = function(e) {
+N = function(e) {
   const t = (e.formats ?? []).find((u) => u.type === "block"), { _id: o, _groupName: a, action: i, ...r } = e;
   return {
     ...r,
@@ -923,10 +927,10 @@ P = function() {
   this._renamingGroup && n(this, s, y).call(this);
   const e = [];
   for (const o of this._groupOrder) {
-    const a = this._rules.filter((i) => i._groupName === o).map((i) => n(this, s, L).call(this, i));
+    const a = this._rules.filter((i) => i._groupName === o).map((i) => n(this, s, N).call(this, i));
     e.push({ name: o, rules: a });
   }
-  const t = this._rules.filter((o) => o._groupName === null).map((o) => n(this, s, L).call(this, o));
+  const t = this._rules.filter((o) => o._groupName === null).map((o) => n(this, s, N).call(this, o));
   return { groups: e, rules: t };
 };
 $e = async function() {
@@ -988,7 +992,7 @@ ke = function(e, t, o) {
 						class="condition-value-input"
 						placeholder="Value..."
 						.value=${String(o.value ?? "")}
-						@input=${(i) => n(this, s, ve).call(this, e, t, i.target.value)} />
+						@input=${(i) => n(this, s, me).call(this, e, t, i.target.value)} />
 				`}
 				<uui-button
 					compact
@@ -1070,7 +1074,7 @@ Ee = function(e, t, o) {
 		`;
 };
 Se = function(e, t) {
-  return n(this, s, H).call(this, e._id) ? n(this, s, Le).call(this, e, t) : n(this, s, Ce).call(this, e, t);
+  return n(this, s, H).call(this, e._id) ? n(this, s, Ne).call(this, e, t) : n(this, s, Ce).call(this, e, t);
 };
 Ce = function(e, t) {
   const o = e.exclude, a = e.part ?? "content", i = o ? "Exclude" : Fe[a] ?? a, r = t.length, u = e.role || "(unnamed rule)";
@@ -1094,7 +1098,7 @@ Ce = function(e, t) {
 			</div>
 		`;
 };
-Le = function(e, t) {
+Ne = function(e, t) {
   const o = e.exclude, a = e.part ?? "content", i = e._id;
   return l`
 			<div class="rule-card">
@@ -1210,7 +1214,7 @@ Le = function(e, t) {
 							compact
 							look="placeholder"
 							label="Add find & replace"
-							@click=${() => n(this, s, me).call(this, i)}>
+							@click=${() => n(this, s, ve).call(this, i)}>
 							+ Add find &amp; replace
 						</uui-button>
 					` : d}
@@ -1226,7 +1230,7 @@ Le = function(e, t) {
 B = function(e, t) {
   return e.length > t ? e.substring(0, t) + "..." : e;
 };
-Ne = function(e) {
+Le = function(e) {
   return this._renamingGroup === e ? l`
 				<div class="group-header">
 					<input
@@ -1264,7 +1268,7 @@ Ne = function(e) {
 		`;
 };
 Ae = function(e) {
-  const t = f(this, s, v), o = t.filter((a) => !e.has(a.id));
+  const t = f(this, s, m), o = t.filter((a) => !e.has(a.id));
   return o.length === 0 ? d : l`
 			<div class="unmatched-section">
 				<h4>Unmatched elements (${o.length})</h4>
@@ -1294,7 +1298,7 @@ Ae = function(e) {
 h.styles = [
   Ge,
   q,
-  N`
+  L`
 			:host {
 				display: block;
 				height: 100%;
@@ -1455,4 +1459,4 @@ export {
   h as UpDocSectionRulesEditorModalElement,
   ht as default
 };
-//# sourceMappingURL=section-rules-editor-modal.element-DeB1BXOW.js.map
+//# sourceMappingURL=section-rules-editor-modal.element-D8Lfse4j.js.map

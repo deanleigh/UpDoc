@@ -28,7 +28,7 @@
             },
             {
               "type": "fontNameContains",
-              "value": "GHEALM\u002BHelveticaNeue-Medium"
+              "value": "HelveticaNeue-Medium"
             },
             {
               "type": "colorEquals",
@@ -54,7 +54,7 @@
             },
             {
               "type": "fontNameContains",
-              "value": "GHEALP\u002BClarendon"
+              "value": "Clarendon"
             },
             {
               "type": "colorEquals",
@@ -76,7 +76,7 @@
             },
             {
               "type": "fontNameContains",
-              "value": "GHEALM\u002BHelveticaNeue-Medium"
+              "value": "HelveticaNeue-Medium"
             },
             {
               "type": "colorEquals",
@@ -107,7 +107,7 @@
             },
             {
               "type": "fontNameContains",
-              "value": "GHEALP\u002BClarendon"
+              "value": "Clarendon"
             },
             {
               "type": "colorEquals",
@@ -129,7 +129,7 @@
             },
             {
               "type": "fontNameContains",
-              "value": "GHEALP\u002BClarendon"
+              "value": "Clarendon"
             },
             {
               "type": "colorEquals",
@@ -155,7 +155,7 @@
             },
             {
               "type": "fontNameContains",
-              "value": "GHEALP\u002BClarendon"
+              "value": "Clarendon"
             },
             {
               "type": "colorEquals",
@@ -181,7 +181,7 @@
             },
             {
               "type": "fontNameContains",
-              "value": "GHEALP\u002BClarendon"
+              "value": "Clarendon"
             },
             {
               "type": "colorEquals",
@@ -212,7 +212,7 @@
             },
             {
               "type": "fontNameContains",
-              "value": "GHEALM\u002BHelveticaNeue-Medium"
+              "value": "HelveticaNeue-Medium"
             },
             {
               "type": "colorEquals",
@@ -234,7 +234,7 @@
             },
             {
               "type": "fontNameContains",
-              "value": "GHEALO\u002BHelveticaNeue"
+              "value": "HelveticaNeue"
             },
             {
               "type": "colorEquals",
@@ -263,7 +263,7 @@
                 },
                 {
                   "type": "fontNameContains",
-                  "value": "GHEALP\u002BClarendon"
+                  "value": "Clarendon"
                 },
                 {
                   "type": "colorEquals",
@@ -285,7 +285,7 @@
                 },
                 {
                   "type": "fontNameContains",
-                  "value": "GHEALO\u002BHelveticaNeue"
+                  "value": "HelveticaNeue"
                 },
                 {
                   "type": "colorEquals",

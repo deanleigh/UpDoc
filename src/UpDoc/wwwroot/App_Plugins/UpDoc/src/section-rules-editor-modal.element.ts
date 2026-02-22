@@ -327,9 +327,10 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 		// Font size
 		conditions.push({ type: 'fontSizeEquals', value: el.fontSize });
 
-		// Font name
+		// Font name — strip PDF subset prefix (e.g. "GHEALP+Clarendon" → "Clarendon")
 		if (el.fontName) {
-			conditions.push({ type: 'fontNameContains', value: el.fontName });
+			const fontName = el.fontName.includes('+') ? el.fontName.substring(el.fontName.indexOf('+') + 1) : el.fontName;
+			conditions.push({ type: 'fontNameContains', value: fontName });
 		}
 
 		// Color (skip black/very dark as it's the default)

@@ -28,7 +28,7 @@
             },
             {
               "type": "fontNameContains",
-              "value": "LGPHPF\u002BClarendon"
+              "value": "Clarendon"
             },
             {
               "type": "colorEquals",
@@ -55,7 +55,7 @@
             },
             {
               "type": "fontNameContains",
-              "value": "LGPHPF\u002BClarendon"
+              "value": "Clarendon"
             },
             {
               "type": "colorEquals",
@@ -89,7 +89,7 @@
             },
             {
               "type": "fontNameContains",
-              "value": "LGPHPF\u002BClarendon"
+              "value": "Clarendon"
             },
             {
               "type": "colorEquals",
@@ -129,7 +129,7 @@
             },
             {
               "type": "fontNameContains",
-              "value": "LGPHPF\u002BClarendon"
+              "value": "Clarendon"
             },
             {
               "type": "colorEquals",
@@ -161,7 +161,7 @@
             },
             {
               "type": "fontNameContains",
-              "value": "LGPHPC\u002BHelveticaNeue-Medium"
+              "value": "HelveticaNeue-Medium"
             },
             {
               "type": "colorEquals",
@@ -188,7 +188,7 @@
             },
             {
               "type": "fontNameContains",
-              "value": "LGPHPF\u002BClarendon"
+              "value": "Clarendon"
             },
             {
               "type": "colorEquals",
@@ -211,7 +211,7 @@
             },
             {
               "type": "fontNameContains",
-              "value": "LGPHPC\u002BHelveticaNeue-Medium"
+              "value": "HelveticaNeue-Medium"
             },
             {
               "type": "colorEquals",
@@ -245,7 +245,7 @@
                 },
                 {
                   "type": "fontNameContains",
-                  "value": "LGPHPE\u002BHelveticaNeue"
+                  "value": "HelveticaNeue"
                 },
                 {
                   "type": "colorEquals",
@@ -282,7 +282,7 @@
                 },
                 {
                   "type": "fontNameContains",
-                  "value": "LGPHPF\u002BClarendon"
+                  "value": "Clarendon"
                 },
                 {
                   "type": "colorEquals",
@@ -305,7 +305,7 @@
                 },
                 {
                   "type": "fontNameContains",
-                  "value": "LGPHPE\u002BHelveticaNeue"
+                  "value": "HelveticaNeue"
                 },
                 {
                   "type": "colorEquals",
@@ -338,7 +338,7 @@
                 },
                 {
                   "type": "fontNameContains",
-                  "value": "LGPHPC\u002BHelveticaNeue-Medium"
+                  "value": "HelveticaNeue-Medium"
                 },
                 {
                   "type": "colorEquals",
@@ -361,7 +361,7 @@
                 },
                 {
                   "type": "fontNameContains",
-                  "value": "LGPHPE\u002BHelveticaNeue"
+                  "value": "HelveticaNeue"
                 },
                 {
                   "type": "colorEquals",
@@ -384,7 +384,7 @@
                 },
                 {
                   "type": "fontNameContains",
-                  "value": "LGPHPC\u002BHelveticaNeue-Medium"
+                  "value": "HelveticaNeue-Medium"
                 },
                 {
                   "type": "colorEquals",
