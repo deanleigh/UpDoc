@@ -165,6 +165,13 @@ public class SectionRule
     public List<RuleCondition>? Exceptions { get; set; }
 
     /// <summary>
+    /// Find-and-replace entries applied to matched element text before formatting.
+    /// Applied in order. Each entry's findType determines matching behavior.
+    /// </summary>
+    [JsonPropertyName("textReplacements")]
+    public List<TextReplacement>? TextReplacements { get; set; }
+
+    /// <summary>
     /// Returns the effective part, normalizing legacy action values.
     /// Priority: Exclude flag → Part field → Action field → default "content".
     /// </summary>
@@ -241,6 +248,41 @@ public class SectionRule
             _ => ("sectionContent", format),
         };
     }
+}
+
+/// <summary>
+/// A find-and-replace entry applied to matched element text before formatting.
+/// The find type determines how the find value is matched:
+/// textBeginsWith — matches only at the start of the text
+/// textEndsWith — matches only at the end of the text
+/// textContains — matches all occurrences
+/// </summary>
+public class TextReplacement
+{
+    /// <summary>
+    /// How to find the text: textBeginsWith, textEndsWith, textContains.
+    /// </summary>
+    [JsonPropertyName("findType")]
+    public string FindType { get; set; } = "textBeginsWith";
+
+    /// <summary>
+    /// The text to find.
+    /// </summary>
+    [JsonPropertyName("find")]
+    public string Find { get; set; } = string.Empty;
+
+    /// <summary>
+    /// How to apply the replacement: replaceWith (single match for begins/ends),
+    /// replaceAll (all occurrences for contains).
+    /// </summary>
+    [JsonPropertyName("replaceType")]
+    public string ReplaceType { get; set; } = "replaceWith";
+
+    /// <summary>
+    /// The replacement text. Empty string means "remove".
+    /// </summary>
+    [JsonPropertyName("replace")]
+    public string Replace { get; set; } = string.Empty;
 }
 
 /// <summary>

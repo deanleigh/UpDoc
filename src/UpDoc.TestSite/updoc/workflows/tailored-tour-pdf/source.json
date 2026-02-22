@@ -17,8 +17,8 @@
       "rules": [
         {
           "role": "Organiser Name",
-          "part": null,
-          "action": "singleProperty",
+          "part": "content",
+          "action": null,
           "format": "paragraph",
           "exclude": false,
           "conditions": [
@@ -39,12 +39,13 @@
               "value": null
             }
           ],
-          "exceptions": null
+          "exceptions": null,
+          "textReplacements": null
         },
         {
           "role": "Organiser Telephone",
-          "part": null,
-          "action": "singleProperty",
+          "part": "content",
+          "action": null,
           "format": "paragraph",
           "exclude": false,
           "conditions": [
@@ -65,12 +66,20 @@
               "value": "Tel:"
             }
           ],
-          "exceptions": null
+          "exceptions": null,
+          "textReplacements": [
+            {
+              "findType": "textBeginsWith",
+              "find": "Tel: ",
+              "replaceType": "replaceWith",
+              "replace": ""
+            }
+          ]
         },
         {
           "role": "Organiser Email",
-          "part": null,
-          "action": "singleProperty",
+          "part": "content",
+          "action": null,
           "format": "paragraph",
           "exclude": false,
           "conditions": [
@@ -91,12 +100,26 @@
               "value": "Email:"
             }
           ],
-          "exceptions": null
+          "exceptions": null,
+          "textReplacements": [
+            {
+              "findType": "textBeginsWith",
+              "find": "Email: ",
+              "replaceType": "replaceWith",
+              "replace": ""
+            },
+            {
+              "findType": "textEndsWith",
+              "find": " ...............................................................",
+              "replaceType": "replaceWith",
+              "replace": ""
+            }
+          ]
         },
         {
           "role": "Organiser Address",
-          "part": null,
-          "action": "singleProperty",
+          "part": "content",
+          "action": null,
           "format": "paragraph",
           "exclude": false,
           "conditions": [
@@ -117,7 +140,8 @@
               "value": null
             }
           ],
-          "exceptions": null
+          "exceptions": null,
+          "textReplacements": null
         }
       ]
     },
@@ -148,7 +172,8 @@
               "value": null
             }
           ],
-          "exceptions": null
+          "exceptions": null,
+          "textReplacements": null
         },
         {
           "role": "Tour Title",
@@ -170,7 +195,8 @@
               "value": "#FFFFFF"
             }
           ],
-          "exceptions": null
+          "exceptions": null,
+          "textReplacements": null
         },
         {
           "role": "Tour Description",
@@ -196,7 +222,8 @@
               "value": null
             }
           ],
-          "exceptions": null
+          "exceptions": null,
+          "textReplacements": null
         }
       ]
     },
@@ -229,7 +256,8 @@
                   "value": null
                 }
               ],
-              "exceptions": null
+              "exceptions": null,
+              "textReplacements": null
             }
           ]
         }
@@ -261,7 +289,8 @@
                   "value": "#16549D"
                 }
               ],
-              "exceptions": null
+              "exceptions": null,
+              "textReplacements": null
             },
             {
               "role": "Tour Details - Section Content",
@@ -283,7 +312,8 @@
                   "value": "#16549D"
                 }
               ],
-              "exceptions": null
+              "exceptions": null,
+              "textReplacements": null
             }
           ]
         }
@@ -315,7 +345,8 @@
                   "value": "#16549D"
                 }
               ],
-              "exceptions": null
+              "exceptions": null,
+              "textReplacements": null
             },
             {
               "role": "Day Details",
@@ -337,7 +368,8 @@
                   "value": "#221F1F"
                 }
               ],
-              "exceptions": null
+              "exceptions": null,
+              "textReplacements": null
             },
             {
               "role": "Disclaimer",
@@ -359,7 +391,8 @@
                   "value": "#16549D"
                 }
               ],
-              "exceptions": null
+              "exceptions": null,
+              "textReplacements": null
             }
           ]
         }

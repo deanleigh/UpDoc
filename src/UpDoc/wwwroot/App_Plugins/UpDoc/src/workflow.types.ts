@@ -84,6 +84,19 @@ export interface FormatEntry {
 	value: BlockFormatValue | StyleFormatValue;
 }
 
+/** Find type for text replacements */
+export type FindType = 'textBeginsWith' | 'textEndsWith' | 'textContains';
+
+/** Replace type for text replacements */
+export type ReplaceType = 'replaceWith' | 'replaceAll';
+
+export interface TextReplacement {
+	findType: FindType;
+	find: string;
+	replaceType: ReplaceType;
+	replace: string;
+}
+
 export interface SectionRule {
 	role: string;
 	/** v3: which slot this rule fills. */
@@ -99,6 +112,8 @@ export interface SectionRule {
 	conditions: RuleCondition[];
 	/** UNLESS conditions — if any single exception matches, the rule does not apply. */
 	exceptions?: RuleCondition[];
+	/** Find-and-replace entries applied to matched text before formatting. */
+	textReplacements?: TextReplacement[];
 	/** Transient: unique ID for drag-and-drop tracking. Not persisted. */
 	_id?: string;
 }

@@ -56,6 +56,27 @@ Role name is auto-suggested from the first few words of the element text (kebab-
 - **Unmatched elements**: Dashed border section at bottom listing unclaimed elements with their metadata badges and "Create rule" buttons
 - **Actions**: Close + Save button
 
+## Find & Replace
+
+Each rule can have a "Find & Replace" section for cleaning up matched element text before it enters the transform output. Entries are applied in order.
+
+Each entry consists of two rows:
+
+| Row | Dropdown | Input |
+|-----|----------|-------|
+| Find | Text begins with / Text ends with / Text contains | Text to find |
+| Replace | Replace with / Replace all with (adapts to find type) | Replacement text |
+
+- **Text begins with** — replaces only at the start, "Replace with"
+- **Text ends with** — replaces only at the end, "Replace with"
+- **Text contains** — replaces all occurrences, "Replace all with"
+
+The find type dropdown reuses the same vocabulary as rule conditions, making the UI consistent.
+
+## Inner section collapsing
+
+All inner sections within expanded rules (Conditions, Exceptions, Part, Format, Find & Replace) are collapsed by default. Section headers act as toggles — click to expand/collapse. This keeps rule cards compact even when expanded.
+
 ## Custom element
 
 - Tag: `<up-doc-section-rules-editor-modal>`

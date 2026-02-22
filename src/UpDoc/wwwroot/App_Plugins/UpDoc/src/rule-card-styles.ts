@@ -297,6 +297,25 @@ export const ruleCardStyles = css`
 		border-top: 1px solid var(--uui-color-border);
 	}
 
+	/* Find & Replace entries */
+	.find-replace-entry {
+		display: flex;
+		flex-direction: column;
+		gap: var(--uui-size-space-1);
+		padding: var(--uui-size-space-2);
+		border: 1px solid var(--uui-color-border);
+		border-radius: var(--uui-border-radius);
+		background: var(--uui-color-surface);
+	}
+
+	.replace-label {
+		min-width: 180px;
+		padding: var(--uui-size-space-1) var(--uui-size-space-2);
+		font-size: var(--uui-type-small-size);
+		color: var(--uui-color-text-alt);
+		font-weight: 600;
+	}
+
 	/* Match preview */
 	.match-preview {
 		display: flex;

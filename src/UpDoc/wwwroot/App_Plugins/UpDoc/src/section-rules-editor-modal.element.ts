@@ -1,5 +1,5 @@
 import type { SectionRulesEditorModalData, SectionRulesEditorModalValue } from './section-rules-editor-modal.token.js';
-import type { SectionRule, RuleCondition, RuleConditionType, RulePart, BlockFormat, FormatEntry, FormatEntryType, AreaElement, AreaRules, RuleGroup } from './workflow.types.js';
+import type { SectionRule, RuleCondition, RuleConditionType, RulePart, BlockFormat, FormatEntry, FormatEntryType, AreaElement, AreaRules, RuleGroup, TextReplacement, FindType, ReplaceType } from './workflow.types.js';
 import type { SortChangeDetail, SortableRule } from './sortable-rules-container.element.js';
 import { getEffectivePart, getEffectiveFormat } from './workflow.types.js';
 import './sortable-rules-container.element.js';
@@ -100,6 +100,21 @@ const STYLE_FORMAT_LABELS: Record<string, string> = {
 };
 
 const ALL_STYLE_FORMATS: string[] = ['bold', 'italic', 'strikethrough', 'code', 'highlight'];
+
+/** Find type labels for text replacements */
+const FIND_TYPE_LABELS: Record<FindType, string> = {
+	textBeginsWith: 'Text begins with',
+	textEndsWith: 'Text ends with',
+	textContains: 'Text contains',
+};
+
+const ALL_FIND_TYPES: FindType[] = ['textBeginsWith', 'textEndsWith', 'textContains'];
+
+/** Replace type labels — contextual based on find type */
+const REPLACE_TYPE_LABELS: Record<ReplaceType, string> = {
+	replaceWith: 'Replace with',
+	replaceAll: 'Replace all with',
+};
 
 @customElement('up-doc-section-rules-editor-modal')
 export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<SectionRulesEditorModalData, SectionRulesEditorModalValue> {
@@ -586,6 +601,56 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 		});
 	}
 
+	// ===== Text Replacement CRUD =====
+
+	#addTextReplacement(id: string) {
+		this.#updateRuleById(id, (r) => ({
+			...r,
+			textReplacements: [...(r.textReplacements ?? []), { findType: 'textBeginsWith' as FindType, find: '', replaceType: 'replaceWith' as ReplaceType, replace: '' }],
+		}));
+	}
+
+	#removeTextReplacement(id: string, trIdx: number) {
+		this.#updateRuleById(id, (r) => ({
+			...r,
+			textReplacements: (r.textReplacements ?? []).filter((_, i) => i !== trIdx),
+		}));
+	}
+
+	#updateTextReplacementFindType(id: string, trIdx: number, findType: FindType) {
+		this.#updateRuleById(id, (r) => {
+			const trs = [...(r.textReplacements ?? [])];
+			// Auto-set replaceType based on findType
+			const replaceType: ReplaceType = findType === 'textContains' ? 'replaceAll' : 'replaceWith';
+			trs[trIdx] = { ...trs[trIdx], findType, replaceType };
+			return { ...r, textReplacements: trs };
+		});
+	}
+
+	#updateTextReplacementFind(id: string, trIdx: number, find: string) {
+		this.#updateRuleById(id, (r) => {
+			const trs = [...(r.textReplacements ?? [])];
+			trs[trIdx] = { ...trs[trIdx], find };
+			return { ...r, textReplacements: trs };
+		});
+	}
+
+	#updateTextReplacementReplaceType(id: string, trIdx: number, replaceType: ReplaceType) {
+		this.#updateRuleById(id, (r) => {
+			const trs = [...(r.textReplacements ?? [])];
+			trs[trIdx] = { ...trs[trIdx], replaceType };
+			return { ...r, textReplacements: trs };
+		});
+	}
+
+	#updateTextReplacementReplace(id: string, trIdx: number, replace: string) {
+		this.#updateRuleById(id, (r) => {
+			const trs = [...(r.textReplacements ?? [])];
+			trs[trIdx] = { ...trs[trIdx], replace };
+			return { ...r, textReplacements: trs };
+		});
+	}
+
 	// ===== Submit =====
 
 	/** Strip transient fields and sync format for C# compatibility. */
@@ -733,6 +798,49 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 		`;
 	}
 
+	#renderTextReplacementRow(ruleId: string, trIdx: number, tr: TextReplacement) {
+		const replaceLabel = tr.findType === 'textContains'
+			? REPLACE_TYPE_LABELS['replaceAll']
+			: REPLACE_TYPE_LABELS['replaceWith'];
+
+		return html`
+			<div class="find-replace-entry">
+				<div class="condition-row">
+					<select
+						class="condition-type-select"
+						.value=${tr.findType}
+						@change=${(e: Event) => this.#updateTextReplacementFindType(ruleId, trIdx, (e.target as HTMLSelectElement).value as FindType)}>
+						${ALL_FIND_TYPES.map((t) => html`
+							<option value=${t} ?selected=${t === tr.findType}>${FIND_TYPE_LABELS[t]}</option>
+						`)}
+					</select>
+					<input
+						type="text"
+						class="condition-value-input"
+						placeholder="Find..."
+						.value=${tr.find}
+						@input=${(e: Event) => this.#updateTextReplacementFind(ruleId, trIdx, (e.target as HTMLInputElement).value)} />
+					<uui-button
+						compact
+						look="secondary"
+						label="Remove replacement"
+						@click=${() => this.#removeTextReplacement(ruleId, trIdx)}>
+						<uui-icon name="icon-trash"></uui-icon>
+					</uui-button>
+				</div>
+				<div class="condition-row">
+					<span class="replace-label">${replaceLabel}</span>
+					<input
+						type="text"
+						class="condition-value-input"
+						placeholder="(empty = remove)"
+						.value=${tr.replace}
+						@input=${(e: Event) => this.#updateTextReplacementReplace(ruleId, trIdx, (e.target as HTMLInputElement).value)} />
+				</div>
+			</div>
+		`;
+	}
+
 	#renderRuleCard(rule: EditableRule, matchedElements: AreaElement[]) {
 		const isExpanded = this.#isRuleExpanded(rule._id);
 
@@ -875,6 +983,25 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 							label="Add format"
 							@click=${() => this.#addFormatEntry(id)}>
 							+ Add format
+						</uui-button>
+					` : nothing}
+				</div>
+				` : nothing}
+
+				${!isExcluded ? html`
+				<div class="format-area">
+					<div class="section-header collapsible" @click=${() => this.#toggleSection('findReplace', id)}>
+						<uui-icon name=${this.#isSectionExpanded('findReplace', id) ? 'icon-navigation-down' : 'icon-navigation-right'}></uui-icon>
+						Find &amp; Replace${(rule.textReplacements ?? []).length > 0 ? ` (${(rule.textReplacements ?? []).length})` : ''}
+					</div>
+					${this.#isSectionExpanded('findReplace', id) ? html`
+						${(rule.textReplacements ?? []).map((tr, trIdx) => this.#renderTextReplacementRow(id, trIdx, tr))}
+						<uui-button
+							compact
+							look="placeholder"
+							label="Add find & replace"
+							@click=${() => this.#addTextReplacement(id)}>
+							+ Add find &amp; replace
 						</uui-button>
 					` : nothing}
 				</div>

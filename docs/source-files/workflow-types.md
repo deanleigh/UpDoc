@@ -241,6 +241,32 @@ The path should be relative from your config file to the schemas folder in `App_
 !!! note
     The schema files contain `$id` properties with `https://updoc.dev/schemas/...` URLs. These are canonical identifiers for the schemas, but the actual schema files are local. Always use relative paths in your `$schema` references.
 
+## Section Rule Types
+
+Types for the rules engine that powers the Shape layer (Extract → **Shape** → Map).
+
+### Text Replacement
+
+```typescript
+export type FindType = 'textBeginsWith' | 'textEndsWith' | 'textContains';
+export type ReplaceType = 'replaceWith' | 'replaceAll';
+
+export interface TextReplacement {
+    findType: FindType;
+    find: string;
+    replaceType: ReplaceType;
+    replace: string;
+}
+```
+
+Text replacements are applied to matched element text before formatting. Each rule's `textReplacements` array is processed in order. The `findType` determines matching behavior:
+
+- `textBeginsWith` — replaces only at the start of the text
+- `textEndsWith` — replaces only at the end of the text
+- `textContains` — replaces all occurrences
+
+The `replaceType` adapts automatically based on `findType` in the UI.
+
 ## Key Concepts
 
 ### Separation of Concerns

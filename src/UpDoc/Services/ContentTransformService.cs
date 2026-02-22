@@ -259,6 +259,15 @@ public class ContentTransformService : IContentTransformService
             }
         }
 
+        // Apply text replacements from matched rules to element text
+        for (int i = 0; i < elements.Count; i++)
+        {
+            if (elementRules[i]?.TextReplacements is { Count: > 0 } replacements)
+            {
+                elements[i].Text = ApplyTextReplacements(elements[i].Text, replacements);
+            }
+        }
+
         // Check if any rules use part-driven behavior (anything beyond just legacy title-only rules).
         // Ungrouped content rules, grouped content/description/summary, or excludes → part-driven mode.
         bool hasPartDrivenRules = false;
@@ -555,6 +564,34 @@ public class ContentTransformService : IContentTransformService
         }
 
         return sections;
+    }
+
+    /// <summary>
+    /// Applies text replacement entries to element text.
+    /// Each entry's findType determines matching behavior:
+    /// textBeginsWith — replaces only at the start
+    /// textEndsWith — replaces only at the end
+    /// textContains — replaces all occurrences
+    /// </summary>
+    private static string ApplyTextReplacements(string text, List<TextReplacement> replacements)
+    {
+        foreach (var tr in replacements)
+        {
+            if (string.IsNullOrEmpty(tr.Find)) continue;
+
+            text = tr.FindType switch
+            {
+                "textBeginsWith" when text.StartsWith(tr.Find, StringComparison.OrdinalIgnoreCase)
+                    => tr.Replace + text[tr.Find.Length..],
+                "textEndsWith" when text.EndsWith(tr.Find, StringComparison.OrdinalIgnoreCase)
+                    => text[..^tr.Find.Length] + tr.Replace,
+                "textContains"
+                    => text.Replace(tr.Find, tr.Replace, StringComparison.OrdinalIgnoreCase),
+                _ => text,
+            };
+        }
+
+        return text.Trim();
     }
 
     /// <summary>
