@@ -1214,9 +1214,9 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 						<uui-icon name="icon-page-add" class="box-icon"></uui-icon>
 						<span class="box-stat box-filename" title="${fileName}">${fileName}</span>
 						<div class="box-buttons">
-							<uui-button look="primary" color="default" label="Change PDF" @click=${this.#onPickMedia} ?disabled=${this._extracting}>
+							<uui-button look="primary" color="default" label="Choose Source" @click=${this.#onPickMedia} ?disabled=${this._extracting}>
 								<uui-icon name="icon-page-add"></uui-icon>
-								Change PDF
+								Choose Source
 							</uui-button>
 						</div>
 					</div>
@@ -1240,15 +1240,10 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 						<uui-icon name="icon-grid" class="box-icon"></uui-icon>
 						<span class="box-stat">${this._areaTemplate ? this._areaTemplate.areas.length : areas}</span>
 						<div class="box-buttons">
-							${this._areaTemplate
-								? html`<uui-button look="primary" color="default" label="Edit Areas" @click=${this.#onEditAreas}>
-									<uui-icon name="icon-grid"></uui-icon>
-									Edit Areas
-								</uui-button>`
-								: html`<uui-button look="primary" color="default" label="Define Areas" @click=${this.#onEditAreas}>
-									<uui-icon name="icon-grid"></uui-icon>
-									Define Areas
-								</uui-button>`}
+							<uui-button look="primary" color="default" label="Choose Areas" @click=${this.#onEditAreas}>
+								<uui-icon name="icon-grid"></uui-icon>
+								Choose Areas
+							</uui-button>
 						</div>
 					</div>
 				</uui-box>
@@ -1262,10 +1257,10 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 								<uui-button
 									look="primary"
 									color="default"
-									label="Edit Sections"
+									label="Choose Sections"
 									popovertarget="section-picker-popover">
 									<uui-icon name="icon-thumbnail-list"></uui-icon>
-									Edit Sections
+									Choose Sections
 									<uui-symbol-expand .open=${this._sectionPickerOpen}></uui-symbol-expand>
 								</uui-button>
 								<uui-popover-container
@@ -1413,7 +1408,6 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 	#renderNonPdfInfoBoxes() {
 		if (!this._extraction) return nothing;
 
-		const isWeb = this.#sourceType === 'web';
 		const fileName = this._extraction.source.fileName ?? '';
 		const extractedDate = new Date(this._extraction.source.extractedDate).toLocaleString();
 
@@ -1425,38 +1419,36 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 						<span class="box-headline-meta">${extractedDate}</span>
 					</div>
 					<div class="box-content">
-						<uui-icon name="${isWeb ? 'icon-globe' : 'icon-document'}" class="box-icon"></uui-icon>
+						<uui-icon name="icon-document" class="box-icon"></uui-icon>
 						<span class="box-stat box-filename" title="${fileName}">${fileName}</span>
 						<div class="box-buttons">
-							${isWeb
-								? html`<uui-button look="primary" color="default" label="Re-extract"
-									@click=${() => this.#runUrlExtraction(fileName)} ?disabled=${this._extracting}>
-									<uui-icon name="icon-globe"></uui-icon> Re-extract
-								</uui-button>`
-								: html`<uui-button look="primary" color="default" label="Change file"
-									@click=${this.#onPickMedia} ?disabled=${this._extracting}>
-									<uui-icon name="icon-document"></uui-icon> Change file
-								</uui-button>`
-							}
+							<uui-button look="primary" color="default" label="Choose Source"
+								@click=${this.#onPickMedia} ?disabled=${this._extracting}>
+								<uui-icon name="icon-document"></uui-icon> Choose Source
+							</uui-button>
 						</div>
 					</div>
 				</uui-box>
 
-				<uui-box headline="Box 1" class="info-box-item">
+				<uui-box headline="Areas" class="info-box-item">
 					<div class="box-content">
-						<uui-icon name="icon-lab" class="box-icon"></uui-icon>
+						<uui-icon name="icon-grid" class="box-icon"></uui-icon>
+						<div class="box-buttons">
+							<uui-button look="primary" color="default" label="Choose Areas" disabled>
+								<uui-icon name="icon-grid"></uui-icon> Choose Areas
+							</uui-button>
+						</div>
 					</div>
 				</uui-box>
 
-				<uui-box headline="Box 2" class="info-box-item">
+				<uui-box headline="Sections" class="info-box-item">
 					<div class="box-content">
-						<uui-icon name="icon-lab" class="box-icon"></uui-icon>
-					</div>
-				</uui-box>
-
-				<uui-box headline="Box 3" class="info-box-item">
-					<div class="box-content">
-						<uui-icon name="icon-lab" class="box-icon"></uui-icon>
+						<uui-icon name="icon-thumbnail-list" class="box-icon"></uui-icon>
+						<div class="box-buttons">
+							<uui-button look="primary" color="default" label="Choose Sections" disabled>
+								<uui-icon name="icon-thumbnail-list"></uui-icon> Choose Sections
+							</uui-button>
+						</div>
 					</div>
 				</uui-box>
 			</div>
@@ -1489,11 +1481,21 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 					</div>
 					<div class="box-content">
 						<uui-icon name="icon-globe" class="box-icon"></uui-icon>
-						<span class="box-stat box-filename" title="${url}">${url}</span>
+						<uui-input
+							label="URL"
+							placeholder="https://example.com/page"
+							class="box-url-input"
+							.value=${this._sampleUrl || url}
+							@input=${(e: Event) => { this._sampleUrl = (e.target as HTMLInputElement).value; }}
+							@keydown=${(e: KeyboardEvent) => {
+								if (e.key === 'Enter' && this._sampleUrl) this.#runUrlExtraction(this._sampleUrl);
+							}}>
+						</uui-input>
 						<div class="box-buttons">
-							<uui-button look="primary" color="default" label="Re-extract"
-								@click=${() => this.#runUrlExtraction(url)} ?disabled=${this._extracting}>
-								<uui-icon name="icon-globe"></uui-icon> Re-extract
+							<uui-button look="primary" color="default" label="Choose Source"
+								@click=${() => this.#runUrlExtraction(this._sampleUrl || url)}
+								?disabled=${this._extracting}>
+								<uui-icon name="icon-globe"></uui-icon> Choose Source
 							</uui-button>
 						</div>
 					</div>
@@ -1503,6 +1505,11 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 					<div class="box-content">
 						<uui-icon name="icon-grid" class="box-icon"></uui-icon>
 						<span class="box-stat">${areaCount}</span>
+						<div class="box-buttons">
+							<uui-button look="primary" color="default" label="Choose Areas" disabled>
+								<uui-icon name="icon-grid"></uui-icon> Choose Areas
+							</uui-button>
+						</div>
 					</div>
 				</uui-box>
 
@@ -1510,6 +1517,11 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 					<div class="box-content">
 						<uui-icon name="icon-thumbnail-list" class="box-icon"></uui-icon>
 						<span class="box-stat">${sectionCount}</span>
+						<div class="box-buttons">
+							<uui-button look="primary" color="default" label="Choose Sections" disabled>
+								<uui-icon name="icon-thumbnail-list"></uui-icon> Choose Sections
+							</uui-button>
+						</div>
 					</div>
 				</uui-box>
 			</div>
@@ -1541,8 +1553,8 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 					<strong>${fileName}</strong>
 					<span style="color: var(--uui-color-text-alt);">${this._extraction?.elements?.length ?? 0} elements</span>
 				</div>
-				<uui-button look="secondary" label="Change file" @click=${this.#onPickMedia} ?disabled=${this._extracting} compact>
-					${this._extracting ? html`<uui-loader-bar></uui-loader-bar>` : 'Change file'}
+				<uui-button look="secondary" label="Choose Source" @click=${this.#onPickMedia} ?disabled=${this._extracting} compact>
+					${this._extracting ? html`<uui-loader-bar></uui-loader-bar>` : 'Choose Source'}
 				</uui-button>
 			</div>
 		`;
@@ -1557,8 +1569,8 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 					<strong>${url}</strong>
 					<span style="color: var(--uui-color-text-alt);">${this._extraction?.elements?.length ?? 0} elements</span>
 				</div>
-				<uui-button look="secondary" label="Re-extract" @click=${() => this.#runUrlExtraction(url)} ?disabled=${this._extracting} compact>
-					${this._extracting ? html`<uui-loader-bar></uui-loader-bar>` : 'Re-extract'}
+				<uui-button look="secondary" label="Choose Source" @click=${() => this.#runUrlExtraction(url)} ?disabled=${this._extracting} compact>
+					${this._extracting ? html`<uui-loader-bar></uui-loader-bar>` : 'Choose Source'}
 				</uui-button>
 			</div>
 		`;
@@ -1596,7 +1608,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		}
 
 		const isPdf = this.#sourceType === 'pdf';
-		const label = isPdf ? 'Choose PDF...' : 'Choose file...';
+		const label = 'Choose Source...';
 		const description = isPdf
 			? 'Choose a PDF from the media library to extract text elements with their metadata.'
 			: `Choose a ${this.#sourceType} file from the media library to extract content.`;
@@ -1891,6 +1903,19 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				text-overflow: ellipsis;
 				white-space: nowrap;
 				max-width: 100%;
+			}
+
+			.box-url-input {
+				width: 100%;
+				flex: 1;
+				display: flex;
+				align-items: center;
+				font-weight: 600;
+				font-size: var(--uui-type-default-size);
+				text-align: center;
+				--uui-input-border-color: transparent;
+				--uui-input-border-color-hover: var(--uui-color-border-emphasis);
+				--uui-input-border-color-focus: var(--uui-color-focus);
 			}
 
 			.box-buttons {
