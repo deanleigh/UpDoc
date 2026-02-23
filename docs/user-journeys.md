@@ -105,3 +105,18 @@ At each level of the hierarchy, UpDoc provides summary counts so the workflow au
 | Section | Number of text items within the section |
 
 These counts help the workflow author identify whether the extraction has correctly understood the document's structure before proceeding to map content to destination fields.
+
+---
+
+## Known Behaviours
+
+### Duplicate document names and the Recycle Bin
+
+When creating a document, Umbraco checks for name conflicts among **live sibling documents** (documents under the same parent). If a document with the same name already exists and is live, Umbraco appends a number in brackets — e.g., "The Art and History of Dresden (1)".
+
+However, **documents in the Recycle Bin are not considered name conflicts**. If a document called "The Art and History of Dresden" has been moved to the Recycle Bin and a new document with the same name is created under the same parent, the new document keeps the original name without any numbering suffix.
+
+This means:
+
+- Repeatedly creating and deleting documents from the same source will not cause name inflation ("(1)", "(2)", etc.) as long as previous copies are moved to the Recycle Bin before the next is created.
+- If a previous document is still **live** under the same parent when a new one is created from the same source, the new document will receive a numbered suffix.

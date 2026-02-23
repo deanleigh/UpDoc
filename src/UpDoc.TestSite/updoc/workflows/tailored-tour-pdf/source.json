@@ -24,7 +24,10 @@
           "conditions": [
             {
               "type": "fontSizeRange",
-              "value": { "min": 20, "max": 27 }
+              "value": {
+                "min": 20,
+                "max": 27
+              }
             },
             {
               "type": "fontNameContains",
@@ -121,7 +124,10 @@
           "conditions": [
             {
               "type": "fontSizeRange",
-              "value": { "min": 10, "max": 14 }
+              "value": {
+                "min": 10,
+                "max": 14
+              }
             },
             {
               "type": "fontNameContains",
@@ -142,14 +148,17 @@
       "rules": [
         {
           "role": "Organisation",
-          "part": null,
-          "action": "singleProperty",
+          "part": "content",
+          "action": null,
           "format": "paragraph",
           "exclude": false,
           "conditions": [
             {
               "type": "fontSizeRange",
-              "value": { "min": 9, "max": 13 }
+              "value": {
+                "min": 9,
+                "max": 13
+              }
             },
             {
               "type": "fontNameContains",
@@ -165,14 +174,17 @@
         },
         {
           "role": "Tour Title",
-          "part": null,
-          "action": "singleProperty",
+          "part": "content",
+          "action": null,
           "format": "heading1",
           "exclude": false,
           "conditions": [
             {
               "type": "fontSizeRange",
-              "value": { "min": 25, "max": 35 }
+              "value": {
+                "min": 25,
+                "max": 35
+              }
             },
             {
               "type": "fontNameContains",
@@ -184,18 +196,28 @@
             }
           ],
           "exceptions": null,
-          "textReplacements": null
+          "textReplacements": [
+            {
+              "findType": "textContains",
+              "find": "\u0026",
+              "replaceType": "replaceAll",
+              "replace": "and"
+            }
+          ]
         },
         {
           "role": "Tour Description",
-          "part": null,
-          "action": "singleProperty",
+          "part": "content",
+          "action": null,
           "format": "paragraph",
           "exclude": false,
           "conditions": [
             {
               "type": "fontSizeRange",
-              "value": { "min": 13, "max": 16 }
+              "value": {
+                "min": 13,
+                "max": 16
+              }
             },
             {
               "type": "fontNameContains",
@@ -285,7 +307,10 @@
               "conditions": [
                 {
                   "type": "fontSizeRange",
-                  "value": { "min": 7, "max": 9 }
+                  "value": {
+                    "min": 7,
+                    "max": 9
+                  }
                 },
                 {
                   "type": "fontNameContains",
@@ -318,7 +343,10 @@
               "conditions": [
                 {
                   "type": "fontSizeRange",
-                  "value": { "min": 9, "max": 12 }
+                  "value": {
+                    "min": 9,
+                    "max": 12
+                  }
                 },
                 {
                   "type": "fontNameContains",
@@ -341,7 +369,10 @@
               "conditions": [
                 {
                   "type": "fontSizeRange",
-                  "value": { "min": 9, "max": 12 }
+                  "value": {
+                    "min": 9,
+                    "max": 12
+                  }
                 },
                 {
                   "type": "fontNameContains",
@@ -364,7 +395,10 @@
               "conditions": [
                 {
                   "type": "fontSizeRange",
-                  "value": { "min": 7, "max": 9 }
+                  "value": {
+                    "min": 7,
+                    "max": 9
+                  }
                 },
                 {
                   "type": "fontNameContains",
