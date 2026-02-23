@@ -71,76 +71,24 @@ All Umbraco modals extend `UmbModalBaseElement<TData, TValue>`:
 - `TData` -- The data passed TO the modal when opening
 - `TValue` -- The data returned FROM the modal when submitted
 
-### Rich extraction via #extractFromSource
+### Area-aware extraction via #extractFromSource
 
-The `#extractFromSource` method calls the `extractRich` function from `workflow.service.ts` to get elements with IDs that match the element IDs stored in `map.json`:
+The `#extractFromSource` method calls `transformAdhoc` from `workflow.service.ts` to run the full Extract → Shape pipeline. This produces sections with IDs matching `map.json` source keys:
 
-```typescript
-async #extractFromSource(mediaUnique: string) {
-    this._isExtracting = true;
-    this._extractionError = null;
+1. Calls `transformAdhoc(workflowName, mediaUnique, token)` to get the transform result
+2. Flattens all areas/groups/sections via `allTransformSections()`
+3. Builds a `sectionLookup` record mapping composite keys (e.g., `features.content`, `features.title`) to text values
+4. Pre-fills the document name from mapped title sections (with `stripMarkdown` applied)
 
-    try {
-        const authContext = await this.getContext(UMB_AUTH_CONTEXT);
-        const token = await authContext.getLatestToken();
-
-        // Use rich extraction — returns elements with IDs matching map.json
-        const extraction = await extractRich(mediaUnique, token);
-
-        if (!extraction?.elements?.length) {
-            this._extractionError = 'Failed to extract content from source';
-            return;
-        }
-
-        // Build element ID → text lookup (same key format as map.json sources)
-        const elementLookup: Record<string, string> = {};
-        for (const element of extraction.elements) {
-            elementLookup[element.id] = element.text;
-        }
-
-        this._extractedSections = elementLookup;
-
-        // Pre-fill document name from mapped title elements
-        if (!this._documentName && this._config) {
-            this.#prefillDocumentName(elementLookup);
-        }
-    } catch (error) {
-        this._extractionError = 'Failed to connect to extraction service';
-    } finally {
-        this._isExtracting = false;
-    }
-}
-```
-
-This method uses the same rich extraction endpoint as the workflow authoring Source tab, ensuring element IDs are consistent. The config is loaded once at modal startup (not per-extraction), so `_config` is already available when extraction completes.
+The config is loaded once at modal startup (not per-extraction), so `_config` is already available when extraction completes.
 
 ### Document name pre-fill
 
-The `#prefillDocumentName` method finds the first destination target in `map.json`, collects text from all elements mapped to that target, and joins them with spaces:
+The `#prefillDocumentName` method finds the first top-level (non-block) destination target in `map.json`, collects text from all sections mapped to that target, strips any markdown formatting, and joins them with spaces.
 
-```typescript
-#prefillDocumentName(elementLookup: Record<string, string>) {
-    if (!this._config?.map?.mappings?.length) return;
+The method applies `stripMarkdown()` to remove heading prefixes (e.g., `# Title` → `Title`) since extracted content may contain markdown formatting that shouldn't appear in the document name.
 
-    const firstTarget = this._config.map.mappings[0]?.destinations?.[0]?.target;
-    if (!firstTarget) return;
-
-    const parts: string[] = [];
-    for (const mapping of this._config.map.mappings) {
-        if (mapping.enabled === false) continue;
-        const mapsToTarget = mapping.destinations.some((d) => d.target === firstTarget);
-        if (mapsToTarget && elementLookup[mapping.source]) {
-            parts.push(elementLookup[mapping.source]);
-        }
-    }
-
-    if (parts.length > 0) {
-        this._documentName = parts.join(' ');
-    }
-}
-```
-
-This handles cases like a title split across two PDF lines (e.g., "Flemish Masters –" + "Bruges, Antwerp & Ghent" → "Flemish Masters – Bruges, Antwerp & Ghent").
+This handles cases like a title split across two PDF lines (e.g., "Flemish Masters –" + "Bruges, Antwerp & Ghent" → "Flemish Masters – Bruges, Antwerp & Ghent"). If no mapping-based name is found, it falls back to the first non-empty section value (also stripped of markdown).
 
 ### Content tab with grouped preview
 
@@ -365,8 +313,9 @@ The modal shows visual feedback during and after extraction:
 ```typescript
 import type { UmbUpDocModalData, UmbUpDocModalValue, SourceType } from './up-doc-modal.token.js';
 import type { DocumentTypeConfig } from './workflow.types.js';
-import { extractRich, fetchConfig } from './workflow.service.js';
+import { transformAdhoc, allTransformSections, fetchConfig } from './workflow.service.js';
 import { getDestinationTabs, resolveDestinationTab, resolveBlockLabel } from './destination-utils.js';
+import { stripMarkdown } from './transforms.js';
 import { html, customElement, css, state, nothing } from '@umbraco-cms/backoffice/external/lit';
 import { UmbTextStyles } from '@umbraco-cms/backoffice/style';
 import { UmbModalBaseElement } from '@umbraco-cms/backoffice/modal';

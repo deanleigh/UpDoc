@@ -245,6 +245,34 @@ The path should be relative from your config file to the schemas folder in `App_
 
 Types for the rules engine that powers the Shape layer (Extract → **Shape** → Map).
 
+### Rule Condition Types
+
+```typescript
+export type RuleConditionType =
+    | 'textBeginsWith' | 'textEndsWith' | 'textContains' | 'textMatchesPattern'
+    | 'fontSizeEquals' | 'fontSizeRange' | 'fontSizeAbove' | 'fontSizeBelow'
+    | 'fontNameContains'
+    | 'colorEquals'
+    | 'positionFirst' | 'positionLast';
+```
+
+| Type | Description | Value |
+|------|-------------|-------|
+| `fontSizeEquals` | Font size matches within 0.5pt tolerance | number |
+| `fontSizeRange` | Font size within min/max range (inclusive) | `{ min: number, max: number }` |
+| `fontSizeAbove` | Font size greater than value | number |
+| `fontSizeBelow` | Font size less than value | number |
+| `fontNameContains` | Font name contains value (case-sensitive) | string |
+| `colorEquals` | Color hex matches | string |
+| `positionFirst` | First element in section | (none) |
+| `positionLast` | Last element in section | (none) |
+| `textBeginsWith` | Element text starts with value | string |
+| `textEndsWith` | Element text ends with value | string |
+| `textContains` | Element text contains value | string |
+| `textMatchesPattern` | Element text matches regex | regex string |
+
+The `fontSizeRange` condition is preferred over `fontSizeEquals` for cross-PDF compatibility, since font metrics can vary by 1-3 points across PDFs from the same template.
+
 ### Text Replacement
 
 ```typescript

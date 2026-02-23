@@ -187,18 +187,14 @@ The `#applyBlockGridValue` method finds a block within a block grid by searching
 
 This allows multiple source elements mapped to the same block property (e.g., 12 bullet points → one rich text field) to assemble into a single concatenated value.
 
-### Markdown to HTML conversion
+### Content format conversion
 
-When the mapping has `convertMarkdownToHtml` transform, content is converted using `markdownToHtml` and `buildRteValue` from `transforms.ts`:
+After all mappings are applied, `#convertRichTextFields` processes field values based on the destination field type (from `destination.json`):
 
-```typescript
-const shouldConvertMarkdown = dest.transforms?.some((t) => t.type === 'convertMarkdownToHtml');
+- **`richText` fields**: Markdown is converted to HTML using `markdownToHtml` and wrapped in `buildRteValue`
+- **`text` / `textArea` fields**: Markdown formatting is stripped using `stripMarkdown` (removes heading prefixes like `#`, bold markers, bullet prefixes, etc.)
 
-if (shouldConvertMarkdown) {
-    const htmlContent = markdownToHtml(value);
-    targetValue.value = buildRteValue(htmlContent);
-}
-```
+This applies to both top-level document properties and block-level properties within the block grid.
 
 ### Scaffolding from blueprint
 
@@ -235,7 +231,7 @@ import { UMB_BLUEPRINT_PICKER_MODAL } from './blueprint-picker-modal.token.js';
 import type { DocumentTypeOption } from './blueprint-picker-modal.token.js';
 import type { DocumentTypeConfig, MappingDestination } from './workflow.types.js';
 import { fetchActiveWorkflows } from './workflow.service.js';
-import { markdownToHtml, buildRteValue } from './transforms.js';
+import { markdownToHtml, buildRteValue, stripMarkdown } from './transforms.js';
 import { UmbEntityActionBase } from '@umbraco-cms/backoffice/entity-action';
 import { umbOpenModal } from '@umbraco-cms/backoffice/modal';
 import { UMB_NOTIFICATION_CONTEXT } from '@umbraco-cms/backoffice/notification';

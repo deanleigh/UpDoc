@@ -214,6 +214,7 @@ export type RuleConditionType =
 	| 'fontSizeEquals'
 	| 'fontSizeAbove'
 	| 'fontSizeBelow'
+	| 'fontSizeRange'
 	| 'fontNameContains'
 	| 'fontNameEquals'
 	| 'colorEquals'

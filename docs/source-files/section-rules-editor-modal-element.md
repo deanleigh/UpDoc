@@ -30,6 +30,7 @@ Allows the workflow author to define rules for a single section (e.g., "Organise
 | `textContains` | Element text contains value | string |
 | `textMatchesPattern` | Element text matches regex | regex string |
 | `fontSizeEquals` | Font size matches (within 0.5pt) | number |
+| `fontSizeRange` | Font size within min/max range (inclusive) | `{ min, max }` |
 | `fontSizeAbove` | Font size greater than value | number |
 | `fontSizeBelow` | Font size less than value | number |
 | `fontNameContains` | Font name contains value | string |

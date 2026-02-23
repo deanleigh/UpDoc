@@ -657,9 +657,10 @@ public class PdfPagePropertiesService : IPdfPagePropertiesService
             "textMatchesPattern" => Regex.IsMatch(element.Text, valueStr, RegexOptions.IgnoreCase),
 
             // Font size conditions
-            "fontSizeEquals" => Math.Abs(element.FontSize - ParseDouble(valueStr)) < 0.5,
+            "fontSizeEquals" => Math.Abs(element.FontSize - ParseDouble(valueStr)) <= 0.5,
             "fontSizeAbove" => element.FontSize > ParseDouble(valueStr),
             "fontSizeBelow" => element.FontSize < ParseDouble(valueStr),
+            "fontSizeRange" => ParseFontSizeRange(condition.Value, element.FontSize),
 
             // Font name conditions
             "fontNameContains" => element.FontName.Contains(valueStr, StringComparison.OrdinalIgnoreCase),
@@ -680,6 +681,43 @@ public class PdfPagePropertiesService : IPdfPagePropertiesService
     {
         return double.TryParse(value, System.Globalization.NumberStyles.Any,
             System.Globalization.CultureInfo.InvariantCulture, out var result) ? result : 0;
+    }
+
+    /// <summary>
+    /// Parses a fontSizeRange condition value (object with min/max) and checks if fontSize is within range.
+    /// Accepts JSON object like {"min":25,"max":35} or already-deserialized JsonElement.
+    /// </summary>
+    private static bool ParseFontSizeRange(object? value, double fontSize)
+    {
+        if (value is null) return false;
+
+        try
+        {
+            System.Text.Json.JsonElement json;
+            if (value is System.Text.Json.JsonElement je)
+            {
+                json = je;
+            }
+            else
+            {
+                var str = value.ToString();
+                if (string.IsNullOrEmpty(str)) return false;
+                json = System.Text.Json.JsonDocument.Parse(str).RootElement;
+            }
+
+            if (json.TryGetProperty("min", out var minProp) && json.TryGetProperty("max", out var maxProp))
+            {
+                var min = minProp.GetDouble();
+                var max = maxProp.GetDouble();
+                return fontSize >= min && fontSize <= max;
+            }
+        }
+        catch
+        {
+            // Malformed value — does not match
+        }
+
+        return false;
     }
 
     private static RichExtractionResult ExtractRichDumpFromDocument(PdfDocument document, List<int>? includePages = null)

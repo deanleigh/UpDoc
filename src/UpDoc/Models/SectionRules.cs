@@ -292,16 +292,16 @@ public class RuleCondition
 {
     /// <summary>
     /// Condition type: textBeginsWith, textEndsWith, textContains, textEquals, textMatchesPattern,
-    /// fontSizeEquals, fontSizeAbove, fontSizeBelow, fontNameContains, fontNameEquals, colorEquals,
-    /// positionFirst, positionLast
+    /// fontSizeEquals, fontSizeAbove, fontSizeBelow, fontSizeRange, fontNameContains, fontNameEquals,
+    /// colorEquals, positionFirst, positionLast
     /// </summary>
     [JsonPropertyName("type")]
     public string Type { get; set; } = string.Empty;
 
     /// <summary>
     /// The value to match against. Type depends on condition:
-    /// string for text/font/color conditions, number (as string) for font size.
-    /// Not used for positionFirst/positionLast.
+    /// string for text/font/color conditions, number (as string) for font size,
+    /// object with min/max for fontSizeRange. Not used for positionFirst/positionLast.
     /// </summary>
     [JsonPropertyName("value")]
     public object? Value { get; set; }

@@ -73,6 +73,15 @@ The collection action contains the full document creation pipeline:
 2. **Simple field** — direct property alias (e.g., `"pageTitle"`)
 3. **Legacy dot-path** — `"gridKey.blockKey.propertyKey"` format for backwards compat
 
+### Content format conversion
+
+After all mappings are applied, `#convertRichTextFields` processes field values based on the destination field type (from `destination.json`):
+
+- **`richText` fields**: Markdown is converted to HTML using `markdownToHtml` and wrapped in `buildRteValue`
+- **`text` / `textArea` fields**: Markdown formatting is stripped using `stripMarkdown` (removes heading prefixes like `#`, bold markers, bullet prefixes, etc.)
+
+This applies to both top-level document properties and block-level properties within the block grid.
+
 ### Concatenation tracking
 
 `mappedFields` (a `Set<string>`) tracks which fields have been written. First write replaces the blueprint default; subsequent writes concatenate:

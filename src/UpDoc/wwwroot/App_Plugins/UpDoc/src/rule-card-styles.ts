@@ -214,6 +214,17 @@ export const ruleCardStyles = css`
 		border-color: var(--uui-color-focus);
 	}
 
+	.condition-value-input.range-input {
+		max-width: 80px;
+		flex: 0 0 auto;
+	}
+
+	.range-separator {
+		font-size: var(--uui-type-small-size);
+		color: var(--uui-color-text-alt);
+		align-self: center;
+	}
+
 	/* Format row selects */
 	.format-type-select {
 		min-width: 100px;

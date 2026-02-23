@@ -174,6 +174,33 @@ public class MyController : ControllerBase
 }
 ```
 
+### Rule condition matching (MatchesCondition)
+
+The static `MatchesCondition` method evaluates a single rule condition against a PDF element. Used by `ContentTransformService` during the Shape layer to determine which rule matches each element.
+
+```csharp
+public static bool MatchesCondition(PdfElement element, RuleCondition condition, int index, int total)
+```
+
+Supported condition types:
+
+| Type | Matching Logic |
+|------|----------------|
+| `fontSizeEquals` | `Math.Abs(element.FontSize - value) <= 0.5` |
+| `fontSizeRange` | `fontSize >= min && fontSize <= max` (parses `{ min, max }` JSON object) |
+| `fontSizeAbove` | `element.FontSize > value` |
+| `fontSizeBelow` | `element.FontSize < value` |
+| `fontNameContains` | Case-insensitive substring match on font name |
+| `colorEquals` | Case-insensitive hex color comparison |
+| `positionFirst` | `index == 0` |
+| `positionLast` | `index == total - 1` |
+| `textBeginsWith` | Case-insensitive `StartsWith` on element text |
+| `textEndsWith` | Case-insensitive `EndsWith` on element text |
+| `textContains` | Case-insensitive `Contains` on element text |
+| `textMatchesPattern` | Regex match on element text |
+
+The `fontSizeRange` condition accepts a JSON object `{ "min": 9, "max": 13 }` and is preferred over `fontSizeEquals` for cross-PDF compatibility, since font metrics can vary by 1-3 points across PDFs from the same template.
+
 ## Registration
 
 Registered via `UpDocComposer` as a scoped service.

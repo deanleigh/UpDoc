@@ -8,7 +8,7 @@ const o = [
     alias: "UpDoc.EntityAction",
     name: "UpDoc Entity Action",
     weight: 1100,
-    api: () => import("./up-doc-action-KzHMJTCn.js"),
+    api: () => import("./up-doc-action--K09yyi4.js"),
     forEntityTypes: ["document"],
     meta: {
       icon: "icon-document",
@@ -40,7 +40,7 @@ const o = [
     kind: "button",
     alias: "UpDoc.CollectionAction",
     name: "UpDoc Collection Action",
-    element: () => import("./up-doc-collection-action.element-CjjCMw3F.js"),
+    element: () => import("./up-doc-collection-action.element-uaSDtymt.js"),
     weight: 50,
     meta: {
       label: "Create from Source"
@@ -59,7 +59,7 @@ const o = [
     type: "modal",
     alias: "UpDoc.Modal",
     name: "UpDoc Modal",
-    element: () => import("./up-doc-modal.element-Be_KkFrO.js")
+    element: () => import("./up-doc-modal.element-D-RkqvdF.js")
   },
   {
     type: "modal",
@@ -101,7 +101,7 @@ const o = [
     type: "modal",
     alias: "UpDoc.SectionRulesEditorModal",
     name: "Section Rules Editor Modal",
-    element: () => import("./section-rules-editor-modal.element-D8Lfse4j.js")
+    element: () => import("./section-rules-editor-modal.element-ra2eLY3H.js")
   },
   // =====================================================================
   // Workflow Workspace — full page for editing individual workflows
@@ -138,7 +138,7 @@ const o = [
     type: "workspaceView",
     alias: "UpDoc.WorkflowWorkspaceView.Source",
     name: "UpDoc Workflow Source View",
-    element: () => import("./up-doc-workflow-source-view.element-Bp2rYD7l.js"),
+    element: () => import("./up-doc-workflow-source-view.element-B7y-NMij.js"),
     weight: 200,
     meta: {
       label: "Source",

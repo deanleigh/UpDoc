@@ -35,6 +35,25 @@ export function normalizeToKebabCase(text: string): string {
 }
 
 /**
+ * Strips Markdown formatting from text, returning plain text.
+ * Used when mapping markdown content to plain text fields (text, textArea).
+ * Removes heading prefixes (# ## ###), bold/italic markers, bullet prefixes, etc.
+ */
+export function stripMarkdown(markdown: string): string {
+	if (!markdown) return '';
+	return markdown
+		.replace(/^#{1,6}\s+/gm, '')      // heading prefixes
+		.replace(/\*\*(.+?)\*\*/g, '$1')  // bold
+		.replace(/\*(.+?)\*/g, '$1')      // italic
+		.replace(/~~(.+?)~~/g, '$1')      // strikethrough
+		.replace(/`(.+?)`/g, '$1')        // inline code
+		.replace(/^\s*[-*+]\s+/gm, '')    // bullet list prefixes
+		.replace(/^\s*\d+\.\s+/gm, '')    // numbered list prefixes
+		.replace(/^\s*>\s+/gm, '')        // blockquote prefixes
+		.trim();
+}
+
+/**
  * Builds an Umbraco RTE (Rich Text Editor) value object from HTML markup.
  */
 export function buildRteValue(htmlContent: string) {

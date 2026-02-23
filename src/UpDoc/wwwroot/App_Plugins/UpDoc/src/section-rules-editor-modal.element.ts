@@ -33,6 +33,7 @@ const CONDITION_LABELS: Record<RuleConditionType, string> = {
 	fontSizeEquals: 'Font size equals',
 	fontSizeAbove: 'Font size above',
 	fontSizeBelow: 'Font size below',
+	fontSizeRange: 'Font size between',
 	fontNameContains: 'Font name contains',
 	fontNameEquals: 'Font name equals',
 	colorEquals: 'Color equals',
@@ -46,7 +47,7 @@ const VALUELESS_CONDITIONS: RuleConditionType[] = ['positionFirst', 'positionLas
 /** All available condition types */
 const ALL_CONDITION_TYPES: RuleConditionType[] = [
 	'textBeginsWith', 'textEndsWith', 'textContains', 'textEquals', 'textMatchesPattern',
-	'fontSizeEquals', 'fontSizeAbove', 'fontSizeBelow',
+	'fontSizeEquals', 'fontSizeAbove', 'fontSizeBelow', 'fontSizeRange',
 	'fontNameContains', 'fontNameEquals', 'colorEquals',
 	'positionFirst', 'positionLast',
 ];
@@ -301,11 +302,17 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 			case 'textMatchesPattern':
 				try { return new RegExp(val, 'i').test(el.text); } catch { return false; }
 			case 'fontSizeEquals':
-				return !isNaN(numVal) && Math.abs(el.fontSize - numVal) < 0.5;
+				return !isNaN(numVal) && Math.abs(el.fontSize - numVal) <= 0.5;
 			case 'fontSizeAbove':
 				return !isNaN(numVal) && el.fontSize > numVal;
 			case 'fontSizeBelow':
 				return !isNaN(numVal) && el.fontSize < numVal;
+			case 'fontSizeRange': {
+				const range = (condition.value && typeof condition.value === 'object')
+					? condition.value as { min: number; max: number }
+					: null;
+				return range !== null && el.fontSize >= range.min && el.fontSize <= range.max;
+			}
 			case 'fontNameContains':
 				return el.fontName.toLowerCase().includes(val.toLowerCase());
 			case 'colorEquals':
@@ -547,10 +554,15 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 	#updateConditionType(id: string, condIdx: number, type: RuleConditionType) {
 		this.#updateRuleById(id, (r) => {
 			const conditions = [...r.conditions];
-			conditions[condIdx] = {
-				type,
-				value: VALUELESS_CONDITIONS.includes(type) ? undefined : conditions[condIdx].value,
-			};
+			let value: string | number | { min: number; max: number } | undefined;
+			if (VALUELESS_CONDITIONS.includes(type)) {
+				value = undefined;
+			} else if (type === 'fontSizeRange') {
+				value = { min: 0, max: 100 };
+			} else {
+				value = conditions[condIdx].value;
+			}
+			conditions[condIdx] = { type, value };
 			return { ...r, conditions };
 		});
 	}
@@ -561,6 +573,17 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 			const cond = conditions[condIdx];
 			const isNumeric = cond.type === 'fontSizeEquals' || cond.type === 'fontSizeAbove' || cond.type === 'fontSizeBelow';
 			conditions[condIdx] = { ...cond, value: isNumeric && !isNaN(Number(value)) ? Number(value) : value };
+			return { ...r, conditions };
+		});
+	}
+
+	#updateFontSizeRangeValue(id: string, condIdx: number, field: 'min' | 'max', value: string) {
+		this.#updateRuleById(id, (r) => {
+			const conditions = [...r.conditions];
+			const cond = conditions[condIdx];
+			const current = (cond.value && typeof cond.value === 'object') ? cond.value as { min: number; max: number } : { min: 0, max: 100 };
+			const numValue = !isNaN(Number(value)) ? Number(value) : 0;
+			conditions[condIdx] = { ...cond, value: { ...current, [field]: numValue } };
 			return { ...r, conditions };
 		});
 	}
@@ -706,6 +729,10 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 
 	#renderConditionRow(ruleId: string, condIdx: number, condition: RuleCondition) {
 		const isValueless = VALUELESS_CONDITIONS.includes(condition.type);
+		const isRange = condition.type === 'fontSizeRange';
+		const rangeValue = isRange && condition.value && typeof condition.value === 'object'
+			? condition.value as { min: number; max: number }
+			: { min: 0, max: 100 };
 		return html`
 			<div class="condition-row">
 				<select
@@ -716,7 +743,21 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 						<option value=${t} ?selected=${t === condition.type}>${CONDITION_LABELS[t]}</option>
 					`)}
 				</select>
-				${isValueless ? nothing : html`
+				${isRange ? html`
+					<input
+						type="number"
+						class="condition-value-input range-input"
+						placeholder="Min"
+						.value=${String(rangeValue.min)}
+						@input=${(e: Event) => this.#updateFontSizeRangeValue(ruleId, condIdx, 'min', (e.target as HTMLInputElement).value)} />
+					<span class="range-separator">–</span>
+					<input
+						type="number"
+						class="condition-value-input range-input"
+						placeholder="Max"
+						.value=${String(rangeValue.max)}
+						@input=${(e: Event) => this.#updateFontSizeRangeValue(ruleId, condIdx, 'max', (e.target as HTMLInputElement).value)} />
+				` : isValueless ? nothing : html`
 					<input
 						type="text"
 						class="condition-value-input"

@@ -3,7 +3,7 @@ import { UMB_UP_DOC_MODAL } from './up-doc-modal.token.js';
 import type { DocumentTypeOption } from './blueprint-picker-modal.token.js';
 import type { DocumentTypeConfig, MappingDestination } from './workflow.types.js';
 import { fetchActiveWorkflows } from './workflow.service.js';
-import { markdownToHtml, buildRteValue } from './transforms.js';
+import { markdownToHtml, buildRteValue, stripMarkdown } from './transforms.js';
 import { css, customElement, html, state } from '@umbraco-cms/backoffice/external/lit';
 import { UmbLitElement } from '@umbraco-cms/backoffice/lit-element';
 import { UMB_DOCUMENT_WORKSPACE_CONTEXT } from '@umbraco-cms/backoffice/document';
@@ -384,7 +384,8 @@ export class UpDocCollectionActionElement extends UmbLitElement {
 	}
 
 	/**
-	 * Post-mapping pass: converts richText fields from markdown to HTML + RTE value object.
+	 * Post-mapping pass: strips markdown from plain text fields and converts richText fields
+	 * from markdown to HTML + RTE value object.
 	 * Uses destination.json field types to auto-detect which fields need conversion.
 	 * Only converts fields that were written by our mappings (tracked by mappedFields).
 	 */
@@ -393,6 +394,16 @@ export class UpDocCollectionActionElement extends UmbLitElement {
 		config: DocumentTypeConfig,
 		mappedFields: Set<string>,
 	) {
+		// Strip markdown from plain text fields (text, textArea)
+		for (const field of config.destination.fields) {
+			if ((field.type === 'text' || field.type === 'textArea') && mappedFields.has(field.alias)) {
+				const val = values.find((v) => v.alias === field.alias);
+				if (val && typeof val.value === 'string') {
+					val.value = stripMarkdown(val.value);
+				}
+			}
+		}
+
 		// Convert top-level richText fields
 		for (const field of config.destination.fields) {
 			if (field.type === 'richText' && mappedFields.has(field.alias)) {
@@ -426,7 +437,14 @@ export class UpDocCollectionActionElement extends UmbLitElement {
 						searchVal.value.toLowerCase().includes(destBlock.identifyBy.value.toLowerCase())
 					) {
 						for (const prop of destBlock.properties ?? []) {
-							if (prop.type === 'richText' && mappedFields.has(`${block.key}:${prop.alias}`)) {
+							const fieldKey = `${block.key}:${prop.alias}`;
+							if ((prop.type === 'text' || prop.type === 'textArea') && mappedFields.has(fieldKey)) {
+								const blockVal = block.values?.find((v) => v.alias === prop.alias);
+								if (blockVal && typeof blockVal.value === 'string') {
+									blockVal.value = stripMarkdown(blockVal.value);
+								}
+							}
+							if (prop.type === 'richText' && mappedFields.has(fieldKey)) {
 								const blockVal = block.values?.find((v) => v.alias === prop.alias);
 								if (blockVal && typeof blockVal.value === 'string') {
 									blockVal.value = buildRteValue(markdownToHtml(blockVal.value as string));

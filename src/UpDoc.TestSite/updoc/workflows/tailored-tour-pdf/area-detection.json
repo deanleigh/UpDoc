@@ -8,10 +8,10 @@
           "name": "Page Header",
           "color": "#e84855",
           "boundingBox": {
-            "left": 17,
+            "left": 15,
             "top": 826.9,
-            "width": 375,
-            "height": 123
+            "width": 381,
+            "height": 216
           },
           "page": 1,
           "sections": [

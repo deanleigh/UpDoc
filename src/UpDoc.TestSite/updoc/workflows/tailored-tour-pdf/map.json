@@ -5,67 +5,7 @@
   "description": "Mapping configuration for tailored-tour-pdf",
   "mappings": [
     {
-      "source": "name.heading",
-      "destinations": [
-        {
-          "target": "organiserName",
-          "blockKey": null,
-          "transforms": null
-        }
-      ],
-      "enabled": true,
-      "comment": null
-    },
-    {
-      "source": "telephone.heading",
-      "destinations": [
-        {
-          "target": "organiserTelephone",
-          "blockKey": null,
-          "transforms": null
-        }
-      ],
-      "enabled": true,
-      "comment": null
-    },
-    {
-      "source": "email.heading",
-      "destinations": [
-        {
-          "target": "organiserEmail",
-          "blockKey": null,
-          "transforms": null
-        }
-      ],
-      "enabled": true,
-      "comment": null
-    },
-    {
-      "source": "address.heading",
-      "destinations": [
-        {
-          "target": "organiserAddress",
-          "blockKey": null,
-          "transforms": null
-        }
-      ],
-      "enabled": true,
-      "comment": null
-    },
-    {
-      "source": "preamble-p1-z0.content",
-      "destinations": [
-        {
-          "target": "organiserOrganisation",
-          "blockKey": null,
-          "transforms": null
-        }
-      ],
-      "enabled": true,
-      "comment": null
-    },
-    {
-      "source": "the-moorish-treasures-of-andaluc-a.heading",
+      "source": "tour-title.content",
       "destinations": [
         {
           "target": "pageTitle",
@@ -82,58 +22,22 @@
       "comment": null
     },
     {
-      "source": "6-days-from-1-099-departing-8th-november-2018.content",
-      "destinations": [
-        {
-          "target": "pageDescription",
-          "blockKey": null,
-          "transforms": null
-        }
-      ],
-      "enabled": true,
-      "comment": null
-    },
-    {
-      "source": "features.content",
-      "destinations": [
-        {
-          "target": "richTextContent",
-          "blockKey": "e8fa3567-798c-427f-8677-58bfd87b19cb",
-          "transforms": null
-        }
-      ],
-      "enabled": true,
-      "comment": null
-    },
-    {
-      "source": "preamble-p2-z0.content",
-      "destinations": [
-        {
-          "target": "richTextContent",
-          "blockKey": "1e424c30-f74a-43fe-8c93-b59a4e52fa8b",
-          "transforms": null
-        }
-      ],
-      "enabled": true,
-      "comment": null
-    },
-    {
-      "source": "tour-title.content",
-      "destinations": [
-        {
-          "target": "pageTitle",
-          "blockKey": null,
-          "transforms": null
-        }
-      ],
-      "enabled": true,
-      "comment": null
-    },
-    {
       "source": "tour-description.content",
       "destinations": [
         {
           "target": "pageDescription",
+          "blockKey": null,
+          "transforms": null
+        }
+      ],
+      "enabled": true,
+      "comment": null
+    },
+    {
+      "source": "organisation.content",
+      "destinations": [
+        {
+          "target": "organiserOrganisation",
           "blockKey": null,
           "transforms": null
         }
@@ -202,11 +106,11 @@
       "comment": null
     },
     {
-      "source": "organisation.content",
+      "source": "features.content",
       "destinations": [
         {
-          "target": "organiserOrganisation",
-          "blockKey": null,
+          "target": "richTextContent",
+          "blockKey": "e8fa3567-798c-427f-8677-58bfd87b19cb",
           "transforms": null
         }
       ],
@@ -231,6 +135,18 @@
         {
           "target": "richTextContent",
           "blockKey": "bc5ae5e8-0f80-48b6-acbf-ef6eb7ebd69c",
+          "transforms": null
+        }
+      ],
+      "enabled": true,
+      "comment": null
+    },
+    {
+      "source": "preamble-p2-z0.content",
+      "destinations": [
+        {
+          "target": "richTextContent",
+          "blockKey": "1e424c30-f74a-43fe-8c93-b59a4e52fa8b",
           "transforms": null
         }
       ],

@@ -1116,6 +1116,9 @@ function et(s) {
   return s.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 }
 function tt(s) {
+  return s ? s.replace(/^#{1,6}\s+/gm, "").replace(/\*\*(.+?)\*\*/g, "$1").replace(/\*(.+?)\*/g, "$1").replace(/~~(.+?)~~/g, "$1").replace(/`(.+?)`/g, "$1").replace(/^\s*[-*+]\s+/gm, "").replace(/^\s*\d+\.\s+/gm, "").replace(/^\s*>\s+/gm, "").trim() : "";
+}
+function rt(s) {
   return {
     blocks: {
       contentData: [],
@@ -1127,8 +1130,9 @@ function tt(s) {
   };
 }
 export {
-  tt as b,
+  rt as b,
   Ye as m,
-  et as n
+  et as n,
+  tt as s
 };
-//# sourceMappingURL=transforms-deUehta3.js.map
+//# sourceMappingURL=transforms-BkZeboOX.js.map

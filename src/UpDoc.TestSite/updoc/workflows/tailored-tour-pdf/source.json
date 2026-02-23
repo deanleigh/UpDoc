@@ -23,8 +23,8 @@
           "exclude": false,
           "conditions": [
             {
-              "type": "fontSizeEquals",
-              "value": 23
+              "type": "fontSizeRange",
+              "value": { "min": 20, "max": 27 }
             },
             {
               "type": "fontNameContains",
@@ -33,10 +33,6 @@
             {
               "type": "colorEquals",
               "value": "#FFD200"
-            },
-            {
-              "type": "positionFirst",
-              "value": null
             }
           ],
           "exceptions": null,
@@ -124,8 +120,8 @@
           "exclude": false,
           "conditions": [
             {
-              "type": "fontSizeEquals",
-              "value": 12
+              "type": "fontSizeRange",
+              "value": { "min": 10, "max": 14 }
             },
             {
               "type": "fontNameContains",
@@ -134,10 +130,6 @@
             {
               "type": "colorEquals",
               "value": "#FFFFFF"
-            },
-            {
-              "type": "positionLast",
-              "value": null
             }
           ],
           "exceptions": null,
@@ -156,8 +148,8 @@
           "exclude": false,
           "conditions": [
             {
-              "type": "fontSizeEquals",
-              "value": 11.4
+              "type": "fontSizeRange",
+              "value": { "min": 9, "max": 13 }
             },
             {
               "type": "fontNameContains",
@@ -166,10 +158,6 @@
             {
               "type": "colorEquals",
               "value": "#FFD200"
-            },
-            {
-              "type": "positionFirst",
-              "value": null
             }
           ],
           "exceptions": null,
@@ -183,8 +171,8 @@
           "exclude": false,
           "conditions": [
             {
-              "type": "fontSizeEquals",
-              "value": 28
+              "type": "fontSizeRange",
+              "value": { "min": 25, "max": 35 }
             },
             {
               "type": "fontNameContains",
@@ -206,8 +194,8 @@
           "exclude": false,
           "conditions": [
             {
-              "type": "fontSizeEquals",
-              "value": 14.4
+              "type": "fontSizeRange",
+              "value": { "min": 13, "max": 16 }
             },
             {
               "type": "fontNameContains",
@@ -216,10 +204,6 @@
             {
               "type": "colorEquals",
               "value": "#FFD200"
-            },
-            {
-              "type": "positionLast",
-              "value": null
             }
           ],
           "exceptions": null,
@@ -300,8 +284,8 @@
               "exclude": false,
               "conditions": [
                 {
-                  "type": "fontSizeEquals",
-                  "value": 8.5
+                  "type": "fontSizeRange",
+                  "value": { "min": 7, "max": 9 }
                 },
                 {
                   "type": "fontNameContains",
@@ -333,8 +317,8 @@
               "exclude": false,
               "conditions": [
                 {
-                  "type": "fontSizeEquals",
-                  "value": 10
+                  "type": "fontSizeRange",
+                  "value": { "min": 9, "max": 12 }
                 },
                 {
                   "type": "fontNameContains",
@@ -356,8 +340,8 @@
               "exclude": false,
               "conditions": [
                 {
-                  "type": "fontSizeEquals",
-                  "value": 10
+                  "type": "fontSizeRange",
+                  "value": { "min": 9, "max": 12 }
                 },
                 {
                   "type": "fontNameContains",
@@ -379,8 +363,8 @@
               "exclude": false,
               "conditions": [
                 {
-                  "type": "fontSizeEquals",
-                  "value": 8
+                  "type": "fontSizeRange",
+                  "value": { "min": 7, "max": 9 }
                 },
                 {
                   "type": "fontNameContains",
