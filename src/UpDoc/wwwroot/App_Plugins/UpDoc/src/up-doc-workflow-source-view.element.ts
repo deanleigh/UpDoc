@@ -114,6 +114,10 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 					this._pageMode = 'all';
 					this._pageInputValue = '';
 				}
+			} else {
+				// Non-PDF: load transform result (auto-generated from extraction)
+				const transformResult = await fetchTransformResult(this._workflowName, this.#token);
+				this._transformResult = transformResult;
 			}
 		} catch (err) {
 			this._error = err instanceof Error ? err.message : 'Failed to load data';
@@ -454,11 +458,14 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 					this._error = 'Extraction failed. Check that the selected media item is a PDF.';
 				}
 			} else {
-				// Non-PDF (markdown, web, etc.): just trigger sample extraction, no transform/areas
+				// Non-PDF (markdown, web, etc.): trigger sample extraction, then fetch auto-generated transform
 				const extraction = await triggerSampleExtraction(this._workflowName, mediaKey, token);
 
 				if (extraction) {
 					this._extraction = extraction;
+					// Backend auto-generated transform.json — fetch it
+					const transformResult = await fetchTransformResult(this._workflowName!, token);
+					this._transformResult = transformResult;
 					this._successMessage = `Content extracted — ${extraction.elements.length} elements`;
 					setTimeout(() => { this._successMessage = null; }, 5000);
 				} else {
@@ -1380,6 +1387,67 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		</uui-tag>`);
 	}
 
+	/** Info boxes for non-PDF sources — Source box (functional) + 3 placeholders. */
+	#renderNonPdfInfoBoxes() {
+		if (!this._extraction) return nothing;
+
+		const isWeb = this.#sourceType === 'web';
+		const fileName = this._extraction.source.fileName ?? '';
+		const extractedDate = new Date(this._extraction.source.extractedDate).toLocaleString();
+
+		return html`
+			<div class="info-boxes">
+				<uui-box class="info-box-item">
+					<div slot="headline" class="box-headline-row">
+						<span>Source</span>
+						<span class="box-headline-meta">${extractedDate}</span>
+					</div>
+					<div class="box-content">
+						<uui-icon name="${isWeb ? 'icon-globe' : 'icon-document'}" class="box-icon"></uui-icon>
+						<span class="box-stat box-filename" title="${fileName}">${fileName}</span>
+						<div class="box-buttons">
+							${isWeb
+								? html`<uui-button look="primary" color="default" label="Re-extract"
+									@click=${() => this.#runUrlExtraction(fileName)} ?disabled=${this._extracting}>
+									<uui-icon name="icon-globe"></uui-icon> Re-extract
+								</uui-button>`
+								: html`<uui-button look="primary" color="default" label="Change file"
+									@click=${this.#onPickMedia} ?disabled=${this._extracting}>
+									<uui-icon name="icon-document"></uui-icon> Change file
+								</uui-button>`
+							}
+						</div>
+					</div>
+				</uui-box>
+
+				<uui-box headline="Box 1" class="info-box-item">
+					<div class="box-content">
+						<uui-icon name="icon-lab" class="box-icon"></uui-icon>
+					</div>
+				</uui-box>
+
+				<uui-box headline="Box 2" class="info-box-item">
+					<div class="box-content">
+						<uui-icon name="icon-lab" class="box-icon"></uui-icon>
+					</div>
+				</uui-box>
+
+				<uui-box headline="Box 3" class="info-box-item">
+					<div class="box-content">
+						<uui-icon name="icon-lab" class="box-icon"></uui-icon>
+					</div>
+				</uui-box>
+			</div>
+		`;
+	}
+
+	/** Routes between Extracted and Transformed views for non-PDF sources. */
+	#renderNonPdfContent() {
+		return this._viewMode === 'elements'
+			? this.#renderSimpleElements()
+			: this.#renderTransformed();
+	}
+
 	/** Simple header for non-PDF sources — just shows file name and a change button. */
 	#renderSimpleHeader() {
 		if (this.#sourceType === 'web') {
@@ -1508,6 +1576,9 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 
 			if (extraction) {
 				this._extraction = extraction;
+				// Backend auto-generated transform.json — fetch it
+				const transformResult = await fetchTransformResult(this._workflowName!, token);
+				this._transformResult = transformResult;
 				this._successMessage = `Content extracted — ${extraction.elements.length} elements`;
 				setTimeout(() => { this._successMessage = null; }, 5000);
 			} else {
@@ -1537,12 +1608,13 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		const hasContent = this._areaDetection !== null || this._extraction !== null;
 
 		if (!isPdf) {
-			// Non-PDF sources: simplified view — just elements, no areas/transform/pages
+			// Non-PDF sources: consistent tab + info box layout matching PDF
 			return html`
 				<umb-body-layout header-fit-height>
-					${hasContent ? this.#renderSimpleHeader() : nothing}
+					${hasContent ? this.#renderExtractionHeader() : nothing}
+					${hasContent && this._viewMode === 'elements' ? this.#renderNonPdfInfoBoxes() : nothing}
 					${this._successMessage ? html`<div class="success-banner"><uui-icon name="icon-check"></uui-icon> ${this._successMessage}</div>` : nothing}
-					${hasContent ? this.#renderSimpleElements() : this.#renderEmpty()}
+					${hasContent ? this.#renderNonPdfContent() : this.#renderEmpty()}
 				</umb-body-layout>
 			`;
 		}

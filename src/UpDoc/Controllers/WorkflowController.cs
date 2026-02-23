@@ -248,6 +248,13 @@ public class WorkflowController : ControllerBase
         try
         {
             _workflowService.SaveSampleExtraction(name, result);
+
+            // Auto-generate transform for structured sources (heading-based grouping)
+            if (sourceType == "markdown" || sourceType == "web")
+            {
+                var transformResult = ConvertStructuredToTransformResult(result);
+                _workflowService.SaveTransformResult(name, transformResult);
+            }
         }
         catch (DirectoryNotFoundException)
         {
