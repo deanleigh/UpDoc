@@ -124,8 +124,12 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				this._areaDetection = areaDetection;
 				this._transformResult = transformResult;
 			} else {
-				// Markdown: load transform result (auto-generated from extraction)
-				const transformResult = await fetchTransformResult(this._workflowName, this.#token);
+				// Markdown: load area detection + transform (both auto-generated from extraction)
+				const [areaDetection, transformResult] = await Promise.all([
+					fetchAreaDetection(this._workflowName, this.#token),
+					fetchTransformResult(this._workflowName, this.#token),
+				]);
+				this._areaDetection = areaDetection;
 				this._transformResult = transformResult;
 			}
 		} catch (err) {
@@ -251,6 +255,45 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 
 	#onCollapsePopoverToggle(event: ToggleEvent) {
 		this._collapsePopoverOpen = event.newState === 'open';
+	}
+
+	/** Shared collapse/expand button with popover for all source types. */
+	#renderCollapseRow() {
+		if (!this._areaDetection || this._viewMode !== 'elements') return nothing;
+		return html`
+			<div class="collapse-row">
+				<uui-button
+					look="outline"
+					compact
+					label="Collapse"
+					popovertarget="collapse-level-popover">
+					Collapse
+					<uui-symbol-expand .open=${this._collapsePopoverOpen}></uui-symbol-expand>
+				</uui-button>
+				<uui-popover-container
+					id="collapse-level-popover"
+					placement="bottom-start"
+					@toggle=${this.#onCollapsePopoverToggle}>
+					<umb-popover-layout>
+						<uui-menu-item
+							label="Expand All"
+							@click=${() => this.#expandAll()}>
+							<uui-icon slot="icon" name="icon-navigation-down"></uui-icon>
+						</uui-menu-item>
+						<uui-menu-item
+							label="${this.#isLevelCollapsed('areas') ? 'Expand' : 'Collapse'} Areas"
+							@click=${() => this.#toggleLevel('areas')}>
+							<uui-icon slot="icon" name="icon-grid"></uui-icon>
+						</uui-menu-item>
+						<uui-menu-item
+							label="${this.#isLevelCollapsed('sections') ? 'Expand' : 'Collapse'} Sections"
+							@click=${() => this.#toggleLevel('sections')}>
+							<uui-icon slot="icon" name="icon-thumbnail-list"></uui-icon>
+						</uui-menu-item>
+					</umb-popover-layout>
+				</uui-popover-container>
+			</div>
+		`;
 	}
 
 	async #onPickMedia() {
@@ -1404,12 +1447,15 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		</uui-tag>`);
 	}
 
-	/** Info boxes for non-PDF sources — Source box (functional) + 3 placeholders. */
+	/** Info boxes for markdown sources — Source, Areas, Sections. */
 	#renderNonPdfInfoBoxes() {
 		if (!this._extraction) return nothing;
 
 		const fileName = this._extraction.source.fileName ?? '';
 		const extractedDate = new Date(this._extraction.source.extractedDate).toLocaleString();
+		const hasAreas = this._areaDetection !== null;
+		const areaCount = hasAreas ? this._areaDetection!.diagnostics.areasDetected : 0;
+		const sectionCount = hasAreas ? this.#computeSectionCount() : 0;
 
 		return html`
 			<div class="info-boxes">
@@ -1433,6 +1479,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				<uui-box headline="Areas" class="info-box-item">
 					<div class="box-content">
 						<uui-icon name="icon-grid" class="box-icon"></uui-icon>
+						<span class="box-stat">${areaCount}</span>
 						<div class="box-buttons">
 							<uui-button look="primary" color="default" label="Choose Areas" disabled>
 								<uui-icon name="icon-grid"></uui-icon> Choose Areas
@@ -1444,6 +1491,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				<uui-box headline="Sections" class="info-box-item">
 					<div class="box-content">
 						<uui-icon name="icon-thumbnail-list" class="box-icon"></uui-icon>
+						<span class="box-stat">${sectionCount}</span>
 						<div class="box-buttons">
 							<uui-button look="primary" color="default" label="Choose Sections" disabled>
 								<uui-icon name="icon-thumbnail-list"></uui-icon> Choose Sections
@@ -1457,9 +1505,14 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 
 	/** Routes between Extracted and Transformed views for non-PDF sources (markdown). */
 	#renderNonPdfContent() {
-		return this._viewMode === 'elements'
-			? this.#renderSimpleElements()
-			: this.#renderTransformed();
+		if (this._viewMode === 'transformed') {
+			return this.#renderTransformed();
+		}
+		// Extracted tab: use area hierarchy if available, otherwise flat list
+		if (this._areaDetection) {
+			return this.#renderAreaDetection();
+		}
+		return this.#renderSimpleElements();
 	}
 
 	/** Info boxes for web sources — Source, Areas, Sections (3 functional boxes). */
@@ -1708,11 +1761,11 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		const hasContent = this._areaDetection !== null || this._extraction !== null;
 
 		if (isMarkdown) {
-			// Markdown: simple flat view (no area detection)
 			return html`
 				<umb-body-layout header-fit-height>
 					${hasContent ? this.#renderExtractionHeader() : nothing}
 					${hasContent && this._viewMode === 'elements' ? this.#renderNonPdfInfoBoxes() : nothing}
+					${this.#renderCollapseRow()}
 					${this._successMessage ? html`<div class="success-banner"><uui-icon name="icon-check"></uui-icon> ${this._successMessage}</div>` : nothing}
 					${hasContent ? this.#renderNonPdfContent() : this.#renderEmpty()}
 				</umb-body-layout>
@@ -1720,11 +1773,11 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		}
 
 		if (isWeb) {
-			// Web: area-based hierarchy (same as PDF) or flat if no areas yet
 			return html`
 				<umb-body-layout header-fit-height>
 					${hasContent ? this.#renderExtractionHeader() : nothing}
 					${hasContent && this._viewMode === 'elements' ? this.#renderWebInfoBoxes() : nothing}
+					${this.#renderCollapseRow()}
 					${this._successMessage ? html`<div class="success-banner"><uui-icon name="icon-check"></uui-icon> ${this._successMessage}</div>` : nothing}
 					${hasContent ? this.#renderWebContent() : this.#renderEmpty()}
 				</umb-body-layout>

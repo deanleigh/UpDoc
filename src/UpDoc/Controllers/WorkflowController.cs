@@ -261,7 +261,11 @@ public class WorkflowController : ControllerBase
             }
             else if (sourceType == "markdown")
             {
-                // Auto-generate transform for markdown (heading-based grouping, no areas)
+                // Build area detection with a single "Content" area for consistent UI
+                var areaDetection = BuildAreaDetectionFromMarkdown(result);
+                _workflowService.SaveAreaDetection(name, areaDetection);
+
+                // Auto-generate transform for markdown (heading-based grouping)
                 var transformResult = ConvertStructuredToTransformResult(result);
                 _workflowService.SaveTransformResult(name, transformResult);
             }
@@ -893,6 +897,46 @@ public class WorkflowController : ControllerBase
             Diagnostics = new AreaDiagnosticInfo
             {
                 AreasDetected = areas.Count,
+                ElementsInAreas = extraction.Elements.Count,
+            }
+        };
+    }
+
+    /// <summary>
+    /// Builds an AreaDetectionResult from markdown extraction with a single "Content" area.
+    /// This gives markdown the same Page > Area > Section hierarchy as PDF and web sources.
+    /// </summary>
+    private static AreaDetectionResult BuildAreaDetectionFromMarkdown(RichExtractionResult extraction)
+    {
+        var sections = GroupElementsIntoSections(extraction.Elements);
+
+        var areas = new List<DetectedArea>
+        {
+            new()
+            {
+                Name = "Content",
+                Color = "#A5D6A7",
+                BoundingBox = new ElementBoundingBox(),
+                Page = 1,
+                Sections = sections,
+                TotalElements = extraction.Elements.Count,
+            }
+        };
+
+        return new AreaDetectionResult
+        {
+            TotalPages = 1,
+            Pages = new List<PageAreas>
+            {
+                new()
+                {
+                    Page = 1,
+                    Areas = areas,
+                }
+            },
+            Diagnostics = new AreaDiagnosticInfo
+            {
+                AreasDetected = 1,
                 ElementsInAreas = extraction.Elements.Count,
             }
         };
