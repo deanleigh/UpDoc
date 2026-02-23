@@ -1,15 +1,17 @@
 # up-doc-workflow-source-view.element.ts
 
-Workspace view for the Source tab in the workflow workspace. Displays the four-level extraction hierarchy (Page > Area > Section > Text) and the transformed content view.
+Workspace view for the Source tab in the workflow workspace. Displays extracted content and the transformed content view for all three source types (PDF, Markdown, Web).
 
 ## What it does
 
 Displays the sample extraction for a workflow in two modes:
 
-- **Extracted** — area detection hierarchy showing pages, areas (colour-coded), sections (with headings), and individual text elements with metadata
-- **Transformed** — assembled sections with pattern detection (bullet list, paragraph, sub-headed, preamble) and mapping controls
+- **Extracted** — for PDF: area detection hierarchy showing pages, areas (colour-coded), sections (with headings), and individual text elements with metadata. For Markdown/Web: flat element list with metadata badges.
+- **Transformed** — assembled sections with pattern detection (bullet list, paragraph, sub-headed, preamble). For PDF: includes mapping controls. For Markdown/Web: read-only preview of heading-grouped sections rendered as HTML.
 
-Users can include/exclude sections (via toggle), include/exclude pages, map sections to destination fields, collapse/expand any level, and re-extract from a different source PDF.
+All three source types share the same Extracted/Transformed tab pair and info box layout for a consistent user experience. PDF uses a rich four-level hierarchy with area detection; Markdown and Web use a simpler flat element display on the Extracted tab but share the same Transformed tab rendering.
+
+Users can include/exclude sections (via toggle), include/exclude pages, map sections to destination fields, collapse/expand any level, and re-extract from a different source.
 
 ## How it works
 
@@ -50,10 +52,9 @@ Users can filter which PDF pages are extracted. Stored in `source.json` as a `pa
 On load, the component:
 
 1. Consumes `UMB_WORKSPACE_CONTEXT` and observes the `unique` value (workflow name)
-2. Loads in parallel: sample extraction, area detection, workflow config, transform result, source config
-3. Initialises page selection state from source config
-4. If sample extraction and area detection exist, automatically triggers a fresh transform to ensure data is current
-5. Stores all in state for rendering
+2. For **PDF** sources: loads in parallel — sample extraction, area detection, workflow config, transform result, source config. Initialises page selection state from source config. If sample extraction and area detection exist, automatically triggers a fresh transform to ensure data is current.
+3. For **Markdown/Web** sources: loads sample extraction, workflow config, and transform result (auto-generated during extraction by the backend). No area detection or page selection.
+4. Stores all in state for rendering
 
 ### Extracted mode (area detection hierarchy)
 
@@ -104,9 +105,21 @@ The section-to-element lookup walks area detection pages to find elements belong
 
 From the Transformed view, users can map section parts (title, content, description, summary) to destination fields. Each mappable part has its own Map button that opens `UMB_DESTINATION_PICKER_MODAL`. Results are saved to `map.json` using source keys in the format `${sectionId}.${partSuffix}` (e.g., `features.title`, `features.content`). Mapped parts show green `uui-tag` badges with an "x" button for inline unmapping. Mapped sections get a green left border on the `uui-box`.
 
+### Non-PDF render path (Markdown/Web)
+
+For markdown and web source types, the component uses the same `umb-body-layout` with `#renderExtractionHeader()` for tab switching. Key differences from PDF:
+
+- **Info boxes**: `#renderNonPdfInfoBoxes()` renders 4 boxes — a functional Source box (filename/URL, extraction date, Change file/Re-extract button) plus 3 placeholder boxes ("Box 1", "Box 2", "Box 3") reserved for future features.
+- **Extracted tab**: `#renderSimpleElements()` shows a flat list of extracted elements with metadata badges (font name, font size, colour).
+- **Transformed tab**: `#renderTransformed()` / `#buildFullMarkdown()` renders the auto-generated transform result as HTML sections — identical rendering to PDF's Transformed view.
+- **Extraction flow**: After extraction, the backend auto-generates `transform.json` (deterministic heading-based grouping), which the frontend immediately fetches so the Transformed tab is populated without a separate trigger step.
+
 ### Empty state
 
-When no sample extraction exists, shows a centered prompt with "Choose PDF" button.
+When no sample extraction exists, shows a source-appropriate empty state:
+- **PDF**: centered prompt with "Choose PDF" button
+- **Markdown**: file picker prompt
+- **Web**: URL input field with "Extract" button, plus file upload fallback
 
 ## Key methods
 
@@ -141,6 +154,8 @@ When no sample extraction exists, shows a centered prompt with "Choose PDF" butt
 | `#renderAreaElement()` | Renders individual text element with type + metadata badges |
 | `#classifyText()` | Classifies text as 'list' or 'paragraph' by leading pattern |
 | `#renderTransformedSection()` | Renders an assembled section with pattern badge and mapping |
+| `#renderNonPdfInfoBoxes()` | Four info boxes for markdown/web: functional Source box + 3 placeholders |
+| `#renderNonPdfContent()` | Routes non-PDF between `#renderSimpleElements()` (Extracted) and `#renderTransformed()` (Transformed) |
 | `#renderMappingBadges()` | Shows Map button or green mapped-target badges |
 | `#hasAreaRules(area)` | Checks if an area has rules defined in source config |
 | `#getTransformSectionsForArea(area, pageNum)` | Gets transform sections belonging to an area (matched by colour + page) |

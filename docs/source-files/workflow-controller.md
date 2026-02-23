@@ -15,7 +15,7 @@ ASP.NET Core API controller for UpDoc workflow CRUD operations.
 | GET | `/{name}` | Returns full configuration for a specific workflow (bypasses validation) |
 | POST | `/` | Creates a new workflow folder with stub files + auto-populates destination.json |
 | DELETE | `/{name}` | Deletes a workflow folder |
-| POST | `/{name}/sample-extraction` | Extracts text from a PDF and saves as sample extraction |
+| POST | `/{name}/sample-extraction` | Extracts content from a source (PDF, Markdown, or Web URL) and saves as sample extraction. For markdown/web sources, also auto-generates transform.json via `ConvertStructuredToTransformResult` (deterministic heading-based grouping) |
 | GET | `/{name}/sample-extraction` | Returns the saved sample extraction |
 | POST | `/{name}/regenerate-destination` | Regenerates destination.json from the blueprint |
 | PUT | `/{name}/map` | Saves updated map.json |
