@@ -76,6 +76,21 @@ nav:
     - WorkflowModels.cs: source-files/workflow-models.md
     - WorkflowService.cs: source-files/workflow-service.md
     - WorkflowController.cs: source-files/workflow-controller.md
+  - Tooling:
+    - tooling/index.md
+    - Figma:
+      - tooling/figma/index.md
+      - Figma MCP: tooling/figma/figma-mcp.md
+      - html.to.design: tooling/figma/html-to-design.md
+      - Design Workflow: tooling/figma/workflow.md
+    - Claude:
+      - tooling/claude/index.md
+      - CLAUDE.md: tooling/claude/claude-md.md
+      - Memory & Planning: tooling/claude/memory-and-planning.md
+    - Playwright:
+      - tooling/playwright/index.md
+    - Umbraco Claude Skills:
+      - tooling/umbraco-skills/index.md
   - Common Errors:
     - errors/index.md
     - Distributed cache error: common-errors.md
