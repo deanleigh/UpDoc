@@ -23,6 +23,7 @@ public class WorkflowController : ControllerBase
     private readonly IWorkflowService _workflowService;
     private readonly IDestinationStructureService _destinationStructureService;
     private readonly IPdfPagePropertiesService _pdfPagePropertiesService;
+    private readonly IMarkdownExtractionService _markdownExtractionService;
     private readonly IContentTransformService _contentTransformService;
     private readonly IMediaService _mediaService;
     private readonly IWebHostEnvironment _webHostEnvironment;
@@ -32,6 +33,7 @@ public class WorkflowController : ControllerBase
         IWorkflowService workflowService,
         IDestinationStructureService destinationStructureService,
         IPdfPagePropertiesService pdfPagePropertiesService,
+        IMarkdownExtractionService markdownExtractionService,
         IContentTransformService contentTransformService,
         IMediaService mediaService,
         IWebHostEnvironment webHostEnvironment,
@@ -40,6 +42,7 @@ public class WorkflowController : ControllerBase
         _workflowService = workflowService;
         _destinationStructureService = destinationStructureService;
         _pdfPagePropertiesService = pdfPagePropertiesService;
+        _markdownExtractionService = markdownExtractionService;
         _contentTransformService = contentTransformService;
         _mediaService = mediaService;
         _webHostEnvironment = webHostEnvironment;
@@ -193,11 +196,22 @@ public class WorkflowController : ControllerBase
         var media = _mediaService.GetById(request.MediaKey);
         var fileName = media?.Name ?? Path.GetFileName(absolutePath);
 
-        // Read page selection from source.json
+        // Detect source type from workflow config
         var sourceConfig = _workflowService.GetSourceConfig(name);
-        var includePages = ResolveIncludePages(absolutePath, sourceConfig);
+        var sourceType = sourceConfig?.SourceTypes?.FirstOrDefault() ?? "pdf";
 
-        var result = _pdfPagePropertiesService.ExtractRichDump(absolutePath, includePages);
+        RichExtractionResult result;
+
+        if (sourceType == "markdown")
+        {
+            result = _markdownExtractionService.ExtractRich(absolutePath);
+        }
+        else
+        {
+            // PDF extraction (default)
+            var includePages = ResolveIncludePages(absolutePath, sourceConfig);
+            result = _pdfPagePropertiesService.ExtractRichDump(absolutePath, includePages);
+        }
 
         if (!string.IsNullOrEmpty(result.Error))
         {
@@ -217,8 +231,8 @@ public class WorkflowController : ControllerBase
             return NotFound(new { error = $"Workflow '{name}' not found." });
         }
 
-        _logger.LogInformation("Extracted and saved sample for workflow '{Name}': {Count} elements from {FileName}",
-            name, result.Elements.Count, fileName);
+        _logger.LogInformation("Extracted and saved sample for workflow '{Name}' ({SourceType}): {Count} elements from {FileName}",
+            name, sourceType, result.Elements.Count, fileName);
 
         return Ok(result);
     }
@@ -405,15 +419,26 @@ public class WorkflowController : ControllerBase
 
         try
         {
-            // Read page selection and area template from workflow
             var sourceConfig = _workflowService.GetSourceConfig(name);
-            var includePages = ResolveIncludePages(absolutePath, sourceConfig);
-            var areaTemplate = _workflowService.GetAreaTemplate(name);
+            var sourceType = sourceConfig?.SourceTypes?.FirstOrDefault() ?? "pdf";
 
-            var areaResult = _pdfPagePropertiesService.DetectAreas(absolutePath, includePages, areaTemplate);
-            var previousTransform = _workflowService.GetTransformResult(name);
-            var result = _contentTransformService.Transform(areaResult, sourceConfig?.AreaRules, previousTransform);
-            return Ok(result);
+            if (sourceType == "markdown")
+            {
+                var extraction = _markdownExtractionService.ExtractRich(absolutePath);
+                var result = ConvertMarkdownToTransformResult(extraction);
+                return Ok(result);
+            }
+            else
+            {
+                // PDF: area detection + rule-based transform
+                var includePages = ResolveIncludePages(absolutePath, sourceConfig);
+                var areaTemplate = _workflowService.GetAreaTemplate(name);
+
+                var areaResult = _pdfPagePropertiesService.DetectAreas(absolutePath, includePages, areaTemplate);
+                var previousTransform = _workflowService.GetTransformResult(name);
+                var result = _contentTransformService.Transform(areaResult, sourceConfig?.AreaRules, previousTransform);
+                return Ok(result);
+            }
         }
         catch (Exception ex)
         {
@@ -752,6 +777,105 @@ public class WorkflowController : ControllerBase
     /// Opens the PDF briefly to get the total page count for validation.
     /// Returns null if all pages should be included.
     /// </summary>
+    /// <summary>
+    /// Converts a markdown RichExtractionResult into a TransformResult.
+    /// Groups elements by heading: each heading starts a new section with a kebab-case ID.
+    /// Body elements between headings become the section's content.
+    /// </summary>
+    private static TransformResult ConvertMarkdownToTransformResult(RichExtractionResult extraction)
+    {
+        var sections = new List<TransformedSection>();
+        var seenIds = new Dictionary<string, int>();
+
+        string? currentHeading = null;
+        string? currentId = null;
+        var currentBodyLines = new List<string>();
+
+        void FlushSection()
+        {
+            if (currentId == null) return;
+            var content = string.Join("\n\n", currentBodyLines).Trim();
+            var section = new TransformedSection
+            {
+                Id = EnsureUniqueId(currentId, seenIds),
+                OriginalHeading = currentHeading,
+                Heading = currentHeading,
+                Content = content,
+                Pattern = "paragraph",
+                Page = 1,
+                ChildCount = currentBodyLines.Count,
+                Included = true,
+            };
+            sections.Add(section);
+        }
+
+        foreach (var element in extraction.Elements)
+        {
+            var isHeading = element.Metadata.FontName.StartsWith("heading-");
+
+            if (isHeading)
+            {
+                // Flush previous section
+                FlushSection();
+
+                // Start new section
+                currentHeading = element.Text;
+                currentId = NormalizeToKebabCase(element.Text);
+                currentBodyLines.Clear();
+            }
+            else
+            {
+                if (currentId == null)
+                {
+                    // Body text before any heading → preamble section
+                    currentHeading = null;
+                    currentId = "preamble";
+                }
+                currentBodyLines.Add(element.Text);
+            }
+        }
+
+        // Flush last section
+        FlushSection();
+
+        return new TransformResult
+        {
+            Areas = new List<TransformArea>
+            {
+                new()
+                {
+                    Name = "Content",
+                    Page = 1,
+                    Sections = sections,
+                }
+            },
+            Diagnostics = new TransformDiagnostics
+            {
+                TotalSections = sections.Count,
+                ParagraphSections = sections.Count,
+            }
+        };
+    }
+
+    private static string NormalizeToKebabCase(string text)
+    {
+        var lower = text.ToLower(System.Globalization.CultureInfo.InvariantCulture).Trim();
+        var kebab = System.Text.RegularExpressions.Regex.Replace(lower, @"[^a-z0-9]+", "-");
+        return kebab.Trim('-');
+    }
+
+    private static string EnsureUniqueId(string baseId, Dictionary<string, int> seenIds)
+    {
+        if (seenIds.TryGetValue(baseId, out var count))
+        {
+            seenIds[baseId] = count + 1;
+            return $"{baseId}-{count + 1}";
+        }
+
+        seenIds[baseId] = 1;
+        return baseId;
+    }
+
     private static List<int>? ResolveIncludePages(string filePath, SourceConfig? sourceConfig)
     {
         if (sourceConfig?.Pages == null || sourceConfig.Pages.IsAll)

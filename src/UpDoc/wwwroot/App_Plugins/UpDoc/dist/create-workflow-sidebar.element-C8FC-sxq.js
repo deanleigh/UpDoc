@@ -1,5 +1,5 @@
 import { U as X } from "./page-picker-modal.token-B0CgP9f1.js";
-import { e as H } from "./workflow.service-8lXLgP5U.js";
+import { e as H } from "./workflow.service-BR5JoKUq.js";
 import "./up-doc-pdf-thumbnail.element-N7K7a6d1.js";
 import { css as P, property as Y, state as r, customElement as $, html as l, nothing as f } from "@umbraco-cms/backoffice/external/lit";
 import { UmbLitElement as Z } from "@umbraco-cms/backoffice/lit-element";
@@ -485,4 +485,4 @@ export {
   u as CreateWorkflowSidebarElement,
   be as default
 };
-//# sourceMappingURL=create-workflow-sidebar.element-DgamTbvQ.js.map
+//# sourceMappingURL=create-workflow-sidebar.element-C8FC-sxq.js.map

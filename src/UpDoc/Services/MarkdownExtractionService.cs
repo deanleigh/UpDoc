@@ -7,6 +7,7 @@ namespace UpDoc.Services;
 public interface IMarkdownExtractionService
 {
     ExtractionResult ExtractSectionsFromConfig(string filePath, SourceConfig sourceConfig);
+    RichExtractionResult ExtractRich(string filePath);
 }
 
 public class MarkdownExtractionService : IMarkdownExtractionService
@@ -16,6 +17,141 @@ public class MarkdownExtractionService : IMarkdownExtractionService
     public MarkdownExtractionService(ILogger<MarkdownExtractionService> logger)
     {
         _logger = logger;
+    }
+
+    /// <summary>
+    /// Parse a markdown file into RichExtractionResult format — each heading and body
+    /// paragraph becomes an ExtractionElement. This enables the Source tab to display
+    /// markdown content with the same element-based UI as PDF extractions.
+    /// </summary>
+    public RichExtractionResult ExtractRich(string filePath)
+    {
+        try
+        {
+            var rawText = File.ReadAllText(filePath);
+            var lines = rawText.Split('\n').Select(l => l.TrimEnd('\r')).ToArray();
+            var elements = new List<ExtractionElement>();
+            var elementIndex = 0;
+
+            var bodyLines = new List<string>();
+
+            for (var i = 0; i < lines.Length; i++)
+            {
+                var line = lines[i];
+
+                // Detect heading lines
+                if (line.StartsWith('#'))
+                {
+                    // Flush any accumulated body text first
+                    if (bodyLines.Count > 0)
+                    {
+                        var bodyText = string.Join("\n", bodyLines).Trim();
+                        if (!string.IsNullOrWhiteSpace(bodyText))
+                        {
+                            elements.Add(new ExtractionElement
+                            {
+                                Id = $"md-{elementIndex++}",
+                                Page = 1,
+                                Text = bodyText,
+                                Metadata = new ElementMetadata()
+                            });
+                        }
+                        bodyLines.Clear();
+                    }
+
+                    // Count heading level
+                    var level = 0;
+                    while (level < line.Length && line[level] == '#') level++;
+                    var headingText = line[level..].Trim();
+
+                    if (!string.IsNullOrWhiteSpace(headingText))
+                    {
+                        elements.Add(new ExtractionElement
+                        {
+                            Id = $"md-{elementIndex++}",
+                            Page = 1,
+                            Text = headingText,
+                            Metadata = new ElementMetadata
+                            {
+                                // Use fontSize as a proxy for heading level (larger = higher level)
+                                FontSize = level switch
+                                {
+                                    1 => 24,
+                                    2 => 20,
+                                    3 => 16,
+                                    4 => 14,
+                                    5 => 12,
+                                    _ => 10
+                                },
+                                FontName = $"heading-{level}"
+                            }
+                        });
+                    }
+                }
+                else if (string.IsNullOrWhiteSpace(line))
+                {
+                    // Blank line — flush accumulated body text as one element
+                    if (bodyLines.Count > 0)
+                    {
+                        var bodyText = string.Join("\n", bodyLines).Trim();
+                        if (!string.IsNullOrWhiteSpace(bodyText))
+                        {
+                            elements.Add(new ExtractionElement
+                            {
+                                Id = $"md-{elementIndex++}",
+                                Page = 1,
+                                Text = bodyText,
+                                Metadata = new ElementMetadata()
+                            });
+                        }
+                        bodyLines.Clear();
+                    }
+                }
+                else
+                {
+                    bodyLines.Add(line);
+                }
+            }
+
+            // Flush any remaining body text
+            if (bodyLines.Count > 0)
+            {
+                var bodyText = string.Join("\n", bodyLines).Trim();
+                if (!string.IsNullOrWhiteSpace(bodyText))
+                {
+                    elements.Add(new ExtractionElement
+                    {
+                        Id = $"md-{elementIndex++}",
+                        Page = 1,
+                        Text = bodyText,
+                        Metadata = new ElementMetadata()
+                    });
+                }
+            }
+
+            _logger.LogInformation("Extracted {Count} elements from markdown file: {FilePath}",
+                elements.Count, filePath);
+
+            return new RichExtractionResult
+            {
+                SourceType = "markdown",
+                Source = new ExtractionSource
+                {
+                    ExtractedDate = DateTime.UtcNow,
+                    TotalPages = 1,
+                },
+                Elements = elements
+            };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to extract rich elements from markdown file: {FilePath}", filePath);
+            return new RichExtractionResult
+            {
+                SourceType = "markdown",
+                Error = $"Failed to read markdown file: {ex.Message}"
+            };
+        }
     }
 
     public ExtractionResult ExtractSectionsFromConfig(string filePath, SourceConfig sourceConfig)

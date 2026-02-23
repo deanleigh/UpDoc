@@ -43,6 +43,11 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 	@state() private _inferring = false;
 	#token = '';
 
+	/** Get the source type for this workflow (pdf, markdown, web, etc.) */
+	get #sourceType(): string {
+		return this._sourceConfig?.sourceTypes?.[0] ?? 'pdf';
+	}
+
 	override connectedCallback() {
 		super.connectedCallback();
 		this.consumeContext(UMB_WORKSPACE_CONTEXT, (context) => {
@@ -67,38 +72,47 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		try {
 			const authContext = await this.getContext(UMB_AUTH_CONTEXT);
 			this.#token = await authContext.getLatestToken();
-			const [extraction, areaDetection, config, transformResult, sourceConfig, areaTemplate] = await Promise.all([
+
+			// Always load source config first to determine source type
+			const [extraction, config, sourceConfig] = await Promise.all([
 				fetchSampleExtraction(this._workflowName, this.#token),
-				fetchAreaDetection(this._workflowName, this.#token),
 				fetchWorkflowByName(this._workflowName, this.#token),
-				fetchTransformResult(this._workflowName, this.#token),
 				fetchSourceConfig(this._workflowName, this.#token),
-				fetchAreaTemplate(this._workflowName, this.#token),
 			]);
 			this._extraction = extraction;
-			this._areaDetection = areaDetection;
 			this._config = config;
-			this._transformResult = transformResult;
 			this._sourceConfig = sourceConfig;
-			this._areaTemplate = areaTemplate;
 
-			// Always re-trigger transform on load to ensure fresh data
-			// (handles code changes, stale transform.json, etc.)
-			const mediaKey = extraction?.source.mediaKey;
-			if (mediaKey && areaDetection) {
-				const freshTransform = await triggerTransform(this._workflowName, mediaKey, this.#token);
-				if (freshTransform) {
-					this._transformResult = freshTransform;
+			const isPdf = (sourceConfig?.sourceTypes?.[0] ?? 'pdf') === 'pdf';
+
+			if (isPdf) {
+				// PDF-specific: load area detection, transform, area template
+				const [areaDetection, transformResult, areaTemplate] = await Promise.all([
+					fetchAreaDetection(this._workflowName, this.#token),
+					fetchTransformResult(this._workflowName, this.#token),
+					fetchAreaTemplate(this._workflowName, this.#token),
+				]);
+				this._areaDetection = areaDetection;
+				this._transformResult = transformResult;
+				this._areaTemplate = areaTemplate;
+
+				// Always re-trigger transform on load to ensure fresh data
+				const mediaKey = extraction?.source.mediaKey;
+				if (mediaKey && areaDetection) {
+					const freshTransform = await triggerTransform(this._workflowName, mediaKey, this.#token);
+					if (freshTransform) {
+						this._transformResult = freshTransform;
+					}
 				}
-			}
 
-			// Initialize page selection state from source config
-			if (sourceConfig?.pages && Array.isArray(sourceConfig.pages) && sourceConfig.pages.length > 0) {
-				this._pageMode = 'custom';
-				this._pageInputValue = this.#pagesToRangeString(sourceConfig.pages);
-			} else {
-				this._pageMode = 'all';
-				this._pageInputValue = '';
+				// Initialize page selection state from source config
+				if (sourceConfig?.pages && Array.isArray(sourceConfig.pages) && sourceConfig.pages.length > 0) {
+					this._pageMode = 'custom';
+					this._pageInputValue = this.#pagesToRangeString(sourceConfig.pages);
+				} else {
+					this._pageMode = 'all';
+					this._pageInputValue = '';
+				}
 			}
 		} catch (err) {
 			this._error = err instanceof Error ? err.message : 'Failed to load data';
@@ -411,29 +425,44 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 			const authContext = await this.getContext(UMB_AUTH_CONTEXT);
 			const token = await authContext.getLatestToken();
 
-			// Trigger sample extraction and transform (which includes area detection) in parallel
-			const [extraction, transformResult] = await Promise.all([
-				triggerSampleExtraction(this._workflowName, mediaKey, token),
-				triggerTransform(this._workflowName, mediaKey, token),
-			]);
+			const isPdf = this.#sourceType === 'pdf';
 
-			if (extraction) {
-				this._extraction = extraction;
-			}
-			if (transformResult) {
-				this._transformResult = transformResult;
-				// Transform endpoint also saved area detection — fetch it
-				const areaDetection = await fetchAreaDetection(this._workflowName, token);
-				this._areaDetection = areaDetection;
-				const d = transformResult.diagnostics;
-				const rolePart = d.roleSections > 0 ? `, ${d.roleSections} role` : '';
-				this._successMessage = `Content extracted — ${d.totalSections} sections (${d.bulletListSections} bullet, ${d.paragraphSections} paragraph, ${d.subHeadedSections} sub-headed${rolePart})`;
-				setTimeout(() => { this._successMessage = null; }, 5000);
-			} else if (extraction) {
-				this._successMessage = `Content extracted — ${extraction.elements.length} elements (transform unavailable)`;
-				setTimeout(() => { this._successMessage = null; }, 5000);
+			if (isPdf) {
+				// PDF: trigger sample extraction and transform (which includes area detection) in parallel
+				const [extraction, transformResult] = await Promise.all([
+					triggerSampleExtraction(this._workflowName, mediaKey, token),
+					triggerTransform(this._workflowName, mediaKey, token),
+				]);
+
+				if (extraction) {
+					this._extraction = extraction;
+				}
+				if (transformResult) {
+					this._transformResult = transformResult;
+					// Transform endpoint also saved area detection — fetch it
+					const areaDetection = await fetchAreaDetection(this._workflowName, token);
+					this._areaDetection = areaDetection;
+					const d = transformResult.diagnostics;
+					const rolePart = d.roleSections > 0 ? `, ${d.roleSections} role` : '';
+					this._successMessage = `Content extracted — ${d.totalSections} sections (${d.bulletListSections} bullet, ${d.paragraphSections} paragraph, ${d.subHeadedSections} sub-headed${rolePart})`;
+					setTimeout(() => { this._successMessage = null; }, 5000);
+				} else if (extraction) {
+					this._successMessage = `Content extracted — ${extraction.elements.length} elements (transform unavailable)`;
+					setTimeout(() => { this._successMessage = null; }, 5000);
+				} else {
+					this._error = 'Extraction failed. Check that the selected media item is a PDF.';
+				}
 			} else {
-				this._error = 'Extraction failed. Check that the selected media item is a PDF.';
+				// Non-PDF (markdown, web, etc.): just trigger sample extraction, no transform/areas
+				const extraction = await triggerSampleExtraction(this._workflowName, mediaKey, token);
+
+				if (extraction) {
+					this._extraction = extraction;
+					this._successMessage = `Content extracted — ${extraction.elements.length} elements`;
+					setTimeout(() => { this._successMessage = null; }, 5000);
+				} else {
+					this._error = `Extraction failed. Check that the selected media item is a valid ${this.#sourceType} file.`;
+				}
 			}
 		} catch (err) {
 			this._error = err instanceof Error ? err.message : 'Extraction failed';
@@ -1350,14 +1379,63 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		</uui-tag>`);
 	}
 
+	/** Simple header for non-PDF sources — just shows file name and a change button. */
+	#renderSimpleHeader() {
+		const fileName = this._extraction?.source?.fileName ?? 'Unknown file';
+		return html`
+			<div class="simple-header">
+				<div class="simple-header-info">
+					<uui-icon name="icon-document"></uui-icon>
+					<strong>${fileName}</strong>
+					<span style="color: var(--uui-color-text-alt);">${this._extraction?.elements?.length ?? 0} elements</span>
+				</div>
+				<uui-button look="secondary" label="Change file" @click=${this.#onPickMedia} ?disabled=${this._extracting} compact>
+					${this._extracting ? html`<uui-loader-bar></uui-loader-bar>` : 'Change file'}
+				</uui-button>
+			</div>
+		`;
+	}
+
+	/** Simple element list for non-PDF sources — headings rendered larger, body as paragraphs. */
+	#renderSimpleElements() {
+		if (!this._extraction?.elements?.length) {
+			return html`<p style="padding: var(--uui-size-layout-1); color: var(--uui-color-text-alt);">No elements extracted.</p>`;
+		}
+
+		return html`
+			<div class="simple-elements">
+				${this._extraction.elements.map((el) => {
+					const isHeading = el.metadata?.fontName?.startsWith('heading-');
+					const headingLevel = isHeading ? parseInt(el.metadata.fontName.replace('heading-', ''), 10) : 0;
+					return html`
+						<div class="simple-element ${isHeading ? 'simple-element-heading' : ''}">
+							<div class="simple-element-text" style="${isHeading ? `font-size: ${24 - (headingLevel - 1) * 2}px; font-weight: bold;` : ''}">
+								${el.text}
+							</div>
+							<div class="simple-element-actions">
+								${this.#renderPartBadges(el.id)}
+							</div>
+						</div>
+					`;
+				})}
+			</div>
+		`;
+	}
+
 	#renderEmpty() {
+		const isPdf = this.#sourceType === 'pdf';
+		const label = isPdf ? 'Choose PDF...' : 'Choose file...';
+		const description = isPdf
+			? 'Choose a PDF from the media library to extract text elements with their metadata.'
+			: `Choose a ${this.#sourceType} file from the media library to extract content.`;
+
 		return html`
 			<div class="empty-state">
 				<uui-icon name="icon-document" style="font-size: 48px; color: var(--uui-color-text-alt);"></uui-icon>
 				<h3>No sample extraction</h3>
-				<p>Choose a PDF from the media library to extract text elements with their metadata.</p>
-				<uui-button look="primary" label="Choose PDF" @click=${this.#onPickMedia} ?disabled=${this._extracting}>
-					${this._extracting ? html`<uui-loader-bar></uui-loader-bar>` : 'Choose PDF...'}
+				<p>${description}</p>
+				<uui-button look="primary" label="${label}" @click=${this.#onPickMedia} ?disabled=${this._extracting}>
+					${this._extracting ? html`<uui-loader-bar></uui-loader-bar>` : label}
 				</uui-button>
 			</div>
 		`;
@@ -1375,7 +1453,19 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				</umb-body-layout>`;
 		}
 
+		const isPdf = this.#sourceType === 'pdf';
 		const hasContent = this._areaDetection !== null || this._extraction !== null;
+
+		if (!isPdf) {
+			// Non-PDF sources: simplified view — just elements, no areas/transform/pages
+			return html`
+				<umb-body-layout header-fit-height>
+					${hasContent ? this.#renderSimpleHeader() : nothing}
+					${this._successMessage ? html`<div class="success-banner"><uui-icon name="icon-check"></uui-icon> ${this._successMessage}</div>` : nothing}
+					${hasContent ? this.#renderSimpleElements() : this.#renderEmpty()}
+				</umb-body-layout>
+			`;
+		}
 
 		return html`
 			<umb-body-layout header-fit-height>
@@ -1432,6 +1522,57 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 			.empty-state p {
 				margin: 0;
 				color: var(--uui-color-text-alt);
+			}
+
+			/* Simple view (non-PDF) */
+			.simple-header {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				padding: var(--uui-size-space-4) var(--uui-size-layout-1);
+				border-bottom: 1px solid var(--uui-color-border);
+			}
+
+			.simple-header-info {
+				display: flex;
+				align-items: center;
+				gap: var(--uui-size-space-3);
+			}
+
+			.simple-elements {
+				padding: var(--uui-size-layout-1);
+				display: flex;
+				flex-direction: column;
+				gap: var(--uui-size-space-2);
+			}
+
+			.simple-element {
+				display: flex;
+				align-items: flex-start;
+				justify-content: space-between;
+				gap: var(--uui-size-space-4);
+				padding: var(--uui-size-space-3) var(--uui-size-space-4);
+				border: 1px solid var(--uui-color-border);
+				border-radius: var(--uui-border-radius);
+				background: var(--uui-color-surface);
+			}
+
+			.simple-element-heading {
+				background: var(--uui-color-surface-alt);
+			}
+
+			.simple-element-text {
+				flex: 1;
+				white-space: pre-wrap;
+				word-break: break-word;
+				max-width: 75ch;
+			}
+
+			.simple-element-actions {
+				display: flex;
+				flex-wrap: wrap;
+				gap: var(--uui-size-space-1);
+				flex-shrink: 0;
 			}
 
 			/* Header: tabs only */

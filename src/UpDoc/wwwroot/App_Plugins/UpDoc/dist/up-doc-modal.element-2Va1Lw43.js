@@ -1,5 +1,5 @@
 import { a as tt } from "./workflow.types-sXs8a86t.js";
-import { a as et, t as it } from "./workflow.service-8lXLgP5U.js";
+import { a as et, t as it } from "./workflow.service-BR5JoKUq.js";
 import { r as ot, a as at, g as nt } from "./destination-utils-CEQ5Lbpg.js";
 import { s as U } from "./transforms-BkZeboOX.js";
 import { html as s, css as rt, state as h, customElement as st, nothing as E } from "@umbraco-cms/backoffice/external/lit";
@@ -690,4 +690,4 @@ export {
   u as UpDocModalElement,
   kt as default
 };
-//# sourceMappingURL=up-doc-modal.element-D-RkqvdF.js.map
+//# sourceMappingURL=up-doc-modal.element-2Va1Lw43.js.map
