@@ -8,9 +8,27 @@ This workflow is necessary because Umbraco's backoffice uses **Shadow DOM extens
 
 | Tool | Purpose |
 |------|---------|
-| [Figma MCP Plugin](figma-mcp.md) | Official Claude Code integration — reads designs, generates code, manages component mappings |
+| [Figma MCP Plugin](figma-mcp.md) | Official Claude Code integration — reads designs, pushes web captures, manages component mappings |
 | [html.to.design](html-to-design.md) | Figma plugin that captures web pages including Shadow DOM content |
-| [Design Workflow](workflow.md) | The end-to-end capture → edit → implement workflow and token management strategies |
+| [Design Workflow](workflow.md) | The end-to-end capture → edit → read → implement workflow and token management strategies |
+
+## How It Works
+
+The integration is **bidirectional** but with different capabilities in each direction:
+
+| Direction | Capability | Limitation |
+|-----------|-----------|------------|
+| **Figma → Code** | Claude reads any design element (screenshot, metadata, code context) | Large frames consume many tokens |
+| **Code → Figma** | Claude pushes running web pages as editable Figma layers | Cannot see Shadow DOM (use html.to.design instead) |
+| **Edit in Figma** | User only — Claude cannot modify individual Figma elements | No element-level editing via MCP |
+
+The practical workflow for Umbraco projects:
+
+1. **User** captures the backoffice UI with html.to.design
+2. **User** edits the design in Figma (move, add, remove elements)
+3. **User** selects the modified area and copies the link (Ctrl+L)
+4. **Claude** reads the targeted node via `get_screenshot`
+5. **Claude** implements the changes in Lit/UUI code
 
 ## Figma File
 
@@ -23,5 +41,7 @@ The UpDoc design work uses a single Figma file:
 ## References
 
 - [Figma MCP Plugin listing](https://claude.com/plugins/figma) — official Claude Code plugin page
-- [Introducing Claude Code to Figma](https://www.figma.com/blog/introducing-claude-code-to-figma/) — Figma blog announcement
+- [Introducing Claude Code to Figma](https://www.figma.com/blog/introducing-claude-code-to-figma/) — Figma blog: "Code to Canvas" announcement
+- [Guide to the Figma MCP server](https://help.figma.com/hc/en-us/articles/32132100833559-Guide-to-the-Figma-MCP-server) — official Figma documentation
 - [html.to.design on Figma Community](https://www.figma.com/community/plugin/1159123024924461424) — the Shadow DOM capture plugin
+- [claude-talk-to-figma-mcp](https://github.com/arinspunk/claude-talk-to-figma-mcp) — third-party MCP for element-level editing (untested)
