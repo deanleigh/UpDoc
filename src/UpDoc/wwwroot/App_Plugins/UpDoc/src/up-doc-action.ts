@@ -121,9 +121,13 @@ export class UpDocEntityAction extends UmbEntityActionBase<never> {
 				return;
 			}
 
-			const { name, mediaUnique, sectionLookup, config } = modalValue;
+			const { name, mediaUnique, sourceUrl, sectionLookup, config } = modalValue;
 
-			if (!mediaUnique || !name || !config) {
+			// Web source uses URL (no media), others need media key
+			if (!name || !config) {
+				return;
+			}
+			if (!mediaUnique && !sourceUrl) {
 				return;
 			}
 

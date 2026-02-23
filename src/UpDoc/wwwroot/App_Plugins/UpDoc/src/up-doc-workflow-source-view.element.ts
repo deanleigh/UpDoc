@@ -41,6 +41,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 	@state() private _inferenceResult: InferSectionPatternResponse | null = null;
 	/** Whether an inference API call is in progress. */
 	@state() private _inferring = false;
+	@state() private _sampleUrl = '';
 	#token = '';
 
 	/** Get the source type for this workflow (pdf, markdown, web, etc.) */
@@ -1381,6 +1382,9 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 
 	/** Simple header for non-PDF sources — just shows file name and a change button. */
 	#renderSimpleHeader() {
+		if (this.#sourceType === 'web') {
+			return this.#renderWebHeader();
+		}
 		const fileName = this._extraction?.source?.fileName ?? 'Unknown file';
 		return html`
 			<div class="simple-header">
@@ -1391,6 +1395,22 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				</div>
 				<uui-button look="secondary" label="Change file" @click=${this.#onPickMedia} ?disabled=${this._extracting} compact>
 					${this._extracting ? html`<uui-loader-bar></uui-loader-bar>` : 'Change file'}
+				</uui-button>
+			</div>
+		`;
+	}
+
+	#renderWebHeader() {
+		const url = this._extraction?.source?.fileName ?? '';
+		return html`
+			<div class="simple-header">
+				<div class="simple-header-info">
+					<uui-icon name="icon-globe"></uui-icon>
+					<strong>${url}</strong>
+					<span style="color: var(--uui-color-text-alt);">${this._extraction?.elements?.length ?? 0} elements</span>
+				</div>
+				<uui-button look="secondary" label="Re-extract" @click=${() => this.#runUrlExtraction(url)} ?disabled=${this._extracting} compact>
+					${this._extracting ? html`<uui-loader-bar></uui-loader-bar>` : 'Re-extract'}
 				</uui-button>
 			</div>
 		`;
@@ -1423,6 +1443,10 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 	}
 
 	#renderEmpty() {
+		if (this.#sourceType === 'web') {
+			return this.#renderWebEmpty();
+		}
+
 		const isPdf = this.#sourceType === 'pdf';
 		const label = isPdf ? 'Choose PDF...' : 'Choose file...';
 		const description = isPdf
@@ -1439,6 +1463,62 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				</uui-button>
 			</div>
 		`;
+	}
+
+	#renderWebEmpty() {
+		return html`
+			<div class="empty-state">
+				<uui-icon name="icon-globe" style="font-size: 48px; color: var(--uui-color-text-alt);"></uui-icon>
+				<h3>No sample extraction</h3>
+				<p>Enter a web page URL to extract content.</p>
+				<div style="display: flex; gap: 8px; align-items: center; width: 100%; max-width: 500px;">
+					<uui-input
+						label="URL"
+						placeholder="https://example.com/page"
+						style="flex: 1;"
+						.value=${this._sampleUrl}
+						@input=${(e: Event) => { this._sampleUrl = (e.target as HTMLInputElement).value; }}
+						@keydown=${(e: KeyboardEvent) => {
+							if (e.key === 'Enter' && this._sampleUrl) this.#runUrlExtraction(this._sampleUrl);
+						}}>
+					</uui-input>
+					<uui-button
+						look="primary"
+						label="Extract"
+						?disabled=${!this._sampleUrl || this._extracting}
+						@click=${() => this.#runUrlExtraction(this._sampleUrl)}>
+						${this._extracting ? html`<uui-loader-bar></uui-loader-bar>` : 'Extract'}
+					</uui-button>
+				</div>
+			</div>
+		`;
+	}
+
+	async #runUrlExtraction(url: string) {
+		if (!this._workflowName || !url) return;
+
+		this._extracting = true;
+		this._error = null;
+
+		try {
+			const authContext = await this.getContext(UMB_AUTH_CONTEXT);
+			const token = await authContext.getLatestToken();
+
+			const extraction = await triggerSampleExtraction(this._workflowName, '', token, url);
+
+			if (extraction) {
+				this._extraction = extraction;
+				this._successMessage = `Content extracted — ${extraction.elements.length} elements`;
+				setTimeout(() => { this._successMessage = null; }, 5000);
+			} else {
+				this._error = 'Extraction failed. Check that the URL is accessible.';
+			}
+		} catch (err) {
+			this._error = err instanceof Error ? err.message : 'Failed to extract from URL';
+			console.error('URL extraction failed:', err);
+		} finally {
+			this._extracting = false;
+		}
 	}
 
 	override render() {

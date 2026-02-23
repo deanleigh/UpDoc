@@ -151,14 +151,19 @@ export async function fetchSampleExtraction(
 }
 
 /**
- * Triggers a sample extraction for a workflow from a media item (PDF).
+ * Triggers a sample extraction for a workflow from a media item or URL.
  * The extraction is saved to sample-extraction.json in the workflow folder.
  */
 export async function triggerSampleExtraction(
 	workflowName: string,
 	mediaKey: string,
-	token: string
+	token: string,
+	url?: string
 ): Promise<RichExtractionResult | null> {
+	const body: Record<string, unknown> = {};
+	if (mediaKey) body.mediaKey = mediaKey;
+	if (url) body.url = url;
+
 	const response = await fetch(
 		`/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(workflowName)}/sample-extraction`,
 		{
@@ -167,7 +172,7 @@ export async function triggerSampleExtraction(
 				'Content-Type': 'application/json',
 				Authorization: `Bearer ${token}`,
 			},
-			body: JSON.stringify({ mediaKey }),
+			body: JSON.stringify(body),
 		}
 	);
 
@@ -308,14 +313,19 @@ export async function triggerTransform(
 }
 
 /**
- * Runs area detection + transform on a media item without saving to disk.
+ * Runs area detection + transform on a media item or URL without saving to disk.
  * Returns a TransformResult with include/exclude state from the stored transform.
  */
 export async function transformAdhoc(
 	workflowName: string,
 	mediaKey: string,
-	token: string
+	token: string,
+	url?: string
 ): Promise<TransformResult | null> {
+	const body: Record<string, unknown> = {};
+	if (mediaKey) body.mediaKey = mediaKey;
+	if (url) body.url = url;
+
 	const response = await fetch(
 		`/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(workflowName)}/transform-adhoc`,
 		{
@@ -324,7 +334,7 @@ export async function transformAdhoc(
 				'Content-Type': 'application/json',
 				Authorization: `Bearer ${token}`,
 			},
-			body: JSON.stringify({ mediaKey }),
+			body: JSON.stringify(body),
 		}
 	);
 

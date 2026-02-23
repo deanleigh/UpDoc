@@ -1,0 +1,3412 @@
+{
+  "version": "1.0",
+  "sourceType": "web",
+  "source": {
+    "fileName": "https://www.tailored-travel.co.uk/norfolk",
+    "mediaKey": "",
+    "extractedDate": "2026-02-23T14:03:09.8902727Z",
+    "totalPages": 1
+  },
+  "elements": [
+    {
+      "id": "html-0",
+      "page": 1,
+      "text": "- Home",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-1",
+      "page": 1,
+      "text": "- Group Tours",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-2",
+      "page": 1,
+      "text": "- Group Organisers",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-3",
+      "page": 1,
+      "text": "- News",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-4",
+      "page": 1,
+      "text": "- About Us",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-5",
+      "page": 1,
+      "text": "- Contact Us",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-6",
+      "page": 1,
+      "text": "The History \u0026 Heritage Houses of Norfolk",
+      "metadata": {
+        "fontSize": 24,
+        "fontName": "heading-1",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-7",
+      "page": 1,
+      "text": "- Suggested itinerary",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-8",
+      "page": 1,
+      "text": "- Featuring",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-9",
+      "page": 1,
+      "text": "- Hotel",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-10",
+      "page": 1,
+      "text": "- Extras",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-11",
+      "page": 1,
+      "text": "- Tailor-make this tour",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-12",
+      "page": 1,
+      "text": "- Reviews",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-13",
+      "page": 1,
+      "text": "Suggested Itinerary",
+      "metadata": {
+        "fontSize": 16,
+        "fontName": "heading-3",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-14",
+      "page": 1,
+      "text": "Day 1 \u2013 Ely Cathedral \u0026 Stained Glass Museum",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-15",
+      "page": 1,
+      "text": "Board our private executive coach at your preferred pick up points \u2013 stop at a convenient property en route such as Ely Cathedral, the \u2018Ship of the Fens\u2019, famous for its Octagon and Lantern Towers and whose Stained Glass Museum displays over 100 original stained glass panels dating from the 13th century \u2013 check in at the boutique Best Western George Hotel in Norwich.",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-16",
+      "page": 1,
+      "text": "Day 2 \u2013 Norwich \u0026 Oxburgh Hall",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-17",
+      "page": 1,
+      "text": "Guided tour of Norwich, England\u2019s best preserved medieval city, takes in sights such as the Norman Castle, Norwich Cathedral and the City Hall \u2013 Oxburgh Hall, a moated manor house with a Tudor gatehouse and accessible Priest\u2019s Hole built by the Bedingfeld family who still live here, shows the development from medieval austerity to Victorian comfort and includes a display of embroidery by Mary Queen of Scots and Bess of Hardwick.",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-18",
+      "page": 1,
+      "text": "Day 3 \u2013 Sandringham Estate \u0026 Holkham Hall",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-19",
+      "page": 1,
+      "text": "Sandringham Estate, built for Edward VII in 1870 and the much loved country retreat of Her Majesty the Queen, is set in 60 acres of splendid gardens and the museum houses extraordinary collections of royal vehicles, rare ceramics, photographs and memorabilia \u2013 Holkham Hall was conceived by Thomas Coke, the first Earl of Leicester, as his vision of an Italian villa on the windswept north Norfolk coast.",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-20",
+      "page": 1,
+      "text": "Day 4 \u2013 Felbrigg Hall \u0026 Blickling Hall and Gardens",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-21",
+      "page": 1,
+      "text": "The 17th century country house Felbrigg Hall contains original 18th century furniture and is noted for its Jacobean architecture and fine Georgian interior \u2013 visit the National Trust\u2019s Blickling Hall and Gardens, one of England\u2019s great Jacobean houses, famed for its spectacular long gallery, superb plasterwork ceilings and fine collections of furniture, pictures, books and tapestries.",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-22",
+      "page": 1,
+      "text": "Day 5 \u2013 Anglesey Abbey \u0026 Gardens",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-23",
+      "page": 1,
+      "text": "Stop at a convenient property en route home such as Anglesey Abbey and Gardens, a Jacobean style house built on the site of a 12th century Augustinian priory and containing a priceless art collection \u2013 return to our original departure points with comfort stops en route.",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-24",
+      "page": 1,
+      "text": "Tour Features",
+      "metadata": {
+        "fontSize": 16,
+        "fontName": "heading-3",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-25",
+      "page": 1,
+      "text": "Boutique hotel",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-26",
+      "page": 1,
+      "text": "Half board accommodation",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-27",
+      "page": 1,
+      "text": "All excursions \u0026 guided tours included",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-28",
+      "page": 1,
+      "text": "Blue Badge guide Days 2 to 4",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-29",
+      "page": 1,
+      "text": "Executive coach throughout",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-30",
+      "page": 1,
+      "text": "One free place per 10 paying passengers",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-31",
+      "page": 1,
+      "text": "Ely Cathedral \u0026 Stained Glass Museum",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-32",
+      "page": 1,
+      "text": "Guided tour of Norwich",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-33",
+      "page": 1,
+      "text": "Oxburgh Hall",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-34",
+      "page": 1,
+      "text": "Sandringham Estate",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-35",
+      "page": 1,
+      "text": "Holkham Hall",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-36",
+      "page": 1,
+      "text": "Felbrigg Hall",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-37",
+      "page": 1,
+      "text": "Blickling Hall \u0026 Gardens",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-38",
+      "page": 1,
+      "text": "Anglesey Abbey \u0026 Gardens",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-39",
+      "page": 1,
+      "text": "Hotel",
+      "metadata": {
+        "fontSize": 16,
+        "fontName": "heading-3",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-40",
+      "page": 1,
+      "text": "Four nights on half board basis at the boutique Best Western George Hotel in Norwich. Located a fifteen minute walk from the centre of Norwich, facilities at the hotel include a restaurant and bar and all rooms are en suite.",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-41",
+      "page": 1,
+      "text": "Extras",
+      "metadata": {
+        "fontSize": 16,
+        "fontName": "heading-3",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-42",
+      "page": 1,
+      "text": "Single room supplement \u00A379",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-43",
+      "page": 1,
+      "text": "Insurance",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-44",
+      "page": 1,
+      "text": "Entrance fees to places of interest (NT properties free to NT members)",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-45",
+      "page": 1,
+      "text": "Audio headphones",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-46",
+      "page": 1,
+      "text": "Gratuities",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-47",
+      "page": 1,
+      "text": "Tailor-make this tour",
+      "metadata": {
+        "fontSize": 16,
+        "fontName": "heading-3",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-48",
+      "page": 1,
+      "text": "Your tailor made tour",
+      "metadata": {
+        "fontSize": 14,
+        "fontName": "heading-4",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-49",
+      "page": 1,
+      "text": "Here are some more suggested places of interest you might like to include:",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-50",
+      "page": 1,
+      "text": "- National Trust\u2019s Textile Conservation Studio - guided tour of the centre entrusted with the careand conservation of the Trust\u2019s internationally important textile collections",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-51",
+      "page": 1,
+      "text": "- Little Walsingham - a place of pilgrimage from Saxon times and famous for its Shrine of Our Lady of Walsingham",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-52",
+      "page": 1,
+      "text": "- North Norfolk Railway - a nostalgic return steam train journey from Sheringham to Holt with included cream tea",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-53",
+      "page": 1,
+      "text": "- Houghton Hall - a thriving estate, reflecting nearly 300 years of history, while still dominated by the ebullient personality, energy and taste of Sir Robert Walpole",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-54",
+      "page": 1,
+      "text": "- Cruise the Norfolk Broads - ashort leisurely cruise from Wroxham explores the Broads at their very best",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-55",
+      "page": 1,
+      "text": "Tour Reviews",
+      "metadata": {
+        "fontSize": 16,
+        "fontName": "heading-3",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-56",
+      "page": 1,
+      "text": "Reviews for The History \u0026 Heritage Houses of Norfolk",
+      "metadata": {
+        "fontSize": 16,
+        "fontName": "heading-3",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-57",
+      "page": 1,
+      "text": "Date of tour: October 2024",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-58",
+      "page": 1,
+      "text": "Margaret and I have had a get-together to discuss our recent holiday to Norfolk. We think we can safely say that it was a great success. There were so many positive comments from our members and so many enquiries about where we might go next year!! All the visits were well planned and we were well received and taken care of at all the venues. Our Blue Badge Guide was excellent. She certainly deserves a gold star. Not only was she very knowledgeable but she was aware of the various problems we encountered and dealt kindly and sympathetically with them. I think it is fair to say that for our members the holiday could hardly have been better! It was a great trip and thank you so very much for organising it for us. I do hope we can arrange another holiday for next year.",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-59",
+      "page": 1,
+      "text": "AF, Carshalton",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-60",
+      "page": 1,
+      "text": "Date of tour: June 2024",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-61",
+      "page": 1,
+      "text": "We all had another wonderful trip, this time to Norfolk. Claire was as usual an excellent guide. She has worked with us for the last three years and got to know us well.",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-62",
+      "page": 1,
+      "text": "MG, Solihull",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-63",
+      "page": 1,
+      "text": "Date of tour: October 2019",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-64",
+      "page": 1,
+      "text": "I recently took part in the tour to Norfolk. The whole holiday was thoroughly enjoyable. The guide was an enthusiastic \u2018mine of information\u2019, who seemed to enjoy our company as much as we did hers. The coach driver was also wonderful, with a skill in driving which we all marvelled at. Last but not least comes the hotel in Norwich. This was a very comfortable hotel. The food and service was excellent and nothing was too much trouble for the staff. Indeed, they were such a jolly crowd! You will gather that I thoroughly enjoyed my little Autumn break, as did the other 25 members of our group.",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-65",
+      "page": 1,
+      "text": "SC, Dorking",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-66",
+      "page": 1,
+      "text": "Date of tour: October 2019",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-67",
+      "page": 1,
+      "text": "Just to let you know the trip to Norfolk went very well, despite the weather. The Coach driver was absolutely great and I would very much like to have him again if we do another trip with you. Likewise the BB guide was super. It was a very busy programme but it all worked. I may look to do slightly less in future, for some. Sandringham was one where it would have been good to be there longer and then have a drive back along the coast, other than that it was great. The hotel was also a very good choice - no complaints!! Thank you for all your efforts.",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-68",
+      "page": 1,
+      "text": "IC, Betchworth",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-69",
+      "page": 1,
+      "text": "Date of tour: September 2019",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-70",
+      "page": 1,
+      "text": "It was a fabulous tour to Norfolk and we all really loved it. Thank you so much, we were so lucky with the weather too. The coach driver was so calm and helpful and really was amazing when required to park the coach, which he did with such skill and patience. The hotel staff were amazingly helpful and the food and accommodation was excellent. It was a great trip.",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-71",
+      "page": 1,
+      "text": "CD, Tenterden",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-72",
+      "page": 1,
+      "text": "Date of tour: September 2019",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-73",
+      "page": 1,
+      "text": "Our Society\u2019s Norfolk tour was very happy and enjoyed by all the participants. Much of the success of the tour was due to the excellent accommodation at the George Hotel in Norwich and the superb services of our driver and Blue Badge guide.",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-74",
+      "page": 1,
+      "text": "HH, Weybridge",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-75",
+      "page": 1,
+      "text": "Date of tour: May 2019",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-76",
+      "page": 1,
+      "text": "Our tour to Norfolk went very smoothly. Our driver was a terrific driver and manoeuvred the vast coach with great skill. We were also greatly impressed with the Blue Badge Guide. His encyclopaedic knowledge of the area and the houses that we visited increased our party\u0027s enjoyment.",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-77",
+      "page": 1,
+      "text": "NW, Wrexham",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-78",
+      "page": 1,
+      "text": "Date of tour: June 2018",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-79",
+      "page": 1,
+      "text": "Thank you very much indeed for organising a wonderful holiday in Norfolk. Everything ran perfectly. The hotel was excellent, the staff could not have been more helpful. We all had lovely rooms and the food was delicious, varied with very good service. The arrangements at all the venues ran like clockwork and the programme was full of variety, with just the right amount of activity each day. The icing on the cake was the boat trip on the Broads for which the weather was perfect. All your timings were amazingly accurate. Everybody had a most enjoyable time and the bookings for the holiday next year to Yorkshire are already flooding in. Thank you for all your excellent planning and hard work. Thank you once again.",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-80",
+      "page": 1,
+      "text": "TS, Pinner",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-81",
+      "page": 1,
+      "text": "Date of tour: May 2018",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-82",
+      "page": 1,
+      "text": "A very successful tour thank you. John is an excellent driver, and nicely adaptable so far as timing etc. is concerned. The weather was lovely and the countryside looking lovely. Can\u2019t praise our guide too highly; he was excellent as a gentle running commentator on the journeys and a very knowledgeable guide in Norwich, which was a brilliant day, he really brought it alive. He dealt with all the arrivals and departures very comfortably and made my life very easy. Waddesdon was a good idea, it went down very well and we had an interestingly good lunch. The hotel was fine, lovely comfortable beds. Sandringham was lovely. Felbrigg was great, the gardens beautifully worked up to date and a pleasure. Blickling was fine. Newmarket was interesting. We had lunch there (or the sensible ones of us did, it was rather good) and spent less time at Ickworth which was interesting. I have said this was definitely my last tour, but whisper that our guide might tempt me back to Suffolk!! Many thanks for all your help.",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-83",
+      "page": 1,
+      "text": "DC, Tiverton",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-84",
+      "page": 1,
+      "text": "Date of tour: September 2017",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-85",
+      "page": 1,
+      "text": "Once again to thank you very much indeed for all the arrangements you made for us for our tour to Norfolk. The coach driver was first class in a most modern and comfortable coach. He was most helpful making sure we all got off and on the coach safely. The hotel was an excellent choice - the staff most helpful and any problems, either technical or in one case a noisy room, were dealt with immediately. The rooms were tastefully decorated with immaculate en suites. Everyone commented on the delicious food, very well presented and the breakfasts were served with great speed although ordered individually. Our Blue Badge guide was also a delightful character with enough information to make our visits really interesting and, again, most helpful counting us on and off the coach. It has been a very enjoyable experience for us all. I am going to e-mail Michael now about a possible break in Liverpool next year.",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-86",
+      "page": 1,
+      "text": "GB, Welwyn Garden City",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-87",
+      "page": 1,
+      "text": "Date of tour: August 2014",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-88",
+      "page": 1,
+      "text": "Just to say a very sincere thank you to all of you. I had 37 very excited parishioners here in church on Sunday. They really enjoyed the trip and the experience. For many it was the first time on holiday and for many also it was the first time on an organised trip and being taken care of so well. Special thanks to Steven and the driver.",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-89",
+      "page": 1,
+      "text": "Father J, London",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-90",
+      "page": 1,
+      "text": "Date of tour: September 2013",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-91",
+      "page": 1,
+      "text": "Having just returned from Norfolk trip with the local association of the NT, I felt it only right to record our thanks to your staff for the professional manner in which the operation was conducted. Special mention should go to Kate in the office who was efficiency itself, always seemed to be there when I needed her. Carol, the Blue Badge guide, superb. You could not have provided a better one. Knowledgeable, enthusiastic and fluent. The driver, Cynthia, made every day an enjoyable experience and was so efficient, caring and easy going in spite of one or two driving problems we encountered. I would certainly request her again should the occasion arise in the future.",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-92",
+      "page": 1,
+      "text": "KL, Bexhill on Sea",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-93",
+      "page": 1,
+      "text": "Date of tour: May 2013",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-94",
+      "page": 1,
+      "text": "I just wanted to put in writing how very satisfied everyone was with our visit to Norfolk this week. The staff at the George Hotel were always very helpful, the bedrooms were comfortable and the food was excellent. All the places visited were welcoming and pleased to see us, our BBG was lovely. So kind to the slower members of our group. Please thank everyone involved at your end for a job well done.",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-95",
+      "page": 1,
+      "text": "PS, Ottery St Mary",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-96",
+      "page": 1,
+      "text": "Date of tour: September 2012",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-97",
+      "page": 1,
+      "text": "Our Norfolk tour was a great success and thoroughly enjoyed by all. Travel, visits and hotel were fine. Carol is an excellent guide. In addition to the visits to Sandringham and tour of Norwich she gave us lively and informative commentaries during our journeys around Norfolk and through the many villages. Thank you for all the arrangements and the meticulous detail and communications you provided which helped to make everything go so smoothly and such a success.",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-98",
+      "page": 1,
+      "text": "GO, Newbury",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-99",
+      "page": 1,
+      "text": "Date of tour: September 2012",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-100",
+      "page": 1,
+      "text": "Just a brief note to let you know how much we enjoyed our trip to Norfolk. The hotel was excellent, the food was good and the staff were all friendly and pleasant. Our trips out were appreciated by everyone, though it proved a little exhausting for a few! No one had any complaints and all were full of praise for everything they had seen. Our coach was definitely the most comfortable we have ever had - and so beautiful! Very Art Deco, and George, our driver was always helpful and very pleasant and cheerful throughout. Thank you for all your help. It is so much easier to have a friendly person to talk to and to help solve any problems.",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-101",
+      "page": 1,
+      "text": "JT, Anlaby",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-102",
+      "page": 1,
+      "text": "Date of tour: May 2011",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-103",
+      "page": 1,
+      "text": "Just to report that we have returned from one fantastic holiday to Norfolk and I\u0027d like to thank you for all the arrangements you made. Everyone was very appreciative and we were just so lucky with the weather, which was an added bonus. All in all a fantastic trip and I will be singing your praises at the meeting of WI Chairmen that I\u0027m attending this week.",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-104",
+      "page": 1,
+      "text": "LC, Totnes",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-105",
+      "page": 1,
+      "text": "Call us on 020 7064 4970to tailor this tourfor your group",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-106",
+      "page": 1,
+      "text": "Tailor make your group tour",
+      "metadata": {
+        "fontSize": 14,
+        "fontName": "heading-4",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-107",
+      "page": 1,
+      "text": "Remember this itinerary is just our suggestion. Tailor make this tour exclusively for your group to suit your members\u2019 budget or preferences. You could:",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-108",
+      "page": 1,
+      "text": "- stay at a 4* hotel",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-109",
+      "page": 1,
+      "text": "- for more (or fewer) days",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-110",
+      "page": 1,
+      "text": "- include different excursions \u2013 see \u2018Tailor-make this tour\u2019 tab for suggestions",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-111",
+      "page": 1,
+      "text": "- bring a specialist lecturer",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-112",
+      "page": 1,
+      "text": "- include all entrance fees \u0026 gratuities",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-113",
+      "page": 1,
+      "text": "Call us on 020 7064 4970to tailor make the perfect tourfor your group",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-114",
+      "page": 1,
+      "text": "020 7064 4970",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-115",
+      "page": 1,
+      "text": "info@tailored-travel.co.uk",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-116",
+      "page": 1,
+      "text": "12 Jamaica Road",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-117",
+      "page": 1,
+      "text": "London",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-118",
+      "page": 1,
+      "text": "SE1 2RN",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-119",
+      "page": 1,
+      "text": "Tailored Travel holds a current ATOL licence. Air holiday packages shown are ATOL protected by the Civil Aviation Authority. Our ATOL number is ATOL 5605.",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "p",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-120",
+      "page": 1,
+      "text": "- Sitemap",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-121",
+      "page": 1,
+      "text": "- Terms \u0026 Conditions",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-122",
+      "page": 1,
+      "text": "- Privacy Policy",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-123",
+      "page": 1,
+      "text": "- Cookies",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-124",
+      "page": 1,
+      "text": "- Booking Conditions",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-125",
+      "page": 1,
+      "text": "- Insurance",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-126",
+      "page": 1,
+      "text": "- Financial Security",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-127",
+      "page": 1,
+      "text": "- Tailor Made Tours for Groups",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-128",
+      "page": 1,
+      "text": "- School \u0026 College tours",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-129",
+      "page": 1,
+      "text": "- Tours for Individuals",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-130",
+      "page": 1,
+      "text": "- UK",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-131",
+      "page": 1,
+      "text": "- France",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-132",
+      "page": 1,
+      "text": "- Holland",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-133",
+      "page": 1,
+      "text": "- Portugal",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-134",
+      "page": 1,
+      "text": "- Belgium",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-135",
+      "page": 1,
+      "text": "- Southern Europe",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-136",
+      "page": 1,
+      "text": "- Italy",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-137",
+      "page": 1,
+      "text": "- Germany",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-138",
+      "page": 1,
+      "text": "- Spain",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-139",
+      "page": 1,
+      "text": "- Austria",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-140",
+      "page": 1,
+      "text": "- Ireland",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-141",
+      "page": 1,
+      "text": "- Central \u0026 Eastern Europe",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-142",
+      "page": 1,
+      "text": "- Worldwide",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-143",
+      "page": 1,
+      "text": "- UK",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-144",
+      "page": 1,
+      "text": "- Italy",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-145",
+      "page": 1,
+      "text": "- France",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-146",
+      "page": 1,
+      "text": "- Germany",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-147",
+      "page": 1,
+      "text": "- Holland",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-148",
+      "page": 1,
+      "text": "- Spain",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-149",
+      "page": 1,
+      "text": "- Portugal",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-150",
+      "page": 1,
+      "text": "- Austria",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-151",
+      "page": 1,
+      "text": "- Belgium",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-152",
+      "page": 1,
+      "text": "- Ireland",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-153",
+      "page": 1,
+      "text": "- Southern Europe",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-154",
+      "page": 1,
+      "text": "- Central \u0026 Eastern Europe",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-155",
+      "page": 1,
+      "text": "- Worldwide",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-156",
+      "page": 1,
+      "text": "- Tailor Made Tours for Groups",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-157",
+      "page": 1,
+      "text": "- School \u0026 College tours",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-158",
+      "page": 1,
+      "text": "- Tours for Individuals",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-159",
+      "page": 1,
+      "text": "- Home",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-160",
+      "page": 1,
+      "text": "- Group Tours",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-161",
+      "page": 1,
+      "text": "- Group Organisers",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-162",
+      "page": 1,
+      "text": "- Testimonials",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-163",
+      "page": 1,
+      "text": "- Request a Brochure",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-164",
+      "page": 1,
+      "text": "- Request a Quote",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-165",
+      "page": 1,
+      "text": "- News",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-166",
+      "page": 1,
+      "text": "- About Us",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-167",
+      "page": 1,
+      "text": "- Contact Us",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-168",
+      "page": 1,
+      "text": "- View Your Tour",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    },
+    {
+      "id": "html-169",
+      "page": 1,
+      "text": "- Close",
+      "metadata": {
+        "fontSize": 0,
+        "fontName": "li",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "boundingBox": {
+          "left": 0,
+          "top": 0,
+          "width": 0,
+          "height": 0
+        },
+        "color": "#000000"
+      }
+    }
+  ]
+}

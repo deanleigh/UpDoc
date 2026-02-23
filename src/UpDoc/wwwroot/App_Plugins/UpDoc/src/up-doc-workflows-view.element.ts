@@ -160,10 +160,15 @@ export class UpDocWorkflowsViewElement extends UmbLitElement {
 				throw new Error(error.error || `Failed to create workflow: ${response.statusText}`);
 			}
 
-			// Step 6: If a sample PDF was selected, trigger extraction
-			if (sidebarResult.mediaUnique) {
+			// Step 6: If a sample source was provided, trigger extraction
+			if (sidebarResult.mediaUnique || sidebarResult.sourceUrl) {
 				try {
-					await triggerSampleExtraction(sidebarResult.name, sidebarResult.mediaUnique, token);
+					await triggerSampleExtraction(
+						sidebarResult.name,
+						sidebarResult.mediaUnique ?? '',
+						token,
+						sidebarResult.sourceUrl ?? undefined
+					);
 				} catch (err) {
 					console.warn('Sample extraction during workflow creation failed:', err);
 				}

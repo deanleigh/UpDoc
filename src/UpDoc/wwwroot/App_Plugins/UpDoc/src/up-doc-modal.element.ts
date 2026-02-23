@@ -194,6 +194,68 @@ export class UpDocModalElement extends UmbModalBaseElement<
 		}
 	}
 
+	async #extractFromUrl() {
+		if (!this._sourceUrl) return;
+
+		this._isExtracting = true;
+		this._extractionError = null;
+
+		try {
+			const authContext = await this.getContext(UMB_AUTH_CONTEXT);
+			const token = await authContext.getLatestToken();
+
+			if (!this._config?.folderPath) {
+				this._extractionError = 'No workflow configured for this blueprint';
+				return;
+			}
+
+			const workflowName = this._config.folderPath.replace(/\\/g, '/').split('/').pop() ?? '';
+			if (!workflowName) {
+				this._extractionError = 'Could not determine workflow name';
+				return;
+			}
+
+			// Run transform with URL — no media key needed
+			const transformResult = await transformAdhoc(workflowName, '', token, this._sourceUrl);
+
+			const allSections = allTransformSections(transformResult);
+			if (!allSections.length) {
+				this._extractionError = 'Failed to extract content from web page';
+				return;
+			}
+
+			// Build section ID → text lookup (same as media extraction)
+			const sectionLookup: Record<string, string> = {};
+			for (const section of allSections) {
+				if (!section.included) continue;
+				if (section.heading) {
+					sectionLookup[`${section.id}.heading`] =
+						section.pattern === 'role' ? section.content : section.heading;
+					sectionLookup[`${section.id}.title`] =
+						section.pattern === 'role' ? section.content : section.heading;
+				}
+				sectionLookup[`${section.id}.content`] = section.content;
+				if (section.description) {
+					sectionLookup[`${section.id}.description`] = section.description;
+				}
+				if (section.summary) {
+					sectionLookup[`${section.id}.summary`] = section.summary;
+				}
+			}
+			this._sectionLookup = sectionLookup;
+
+			// Pre-fill document name from mapped title sections
+			if (!this._documentName && this._config) {
+				this.#prefillDocumentName(sectionLookup);
+			}
+		} catch (error) {
+			this._extractionError = 'Failed to extract from web page';
+			console.error('Web extraction error:', error);
+		} finally {
+			this._isExtracting = false;
+		}
+	}
+
 	/**
 	 * Pre-fills the document name by finding elements mapped to a top-level field
 	 * (no blockKey — i.e., a document property like pageTitle, not a block property).
@@ -309,16 +371,26 @@ export class UpDocModalElement extends UmbModalBaseElement<
 		return html`
 			<umb-property-layout label="Web Page URL" orientation="vertical">
 				<div slot="editor">
-					<uui-input
-						label="URL"
-						placeholder="https://example.com/page"
-						.value=${this._sourceUrl}
-						@input=${(e: UUIInputEvent) => (this._sourceUrl = e.target.value as string)}>
-					</uui-input>
-					<div class="source-coming-soon">
-						<uui-icon name="icon-info"></uui-icon>
-						<span>Web page extraction is not yet available.</span>
+					<div style="display: flex; gap: 8px; align-items: center;">
+						<uui-input
+							label="URL"
+							placeholder="https://example.com/page"
+							style="flex: 1;"
+							.value=${this._sourceUrl}
+							@input=${(e: UUIInputEvent) => (this._sourceUrl = e.target.value as string)}
+							@keydown=${(e: KeyboardEvent) => {
+								if (e.key === 'Enter' && this._sourceUrl) this.#extractFromUrl();
+							}}>
+						</uui-input>
+						<uui-button
+							look="primary"
+							label="Extract"
+							?disabled=${!this._sourceUrl || this._isExtracting}
+							@click=${() => this.#extractFromUrl()}>
+							Extract
+						</uui-button>
 					</div>
+					${this.#renderExtractionStatus()}
 				</div>
 			</umb-property-layout>
 		`;
@@ -677,6 +749,7 @@ export class UpDocModalElement extends UmbModalBaseElement<
 			case 'markdown':
 				return !!this._selectedMediaUnique;
 			case 'web':
+				return this.#hasExtractedContent();
 			case 'doc':
 				return false;
 			default:

@@ -24,6 +24,7 @@ public class WorkflowController : ControllerBase
     private readonly IDestinationStructureService _destinationStructureService;
     private readonly IPdfPagePropertiesService _pdfPagePropertiesService;
     private readonly IMarkdownExtractionService _markdownExtractionService;
+    private readonly IHtmlExtractionService _htmlExtractionService;
     private readonly IContentTransformService _contentTransformService;
     private readonly IMediaService _mediaService;
     private readonly IWebHostEnvironment _webHostEnvironment;
@@ -34,6 +35,7 @@ public class WorkflowController : ControllerBase
         IDestinationStructureService destinationStructureService,
         IPdfPagePropertiesService pdfPagePropertiesService,
         IMarkdownExtractionService markdownExtractionService,
+        IHtmlExtractionService htmlExtractionService,
         IContentTransformService contentTransformService,
         IMediaService mediaService,
         IWebHostEnvironment webHostEnvironment,
@@ -43,6 +45,7 @@ public class WorkflowController : ControllerBase
         _destinationStructureService = destinationStructureService;
         _pdfPagePropertiesService = pdfPagePropertiesService;
         _markdownExtractionService = markdownExtractionService;
+        _htmlExtractionService = htmlExtractionService;
         _contentTransformService = contentTransformService;
         _mediaService = mediaService;
         _webHostEnvironment = webHostEnvironment;
@@ -185,32 +188,51 @@ public class WorkflowController : ControllerBase
     }
 
     [HttpPost("{name}/sample-extraction")]
-    public IActionResult ExtractSample(string name, [FromBody] SampleExtractionRequest request)
+    public async Task<IActionResult> ExtractSample(string name, [FromBody] SampleExtractionRequest request)
     {
-        var absolutePath = ResolveMediaFilePath(request.MediaKey);
-        if (absolutePath == null)
-        {
-            return NotFound(new { error = "Media item not found or file not on disk" });
-        }
-
-        var media = _mediaService.GetById(request.MediaKey);
-        var fileName = media?.Name ?? Path.GetFileName(absolutePath);
-
         // Detect source type from workflow config
         var sourceConfig = _workflowService.GetSourceConfig(name);
         var sourceType = sourceConfig?.SourceTypes?.FirstOrDefault() ?? "pdf";
 
         RichExtractionResult result;
+        string fileName;
 
-        if (sourceType == "markdown")
+        if (sourceType == "web" && !string.IsNullOrWhiteSpace(request.Url))
         {
-            result = _markdownExtractionService.ExtractRich(absolutePath);
+            // Web extraction from URL
+            result = await _htmlExtractionService.ExtractRichFromUrl(request.Url);
+            fileName = request.Url;
+        }
+        else if (sourceType == "web" && request.MediaKey != Guid.Empty)
+        {
+            // Web extraction from uploaded HTML file (fallback)
+            var absolutePath = ResolveMediaFilePath(request.MediaKey);
+            if (absolutePath == null)
+                return NotFound(new { error = "Media item not found or file not on disk" });
+            result = _htmlExtractionService.ExtractRichFromFile(absolutePath);
+            var media = _mediaService.GetById(request.MediaKey);
+            fileName = media?.Name ?? Path.GetFileName(absolutePath);
         }
         else
         {
-            // PDF extraction (default)
-            var includePages = ResolveIncludePages(absolutePath, sourceConfig);
-            result = _pdfPagePropertiesService.ExtractRichDump(absolutePath, includePages);
+            // PDF or Markdown — require media key
+            var absolutePath = ResolveMediaFilePath(request.MediaKey);
+            if (absolutePath == null)
+                return NotFound(new { error = "Media item not found or file not on disk" });
+
+            var media = _mediaService.GetById(request.MediaKey);
+            fileName = media?.Name ?? Path.GetFileName(absolutePath);
+
+            if (sourceType == "markdown")
+            {
+                result = _markdownExtractionService.ExtractRich(absolutePath);
+            }
+            else
+            {
+                // PDF extraction (default)
+                var includePages = ResolveIncludePages(absolutePath, sourceConfig);
+                result = _pdfPagePropertiesService.ExtractRichDump(absolutePath, includePages);
+            }
         }
 
         if (!string.IsNullOrEmpty(result.Error))
@@ -220,7 +242,8 @@ public class WorkflowController : ControllerBase
 
         // Populate source metadata
         result.Source.FileName = fileName;
-        result.Source.MediaKey = request.MediaKey.ToString();
+        if (request.MediaKey != Guid.Empty)
+            result.Source.MediaKey = request.MediaKey.ToString();
 
         try
         {
@@ -409,28 +432,50 @@ public class WorkflowController : ControllerBase
     }
 
     [HttpPost("{name}/transform-adhoc")]
-    public IActionResult TransformAdhoc(string name, [FromBody] SampleExtractionRequest request)
+    public async Task<IActionResult> TransformAdhoc(string name, [FromBody] SampleExtractionRequest request)
     {
-        var absolutePath = ResolveMediaFilePath(request.MediaKey);
-        if (absolutePath == null)
-        {
-            return NotFound(new { error = "Media item not found or file not on disk" });
-        }
-
         try
         {
             var sourceConfig = _workflowService.GetSourceConfig(name);
             var sourceType = sourceConfig?.SourceTypes?.FirstOrDefault() ?? "pdf";
 
-            if (sourceType == "markdown")
+            if (sourceType == "web")
             {
+                RichExtractionResult extraction;
+                if (!string.IsNullOrWhiteSpace(request.Url))
+                {
+                    extraction = await _htmlExtractionService.ExtractRichFromUrl(request.Url);
+                }
+                else if (request.MediaKey != Guid.Empty)
+                {
+                    var absolutePath = ResolveMediaFilePath(request.MediaKey);
+                    if (absolutePath == null)
+                        return NotFound(new { error = "Media item not found or file not on disk" });
+                    extraction = _htmlExtractionService.ExtractRichFromFile(absolutePath);
+                }
+                else
+                {
+                    return BadRequest(new { error = "URL or media key is required for web extraction" });
+                }
+
+                var result = ConvertStructuredToTransformResult(extraction);
+                return Ok(result);
+            }
+            else if (sourceType == "markdown")
+            {
+                var absolutePath = ResolveMediaFilePath(request.MediaKey);
+                if (absolutePath == null)
+                    return NotFound(new { error = "Media item not found or file not on disk" });
                 var extraction = _markdownExtractionService.ExtractRich(absolutePath);
-                var result = ConvertMarkdownToTransformResult(extraction);
+                var result = ConvertStructuredToTransformResult(extraction);
                 return Ok(result);
             }
             else
             {
                 // PDF: area detection + rule-based transform
+                var absolutePath = ResolveMediaFilePath(request.MediaKey);
+                if (absolutePath == null)
+                    return NotFound(new { error = "Media item not found or file not on disk" });
                 var includePages = ResolveIncludePages(absolutePath, sourceConfig);
                 var areaTemplate = _workflowService.GetAreaTemplate(name);
 
@@ -778,11 +823,12 @@ public class WorkflowController : ControllerBase
     /// Returns null if all pages should be included.
     /// </summary>
     /// <summary>
-    /// Converts a markdown RichExtractionResult into a TransformResult.
+    /// Converts a structured RichExtractionResult (markdown or HTML) into a TransformResult.
     /// Groups elements by heading: each heading starts a new section with a kebab-case ID.
     /// Body elements between headings become the section's content.
+    /// Works for any source type that uses "heading-N" font names (markdown, HTML).
     /// </summary>
-    private static TransformResult ConvertMarkdownToTransformResult(RichExtractionResult extraction)
+    private static TransformResult ConvertStructuredToTransformResult(RichExtractionResult extraction)
     {
         var sections = new List<TransformedSection>();
         var seenIds = new Dictionary<string, int>();
@@ -919,6 +965,10 @@ public class WorkflowController : ControllerBase
 public class SampleExtractionRequest
 {
     public Guid MediaKey { get; set; }
+    /// <summary>
+    /// URL for web page extraction. Used when source type is "web".
+    /// </summary>
+    public string? Url { get; set; }
 }
 
 public class CreateWorkflowRequest

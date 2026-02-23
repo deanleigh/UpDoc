@@ -1,4 +1,4 @@
-import { c as B } from "./workflow.service-BR5JoKUq.js";
+import { c as B } from "./workflow.service-DSRz0gSB.js";
 import { html as f, nothing as S, css as Z, state as p, customElement as q } from "@umbraco-cms/backoffice/external/lit";
 import { UmbTextStyles as G } from "@umbraco-cms/backoffice/style";
 import { UmbModalBaseElement as X } from "@umbraco-cms/backoffice/modal";
@@ -637,4 +637,4 @@ export {
   h as PdfAreaEditorModalElement,
   ot as default
 };
-//# sourceMappingURL=pdf-area-editor-modal.element-DGGs5zKu.js.map
+//# sourceMappingURL=pdf-area-editor-modal.element-CK5IXN-k.js.map

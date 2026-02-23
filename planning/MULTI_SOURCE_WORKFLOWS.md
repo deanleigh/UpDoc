@@ -1,6 +1,6 @@
 # Plan: Multi-Source Workflows
 
-## Status: NEXT UP
+## Status: Phase 1 COMPLETE, Phase 2 NEXT
 
 ## Purpose
 
@@ -33,77 +33,79 @@ From `CORE_CONCEPT.md` — all sources end up as Markdown, but differ in extract
 
 ---
 
-## Phase 1: Markdown Workflow
+## Phase 1: Markdown Workflow — COMPLETE
 
-### What already exists
+**Branch:** `feature/markdown-workflow` → merged to main (commit `3a8d216`, Feb 2026)
 
-- **`MarkdownExtractionService.cs`** — C# service that extracts sections from Markdown files using heading-based splitting. Tested and working.
-- **Pipeline code** — the Extract → Shape → Map pipeline is source-agnostic in principle
-- **No workflow folder** — there's no `updoc/workflows/markdown-*` folder with config files yet
+### What was built
 
-### What needs doing
+- **`MarkdownExtractionService.ExtractRich()`** — parses markdown into `RichExtractionResult` with heading/body elements and synthetic font metadata (`heading-1`, `heading-2`, etc.)
+- **Source-type-aware `TransformAdhoc` endpoint** — checks `sourceConfig.SourceTypes` and routes to markdown or PDF extraction accordingly
+- **`ConvertMarkdownToTransformResult()`** — groups elements by heading into `TransformedSection` objects with kebab-case IDs
+- **Simplified Source tab** — non-PDF workflows get a streamlined view (no areas, pages, or transform UI)
+- **Test workflow** — `updoc/workflows/Test Basic Markdown/` with source.json, destination.json, map.json, sample-extraction.json
+- **Blueprint** — "Test Basic Markdown" under existing Web Page document type
 
-1. **Create a simple blueprint** — a standard Content Page in the Umbraco test site (not the complex tour document types). Something with: Page Title, Page Description, and a Rich Text content area.
+### What we discovered
 
-2. **Create workflow folder** — `updoc/workflows/content-page-markdown/` with:
-   - `source.json` — source type: markdown, media picker config
-   - `destination.json` — auto-populated from the Content Page blueprint
-   - `map.json` — section-to-field mappings
-   - `transform.json` — minimal (Markdown already has structure)
-
-3. **Wire up the UI** — the "Create from Source" flow should detect source type from the workflow config and offer Markdown-specific options (file picker instead of PDF picker, no page selection needed, no area editor needed)
-
-4. **Test end-to-end** — upload a `.md` file, extract sections, map to blueprint fields, create document
-
-### What we expect to discover
-
-- Which UI components are truly source-agnostic vs PDF-specific
-- Whether the transform layer (rules) is needed at all for structured sources
-- Whether `destination.json` and `map.json` formats work unchanged across source types
-- Whether the bridge code needs source-type branching or is already generic
+- **Source tab is ~70% source-specific**: PDF needs areas, pages, rules, transform preview. Markdown/HTML just need element list + file picker. The `#sourceType` getter cleanly branches rendering.
+- **Transform layer not needed for structured sources**: Markdown's heading-based grouping is sufficient — no rules editor required. The `ConvertMarkdownToTransformResult()` helper produces the same `TransformResult` shape that PDF's full pipeline does.
+- **`destination.json` and `map.json` formats work unchanged**: Same document type (Web Page) works for both PDF and markdown workflows. Zero format changes needed.
+- **Bridge code is already generic**: `up-doc-modal.element.ts`, `up-doc-collection-action.element.ts`, and `up-doc-action.ts` all work unchanged — they consume `TransformResult` and don't care about source type.
+- **Frontend needed zero changes for Create from Source flow**: Only the Source tab (workflow editor in Settings) needed source-type branching. The Content section modal was already source-agnostic.
+- **Mapping rules still needed even for structured sources**: "Put everything under this heading until the next heading into this field" is the same conceptual rule pattern as PDF. Parked for after all three source types are built.
 
 ---
 
-## Phase 2: Web (HTML) Workflow
+## Phase 2: Web (HTML) Workflow — NEXT
 
 ### Context
 
 Group Tours on the Tailored Travels site come from the OLD website (~20 years). These need importing via web page extraction. The web page has structured HTML that can be scraped with AngleSharp.
 
-### What already exists
+### Validation (Feb 2026)
 
-- **AngleSharp** — chosen as the HTML parsing library (not Playwright for extraction)
-- **No extraction service yet** — `WebExtractionService.cs` doesn't exist
-- **No workflow folder** — no `updoc/workflows/group-tour-web/`
+Tested https://www.tailored-travel.co.uk/norfolk — **all tab content is in raw HTML**. The site uses JavaScript show/hide tabs, but content is in the DOM from page load. AngleSharp will see everything:
+- Tour title: "The History & Heritage Houses of Norfolk"
+- Price/duration: "5 days from £779"
+- All 6 tabs: Suggested itinerary (Day 1-5), Featuring, Hotel, Extras, Tailor-make, Reviews (14 testimonials)
+
+**No scraping protection** on this site. Both file-based (save HTML → upload) and URL-based fetch would work.
+
+### v1 Approach: File-based (same as PDF/markdown)
+
+User saves web page as HTML, uploads to Umbraco media. AngleSharp parses the file. This:
+- Avoids all scraping protection issues (Cloudflare, bot detection, CAPTCHAs)
+- Uses existing media picker pattern (consistent with PDF and markdown)
+- Works for 100% of sites
+- URL-based fetch can be added later as an enhancement
 
 ### What needs doing
 
-1. **Create `WebExtractionService.cs`** — AngleSharp-based HTML extraction
-   - Accept a URL or HTML content
-   - Extract sections based on CSS selectors or heading structure
-   - Return the same `ExtractionResult` format as PDF and Markdown
+1. **Install AngleSharp** — NuGet package for `src/UpDoc/UpDoc.csproj`
 
-2. **Create workflow folder** — `updoc/workflows/group-tour-web/` with:
-   - `source.json` — source type: web, URL input config
-   - `destination.json` — same Group Tour blueprint structure
-   - `map.json` — section-to-field mappings (same destination, different source)
-   - `transform.json` — web-specific transforms if needed
+2. **Create `HtmlExtractionService.cs`** — AngleSharp-based HTML extraction
+   - `IHtmlExtractionService` with `ExtractRich(string filePath)` — same pattern as markdown
+   - Parse HTML, extract headings (`h1`-`h6`), paragraphs, list items
+   - Return `RichExtractionResult` with synthetic font metadata (tag names as fontName, heading sizes as fontSize)
+   - Handle Tailored Travels tab pattern: extract content from tab divs by section
 
-3. **Design the UI** — URL input instead of media picker, page preview showing fetched content, section extraction preview
+3. **Wire up `WorkflowController.cs`** — add "web" source type routing (same pattern as markdown)
+   - `SampleExtraction` + `TransformAdhoc` endpoints detect source type and route
+   - `ConvertHtmlToTransformResult()` helper (heading-based grouping like markdown)
 
-4. **Identify shared components** — what can be shared with PDF workflow:
-   - Blueprint picker (identical)
-   - Destination tab (identical)
-   - Map tab (identical)
-   - Transform/rules (may differ — web has structure, PDF doesn't)
-   - Source tab (source-specific)
+4. **Backoffice setup** (user does manually):
+   - Create "Test Basic HTML" blueprint under Web Page document type
+   - Create workflow via Settings > UpDoc > Workflows
+
+5. **Test with Norfolk page** — save HTML, upload, extract, verify all tab content visible
 
 ### What we expect to discover
 
-- How much of the source tab is source-specific vs generic
-- Whether web extraction needs rules at all (HTML has structure)
-- What shared components can be extracted as reusable elements
-- The right abstraction boundary between source-specific and shared code
+- Whether heading-based grouping works for HTML or if CSS selector rules are needed
+- How to handle HTML-specific structure (tabs, sidebars, nav) — strip or extract?
+- The right abstraction for "content area" detection across source types
+- Whether the Source tab simplified view needs HTML-specific additions
 
 ---
 
@@ -118,35 +120,39 @@ After Phases 1-2 reveal the common functionality:
 
 ---
 
-## Common Functionality (To Identify)
+## Common Functionality (Updated After Phase 1)
 
-This section will be updated as we build Phases 1-2. Initial hypotheses:
+### Confirmed shared (same across all source types)
 
-### Likely shared (same across all source types)
-
-- Blueprint picker modal
-- Destination tab (shows blueprint structure)
-- Map tab (shows source → destination mappings)
-- `destination.json` format
-- `map.json` format
-- Document creation (scaffold from blueprint, populate fields)
+- Blueprint picker modal — identical, no changes needed
+- Destination tab — identical, shows blueprint structure
+- Map tab — identical, shows source → destination mappings
+- `destination.json` format — unchanged, same doc type works for multiple sources
+- `map.json` format — unchanged
+- Document creation pipeline — `up-doc-modal.element.ts`, `up-doc-collection-action.element.ts`, `up-doc-action.ts` all work unchanged
+- `TransformResult` shape — both PDF pipeline and markdown's `ConvertMarkdownToTransformResult()` produce the same shape
 - `stripMarkdown()` for text/textArea fields
 
-### Likely source-specific
+### Confirmed source-specific
 
-- Source tab UI (media picker vs URL input vs file picker)
-- Extraction services (PDF/Markdown/Web each have their own)
-- `source.json` format (different config per source type)
-- Transform rules (PDF needs them, Markdown and Web may not)
-- Area editor (PDF only)
-- Page picker (PDF only)
+- Extraction services — each source type has its own (`PdfPagePropertiesService`, `MarkdownExtractionService`, `HtmlExtractionService` pending)
+- Source tab rendering — PDF: areas/pages/rules/transform toolbar. Non-PDF: simplified element list with file picker
+- Area detection + area editor — PDF only
+- Page selection — PDF only
+- Rules editor — PDF only (for now; may be needed for all once mapping is built)
+- `source.json` config — different per source type
 
-### Unknown until tested
+### Resolved
 
-- Transform tab — needed for all source types or just PDF?
-- Section rules editor — needed for all or just PDF?
-- How the Extracted tab renders across source types
-- Whether the config toolbar (Source, Pages, Areas, Sections cards) adapts or needs source-specific versions
+- **Transform tab**: Not needed for structured sources. Markdown uses heading-based grouping (`ConvertMarkdownToTransformResult`) instead of the full Extract → Area Detect → Transform pipeline.
+- **Section rules editor**: Not needed for markdown extraction. But grouping rules ARE needed for mapping (deciding which sections go to which destination fields). This is a mapping concern, not an extraction concern.
+- **Source tab**: Branched via `#sourceType` getter. PDF gets full toolbar; non-PDF gets simplified view. Clean separation.
+
+### Still unknown (test with HTML)
+
+- Whether HTML needs more than heading-based grouping (tab sections, CSS-defined content areas?)
+- How to strip navigation/sidebar/footer noise from HTML pages
+- Whether the "simplified view" needs HTML-specific additions (e.g., showing tab names)
 
 ---
 

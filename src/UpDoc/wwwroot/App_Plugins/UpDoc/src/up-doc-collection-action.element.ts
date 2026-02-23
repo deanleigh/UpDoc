@@ -152,9 +152,11 @@ export class UpDocCollectionActionElement extends UmbLitElement {
 				return;
 			}
 
-			const { name, mediaUnique, sectionLookup, config } = modalValue;
+			const { name, mediaUnique, sourceUrl, sectionLookup, config } = modalValue;
 
-			if (!mediaUnique || !name || !config) return;
+			// Web source uses URL (no media), others need media key
+			if (!name || !config) return;
+			if (!mediaUnique && !sourceUrl) return;
 
 			// Scaffold from blueprint
 			const scaffoldResponse = await fetch(

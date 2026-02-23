@@ -1,25 +1,25 @@
-import { U as Z } from "./blueprint-picker-modal.token-mXZoRNwG.js";
-import { U as F } from "./up-doc-modal.token-DHoS03yR.js";
-import { f as G } from "./workflow.service-BR5JoKUq.js";
+import { U as F } from "./blueprint-picker-modal.token-mXZoRNwG.js";
+import { U as ee } from "./up-doc-modal.token-DHoS03yR.js";
+import { f as G } from "./workflow.service-DSRz0gSB.js";
 import { s as V, b as R, m as W } from "./transforms-BkZeboOX.js";
-import { html as L, css as ee, state as I, customElement as te } from "@umbraco-cms/backoffice/external/lit";
-import { UmbLitElement as ne } from "@umbraco-cms/backoffice/lit-element";
-import { UMB_DOCUMENT_WORKSPACE_CONTEXT as oe } from "@umbraco-cms/backoffice/document";
+import { html as L, css as te, state as I, customElement as ne } from "@umbraco-cms/backoffice/external/lit";
+import { UmbLitElement as oe } from "@umbraco-cms/backoffice/lit-element";
+import { UMB_DOCUMENT_WORKSPACE_CONTEXT as ae } from "@umbraco-cms/backoffice/document";
 import { UMB_AUTH_CONTEXT as K } from "@umbraco-cms/backoffice/auth";
-import { UMB_NOTIFICATION_CONTEXT as ae } from "@umbraco-cms/backoffice/notification";
+import { UMB_NOTIFICATION_CONTEXT as ie } from "@umbraco-cms/backoffice/notification";
 import { umbOpenModal as P } from "@umbraco-cms/backoffice/modal";
-import { UmbDocumentTypeStructureRepository as ie } from "@umbraco-cms/backoffice/document-type";
-import { UmbDocumentBlueprintItemRepository as se } from "@umbraco-cms/backoffice/document-blueprint";
-var re = Object.defineProperty, ce = Object.getOwnPropertyDescriptor, J = (e) => {
+import { UmbDocumentTypeStructureRepository as se } from "@umbraco-cms/backoffice/document-type";
+import { UmbDocumentBlueprintItemRepository as re } from "@umbraco-cms/backoffice/document-blueprint";
+var ce = Object.defineProperty, le = Object.getOwnPropertyDescriptor, J = (e) => {
   throw TypeError(e);
 }, O = (e, n, o, a) => {
-  for (var t = a > 1 ? void 0 : a ? ce(n, o) : n, c = e.length - 1, s; c >= 0; c--)
+  for (var t = a > 1 ? void 0 : a ? le(n, o) : n, c = e.length - 1, s; c >= 0; c--)
     (s = e[c]) && (t = (a ? s(n, o, t) : s(t)) || t);
-  return a && t && re(n, o, t), t;
+  return a && t && ce(n, o, t), t;
 }, j = (e, n, o) => n.has(e) || J("Cannot " + o), q = (e, n, o) => (j(e, n, "read from private field"), o ? o.call(e) : n.get(e)), x = (e, n, o) => n.has(e) ? J("Cannot add the same private member more than once") : n instanceof WeakSet ? n.add(e) : n.set(e, o), g = (e, n, o) => (j(e, n, "access private method"), o), B, D, y, A, z, H, E, X;
-let k = class extends ne {
+let k = class extends oe {
   constructor() {
-    super(), x(this, y), x(this, B, new ie(this)), x(this, D, new se(this)), this._hasWorkflows = !1, this.consumeContext(oe, (e) => {
+    super(), x(this, y), x(this, B, new se(this)), x(this, D, new re(this)), this._hasWorkflows = !1, this.consumeContext(ae, (e) => {
       this.observe(e?.unique, (n) => {
         this._documentUnique = n, g(this, y, A).call(this);
       }), this.observe(e?.contentTypeUnique, (n) => {
@@ -62,7 +62,7 @@ A = async function() {
 };
 z = async function() {
   if (!this._documentTypeUnique) return;
-  const e = await this.getContext(ae), o = await (await this.getContext(K)).getLatestToken(), a = this._documentUnique ?? null;
+  const e = await this.getContext(ie), o = await (await this.getContext(K)).getLatestToken(), a = this._documentUnique ?? null;
   try {
     const t = await G(o), c = new Set(t.blueprintIds), { data: s } = await q(this, B).requestAllowedChildrenOf(
       this._documentTypeUnique,
@@ -98,7 +98,7 @@ z = async function() {
     }
     let r;
     try {
-      r = await P(this, Z, {
+      r = await P(this, F, {
         data: { documentTypes: i }
       });
     } catch {
@@ -107,7 +107,7 @@ z = async function() {
     const { blueprintUnique: u, documentTypeUnique: d } = r, m = i.find((l) => l.documentTypeUnique === d)?.blueprints.find((l) => l.blueprintUnique === u);
     let f;
     try {
-      f = await P(this, F, {
+      f = await P(this, ee, {
         data: {
           unique: a,
           blueprintName: m?.blueprintName ?? "",
@@ -117,8 +117,8 @@ z = async function() {
     } catch {
       return;
     }
-    const { name: h, mediaUnique: v, sectionLookup: Q, config: T } = f;
-    if (!v || !h || !T) return;
+    const { name: h, mediaUnique: v, sourceUrl: Q, sectionLookup: Y, config: T } = f;
+    if (!h || !T || !v && !Q) return;
     const S = await fetch(
       `/umbraco/management/api/v1/document-blueprint/${u}/scaffold`,
       {
@@ -139,13 +139,13 @@ z = async function() {
     const b = await S.json(), $ = b.values ? JSON.parse(JSON.stringify(b.values)) : [], M = /* @__PURE__ */ new Set();
     for (const l of T.map.mappings) {
       if (l.enabled === !1) continue;
-      const w = Q[l.source];
+      const w = Y[l.source];
       if (w)
         for (const U of l.destinations)
           g(this, y, H).call(this, $, U, w, T, M);
     }
     g(this, y, X).call(this, $, T, M);
-    const Y = {
+    const Z = {
       parent: a ? { id: a } : null,
       documentType: { id: d },
       template: b.template ? { id: b.template.id } : null,
@@ -157,7 +157,7 @@ z = async function() {
         "Content-Type": "application/json",
         Authorization: `Bearer ${o}`
       },
-      body: JSON.stringify(Y)
+      body: JSON.stringify(Z)
     });
     if (!N.ok) {
       const l = await N.json();
@@ -296,7 +296,7 @@ X = function(e, n, o) {
   }
 };
 k.styles = [
-  ee`
+  te`
 			:host {
 				display: contents;
 			}
@@ -312,11 +312,11 @@ O([
   I()
 ], k.prototype, "_hasWorkflows", 2);
 k = O([
-  te("up-doc-collection-action")
+  ne("up-doc-collection-action")
 ], k);
-const Te = k;
+const be = k;
 export {
   k as UpDocCollectionActionElement,
-  Te as default
+  be as default
 };
-//# sourceMappingURL=up-doc-collection-action.element-DoMdnbQv.js.map
+//# sourceMappingURL=up-doc-collection-action.element-BPz9vL1C.js.map

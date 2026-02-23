@@ -1,75 +1,60 @@
-# Next Session Prompt
+# Next Session: Markdown Workflow (Phase 1)
 
-Copy and paste everything below the line into a new Claude Code chat.
+## What we're doing
 
----
+Building the first non-PDF workflow to validate UpDoc's multi-source architecture. See `planning/MULTI_SOURCE_WORKFLOWS.md` for the full plan.
 
-## Continue UpDoc Development — Testing and Next Steps
+## Immediate task
 
-### Where we left off
+Create a minimal "Article" or "Content Page" document type and blueprint in the Umbraco test site, then wire up the markdown workflow end-to-end.
 
-Branch `main` (merged from `feature/rules-actions-v2`). The Transformed tab on the Source workspace has been significantly redesigned with a card-based layout using `uui-box` components.
+### Step 1: Create the document type + blueprint (manual, in Umbraco)
 
-### What was completed on the `feature/rules-actions-v2` branch
+The user needs to create a simple document type in the test site with:
+- Page Title (textstring)
+- Page Description (textarea)
+- Body content (rich text editor or block grid with one rich text block)
 
-1. **uui-box card layout for Transformed sections**: Each section is a `uui-box` card with the section heading as the headline. Simple sections have one body row (content left, badge + Map right). Multi-part sections (heading + complex content) have separate rows for title and content, each with their own badge + Map button, separated by horizontal lines.
+Then create a **blueprint** from it with sample content populated.
 
-2. **Map button hover behaviour**: Map buttons are hidden by default and appear when hovering over a section box, following the Umbraco block grid editor pattern.
+### Step 2: Create workflow folder
 
-3. **Per-part mapping**: Sections with both a heading and content (e.g., "Features") show separate Map buttons for the title part and content part. Source keys use `${sectionId}.${partSuffix}` convention.
+`updoc/workflows/article-markdown/` (or whatever the doc type ends up being called) with:
+- `source.json` — source type: markdown
+- `destination.json` — auto-populated from the blueprint
+- `map.json` — section-to-field mappings
 
-4. **Inline unmap from badges**: Green `uui-tag` badges have an "x" button to remove mappings directly from the Transformed view.
+### Step 3: Wire up the UI
 
-5. **Section rules editor**: Collapsible rule cards with Conditions, Exceptions, Action, and Format sections. Match preview shows matched elements.
+The "Create from Source" flow needs to handle markdown source type:
+- File picker instead of PDF media picker
+- No page selection (markdown has no pages)
+- No area editor (markdown has no areas)
+- Extraction preview should still work
 
-6. **Format options**: Block format (Paragraph, Heading 1-6, Bullet List, Numbered List, Quote) and Style (Bold, Italic, Strikethrough, Code).
+### Step 4: Test end-to-end
 
-### What the user wants to do next
+Upload a `.md` file → extract sections → map to blueprint fields → create document.
 
-**Test the system end-to-end.** The user said: "I think really what we need to be checking is how well it works at the moment." Focus on:
-- Does Create from Source correctly use mapped sections to populate Umbraco documents?
-- Do the rules correctly shape PDF content into sections?
-- Does the mapping flow (Transformed view → Map → Create from Source) work correctly?
+## Key files to read at session start
 
-### Known issues and planned work
-
-1. **Map tab Save hanging** — User reported clicking Save on the Map tab seemed to hang. After page refresh everything was fine. Not yet investigated.
-
-2. **v2b three-property model** — Planned in `planning/RULES_AND_ACTIONS_V2.md` Phase 2-3 but NOT started. Replaces the current Action+Format model with Format+StartsSection+Exclude. Awaiting user direction.
-
-3. **Unify "Define Structure" and "Edit Rules"** — Phase 5 in RULES_AND_ACTIONS_V2.md. Remove old teach-by-example, all areas use rules editor. Not started.
-
-### Key files
-
-- `src/UpDoc/wwwroot/App_Plugins/UpDoc/src/up-doc-workflow-source-view.element.ts` — Main source view (Extracted + Transformed tabs)
-- `src/UpDoc/wwwroot/App_Plugins/UpDoc/src/up-doc-collection-action.element.ts` — Create from Source button (primary code path)
-- `src/UpDoc/wwwroot/App_Plugins/UpDoc/src/up-doc-action.ts` — Entity action (tree context menu path)
-- `src/UpDoc/Services/ContentTransformService.cs` — Transform pipeline
-- `src/UpDoc/Models/SectionRules.cs` — Rule models
-
-### Critical reminder: Two bridge code files
-
-Changes to mapping/bridge logic MUST be applied to BOTH:
-- `up-doc-action.ts` — entity action (tree context menu path)
-- `up-doc-collection-action.element.ts` — collection action (Create from Source button, **primary code path users actually use**)
-
-### Workflow testing context
-
-Two workflows exist:
-- `group-tour-pdf` — original test workflow (Liverpool PDF)
-- `tailored-tour-pdf` — Andalucia PDF (updoc-test-03.pdf), has organiser rules, section rules, area rules defined
-
-### Required reading
-
-Before starting work, read these planning files (per CLAUDE.md session startup):
+Per CLAUDE.md mandatory startup:
 1. `planning/REFACTOR_TO_CONFIGURABLE.md`
 2. `planning/CREATE_FROM_SOURCE_SIDEBAR.md`
 3. `planning/CREATE_FROM_SOURCE_UI.md`
 4. `planning/DESTINATION_DRIVEN_MAPPING.md`
 
-And the active planning document:
-5. `planning/RULES_AND_ACTIONS_V2.md` — Current rules redesign plan (v2a complete, Phase 4 complete, v2b planned)
+Plus:
+5. `planning/MULTI_SOURCE_WORKFLOWS.md` — the plan for this work
 
-### First action
+## What was accomplished this session
 
-Ask the user what they'd like to test first, or what issues they've found during their testing.
+- MkDocs nav: removed `navigation.expand` and `navigation.sections` for collapsible sidebar
+- Created Tooling docs section (10 pages): Figma, Claude, Playwright, Umbraco Skills
+- Figma MCP investigation: bidirectional = page capture not element editing, validated targeted node screenshots (node `16:1141`), identified `claude-talk-to-figma-mcp` for future element-level editing
+- Created `planning/MULTI_SOURCE_WORKFLOWS.md` — Markdown → Web → Polish PDF sequence
+- Archived 4 completed planning docs (RULE_MATCHING_TOLERANCE, PLAYWRIGHT_TESTING, RECURSIVE_XY_CUT_PLAN, PDFPIG_DLA_SPIKE_RESULTS)
+
+## Branch
+
+Work on `main` or create `feature/markdown-workflow` — ask the user.

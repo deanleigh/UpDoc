@@ -1,23 +1,23 @@
-import { U as A } from "./up-doc-modal.token-DHoS03yR.js";
-import { U as V } from "./blueprint-picker-modal.token-mXZoRNwG.js";
-import { f as G } from "./workflow.service-BR5JoKUq.js";
+import { U as V } from "./up-doc-modal.token-DHoS03yR.js";
+import { U as G } from "./blueprint-picker-modal.token-mXZoRNwG.js";
+import { f as L } from "./workflow.service-DSRz0gSB.js";
 import { s as C, b as O, m as x } from "./transforms-BkZeboOX.js";
-import { UmbEntityActionBase as L } from "@umbraco-cms/backoffice/entity-action";
+import { UmbEntityActionBase as _ } from "@umbraco-cms/backoffice/entity-action";
 import { umbOpenModal as I } from "@umbraco-cms/backoffice/modal";
-import { UMB_NOTIFICATION_CONTEXT as _ } from "@umbraco-cms/backoffice/notification";
-import { UMB_AUTH_CONTEXT as E } from "@umbraco-cms/backoffice/auth";
-import { UmbDocumentTypeStructureRepository as J } from "@umbraco-cms/backoffice/document-type";
-import { UmbDocumentBlueprintItemRepository as K } from "@umbraco-cms/backoffice/document-blueprint";
-import { UmbDocumentItemRepository as M } from "@umbraco-cms/backoffice/document";
-class ne extends L {
-  #t = new J(this);
-  #o = new K(this);
-  #n = new M(this);
+import { UMB_NOTIFICATION_CONTEXT as E } from "@umbraco-cms/backoffice/notification";
+import { UMB_AUTH_CONTEXT as J } from "@umbraco-cms/backoffice/auth";
+import { UmbDocumentTypeStructureRepository as K } from "@umbraco-cms/backoffice/document-type";
+import { UmbDocumentBlueprintItemRepository as M } from "@umbraco-cms/backoffice/document-blueprint";
+import { UmbDocumentItemRepository as j } from "@umbraco-cms/backoffice/document";
+class ae extends _ {
+  #t = new K(this);
+  #o = new M(this);
+  #n = new j(this);
   constructor(c, o) {
     super(c, o);
   }
   async execute() {
-    const c = await this.getContext(_), o = this.args.unique ?? null;
+    const c = await this.getContext(E), o = this.args.unique ?? null;
     try {
       let f = null;
       if (o) {
@@ -34,7 +34,7 @@ class ne extends L {
         });
         return;
       }
-      const s = await (await this.getContext(E)).getLatestToken(), r = await G(s), n = new Set(r.blueprintIds), l = [];
+      const s = await (await this.getContext(J)).getLatestToken(), r = await L(s), n = new Set(r.blueprintIds), l = [];
       for (const e of t.items) {
         const { data: h } = await this.#o.requestItemsByDocumentType(e.unique);
         if (h?.length) {
@@ -58,7 +58,7 @@ class ne extends L {
       }
       let p;
       try {
-        p = await I(this, V, {
+        p = await I(this, G, {
           data: { documentTypes: l }
         });
       } catch {
@@ -68,7 +68,7 @@ class ne extends L {
       console.log("Selected blueprint:", a, "Document type:", y);
       let g;
       try {
-        g = await I(this, A, {
+        g = await I(this, V, {
           data: {
             unique: o,
             documentTypeName: i?.documentTypeName ?? "",
@@ -79,10 +79,10 @@ class ne extends L {
       } catch {
         return;
       }
-      const { name: D, mediaUnique: S, sectionLookup: R, config: b } = g;
-      if (!S || !D || !b)
+      const { name: U, mediaUnique: S, sourceUrl: R, sectionLookup: A, config: b } = g;
+      if (!U || !b || !S && !R)
         return;
-      const U = await fetch(
+      const D = await fetch(
         `/umbraco/management/api/v1/document-blueprint/${a}/scaffold`,
         {
           method: "GET",
@@ -92,19 +92,19 @@ class ne extends L {
           }
         }
       );
-      if (!U.ok) {
-        const e = await U.json();
+      if (!D.ok) {
+        const e = await D.json();
         console.error("Scaffold failed:", e), c.peek("danger", {
           data: { message: `Failed to scaffold from blueprint: ${e.title || "Unknown error"}` }
         });
         return;
       }
-      const w = await U.json();
+      const w = await D.json();
       console.log("Scaffold response:", w), console.log("Scaffold values aliases:", w.values?.map((e) => e.alias));
       const $ = w.values ? JSON.parse(JSON.stringify(w.values)) : [], B = /* @__PURE__ */ new Set();
       for (const e of b.map.mappings) {
         if (e.enabled === !1) continue;
-        const h = R[e.source];
+        const h = A[e.source];
         if (h)
           for (const v of e.destinations)
             this.#a($, v, h, b, B);
@@ -117,7 +117,7 @@ class ne extends L {
         values: $,
         variants: [
           {
-            name: D,
+            name: U,
             culture: null,
             segment: null
           }
@@ -164,7 +164,7 @@ class ne extends L {
           console.warn("Could not fetch document for save:", await e.text());
       }
       if (c.peek("positive", {
-        data: { message: `Document "${D}" created successfully!` }
+        data: { message: `Document "${U}" created successfully!` }
       }), k) {
         const e = `/umbraco/section/content/workspace/document/edit/${k}`;
         setTimeout(() => {
@@ -304,7 +304,7 @@ ${t}`;
   }
 }
 export {
-  ne as UpDocEntityAction,
-  ne as default
+  ae as UpDocEntityAction,
+  ae as default
 };
-//# sourceMappingURL=up-doc-action-DVUAKfP6.js.map
+//# sourceMappingURL=up-doc-action-CmSCNZmU.js.map
