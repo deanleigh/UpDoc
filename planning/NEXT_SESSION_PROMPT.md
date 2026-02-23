@@ -1,57 +1,40 @@
-# Next Session: Web Area Detection
+# Next Session: Persist Area Exclusions + Polish
 
 ## Where We Are
 
-Branch `feature/consistent-source-tabs` has 3 commits:
-- `8d8bc9d` — Consistent Extracted/Transformed tabs + info boxes for markdown and web
-- `8a4f405` — Doc updates and test site configs
-- `dd446a8` — Web area detection planning document
+Branch `feature/consistent-source-tabs` — web area detection complete, Refresh button added, ready to commit and merge.
 
-All three source types now share the same tab structure and info box layout. The next step is **web area detection** — bringing the PDF's Page > Area > Section > Element hierarchy to web sources.
+All three source types have consistent UI: Extracted/Transformed tabs, hierarchy rendering, info boxes, include/exclude toggles, and a dedicated Refresh button in the bottom bar.
 
-## What To Build
+## Priority: Persist Area Exclusions to source.json
 
-Read `planning/WEB_AREA_DETECTION.md` for the full agreed design. Summary:
+**Problem:** Area include/exclude toggles are currently browser-only state (`_excludedAreas` Set in the TypeScript component). When the user excludes Navigation/Footer/Sidebar areas, those exclusions are lost on page reload. This makes the toggles feel broken.
 
-### Goal
-Auto-detect HTML container areas (header, nav, main, sidebar, footer) during web extraction so users can include/exclude them — eliminating navigation and footer noise without manual CSS selectors.
+**Solution:** Save excluded areas to `source.json` (same pattern as PDF page exclusion). When user toggles an area off:
+1. Persist to `source.json` via API call
+2. On page load, read exclusions from `source.json` and populate `_excludedAreas`
+3. Transform pipeline should respect exclusions (only process included areas)
 
-### Key Decisions Already Made
-- **Same hierarchy as PDF**: Page (always 1 for web) > Area > Section > Element
-- **Two-tier area detection**: Semantic HTML elements (`<header>`, `<nav>`, `<main>`, etc.) AND class/ID pattern matching for legacy sites (`<div class="header">`, `<div id="footer">`)
-- **3 info boxes** for web (not 4): Source, Areas, Sections — no Pages box needed
-- **Reuse existing PDF hierarchy renderer** (`#renderAreaPage()`, `#renderArea()`, `#renderSection()`, `#renderAreaElement()`) for the web Extracted tab
-- **Area include/exclude persists** in source.json, same pattern as PDF page exclusion
-- **Transform only processes included areas**
+**Applies to:** Web sources (area exclusion) and potentially PDF sources (if not already persisted).
 
-### Implementation Steps
+## Other Items
 
-**Backend (C#):**
-1. Add `htmlArea` field to `ElementMetadata` in `RichExtractionResult.cs`
-2. Modify `HtmlExtractionService.ExtractElements()` to track current area during DOM walk — pass area name down through recursion
-3. New `DetectArea(IElement)` method — checks semantic tags + class/ID patterns, returns human-readable area name
-4. Remove `FindContentRoot()` body-only restriction — extract from full body, let area tagging + UI toggles handle filtering
-5. After extraction, build `AreaDetectionResult`-compatible structure by grouping elements by `htmlArea` value
-6. Keep `IsSkippableElement()` for non-content elements (script, style, svg, iframe, form inputs)
+### Web-Specific Rules (planning notes in `WEB_AREA_DETECTION.md`)
+- **Parent container class/ID as metadata** — capture `featuring_col1` / `featuring_col2` so rules can distinguish elements by container context
+- **Heading-scoped content rules** — "all paragraphs after this heading, before the next heading"
+- See `planning/WEB_AREA_DETECTION.md` > "Future: Web-Specific Rules" for details
 
-**Frontend (TypeScript):**
-1. Replace `#renderSimpleElements()` flat list with existing hierarchy renderer for web sources
-2. Replace 4 placeholder boxes with 3 functional boxes (Source, Areas, Sections)
-3. Wire area include/exclude toggles to source.json persistence
-4. Pass only included areas into transform pipeline
+### Polish
+- Button label consistency across source types
+- Transformed heading cleanup
+- Strategy badge contrast (pink-on-pink)
 
-### Test Case
-Norfolk tour page (https://www.tailored-travel.co.uk/norfolk) — currently 170 elements. After area detection, should split into Header, Main Content, Sidebar, Footer areas. User excludes all except Main Content → clean sections: Suggested Itinerary (with Day 1-6), Featuring, Hotel.
+### Destination-Driven Mapping (Phases 2-5)
+- See `planning/DESTINATION_DRIVEN_MAPPING.md`
+- Destination tab: click field → pick source content → mapping created
+- Remaining Phase 4 work
 
-### Important Context
-- The Norfolk site is ~20 years old, predates HTML5 semantic elements — will need class/ID pattern matching, not just semantic tag detection
-- AngleSharp is MIT licensed (same as PdfPig)
-- `HtmlExtractionService.cs` already has `FindContentRoot()` with selector priority list and `IsSkippableElement()` for noise tags
-- Stay on `feature/consistent-source-tabs` branch
-
-## Files to Modify
-- `src/UpDoc/Models/RichExtractionResult.cs`
-- `src/UpDoc/Services/HtmlExtractionService.cs`
-- `src/UpDoc/Controllers/WorkflowController.cs`
-- `src/UpDoc/wwwroot/App_Plugins/UpDoc/src/up-doc-workflow-source-view.element.ts`
-- `src/UpDoc/wwwroot/App_Plugins/UpDoc/src/workflow.types.ts` (if needed)
+## Key Files
+- `src/UpDoc/wwwroot/App_Plugins/UpDoc/src/up-doc-workflow-source-view.element.ts` — `_excludedAreas` Set needs persistence
+- `src/UpDoc/Controllers/WorkflowController.cs` — needs endpoint for saving/reading area exclusions
+- `src/UpDoc/wwwroot/App_Plugins/UpDoc/src/workflow.service.ts` — needs API call for exclusion persistence

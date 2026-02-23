@@ -53,8 +53,8 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		super.connectedCallback();
 		this.consumeContext(UMB_WORKSPACE_CONTEXT, (context) => {
 			if (!context) return;
-			// Register save handler so the workspace Save button triggers re-extraction
-			(context as any).setSaveHandler(() => this.#onReExtract());
+			// Register refresh handler so the workspace Refresh button triggers re-extraction
+			(context as any).setRefreshHandler(() => this.#onReExtract());
 			this.observe((context as any).unique, (unique: string | null) => {
 				if (unique) {
 					this._workflowName = decodeURIComponent(unique);
@@ -85,6 +85,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 			this._sourceConfig = sourceConfig;
 
 			const isPdf = (sourceConfig?.sourceTypes?.[0] ?? 'pdf') === 'pdf';
+			const isWeb = (sourceConfig?.sourceTypes?.[0]) === 'web';
 
 			if (isPdf) {
 				// PDF-specific: load area detection, transform, area template
@@ -114,8 +115,16 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 					this._pageMode = 'all';
 					this._pageInputValue = '';
 				}
+			} else if (isWeb) {
+				// Web: load area detection (auto-generated from extraction) + transform
+				const [areaDetection, transformResult] = await Promise.all([
+					fetchAreaDetection(this._workflowName, this.#token),
+					fetchTransformResult(this._workflowName, this.#token),
+				]);
+				this._areaDetection = areaDetection;
+				this._transformResult = transformResult;
 			} else {
-				// Non-PDF: load transform result (auto-generated from extraction)
+				// Markdown: load transform result (auto-generated from extraction)
 				const transformResult = await fetchTransformResult(this._workflowName, this.#token);
 				this._transformResult = transformResult;
 			}
@@ -410,8 +419,17 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		await this.#savePageSelection();
 	}
 
-	/** Re-extract using the previously stored media key (after page selection change). */
+	/** Re-extract using the previously stored source (media key for PDF, URL for web). */
 	async #onReExtract() {
+		// Web sources use URL, not media key
+		if (this.#sourceType === 'web') {
+			const url = this._extraction?.source.fileName;
+			if (url) {
+				return this.#runUrlExtraction(url);
+			}
+			return; // No URL to re-extract from
+		}
+
 		const mediaKey = this._extraction?.source.mediaKey;
 		if (!mediaKey) {
 			// No prior extraction — fall back to media picker
@@ -955,6 +973,10 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 			next.delete(areaKey);
 		} else {
 			next.add(areaKey);
+			// Auto-collapse excluded areas to reduce noise
+			const collapsed = new Set(this._collapsed);
+			collapsed.add(areaKey);
+			this._collapsed = collapsed;
 		}
 		this._excludedAreas = next;
 	}
@@ -1441,11 +1463,69 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		`;
 	}
 
-	/** Routes between Extracted and Transformed views for non-PDF sources. */
+	/** Routes between Extracted and Transformed views for non-PDF sources (markdown). */
 	#renderNonPdfContent() {
 		return this._viewMode === 'elements'
 			? this.#renderSimpleElements()
 			: this.#renderTransformed();
+	}
+
+	/** Info boxes for web sources — Source, Areas, Sections (3 functional boxes). */
+	#renderWebInfoBoxes() {
+		if (!this._extraction) return nothing;
+
+		const url = this._extraction.source.fileName ?? '';
+		const extractedDate = new Date(this._extraction.source.extractedDate).toLocaleString();
+		const hasAreas = this._areaDetection !== null;
+		const areaCount = hasAreas ? this._areaDetection!.diagnostics.areasDetected : 0;
+		const sectionCount = hasAreas ? this.#computeSectionCount() : 0;
+
+		return html`
+			<div class="info-boxes">
+				<uui-box class="info-box-item">
+					<div slot="headline" class="box-headline-row">
+						<span>Source</span>
+						<span class="box-headline-meta">${extractedDate}</span>
+					</div>
+					<div class="box-content">
+						<uui-icon name="icon-globe" class="box-icon"></uui-icon>
+						<span class="box-stat box-filename" title="${url}">${url}</span>
+						<div class="box-buttons">
+							<uui-button look="primary" color="default" label="Re-extract"
+								@click=${() => this.#runUrlExtraction(url)} ?disabled=${this._extracting}>
+								<uui-icon name="icon-globe"></uui-icon> Re-extract
+							</uui-button>
+						</div>
+					</div>
+				</uui-box>
+
+				<uui-box headline="Areas" class="info-box-item">
+					<div class="box-content">
+						<uui-icon name="icon-grid" class="box-icon"></uui-icon>
+						<span class="box-stat">${areaCount}</span>
+					</div>
+				</uui-box>
+
+				<uui-box headline="Sections" class="info-box-item">
+					<div class="box-content">
+						<uui-icon name="icon-thumbnail-list" class="box-icon"></uui-icon>
+						<span class="box-stat">${sectionCount}</span>
+					</div>
+				</uui-box>
+			</div>
+		`;
+	}
+
+	/** Routes between Extracted (area hierarchy) and Transformed views for web sources. */
+	#renderWebContent() {
+		if (this._viewMode === 'transformed') {
+			return this.#renderTransformed();
+		}
+		// Extracted tab: use area hierarchy if available, otherwise flat list
+		if (this._areaDetection) {
+			return this.#renderAreaDetection();
+		}
+		return this.#renderSimpleElements();
 	}
 
 	/** Simple header for non-PDF sources — just shows file name and a change button. */
@@ -1576,10 +1656,16 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 
 			if (extraction) {
 				this._extraction = extraction;
-				// Backend auto-generated transform.json — fetch it
-				const transformResult = await fetchTransformResult(this._workflowName!, token);
+				// Backend auto-generated area-detection.json and transform.json — fetch both
+				const [areaDetection, transformResult] = await Promise.all([
+					fetchAreaDetection(this._workflowName!, token),
+					fetchTransformResult(this._workflowName!, token),
+				]);
+				this._areaDetection = areaDetection;
 				this._transformResult = transformResult;
-				this._successMessage = `Content extracted — ${extraction.elements.length} elements`;
+
+				const areaCount = areaDetection?.diagnostics?.areasDetected ?? 0;
+				this._successMessage = `Content extracted — ${extraction.elements.length} elements in ${areaCount} areas`;
 				setTimeout(() => { this._successMessage = null; }, 5000);
 			} else {
 				this._error = 'Extraction failed. Check that the URL is accessible.';
@@ -1605,10 +1691,12 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		}
 
 		const isPdf = this.#sourceType === 'pdf';
+		const isWeb = this.#sourceType === 'web';
+		const isMarkdown = this.#sourceType === 'markdown';
 		const hasContent = this._areaDetection !== null || this._extraction !== null;
 
-		if (!isPdf) {
-			// Non-PDF sources: consistent tab + info box layout matching PDF
+		if (isMarkdown) {
+			// Markdown: simple flat view (no area detection)
 			return html`
 				<umb-body-layout header-fit-height>
 					${hasContent ? this.#renderExtractionHeader() : nothing}
@@ -1619,6 +1707,19 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 			`;
 		}
 
+		if (isWeb) {
+			// Web: area-based hierarchy (same as PDF) or flat if no areas yet
+			return html`
+				<umb-body-layout header-fit-height>
+					${hasContent ? this.#renderExtractionHeader() : nothing}
+					${hasContent && this._viewMode === 'elements' ? this.#renderWebInfoBoxes() : nothing}
+					${this._successMessage ? html`<div class="success-banner"><uui-icon name="icon-check"></uui-icon> ${this._successMessage}</div>` : nothing}
+					${hasContent ? this.#renderWebContent() : this.#renderEmpty()}
+				</umb-body-layout>
+			`;
+		}
+
+		// PDF: full area detection with page selection, area templates, etc.
 		return html`
 			<umb-body-layout header-fit-height>
 				${hasContent ? this.#renderExtractionHeader() : nothing}

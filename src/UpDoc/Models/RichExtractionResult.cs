@@ -108,6 +108,15 @@ public class ElementMetadata
     /// </summary>
     [JsonPropertyName("color")]
     public string Color { get; set; } = "#000000";
+
+    /// <summary>
+    /// For web sources: the auto-detected HTML area this element belongs to
+    /// (e.g., "Header", "Main Content", "Footer", "Sidebar").
+    /// Empty string for PDF/markdown sources or elements not in a detected area.
+    /// </summary>
+    [JsonPropertyName("htmlArea")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public string HtmlArea { get; set; } = string.Empty;
 }
 
 /// <summary>

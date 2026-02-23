@@ -249,9 +249,19 @@ public class WorkflowController : ControllerBase
         {
             _workflowService.SaveSampleExtraction(name, result);
 
-            // Auto-generate transform for structured sources (heading-based grouping)
-            if (sourceType == "markdown" || sourceType == "web")
+            if (sourceType == "web")
             {
+                // Build area detection result from htmlArea tags on elements
+                var areaDetection = BuildAreaDetectionFromWeb(result);
+                _workflowService.SaveAreaDetection(name, areaDetection);
+
+                // Generate transform from area-grouped content (respects area structure)
+                var transformResult = ConvertStructuredToTransformResult(result);
+                _workflowService.SaveTransformResult(name, transformResult);
+            }
+            else if (sourceType == "markdown")
+            {
+                // Auto-generate transform for markdown (heading-based grouping, no areas)
                 var transformResult = ConvertStructuredToTransformResult(result);
                 _workflowService.SaveTransformResult(name, transformResult);
             }
@@ -830,15 +840,229 @@ public class WorkflowController : ControllerBase
     /// Returns null if all pages should be included.
     /// </summary>
     /// <summary>
+    /// Builds an AreaDetectionResult from web extraction elements that have been tagged
+    /// with htmlArea metadata. Groups elements by their area, then within each area
+    /// groups into sections by headings.
+    /// </summary>
+    private static AreaDetectionResult BuildAreaDetectionFromWeb(RichExtractionResult extraction)
+    {
+        // Group elements by their htmlArea
+        var areaGroups = extraction.Elements
+            .GroupBy(e => string.IsNullOrEmpty(e.Metadata.HtmlArea) ? "Ungrouped" : e.Metadata.HtmlArea)
+            .OrderBy(g => GetAreaSortOrder(g.Key));
+
+        var areas = new List<DetectedArea>();
+        var areaColors = new Dictionary<string, string>
+        {
+            ["Header"] = "#90CAF9",
+            ["Navigation"] = "#CE93D8",
+            ["Main Content"] = "#A5D6A7",
+            ["Article"] = "#A5D6A7",
+            ["Sidebar"] = "#FFE082",
+            ["Footer"] = "#EF9A9A",
+            ["Ungrouped"] = "#B0BEC5",
+        };
+
+        foreach (var group in areaGroups)
+        {
+            var areaElements = group.ToList();
+            var sections = GroupElementsIntoSections(areaElements);
+
+            areas.Add(new DetectedArea
+            {
+                Name = group.Key,
+                Color = areaColors.GetValueOrDefault(group.Key, "#B0BEC5"),
+                BoundingBox = new ElementBoundingBox(), // Not applicable for web
+                Page = 1,
+                Sections = sections,
+                TotalElements = areaElements.Count,
+            });
+        }
+
+        return new AreaDetectionResult
+        {
+            TotalPages = 1,
+            Pages = new List<PageAreas>
+            {
+                new()
+                {
+                    Page = 1,
+                    Areas = areas,
+                }
+            },
+            Diagnostics = new AreaDiagnosticInfo
+            {
+                AreasDetected = areas.Count,
+                ElementsInAreas = extraction.Elements.Count,
+            }
+        };
+    }
+
+    /// <summary>
+    /// Groups extraction elements into sections based on headings.
+    /// Each heading starts a new section; body elements between headings are children.
+    /// </summary>
+    private static List<DetectedSection> GroupElementsIntoSections(List<ExtractionElement> elements)
+    {
+        var sections = new List<DetectedSection>();
+        DetectedSection? currentSection = null;
+
+        foreach (var element in elements)
+        {
+            var isHeading = element.Metadata.FontName.StartsWith("heading-");
+
+            var areaElement = new AreaElement
+            {
+                Id = element.Id,
+                Text = element.Text,
+                FontSize = element.Metadata.FontSize,
+                FontName = element.Metadata.FontName,
+                Color = element.Metadata.Color,
+                BoundingBox = element.Metadata.BoundingBox,
+            };
+
+            if (isHeading)
+            {
+                // Flush previous section
+                if (currentSection != null)
+                    sections.Add(currentSection);
+
+                currentSection = new DetectedSection
+                {
+                    Heading = areaElement,
+                    Children = new List<AreaElement>(),
+                };
+            }
+            else
+            {
+                if (currentSection == null)
+                {
+                    // Body text before any heading — preamble section
+                    currentSection = new DetectedSection
+                    {
+                        Heading = null,
+                        Children = new List<AreaElement>(),
+                    };
+                }
+                currentSection.Children.Add(areaElement);
+            }
+        }
+
+        // Flush last section
+        if (currentSection != null)
+            sections.Add(currentSection);
+
+        return sections;
+    }
+
+    /// <summary>
+    /// Sort order for areas so they appear in a logical reading order.
+    /// </summary>
+    private static int GetAreaSortOrder(string areaName) => areaName switch
+    {
+        "Header" => 0,
+        "Navigation" => 1,
+        "Main Content" => 2,
+        "Article" => 3,
+        "Sidebar" => 4,
+        "Footer" => 5,
+        "Ungrouped" => 6,
+        _ => 3 // Unknown areas sort near main content
+    };
+
+    /// <summary>
     /// Converts a structured RichExtractionResult (markdown or HTML) into a TransformResult.
     /// Groups elements by heading: each heading starts a new section with a kebab-case ID.
     /// Body elements between headings become the section's content.
+    /// For web sources with htmlArea metadata, creates one TransformArea per detected area.
     /// Works for any source type that uses "heading-N" font names (markdown, HTML).
     /// </summary>
     private static TransformResult ConvertStructuredToTransformResult(RichExtractionResult extraction)
     {
-        var sections = new List<TransformedSection>();
+        // Check if this is a web extraction with area metadata
+        var hasAreas = extraction.SourceType == "web"
+            && extraction.Elements.Any(e => !string.IsNullOrEmpty(e.Metadata.HtmlArea));
+
+        if (hasAreas)
+        {
+            return ConvertWebToTransformResult(extraction);
+        }
+
+        // Original path for markdown and web-without-areas
+        return ConvertFlatToTransformResult(extraction);
+    }
+
+    /// <summary>
+    /// Converts web extraction with area metadata into a TransformResult.
+    /// Groups elements by htmlArea first, then by heading within each area.
+    /// </summary>
+    private static TransformResult ConvertWebToTransformResult(RichExtractionResult extraction)
+    {
         var seenIds = new Dictionary<string, int>();
+        var areas = new List<TransformArea>();
+
+        var areaGroups = extraction.Elements
+            .GroupBy(e => string.IsNullOrEmpty(e.Metadata.HtmlArea) ? "Ungrouped" : e.Metadata.HtmlArea)
+            .OrderBy(g => GetAreaSortOrder(g.Key));
+
+        foreach (var areaGroup in areaGroups)
+        {
+            var sections = ConvertElementsToSections(areaGroup.ToList(), seenIds);
+            areas.Add(new TransformArea
+            {
+                Name = areaGroup.Key,
+                Page = 1,
+                Sections = sections,
+            });
+        }
+
+        var allSections = areas.SelectMany(a => a.Sections).ToList();
+        return new TransformResult
+        {
+            Areas = areas,
+            Diagnostics = new TransformDiagnostics
+            {
+                TotalSections = allSections.Count,
+                ParagraphSections = allSections.Count,
+            }
+        };
+    }
+
+    /// <summary>
+    /// Original flat conversion for markdown and non-area web sources.
+    /// </summary>
+    private static TransformResult ConvertFlatToTransformResult(RichExtractionResult extraction)
+    {
+        var seenIds = new Dictionary<string, int>();
+        var sections = ConvertElementsToSections(extraction.Elements, seenIds);
+
+        return new TransformResult
+        {
+            Areas = new List<TransformArea>
+            {
+                new()
+                {
+                    Name = "Content",
+                    Page = 1,
+                    Sections = sections,
+                }
+            },
+            Diagnostics = new TransformDiagnostics
+            {
+                TotalSections = sections.Count,
+                ParagraphSections = sections.Count,
+            }
+        };
+    }
+
+    /// <summary>
+    /// Converts a list of extraction elements into TransformedSections.
+    /// Each heading starts a new section with a kebab-case ID.
+    /// </summary>
+    private static List<TransformedSection> ConvertElementsToSections(
+        List<ExtractionElement> elements, Dictionary<string, int> seenIds)
+    {
+        var sections = new List<TransformedSection>();
 
         string? currentHeading = null;
         string? currentId = null;
@@ -862,16 +1086,13 @@ public class WorkflowController : ControllerBase
             sections.Add(section);
         }
 
-        foreach (var element in extraction.Elements)
+        foreach (var element in elements)
         {
             var isHeading = element.Metadata.FontName.StartsWith("heading-");
 
             if (isHeading)
             {
-                // Flush previous section
                 FlushSection();
-
-                // Start new section
                 currentHeading = element.Text;
                 currentId = NormalizeToKebabCase(element.Text);
                 currentBodyLines.Clear();
@@ -880,7 +1101,6 @@ public class WorkflowController : ControllerBase
             {
                 if (currentId == null)
                 {
-                    // Body text before any heading → preamble section
                     currentHeading = null;
                     currentId = "preamble";
                 }
@@ -888,26 +1108,8 @@ public class WorkflowController : ControllerBase
             }
         }
 
-        // Flush last section
         FlushSection();
-
-        return new TransformResult
-        {
-            Areas = new List<TransformArea>
-            {
-                new()
-                {
-                    Name = "Content",
-                    Page = 1,
-                    Sections = sections,
-                }
-            },
-            Diagnostics = new TransformDiagnostics
-            {
-                TotalSections = sections.Count,
-                ParagraphSections = sections.Count,
-            }
-        };
+        return sections;
     }
 
     private static string NormalizeToKebabCase(string text)

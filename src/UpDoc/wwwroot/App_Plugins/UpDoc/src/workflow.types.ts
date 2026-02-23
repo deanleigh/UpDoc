@@ -473,6 +473,8 @@ export interface ElementMetadata {
 	position: { x: number; y: number };
 	boundingBox: { left: number; top: number; width: number; height: number };
 	color: string;
+	/** For web sources: auto-detected HTML area (e.g., "Header", "Main Content", "Footer"). */
+	htmlArea?: string;
 }
 
 // ============================================================================

@@ -41,15 +41,30 @@ export class UpDocWorkflowWorkspaceContext extends UmbContextBase {
 	/** Callback registered by the active workspace view to handle save. */
 	#saveHandler: (() => Promise<void>) | null = null;
 
+	/** Callback registered by the active workspace view to handle refresh/re-extract. */
+	#refreshHandler: (() => Promise<void>) | null = null;
+
 	/** Register a save handler (called by workspace views like Source). */
 	setSaveHandler(handler: (() => Promise<void>) | null) {
 		this.#saveHandler = handler;
+	}
+
+	/** Register a refresh handler for re-extraction (called by workspace views like Source). */
+	setRefreshHandler(handler: (() => Promise<void>) | null) {
+		this.#refreshHandler = handler;
 	}
 
 	/** Called by the workspace action (Save button). Delegates to the registered handler. */
 	async save(): Promise<void> {
 		if (this.#saveHandler) {
 			await this.#saveHandler();
+		}
+	}
+
+	/** Called by the Refresh workspace action. Triggers re-extraction. */
+	async refresh(): Promise<void> {
+		if (this.#refreshHandler) {
+			await this.#refreshHandler();
 		}
 	}
 

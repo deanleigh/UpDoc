@@ -145,6 +145,23 @@ Store excluded areas in `source.json` (same pattern as PDF page exclusion). When
 | `src/UpDoc/wwwroot/.../up-doc-workflow-source-view.element.ts` | Use hierarchy renderer for web, 3 info boxes, area toggles |
 | `src/UpDoc/wwwroot/.../workflow.types.ts` | Add `htmlArea` to frontend types if needed |
 
+## Future: Web-Specific Rules
+
+### Parent container class/ID as metadata
+
+Currently extraction only tracks the **area** level (Header, Main Content, etc.). The parent `<div>` class/ID names are checked for area detection but then discarded — they don't appear as metadata on individual elements.
+
+**Enhancement needed:** Capture the parent container's class or ID on each extracted element (e.g., `parentClass`, `container` field in metadata). This enables rules that distinguish elements by their container context, not just their own tag/text.
+
+**Real-world example — Norfolk "Featuring" tab:**
+The two visual columns are in separate `<div>` containers with classes `featuring_col1` and `featuring_col2`. The left column is tour inclusions (boutique hotel, half board, excursions), the right column is featured destinations (Ely Cathedral, Oxburgh Hall, etc.). Both contain `<li>` elements in the same area — without parent container metadata, there's no way to distinguish them via rules.
+
+With parent container metadata, a rule could say: "list items inside `featuring_col1` → Inclusions field" and "list items inside `featuring_col2` → Featured Destinations field".
+
+### Heading-scoped content rules
+
+Web pages often have content structured as "heading followed by paragraphs" (e.g., Day 1 heading → itinerary paragraphs → Day 2 heading). A web-specific rule type like "all paragraphs after this heading, before the next heading of the same or higher level" would capture these naturally without needing to enumerate each paragraph individually.
+
 ## Out of Scope (for now)
 
 - **CSS selector configuration** — manual selector override for edge cases. Future enhancement.

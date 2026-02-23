@@ -111,7 +111,7 @@ const o = [
     kind: "routable",
     alias: "UpDoc.WorkflowWorkspace",
     name: "UpDoc Workflow Workspace",
-    api: () => import("./up-doc-workflow-workspace.context-i68dTIdp.js"),
+    api: () => import("./up-doc-workflow-workspace.context-DEIkp1I8.js"),
     meta: {
       entityType: "updoc-workflow"
     }
@@ -138,7 +138,7 @@ const o = [
     type: "workspaceView",
     alias: "UpDoc.WorkflowWorkspaceView.Source",
     name: "UpDoc Workflow Source View",
-    element: () => import("./up-doc-workflow-source-view.element-DCi3t1F2.js"),
+    element: () => import("./up-doc-workflow-source-view.element-CvgEhMIj.js"),
     weight: 200,
     meta: {
       label: "Source",
@@ -171,7 +171,7 @@ const o = [
     ]
   },
   // =====================================================================
-  // Workspace Action — Save button in workflow workspace footer
+  // Workspace Actions — Save + Refresh buttons in workflow workspace footer
   // =====================================================================
   {
     type: "workspaceAction",
@@ -179,11 +179,29 @@ const o = [
     alias: "UpDoc.WorkflowWorkspace.Save",
     name: "Save",
     api: () => import("./up-doc-save.action-DGb0pvq-.js"),
-    weight: 100,
+    weight: 90,
     meta: {
       label: "Save",
       look: "primary",
       color: "positive"
+    },
+    conditions: [
+      {
+        alias: "Umb.Condition.WorkspaceAlias",
+        match: "UpDoc.WorkflowWorkspace"
+      }
+    ]
+  },
+  {
+    type: "workspaceAction",
+    kind: "default",
+    alias: "UpDoc.WorkflowWorkspace.Refresh",
+    name: "Refresh",
+    api: () => import("./up-doc-refresh.action-DBewFGwT.js"),
+    weight: 100,
+    meta: {
+      label: "Refresh",
+      look: "secondary"
     },
     conditions: [
       {
