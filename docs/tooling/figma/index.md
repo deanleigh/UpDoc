@@ -10,6 +10,7 @@ This workflow is necessary because Umbraco's backoffice uses **Shadow DOM extens
 |------|---------|
 | [Figma MCP Plugin](figma-mcp.md) | Official Claude Code integration — reads designs, pushes web captures, manages component mappings |
 | [html.to.design](html-to-design.md) | Figma plugin that captures web pages including Shadow DOM content |
+| [HTML Mockups](mockups.md) | Static HTML mockups for fast component design iteration without the Umbraco site |
 | [Design Workflow](workflow.md) | The end-to-end capture → edit → read → implement workflow and token management strategies |
 
 ## How It Works
@@ -29,6 +30,8 @@ The practical workflow for Umbraco projects:
 3. **User** selects the modified area and copies the link (Ctrl+L)
 4. **Claude** reads the targeted node via `get_screenshot`
 5. **Claude** implements the changes in Lit/UUI code
+
+For component-level design iteration without the Umbraco site running, see [HTML Mockups](mockups.md).
 
 ## Figma File
 

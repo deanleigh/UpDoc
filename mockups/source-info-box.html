@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Source Info Box — UpDoc Mockup</title>
+  <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+  <style>
+    /* === UUI Variable Approximations === */
+    :root {
+      --uui-font-family: "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --uui-color-surface: #fff;
+      --uui-color-border: #e0e0e0;
+      --uui-color-text: #1b264f;
+      --uui-color-text-alt: #666;
+      --uui-color-default: #1b264f;
+      --uui-color-default-emphasis: #2b3a6b;
+      --uui-size-space-2: 6px;
+      --uui-size-space-3: 9px;
+      --uui-size-space-4: 12px;
+      --uui-size-space-5: 15px;
+      --uui-border-radius: 3px;
+      --uui-type-small-size: 12px;
+      --uui-type-default-size: 14px;
+      --uui-type-h4-size: 18px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--uui-font-family);
+      background: #f3f3f5;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      padding: 40px;
+    }
+
+    /* === uui-box approximation === */
+    .uui-box {
+      background: var(--uui-color-surface);
+      border: 1px solid var(--uui-color-border);
+      border-radius: var(--uui-border-radius);
+      overflow: hidden;
+    }
+
+    .uui-box-headline {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--uui-size-space-3) var(--uui-size-space-5);
+      border-bottom: 1px solid var(--uui-color-border);
+      font-size: var(--uui-type-default-size);
+      font-weight: 700;
+      color: var(--uui-color-text);
+    }
+
+    .uui-box-headline .meta {
+      font-size: var(--uui-type-small-size);
+      font-weight: 400;
+      color: var(--uui-color-text-alt);
+    }
+
+    /* === Box content layout === */
+    .box-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: var(--uui-size-space-2);
+      min-height: 180px;
+      padding: var(--uui-size-space-4) var(--uui-size-space-5);
+    }
+
+    /* === Icon (SVG-based, matching Umbraco icon-page-add) === */
+    .box-icon {
+      width: 48px;
+      height: 48px;
+      color: var(--uui-color-text-alt);
+      margin-top: var(--uui-size-space-3);
+    }
+
+    /* === Filename === */
+    .box-filename {
+      font-weight: 600;
+      font-size: var(--uui-type-default-size);
+      color: var(--uui-color-text);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 100%;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* === Button === */
+    .box-buttons {
+      display: flex;
+      gap: var(--uui-size-space-2);
+      margin-top: auto;
+      padding-top: var(--uui-size-space-2);
+    }
+
+    .uui-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 18px;
+      border: none;
+      border-radius: var(--uui-border-radius);
+      font-family: var(--uui-font-family);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      line-height: 1;
+    }
+
+    .uui-button--primary {
+      background: #ffcfd0;
+      color: #fff;
+    }
+
+    .uui-button--primary:hover {
+      background: #ffb8b9;
+    }
+
+    .uui-button .btn-icon {
+      width: 14px;
+      height: 14px;
+      fill: currentColor;
+    }
+
+    /* === Page wrapper: constrain width to match one info box === */
+    .mockup-wrapper {
+      width: 280px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="mockup-wrapper">
+    <div class="uui-box">
+      <!-- Headline row with label + date -->
+      <div class="uui-box-headline">
+        <span>Source</span>
+        <span class="meta">23/02/2026, 20:21:35</span>
+      </div>
+
+      <!-- Content area -->
+      <div class="box-content">
+        <!-- Page-add icon (inline SVG matching Umbraco's icon-page-add) -->
+        <svg class="box-icon" viewBox="0 0 512 512" fill="none" stroke="currentColor" stroke-width="24" stroke-linecap="round" stroke-linejoin="round">
+          <!-- Page outline -->
+          <path d="M120 48 h180 l104 104 v312 a16 16 0 0 1 -16 16 H136 a16 16 0 0 1 -16 -16 V64 a16 16 0 0 1 16 -16z" />
+          <!-- Fold corner -->
+          <path d="M300 48 v88 a16 16 0 0 0 16 16 h88" />
+          <!-- Plus sign -->
+          <line x1="256" y1="260" x2="256" y2="380" />
+          <line x1="196" y1="320" x2="316" y2="320" />
+        </svg>
+
+        <!-- Filename -->
+        <span class="box-filename">TTM5085 Kingston Liverpool lo.pdf</span>
+
+        <!-- Button -->
+        <div class="box-buttons">
+          <button class="uui-button uui-button--primary">
+            <svg class="btn-icon" viewBox="0 0 512 512" fill="none" stroke="currentColor" stroke-width="32" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M120 48 h180 l104 104 v312 a16 16 0 0 1 -16 16 H136 a16 16 0 0 1 -16 -16 V64 a16 16 0 0 1 16 -16z" />
+              <path d="M300 48 v88 a16 16 0 0 0 16 16 h88" />
+              <line x1="256" y1="260" x2="256" y2="380" />
+              <line x1="196" y1="320" x2="316" y2="320" />
+            </svg>
+            Choose Source
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

@@ -82,6 +82,7 @@ nav:
       - tooling/figma/index.md
       - Figma MCP: tooling/figma/figma-mcp.md
       - html.to.design: tooling/figma/html-to-design.md
+      - HTML Mockups: tooling/figma/mockups.md
       - Design Workflow: tooling/figma/workflow.md
     - Claude:
       - tooling/claude/index.md
