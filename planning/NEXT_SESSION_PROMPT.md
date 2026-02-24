@@ -1,21 +1,10 @@
-# Next Session: Block Grid Separation + Organiser Block List
+# Next Session: Organiser Block List
 
 ## Where We Are
 
-Branch `feature/organiser-block-list` — mockup committed. Main is up to date with consistent source tabs merged.
+Branch `feature/organiser-block-list` — block grid separation committed (`eff7402`). Each document type now has its own block grid property (`blockGridGroupTour`, `blockGridTailoredTour`). Old shared `contentGridTour` fully removed from code, uSync, workflows, and E2E tests. Old data type "Block Grid - Group Tour [Old]" still exists in backoffice database — delete it when ready.
 
-## Priority 1: Split Shared Block Grid Data Type
-
-**Problem:** Both "Group Tour - Content" and "Tailored Tour - Content" compositions use the same Block Grid data type (`Block Grid - Group Tour`, alias `contentGridTour`). As the two tour types diverge, they need different allowed blocks — e.g., Tailored Tours will need an Organiser block that Group Tours don't.
-
-**Steps:**
-1. Duplicate `Block Grid - Group Tour` → `Block Grid - Tailored Tour` (new data type)
-2. Update "Tailored Tour - Content" composition to use the new data type
-3. Verify existing Tailored Tour content still renders correctly
-
-This is a manual task in the Umbraco backoffice (Settings > Data Types), not a code change.
-
-## Priority 2: Organiser Block List on Tour Properties
+## Priority 1: Organiser Block List on Tour Properties
 
 **Design decided (see mockup `mockups/tour-properties-organiser.html` and Figma file `ZE8800trGvmQldnKeDq1Hy` node `30:2`):**
 
@@ -28,17 +17,28 @@ This is a manual task in the Umbraco backoffice (Settings > Data Types), not a c
 
 **Steps:**
 1. Create Organiser element type with the 5 fields
-2. Remove the old flat fields from Tour Properties composition
-3. Add Block List property using the Organiser element type
-4. Re-enter the one test document's data into the new block
+2. Create Block List data type using the Organiser element type
+3. Remove the old flat fields from Tour Properties composition
+4. Add Block List property to Tour Properties
+5. Re-enter the one test document's data into the new block
+6. Update Tailored Tour template to render Block List
+7. uSync export
+
+## Planned: Workflow Folder Restructure + Name/Alias Separation
+
+**Full plan:** `planning/WORKFLOW_RESTRUCTURE.md`. Separate branch: `feature/workflow-restructure` (to be created from `main`).
+
+Restructures flat workflow files into `source/`, `destination/`, `map/` subfolders. Adds `workflow.json` identity file with friendly name + alias. Fixes collection view showing aliases instead of display names. Only `WorkflowService.cs` needs path changes — low risk, well-contained.
 
 ## Also Note
 
 - Some PDF transform rules (Tel:/Email: text replacements on organiser fields) were lost during a git merge — may need re-creating in the rules editor
 - The `source.json` file contains the rules (`areaRules` property) — be careful with git operations overwriting browser-saved rule changes
+- **Lesson learned this session:** When removing properties from document types, always migrate blueprint content to the new property FIRST, then delete the old one. We nearly lost blueprint block grid content.
 
 ## Parked Items
 
+- Delete "Block Grid - Group Tour [Old]" data type from backoffice (safe, fully unreferenced)
 - Persist area exclusions to source.json (web sources)
 - Web-specific rules (parent container context, heading-scoped content)
 - Button label consistency, Transformed heading cleanup, strategy badge contrast
