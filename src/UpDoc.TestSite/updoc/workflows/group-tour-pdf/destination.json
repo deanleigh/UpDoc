@@ -46,13 +46,13 @@
   ],
   "blockGrids": [
     {
-      "key": "99aceecb-5e7a-4d68-87ea-3d298bc4728c",
-      "alias": "contentGridTour",
-      "label": "Block Grid Editor - Tour",
+      "key": "60e6181d-0399-40de-8da2-d599ed1f457e",
+      "alias": "blockGridGroupTour",
+      "label": "Block Grid - Group Tour",
       "description": "Hover \u0027Block Grid Editor\u0027 then click the 3 dots to switch to Sort Mode (a simplified view for rearranging the page).\nThe Block Grid Editor allows you to add Layout Blocks consisting of one or more Areas which in turn may contain Feature Blocks such as Text or Images",
       "blocks": [
         {
-          "key": "a18c5909-6215-4c99-906d-e3a2d646fe6b",
+          "key": "1f1b18e0-f160-4ec4-ab49-49b4d8e05d33",
           "contentTypeAlias": "featurePageTitleDescription",
           "contentTypeKey": "1e6ac523-7122-4994-9f51-7ca67065222a",
           "label": "Feature - Page - Title and Description",
@@ -71,7 +71,7 @@
           ]
         },
         {
-          "key": "ab61c3dd-7461-4a49-8620-f86efda3eb3e",
+          "key": "52a90dd1-3ba6-46de-b650-16ae94c82569",
           "contentTypeAlias": "featureNavigationDescendants",
           "contentTypeKey": "c345e5ce-768f-47e0-968a-e7859dbe0b07",
           "label": "Feature - Navigation - Descendants",
@@ -90,7 +90,7 @@
           ]
         },
         {
-          "key": "67f05ceb-217a-4a21-8c98-b2557ba1cc88",
+          "key": "f6cfe802-72e5-49ce-8de8-fc78cbec3d9d",
           "contentTypeAlias": "featureRichTextEditorItinery",
           "contentTypeKey": "365fd365-6ec4-4fbb-9434-1df366aa77f8",
           "label": "Suggested Itinerary",
@@ -143,7 +143,7 @@
           ]
         },
         {
-          "key": "8417fee1-ced6-4929-ac1b-03457fe086dd",
+          "key": "d65d7ffc-41da-4617-a6fd-9f1555bc3f16",
           "contentTypeAlias": "featureRichTextEditorFeatures",
           "contentTypeKey": "34e5aa3b-db10-40a1-893d-79e98cd3f2f4",
           "label": "Features",
@@ -196,7 +196,7 @@
           ]
         },
         {
-          "key": "127bf379-d4db-4774-9cce-c8c6a1e26f5c",
+          "key": "90f9fe06-16a8-4677-bb30-680e89ab86bb",
           "contentTypeAlias": "featureRichTextEditorAccommodation",
           "contentTypeKey": "1d09b5af-b95a-4af5-b8f2-323db029e817",
           "label": "Accommodation",

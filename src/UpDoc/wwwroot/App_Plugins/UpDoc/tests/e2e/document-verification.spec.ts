@@ -301,7 +301,7 @@ test.describe('Document Verification — Tailored Tours', () => {
 
 			// ── Step 7: Verify block grid ───────────────────────────────
 
-			const blocks = getBlockGridBlocks(doc, 'contentGridTour');
+			const blocks = getBlockGridBlocks(doc, 'blockGridGroupTour');
 			expect(blocks.length, 'Block grid should have blocks').toBeGreaterThan(0);
 
 			// Features block
