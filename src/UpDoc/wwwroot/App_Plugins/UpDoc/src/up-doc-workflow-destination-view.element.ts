@@ -1,6 +1,6 @@
 import type { DocumentTypeConfig, DestinationField, DestinationBlockGrid } from './workflow.types.js';
 import { fetchWorkflowByName } from './workflow.service.js';
-import { getDestinationTabs } from './destination-utils.js';
+import { getDestinationTabs, getAllBlockContainers } from './destination-utils.js';
 import { html, customElement, css, state, nothing } from '@umbraco-cms/backoffice/external/lit';
 import { UmbLitElement } from '@umbraco-cms/backoffice/lit-element';
 import { UmbTextStyles } from '@umbraco-cms/backoffice/style';
@@ -89,13 +89,20 @@ export class UpDocWorkflowDestinationViewElement extends UmbLitElement {
 		`;
 	}
 
-	#renderBlockGrids() {
-		if (!this._config?.destination.blockGrids?.length) {
-			return html`<p class="empty-message">No block grids configured.</p>`;
+	#renderBlockContainersForTab(tabId: string) {
+		if (!this._config) return nothing;
+
+		const containers = getAllBlockContainers(this._config.destination).filter((c) => {
+			const cTab = c.tab ?? 'Page Content';
+			return cTab.toLowerCase().replace(/\s+/g, '-') === tabId;
+		});
+
+		if (!containers.length) {
+			return html`<p class="empty-message">No blocks configured.</p>`;
 		}
 
 		return html`
-			${this._config.destination.blockGrids.map((grid) => this.#renderBlockGrid(grid))}
+			${containers.map((container) => this.#renderBlockGrid(container))}
 		`;
 	}
 
@@ -149,19 +156,19 @@ export class UpDocWorkflowDestinationViewElement extends UmbLitElement {
 	#renderTabContent() {
 		if (!this._config) return nothing;
 
-		if (this._activeTab === 'page-content') {
-			return this.#renderBlockGrids();
-		}
-
 		const tabName = this._config.destination.fields.find(
 			(f) => f.tab && f.tab.toLowerCase().replace(/\s+/g, '-') === this._activeTab
 		)?.tab;
 
-		if (tabName) {
-			return this.#renderFieldsForTab(tabName);
-		}
+		const hasContainers = getAllBlockContainers(this._config.destination).some((c) => {
+			const cTab = c.tab ?? 'Page Content';
+			return cTab.toLowerCase().replace(/\s+/g, '-') === this._activeTab;
+		});
 
-		return nothing;
+		return html`
+			${tabName ? this.#renderFieldsForTab(tabName) : nothing}
+			${hasContainers ? this.#renderBlockContainersForTab(this._activeTab) : nothing}
+		`;
 	}
 
 	override render() {

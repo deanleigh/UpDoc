@@ -11,7 +11,7 @@ public interface IDestinationStructureService
     /// <summary>
     /// Builds a DestinationConfig by introspecting the document type and blueprint content.
     /// Includes all text-mappable properties from the document type (regardless of blueprint population).
-    /// Block grids only include block instances actually placed in the blueprint's grid.
+    /// Block grids and block lists only include block instances actually placed in the blueprint.
     /// All tabs are included — the text-mappable filter ensures only relevant field types appear.
     /// </summary>
     Task<DestinationConfig> BuildDestinationConfigAsync(
@@ -61,7 +61,8 @@ public class DestinationStructureService : IDestinationStructureService
             BlueprintId = blueprintId,
             BlueprintName = blueprintName,
             Fields = new List<DestinationField>(),
-            BlockGrids = new List<DestinationBlockGrid>()
+            BlockGrids = new List<DestinationBlockGrid>(),
+            BlockLists = new List<DestinationBlockGrid>()
         };
 
         // Load the actual blueprint content to filter by what's populated
@@ -99,10 +100,18 @@ public class DestinationStructureService : IDestinationStructureService
 
                 if (propertyType.PropertyEditorAlias == "Umbraco.BlockGrid")
                 {
-                    var blockGrid = BuildBlockGridFromBlueprint(propertyType, blueprint);
+                    var blockGrid = BuildBlockContainerFromBlueprint(propertyType, blueprint, "Umbraco.BlockGrid", tabName);
                     if (blockGrid != null)
                     {
                         config.BlockGrids!.Add(blockGrid);
+                    }
+                }
+                else if (propertyType.PropertyEditorAlias == "Umbraco.BlockList")
+                {
+                    var blockList = BuildBlockContainerFromBlueprint(propertyType, blueprint, "Umbraco.BlockList", tabName);
+                    if (blockList != null)
+                    {
+                        config.BlockLists!.Add(blockList);
                     }
                 }
                 else
@@ -123,10 +132,18 @@ public class DestinationStructureService : IDestinationStructureService
         {
             if (propertyType.PropertyEditorAlias == "Umbraco.BlockGrid")
             {
-                var blockGrid = BuildBlockGridFromBlueprint(propertyType, blueprint);
+                var blockGrid = BuildBlockContainerFromBlueprint(propertyType, blueprint, "Umbraco.BlockGrid", "General");
                 if (blockGrid != null)
                 {
                     config.BlockGrids!.Add(blockGrid);
+                }
+            }
+            else if (propertyType.PropertyEditorAlias == "Umbraco.BlockList")
+            {
+                var blockList = BuildBlockContainerFromBlueprint(propertyType, blueprint, "Umbraco.BlockList", "General");
+                if (blockList != null)
+                {
+                    config.BlockLists!.Add(blockList);
                 }
             }
             else
@@ -140,8 +157,8 @@ public class DestinationStructureService : IDestinationStructureService
         }
 
         _logger.LogInformation(
-            "Built destination config for '{Alias}': {FieldCount} fields, {BlockGridCount} block grids",
-            documentTypeAlias, config.Fields.Count, config.BlockGrids?.Count ?? 0);
+            "Built destination config for '{Alias}': {FieldCount} fields, {BlockGridCount} block grids, {BlockListCount} block lists",
+            documentTypeAlias, config.Fields.Count, config.BlockGrids?.Count ?? 0, config.BlockLists?.Count ?? 0);
 
         return Task.FromResult(config);
     }
@@ -176,16 +193,17 @@ public class DestinationStructureService : IDestinationStructureService
     }
 
     /// <summary>
-    /// Builds a block grid by reading the actual block instances placed in the blueprint's grid,
-    /// rather than listing all allowed block types from the editor configuration.
+    /// Builds a block container (Block Grid or Block List) by reading the actual block instances
+    /// placed in the blueprint, rather than listing all allowed block types from the editor configuration.
     /// </summary>
-    private DestinationBlockGrid? BuildBlockGridFromBlueprint(IPropertyType propertyType, IContent blueprint)
+    private DestinationBlockGrid? BuildBlockContainerFromBlueprint(
+        IPropertyType propertyType, IContent blueprint, string layoutKey, string tabName)
     {
-        // Get block grid value from the blueprint — may be string, JsonElement, or JsonNode
+        // Get block value from the blueprint — may be string, JsonElement, or JsonNode
         var rawObj = blueprint.GetValue(propertyType.Alias);
         if (rawObj == null)
         {
-            _logger.LogWarning("Block grid '{Alias}': no value found on blueprint", propertyType.Alias);
+            _logger.LogWarning("Block container '{Alias}': no value found on blueprint", propertyType.Alias);
             return null;
         }
 
@@ -206,7 +224,7 @@ public class DestinationStructureService : IDestinationStructureService
             return null;
         }
 
-        _logger.LogDebug("Block grid '{Alias}': raw type={Type}, length={Length}",
+        _logger.LogDebug("Block container '{Alias}': raw type={Type}, length={Length}",
             propertyType.Alias, rawObj.GetType().Name, rawJson.Length);
 
         JsonDocument doc;
@@ -216,7 +234,7 @@ public class DestinationStructureService : IDestinationStructureService
         }
         catch (JsonException ex)
         {
-            _logger.LogWarning(ex, "Failed to parse block grid JSON for property '{Alias}'", propertyType.Alias);
+            _logger.LogWarning(ex, "Failed to parse block container JSON for property '{Alias}'", propertyType.Alias);
             return null;
         }
 
@@ -228,7 +246,7 @@ public class DestinationStructureService : IDestinationStructureService
             if (!root.TryGetProperty("contentData", out var contentDataArray) &&
                 !root.TryGetProperty("ContentData", out contentDataArray))
             {
-                _logger.LogWarning("Block grid '{Alias}': no contentData found in JSON. Keys: {Keys}",
+                _logger.LogWarning("Block container '{Alias}': no contentData found in JSON. Keys: {Keys}",
                     propertyType.Alias,
                     string.Join(", ", root.EnumerateObject().Select(p => p.Name)));
                 return null;
@@ -239,12 +257,13 @@ public class DestinationStructureService : IDestinationStructureService
                 return null;
             }
 
-            var blockGrid = new DestinationBlockGrid
+            var container = new DestinationBlockGrid
             {
                 Key = propertyType.Key.ToString(),
                 Alias = propertyType.Alias,
                 Label = propertyType.Name ?? propertyType.Alias,
                 Description = propertyType.Description,
+                Tab = tabName,
                 Blocks = new List<DestinationBlock>()
             };
 
@@ -260,18 +279,18 @@ public class DestinationStructureService : IDestinationStructureService
             }
 
             // Reorder blocks using the layout tree (visual order) if available
-            if (TryGetLayoutArray(root, out var layoutArray))
+            if (TryGetLayoutArray(root, layoutKey, out var layoutArray))
             {
-                blockGrid.Blocks = GetBlocksInLayoutOrder(layoutArray, blocksByKey);
+                container.Blocks = GetBlocksInLayoutOrder(layoutArray, blocksByKey);
             }
             else
             {
                 // Fallback: contentData order (previous behaviour)
-                blockGrid.Blocks = blocksByKey.Values.ToList();
+                container.Blocks = blocksByKey.Values.ToList();
             }
 
-            // Only return the block grid if it has blocks with text-mappable properties
-            return blockGrid.Blocks.Count > 0 ? blockGrid : null;
+            // Only return the container if it has blocks with text-mappable properties
+            return container.Blocks.Count > 0 ? container : null;
         }
     }
 
@@ -460,17 +479,17 @@ public class DestinationStructureService : IDestinationStructureService
     }
 
     /// <summary>
-    /// Extracts the block grid layout array from the root JSON element.
-    /// The layout tree defines the visual order of blocks on the page.
+    /// Extracts the block layout array from the root JSON element for the given layout key.
+    /// The layout tree defines the visual order of blocks.
     /// </summary>
-    private static bool TryGetLayoutArray(JsonElement root, out JsonElement layoutArray)
+    private static bool TryGetLayoutArray(JsonElement root, string layoutKey, out JsonElement layoutArray)
     {
         layoutArray = default;
 
         if (!TryGetJsonProperty(root, "layout", out var layoutObj))
             return false;
 
-        if (layoutObj.TryGetProperty("Umbraco.BlockGrid", out layoutArray) &&
+        if (layoutObj.TryGetProperty(layoutKey, out layoutArray) &&
             layoutArray.ValueKind == JsonValueKind.Array)
             return true;
 

@@ -1,27 +1,27 @@
 import { a as N } from "./workflow.types-sXs8a86t.js";
 import { a as ot, t as D } from "./workflow.service-DSRz0gSB.js";
-import { r as at, a as nt, g as rt } from "./destination-utils-CEQ5Lbpg.js";
+import { r as at, g as nt, a as rt, b as st } from "./destination-utils-DUfOJy5W.js";
 import { s as L } from "./transforms-BkZeboOX.js";
-import { html as u, css as st, state as b, customElement as ct, nothing as A } from "@umbraco-cms/backoffice/external/lit";
-import { UmbTextStyles as ut } from "@umbraco-cms/backoffice/style";
-import { UmbModalBaseElement as lt } from "@umbraco-cms/backoffice/modal";
+import { html as u, css as ct, state as b, customElement as ut, nothing as A } from "@umbraco-cms/backoffice/external/lit";
+import { UmbTextStyles as lt } from "@umbraco-cms/backoffice/style";
+import { UmbModalBaseElement as dt } from "@umbraco-cms/backoffice/modal";
 import { UMB_AUTH_CONTEXT as U } from "@umbraco-cms/backoffice/auth";
-var dt = Object.defineProperty, pt = Object.getOwnPropertyDescriptor, q = (t) => {
+var pt = Object.defineProperty, ht = Object.getOwnPropertyDescriptor, q = (t) => {
   throw TypeError(t);
 }, p = (t, i, e, r) => {
-  for (var s = r > 1 ? void 0 : r ? pt(i, e) : i, l = t.length - 1, n; l >= 0; l--)
+  for (var s = r > 1 ? void 0 : r ? ht(i, e) : i, l = t.length - 1, n; l >= 0; l--)
     (n = t[l]) && (s = (r ? n(i, e, s) : n(s)) || s);
-  return r && s && dt(i, e, s), s;
-}, ht = (t, i, e) => i.has(t) || q("Cannot " + e), bt = (t, i, e) => i.has(t) ? q("Cannot add the same private member more than once") : i instanceof WeakSet ? i.add(t) : i.set(t, e), a = (t, i, e) => (ht(t, i, "access private method"), e), o, I, P, z, F, C, M, O, K, W, j, G, B, R, T, k, w, Y, H, X, S, J, Q, V, Z, tt, et;
-const ft = {
+  return r && s && pt(i, e, s), s;
+}, bt = (t, i, e) => i.has(t) || q("Cannot " + e), ft = (t, i, e) => i.has(t) ? q("Cannot add the same private member more than once") : i instanceof WeakSet ? i.add(t) : i.set(t, e), a = (t, i, e) => (bt(t, i, "access private method"), e), o, I, P, z, F, E, M, O, K, W, j, B, R, G, T, k, w, Y, H, X, S, J, Q, V, Z, tt, et;
+const mt = {
   pdf: "PDF Document",
   markdown: "Markdown",
   web: "Web Page",
   doc: "Word Document"
 };
-let d = class extends lt {
+let d = class extends dt {
   constructor() {
-    super(...arguments), bt(this, o), this._activeTab = "source", this._documentName = "", this._sourceType = "", this._sourceUrl = "", this._selectedMediaUnique = null, this._sectionLookup = {}, this._config = null, this._isExtracting = !1, this._extractionError = null, this._contentActiveTab = "", this._availableSourceTypes = [], this._loadingSourceTypes = !0;
+    super(...arguments), ft(this, o), this._activeTab = "source", this._documentName = "", this._sourceType = "", this._sourceUrl = "", this._selectedMediaUnique = null, this._sectionLookup = {}, this._config = null, this._isExtracting = !1, this._extractionError = null, this._contentActiveTab = "", this._availableSourceTypes = [], this._loadingSourceTypes = !0;
   }
   firstUpdated() {
     this._documentName = "", this._sourceType = "", this._sourceUrl = "", this._selectedMediaUnique = null, this._sectionLookup = {}, this._config = null, this._contentActiveTab = "", a(this, o, I).call(this);
@@ -103,7 +103,7 @@ F = async function(t) {
     this._isExtracting = !1;
   }
 };
-C = async function() {
+E = async function() {
   if (this._sourceUrl) {
     this._isExtracting = !0, this._extractionError = null;
     try {
@@ -182,11 +182,11 @@ W = function() {
     case "pdf":
       return a(this, o, j).call(this);
     case "markdown":
-      return a(this, o, G).call(this);
-    case "web":
       return a(this, o, B).call(this);
-    case "doc":
+    case "web":
       return a(this, o, R).call(this);
+    case "doc":
+      return a(this, o, G).call(this);
     default:
       return A;
   }
@@ -205,7 +205,7 @@ j = function() {
 			</umb-property-layout>
 		`;
 };
-G = function() {
+B = function() {
   return u`
 			<umb-property-layout label="Markdown File" orientation="vertical">
 				<div slot="editor">
@@ -219,7 +219,7 @@ G = function() {
 			</umb-property-layout>
 		`;
 };
-B = function() {
+R = function() {
   return u`
 			<umb-property-layout label="Web Page URL" orientation="vertical">
 				<div slot="editor">
@@ -231,14 +231,14 @@ B = function() {
 							.value=${this._sourceUrl}
 							@input=${(t) => this._sourceUrl = t.target.value}
 							@keydown=${(t) => {
-    t.key === "Enter" && this._sourceUrl && a(this, o, C).call(this);
+    t.key === "Enter" && this._sourceUrl && a(this, o, E).call(this);
   }}>
 						</uui-input>
 						<uui-button
 							look="primary"
 							label="Extract"
 							?disabled=${!this._sourceUrl || this._isExtracting}
-							@click=${() => a(this, o, C).call(this)}>
+							@click=${() => a(this, o, E).call(this)}>
 							Extract
 						</uui-button>
 					</div>
@@ -247,7 +247,7 @@ B = function() {
 			</umb-property-layout>
 		`;
 };
-R = function() {
+G = function() {
   return u`
 			<umb-property-layout label="Word Document" orientation="vertical">
 				<div slot="editor">
@@ -338,7 +338,7 @@ H = function() {
 										.options=${[
     ...this._availableSourceTypes.length > 1 ? [{ name: "Choose a source...", value: "", selected: this._sourceType === "" }] : [],
     ...this._availableSourceTypes.map((t) => ({
-      name: ft[t] || t,
+      name: mt[t] || t,
       value: t,
       selected: this._sourceType === t
     }))
@@ -372,27 +372,27 @@ X = function() {
       t
     ) ?? "other";
     r.has($) || r.set($, []);
-    let E = m;
-    if (g && t.blockGrids)
-      for (const y of t.blockGrids) {
+    let C = m;
+    if (g)
+      for (const y of nt(t)) {
         const x = y.blocks.find((v) => v.key === g);
         if (x) {
           const v = x.properties?.find((it) => it.alias === m);
-          v && (E = v.label || v.alias);
+          v && (C = v.label || v.alias);
           break;
         }
       }
     else {
       const y = t.fields.find((x) => x.alias === m);
-      y && (E = y.label);
+      y && (C = y.label);
     }
     r.get($).push({
-      label: E,
+      label: C,
       value: _.join(" "),
-      blockLabel: g ? nt(g, t) ?? void 0 : void 0
+      blockLabel: g ? rt(g, t) ?? void 0 : void 0
     });
   }
-  const l = rt(t), n = [];
+  const l = st(t), n = [];
   for (const h of l) {
     const _ = r.get(h.id);
     _?.length && (s.set(h.id, h.label), n.push({ tabId: h.id, tabLabel: h.label, items: _ }));
@@ -517,8 +517,8 @@ et = function() {
   }
 };
 d.styles = [
-  ut,
-  st`
+  lt,
+  ct`
 			/* Navigation tabs */
 			uui-tab[disabled] {
 				opacity: 0.5;
@@ -724,11 +724,11 @@ p([
   b()
 ], d.prototype, "_loadingSourceTypes", 2);
 d = p([
-  ct("up-doc-modal")
+  ut("up-doc-modal")
 ], d);
-const wt = d;
+const $t = d;
 export {
   d as UpDocModalElement,
-  wt as default
+  $t as default
 };
-//# sourceMappingURL=up-doc-modal.element-3UMs0tGd.js.map
+//# sourceMappingURL=up-doc-modal.element-GsuTPMbJ.js.map

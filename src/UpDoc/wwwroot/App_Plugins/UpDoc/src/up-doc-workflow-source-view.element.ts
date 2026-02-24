@@ -2,6 +2,7 @@ import type { RichExtractionResult, DocumentTypeConfig, MappingDestination, Area
 import { allTransformSections } from './workflow.types.js';
 import { fetchSampleExtraction, triggerSampleExtraction, fetchWorkflowByName, fetchAreaDetection, triggerTransform, fetchTransformResult, updateSectionInclusion, savePageSelection, fetchSourceConfig, fetchAreaTemplate, saveAreaTemplate, saveAreaRules, inferSectionPattern, saveMapConfig } from './workflow.service.js';
 import { normalizeToKebabCase, markdownToHtml } from './transforms.js';
+import { getAllBlockContainers } from './destination-utils.js';
 import { UMB_AREA_EDITOR_MODAL } from './pdf-area-editor-modal.token.js';
 import { UMB_PAGE_PICKER_MODAL } from './page-picker-modal.token.js';
 import { UMB_SECTION_RULES_EDITOR_MODAL } from './section-rules-editor-modal.token.js';
@@ -585,9 +586,9 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 	#resolveTargetLabel(dest: MappingDestination): string {
 		if (!this._config?.destination) return dest.target;
 
-		if (dest.blockKey && this._config.destination.blockGrids) {
-			for (const grid of this._config.destination.blockGrids) {
-				const block = grid.blocks.find((b) => b.key === dest.blockKey);
+		if (dest.blockKey) {
+			for (const container of getAllBlockContainers(this._config.destination)) {
+				const block = container.blocks.find((b) => b.key === dest.blockKey);
 				if (block) {
 					const prop = block.properties?.find((p) => p.alias === dest.target);
 					return `${block.label} > ${prop?.label || dest.target}`;
@@ -598,12 +599,10 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		const field = this._config.destination.fields.find((f) => f.alias === dest.target);
 		if (field) return field.label;
 
-		if (this._config.destination.blockGrids) {
-			for (const grid of this._config.destination.blockGrids) {
-				for (const block of grid.blocks) {
-					const prop = block.properties?.find((p) => p.alias === dest.target);
-					if (prop) return `${block.label} > ${prop.label || prop.alias}`;
-				}
+		for (const container of getAllBlockContainers(this._config.destination)) {
+			for (const block of container.blocks) {
+				const prop = block.properties?.find((p) => p.alias === dest.target);
+				if (prop) return `${block.label} > ${prop.label || prop.alias}`;
 			}
 		}
 

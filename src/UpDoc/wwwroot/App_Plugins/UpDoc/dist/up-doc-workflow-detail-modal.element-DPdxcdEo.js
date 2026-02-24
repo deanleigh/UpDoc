@@ -1,47 +1,48 @@
-import { b as N } from "./workflow.service-DSRz0gSB.js";
-import { html as i, nothing as r, css as P, state as d, customElement as S } from "@umbraco-cms/backoffice/external/lit";
+import { b as P } from "./workflow.service-DSRz0gSB.js";
+import { g as v } from "./destination-utils-DUfOJy5W.js";
+import { html as t, nothing as r, css as S, state as d, customElement as F } from "@umbraco-cms/backoffice/external/lit";
 import { UmbTextStyles as W } from "@umbraco-cms/backoffice/style";
-import { UmbModalBaseElement as E } from "@umbraco-cms/backoffice/modal";
-import { UMB_AUTH_CONTEXT as F } from "@umbraco-cms/backoffice/auth";
-var B = Object.defineProperty, U = Object.getOwnPropertyDescriptor, m = (e) => {
+import { UmbModalBaseElement as B } from "@umbraco-cms/backoffice/modal";
+import { UMB_AUTH_CONTEXT as E } from "@umbraco-cms/backoffice/auth";
+var U = Object.defineProperty, A = Object.getOwnPropertyDescriptor, h = (e) => {
   throw TypeError(e);
-}, u = (e, a, t, n) => {
-  for (var l = n > 1 ? void 0 : n ? U(a, t) : a, p = e.length - 1, f; p >= 0; p--)
-    (f = e[p]) && (l = (n ? f(a, t, l) : f(l)) || l);
-  return n && l && B(a, t, l), l;
-}, A = (e, a, t) => a.has(e) || m("Cannot " + t), M = (e, a, t) => a.has(e) ? m("Cannot add the same private member more than once") : a instanceof WeakSet ? a.add(e) : a.set(e, t), o = (e, a, t) => (A(e, a, "access private method"), t), s, h, v, g, b, y, _, k, z, $, x, w, T, D, C;
-let c = class extends E {
+}, u = (e, a, i, s) => {
+  for (var n = s > 1 ? void 0 : s ? A(a, i) : a, p = e.length - 1, f; p >= 0; p--)
+    (f = e[p]) && (n = (s ? f(a, i, n) : f(n)) || n);
+  return s && n && U(a, i, n), n;
+}, M = (e, a, i) => a.has(e) || h("Cannot " + i), O = (e, a, i) => a.has(e) ? h("Cannot add the same private member more than once") : a instanceof WeakSet ? a.add(e) : a.set(e, i), l = (e, a, i) => (M(e, a, "access private method"), i), o, y, g, m, b, _, z, k, $, x, w, T, D, C, N;
+let c = class extends B {
   constructor() {
-    super(...arguments), M(this, s), this._config = null, this._loading = !0, this._error = null, this._activeTab = "destination", this._activeDestinationTab = "page-properties";
+    super(...arguments), O(this, o), this._config = null, this._loading = !0, this._error = null, this._activeTab = "destination", this._activeDestinationTab = "page-properties";
   }
   async firstUpdated() {
-    await o(this, s, h).call(this);
+    await l(this, o, y).call(this);
   }
   // =========================================================================
   // Main render
   // =========================================================================
   render() {
     if (this._loading)
-      return i`
+      return t`
 				<umb-body-layout headline=${this.data?.workflowName ?? "Workflow"}>
 					<div class="loading"><uui-loader-bar></uui-loader-bar></div>
 				</umb-body-layout>
 			`;
     if (this._error)
-      return i`
+      return t`
 				<umb-body-layout headline=${this.data?.workflowName ?? "Workflow"}>
 					<p style="color: var(--uui-color-danger);">${this._error}</p>
 					<div slot="actions">
-						<uui-button label="Close" @click=${o(this, s, b)}></uui-button>
+						<uui-button label="Close" @click=${l(this, o, b)}></uui-button>
 					</div>
 				</umb-body-layout>
 			`;
-    const e = o(this, s, v).call(this);
-    return i`
+    const e = l(this, o, g).call(this);
+    return t`
 			<umb-body-layout headline=${this.data?.workflowName ?? "Workflow"}>
 				<uui-tab-group slot="navigation">
 					${e.map(
-      (a) => i`
+      (a) => t`
 							<uui-tab
 								label=${a.label}
 								?active=${this._activeTab === a.id}
@@ -56,19 +57,19 @@ let c = class extends E {
 				</uui-tab-group>
 
 				<div class="tab-content">
-					${o(this, s, T).call(this)}
+					${l(this, o, D).call(this)}
 				</div>
 
 				<uui-button
 					slot="actions"
 					label="Close"
-					@click=${o(this, s, b)}></uui-button>
+					@click=${l(this, o, b)}></uui-button>
 			</umb-body-layout>
 		`;
   }
 };
-s = /* @__PURE__ */ new WeakSet();
-h = async function() {
+o = /* @__PURE__ */ new WeakSet();
+y = async function() {
   this._loading = !0, this._error = null;
   try {
     const e = this.data?.workflowName;
@@ -76,22 +77,22 @@ h = async function() {
       this._error = "No workflow name provided";
       return;
     }
-    const t = await (await this.getContext(F)).getLatestToken();
-    if (this._config = await N(e, t), !this._config) {
+    const i = await (await this.getContext(E)).getLatestToken();
+    if (this._config = await P(e, i), !this._config) {
       this._error = `Workflow "${e}" not found`;
       return;
     }
-    const n = o(this, s, v).call(this);
-    n.length > 0 && (this._activeTab = n[0].id);
-    const l = o(this, s, g).call(this);
-    l.length > 0 && (this._activeDestinationTab = l[0].id);
+    const s = l(this, o, g).call(this);
+    s.length > 0 && (this._activeTab = s[0].id);
+    const n = l(this, o, m).call(this);
+    n.length > 0 && (this._activeDestinationTab = n[0].id);
   } catch (e) {
     this._error = e instanceof Error ? e.message : "Failed to load workflow", console.error("Failed to load workflow config:", e);
   } finally {
     this._loading = !1;
   }
 };
-v = function() {
+g = function() {
   if (!this._config) return [];
   const e = [
     { id: "destination", label: "Destination", icon: "icon-blueprint" }
@@ -104,73 +105,82 @@ v = function() {
     });
   return e;
 };
-g = function() {
+m = function() {
   if (!this._config) return [];
-  const e = [], a = new Set(this._config.destination.fields.map((t) => t.tab).filter(Boolean));
-  for (const t of a)
+  const e = [], a = new Set(this._config.destination.fields.map((i) => i.tab).filter(Boolean));
+  for (const i of a)
     e.push({
-      id: t.toLowerCase().replace(/\s+/g, "-"),
-      label: t
+      id: i.toLowerCase().replace(/\s+/g, "-"),
+      label: i
     });
-  return this._config.destination.blockGrids?.length && (a.has("Page Content") || e.push({ id: "page-content", label: "Page Content" })), e;
+  for (const i of v(this._config.destination)) {
+    const s = i.tab ?? "Page Content";
+    a.has(s) || (a.add(s), e.push({
+      id: s.toLowerCase().replace(/\s+/g, "-"),
+      label: s
+    }));
+  }
+  return e;
 };
 b = function() {
   this._rejectModal();
 };
-y = function(e) {
+_ = function(e) {
   if (!this._config) return r;
-  const a = this._config.destination.fields.filter((t) => t.tab === e);
-  return a.length === 0 ? i`<p class="empty-message">No fields in this tab.</p>` : i`
+  const a = this._config.destination.fields.filter((i) => i.tab === e);
+  return a.length === 0 ? t`<p class="empty-message">No fields in this tab.</p>` : t`
 			<div class="field-list">
-				${a.map((t) => o(this, s, _).call(this, t))}
+				${a.map((i) => l(this, o, z).call(this, i))}
 			</div>
 		`;
 };
-_ = function(e) {
-  return i`
+z = function(e) {
+  return t`
 			<div class="field-item">
 				<div class="field-header">
 					<span class="field-label">${e.label}</span>
 					<span class="field-type">${e.type}</span>
-					${e.mandatory ? i`<uui-tag look="primary" color="danger" class="field-badge">Required</uui-tag>` : r}
+					${e.mandatory ? t`<uui-tag look="primary" color="danger" class="field-badge">Required</uui-tag>` : r}
 				</div>
 				<div class="field-meta">
 					<span class="field-alias">${e.alias}</span>
-					${e.description ? i`<span class="field-description">${e.description}</span>` : r}
+					${e.description ? t`<span class="field-description">${e.description}</span>` : r}
 				</div>
 			</div>
 		`;
 };
-k = function() {
-  return this._config?.destination.blockGrids?.length ? i`
-			${this._config.destination.blockGrids.map((e) => o(this, s, z).call(this, e))}
-		` : i`<p class="empty-message">No block grids configured.</p>`;
+k = function(e) {
+  if (!this._config) return r;
+  const a = v(this._config.destination).filter((i) => (i.tab ?? "Page Content").toLowerCase().replace(/\s+/g, "-") === e);
+  return a.length ? t`
+			${a.map((i) => l(this, o, $).call(this, i))}
+		` : t`<p class="empty-message">No blocks configured.</p>`;
 };
-z = function(e) {
-  return i`
+$ = function(e) {
+  return t`
 			<div class="block-grid">
 				<div class="block-grid-header">
 					<span class="block-grid-label">${e.label}</span>
 					<span class="field-alias">${e.alias}</span>
 				</div>
-				${e.description ? i`<p class="block-grid-description">${e.description}</p>` : r}
+				${e.description ? t`<p class="block-grid-description">${e.description}</p>` : r}
 				<div class="block-list">
 					${e.blocks.map(
-    (a) => i`
+    (a) => t`
 							<div class="block-item">
 								<div class="block-header">
 									<umb-icon name="icon-box"></umb-icon>
 									<span class="block-label">${a.label}</span>
-									${a.identifyBy ? i`<span class="block-identify">identified by: "${a.identifyBy.value}"</span>` : r}
+									${a.identifyBy ? t`<span class="block-identify">identified by: "${a.identifyBy.value}"</span>` : r}
 								</div>
-								${a.properties?.length ? i`
+								${a.properties?.length ? t`
 										<div class="block-properties">
 											${a.properties.map(
-      (t) => i`
+      (i) => t`
 													<div class="block-property">
-														<span class="block-property-label">${t.label || t.alias}</span>
-														<span class="field-type">${t.type}</span>
-														${t.acceptsFormats?.length ? i`<span class="accepts-formats">${t.acceptsFormats.join(", ")}</span>` : r}
+														<span class="block-property-label">${i.label || i.alias}</span>
+														<span class="field-type">${i.type}</span>
+														${i.acceptsFormats?.length ? t`<span class="accepts-formats">${i.acceptsFormats.join(", ")}</span>` : r}
 													</div>
 												`
     )}
@@ -183,9 +193,9 @@ z = function(e) {
 			</div>
 		`;
 };
-$ = function(e) {
-  return e.sections.length ? i`
-			${e.globals?.columnDetection ? i`
+x = function(e) {
+  return e.sections.length ? t`
+			${e.globals?.columnDetection ? t`
 					<div class="source-globals">
 						<span class="globals-label">Column Detection:</span>
 						<span>${e.globals.columnDetection.enabled ? "Enabled" : "Disabled"}
@@ -193,60 +203,60 @@ $ = function(e) {
 					</div>
 				` : r}
 			<div class="section-list">
-				${e.sections.map((a) => o(this, s, x).call(this, a))}
+				${e.sections.map((a) => l(this, o, w).call(this, a))}
 			</div>
-		` : i`<p class="empty-message">No extraction sections configured.</p>`;
+		` : t`<p class="empty-message">No extraction sections configured.</p>`;
 };
-x = function(e) {
-  return i`
+w = function(e) {
+  return t`
 			<div class="section-item">
 				<div class="section-header">
 					<span class="section-label">${e.label}</span>
 					<span class="section-strategy">${e.strategy}</span>
-					${e.required ? i`<uui-tag look="primary" color="danger" class="field-badge">Required</uui-tag>` : r}
+					${e.required ? t`<uui-tag look="primary" color="danger" class="field-badge">Required</uui-tag>` : r}
 				</div>
 				<div class="section-meta">
 					<span class="field-alias">${e.key}</span>
 					<span class="section-output">${e.outputFormat}</span>
-					${e.pages ? i`<span class="section-pages">pages: ${Array.isArray(e.pages) ? e.pages.join(", ") : e.pages}</span>` : r}
+					${e.pages ? t`<span class="section-pages">pages: ${Array.isArray(e.pages) ? e.pages.join(", ") : e.pages}</span>` : r}
 				</div>
-				${e.description ? i`<p class="section-description">${e.description}</p>` : r}
-				${e.strategyParams ? o(this, s, w).call(this, e.strategy, e.strategyParams) : r}
+				${e.description ? t`<p class="section-description">${e.description}</p>` : r}
+				${e.strategyParams ? l(this, o, T).call(this, e.strategy, e.strategyParams) : r}
 			</div>
 		`;
 };
-w = function(e, a) {
-  const t = Object.entries(a).filter(([, n]) => n != null);
-  return t.length === 0 ? r : i`
+T = function(e, a) {
+  const i = Object.entries(a).filter(([, s]) => s != null);
+  return i.length === 0 ? r : t`
 			<div class="strategy-params">
-				${t.map(
-    ([n, l]) => i`
+				${i.map(
+    ([s, n]) => t`
 						<span class="param">
-							<span class="param-key">${n}:</span>
-							<span class="param-value">${Array.isArray(l) ? l.join(", ") : String(l)}</span>
+							<span class="param-key">${s}:</span>
+							<span class="param-value">${Array.isArray(n) ? n.join(", ") : String(n)}</span>
 						</span>
 					`
   )}
 			</div>
 		`;
 };
-T = function() {
+D = function() {
   if (!this._config) return r;
   if (this._activeTab === "destination")
-    return o(this, s, D).call(this);
+    return l(this, o, C).call(this);
   if (this._activeTab.startsWith("source-")) {
     const e = this._activeTab.replace("source-", ""), a = this._config.sources[e];
     if (a)
-      return o(this, s, $).call(this, a);
+      return l(this, o, x).call(this, a);
   }
-  return i`<p class="empty-message">Select a tab to view its contents.</p>`;
+  return t`<p class="empty-message">Select a tab to view its contents.</p>`;
 };
-D = function() {
-  const e = o(this, s, g).call(this);
-  return i`
+C = function() {
+  const e = l(this, o, m).call(this);
+  return t`
 			<div class="inner-tab-group">
 				${e.map(
-    (a) => i`
+    (a) => t`
 						<button
 							class="inner-tab ${this._activeDestinationTab === a.id ? "active" : ""}"
 							@click=${() => {
@@ -258,22 +268,23 @@ D = function() {
   )}
 			</div>
 			<div class="inner-tab-content">
-				${o(this, s, C).call(this)}
+				${l(this, o, N).call(this)}
 			</div>
 		`;
 };
-C = function() {
+N = function() {
   if (!this._config) return r;
-  if (this._activeDestinationTab === "page-content")
-    return o(this, s, k).call(this);
   const e = this._config.destination.fields.find(
-    (a) => a.tab && a.tab.toLowerCase().replace(/\s+/g, "-") === this._activeDestinationTab
-  )?.tab;
-  return e ? o(this, s, y).call(this, e) : r;
+    (i) => i.tab && i.tab.toLowerCase().replace(/\s+/g, "-") === this._activeDestinationTab
+  )?.tab, a = v(this._config.destination).some((i) => (i.tab ?? "Page Content").toLowerCase().replace(/\s+/g, "-") === this._activeDestinationTab);
+  return t`
+			${e ? l(this, o, _).call(this, e) : r}
+			${a ? l(this, o, k).call(this, this._activeDestinationTab) : r}
+		`;
 };
 c.styles = [
   W,
-  P`
+  S`
 			/* Tab content area */
 			.tab-content {
 				padding: var(--uui-size-space-1) 0;
@@ -563,11 +574,11 @@ u([
   d()
 ], c.prototype, "_activeDestinationTab", 2);
 c = u([
-  S("up-doc-workflow-detail-modal")
+  F("up-doc-workflow-detail-modal")
 ], c);
-const R = c;
+const I = c;
 export {
   c as UpDocWorkflowDetailModalElement,
-  R as default
+  I as default
 };
-//# sourceMappingURL=up-doc-workflow-detail-modal.element-DLEojqS9.js.map
+//# sourceMappingURL=up-doc-workflow-detail-modal.element-DPdxcdEo.js.map

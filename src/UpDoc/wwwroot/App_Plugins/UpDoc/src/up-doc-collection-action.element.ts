@@ -278,10 +278,18 @@ export class UpDocCollectionActionElement extends UmbLitElement {
 
 		// Block property with blockKey — find the specific block instance
 		if (dest.blockKey) {
-			for (const grid of config.destination.blockGrids ?? []) {
-				const block = grid.blocks.find((b) => b.key === dest.blockKey);
-				if (block?.identifyBy) {
-					this.#applyBlockGridValue(values, grid.alias, block.identifyBy, dest.target, transformedValue, mappedFields);
+			for (const container of [...(config.destination.blockGrids ?? []), ...(config.destination.blockLists ?? [])]) {
+				const block = container.blocks.find((b) => b.key === dest.blockKey);
+				if (block) {
+					// Match by contentTypeKey — Umbraco regenerates block instance keys when
+					// creating documents from blueprints, so the blueprint key won't match.
+					// contentTypeKey (element type GUID) is stable across all documents.
+					const contentTypeKey = block.contentTypeKey;
+					if (contentTypeKey) {
+						this.#applyBlockValueByContentType(values, container.alias, contentTypeKey, dest.target, transformedValue, mappedFields);
+					} else if (block.identifyBy) {
+						this.#applyBlockGridValue(values, container.alias, block.identifyBy, dest.target, transformedValue, mappedFields);
+					}
 					return;
 				}
 			}
@@ -313,7 +321,8 @@ export class UpDocCollectionActionElement extends UmbLitElement {
 		} else if (pathParts.length === 3) {
 			// Legacy dot-path: "contentGrid.itineraryBlock.richTextContent"
 			const [gridKey, blockKey, propertyKey] = pathParts;
-			const blockGrid = config.destination.blockGrids?.find((g) => g.key === gridKey);
+			const allContainers = [...(config.destination.blockGrids ?? []), ...(config.destination.blockLists ?? [])];
+			const blockGrid = allContainers.find((g) => g.key === gridKey);
 			const block = blockGrid?.blocks.find((b) => b.key === blockKey);
 
 			if (!blockGrid || !block) return;
@@ -386,6 +395,58 @@ export class UpDocCollectionActionElement extends UmbLitElement {
 	}
 
 	/**
+	 * Applies a value to a block property by matching the block's contentTypeKey in contentData.
+	 * Umbraco regenerates block instance keys when creating documents from blueprints,
+	 * so we match by element type GUID (contentTypeKey) which is stable across all documents.
+	 */
+	#applyBlockValueByContentType(
+		values: Array<{ alias: string; value: unknown }>,
+		containerAlias: string,
+		contentTypeKey: string,
+		targetProperty: string,
+		value: string,
+		mappedFields: Set<string>,
+	) {
+		const containerValue = values.find((v) => v.alias === containerAlias);
+		if (!containerValue || !containerValue.value) return;
+
+		try {
+			const wasString = typeof containerValue.value === 'string';
+			const containerData = wasString
+				? JSON.parse(containerValue.value as string)
+				: containerValue.value;
+
+			const contentData = containerData.contentData as Array<{
+				contentTypeKey: string;
+				key: string;
+				values: Array<{ alias: string; value: unknown }>;
+			}>;
+
+			if (!contentData) return;
+
+			const block = contentData.find((b) => b.contentTypeKey === contentTypeKey);
+			if (!block) return;
+
+			const targetValue = block.values?.find((v) => v.alias === targetProperty);
+			if (targetValue) {
+				const fieldKey = `${block.key}:${targetProperty}`;
+
+				if (mappedFields.has(fieldKey)) {
+					const currentValue = typeof targetValue.value === 'string' ? targetValue.value : '';
+					targetValue.value = `${currentValue}\n${value}`;
+				} else {
+					targetValue.value = value;
+				}
+				mappedFields.add(fieldKey);
+			}
+
+			containerValue.value = wasString ? JSON.stringify(containerData) : containerData;
+		} catch (error) {
+			console.error(`Failed to apply block mapping by content type to ${containerAlias}:`, error);
+		}
+	}
+
+	/**
 	 * Post-mapping pass: strips markdown from plain text fields and converts richText fields
 	 * from markdown to HTML + RTE value object.
 	 * Uses destination.json field types to auto-detect which fields need conversion.
@@ -416,28 +477,33 @@ export class UpDocCollectionActionElement extends UmbLitElement {
 			}
 		}
 
-		// Convert block grid richText properties
-		for (const grid of config.destination.blockGrids ?? []) {
-			const gridVal = values.find((v) => v.alias === grid.alias);
-			if (!gridVal?.value) continue;
+		// Convert block container (grid + list) richText properties
+		const allContainers = [...(config.destination.blockGrids ?? []), ...(config.destination.blockLists ?? [])];
+		for (const container of allContainers) {
+			const containerVal = values.find((v) => v.alias === container.alias);
+			if (!containerVal?.value) continue;
 
-			const wasString = typeof gridVal.value === 'string';
-			const gridData = wasString ? JSON.parse(gridVal.value as string) : gridVal.value;
-			const contentData = gridData.contentData as Array<{
+			const wasString = typeof containerVal.value === 'string';
+			const containerData = wasString ? JSON.parse(containerVal.value as string) : containerVal.value;
+			const contentData = containerData.contentData as Array<{
 				key: string;
 				values: Array<{ alias: string; value: unknown }>;
 			}> | undefined;
 			if (!contentData) continue;
 
 			for (const block of contentData) {
-				for (const destBlock of grid.blocks) {
-					if (!destBlock.identifyBy) continue;
-					const searchVal = block.values?.find((v) => v.alias === destBlock.identifyBy!.property);
-					if (
-						searchVal &&
-						typeof searchVal.value === 'string' &&
-						searchVal.value.toLowerCase().includes(destBlock.identifyBy.value.toLowerCase())
-					) {
+				for (const destBlock of container.blocks) {
+					// Match by identifyBy text search, or by key directly for blocks without identifyBy
+					const matched = destBlock.identifyBy
+						? (() => {
+								const searchVal = block.values?.find((v) => v.alias === destBlock.identifyBy!.property);
+								return searchVal &&
+									typeof searchVal.value === 'string' &&
+									searchVal.value.toLowerCase().includes(destBlock.identifyBy!.value.toLowerCase());
+							})()
+						: block.key === destBlock.key;
+
+					if (matched) {
 						for (const prop of destBlock.properties ?? []) {
 							const fieldKey = `${block.key}:${prop.alias}`;
 							if ((prop.type === 'text' || prop.type === 'textArea') && mappedFields.has(fieldKey)) {
@@ -458,7 +524,7 @@ export class UpDocCollectionActionElement extends UmbLitElement {
 				}
 			}
 
-			gridVal.value = wasString ? JSON.stringify(gridData) : gridData;
+			containerVal.value = wasString ? JSON.stringify(containerData) : containerData;
 		}
 	}
 

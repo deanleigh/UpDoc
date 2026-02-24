@@ -1,4 +1,5 @@
 import type { DestinationConfig, DestinationField, DestinationBlockGrid } from './workflow.types.js';
+import { getAllBlockContainers } from './destination-utils.js';
 import type { DestinationPickerModalData, DestinationPickerModalValue } from './destination-picker-modal.token.js';
 import { html, css, state, nothing, customElement } from '@umbraco-cms/backoffice/external/lit';
 import { UmbModalBaseElement } from '@umbraco-cms/backoffice/modal';
@@ -59,9 +60,14 @@ export class UpDocDestinationPickerModalElement extends UmbModalBaseElement<
 			});
 		}
 
-		if (this.#destination.blockGrids?.length) {
-			if (!tabNames.has('Page Content')) {
-				tabs.push({ id: 'page-content', label: 'Page Content' });
+		for (const container of getAllBlockContainers(this.#destination)) {
+			const containerTab = container.tab ?? 'Page Content';
+			if (!tabNames.has(containerTab)) {
+				tabNames.add(containerTab);
+				tabs.push({
+					id: containerTab.toLowerCase().replace(/\s+/g, '-'),
+					label: containerTab,
+				});
 			}
 		}
 
@@ -125,13 +131,20 @@ export class UpDocDestinationPickerModalElement extends UmbModalBaseElement<
 		`;
 	}
 
-	#renderBlockGrids() {
-		if (!this.#destination?.blockGrids?.length) {
-			return html`<p class="empty-message">No block grids configured.</p>`;
+	#renderBlockContainersForTab(tabId: string) {
+		if (!this.#destination) return nothing;
+
+		const containers = getAllBlockContainers(this.#destination).filter((c) => {
+			const cTab = c.tab ?? 'Page Content';
+			return cTab.toLowerCase().replace(/\s+/g, '-') === tabId;
+		});
+
+		if (!containers.length) {
+			return html`<p class="empty-message">No blocks configured.</p>`;
 		}
 
 		return html`
-			${this.#destination.blockGrids.map((grid) => this.#renderBlockGrid(grid))}
+			${containers.map((container) => this.#renderBlockGrid(container))}
 		`;
 	}
 
@@ -184,19 +197,21 @@ export class UpDocDestinationPickerModalElement extends UmbModalBaseElement<
 	#renderTabContent() {
 		if (!this.#destination) return nothing;
 
-		if (this._activeTab === 'page-content') {
-			return this.#renderBlockGrids();
-		}
-
+		// Check if this tab has fields
 		const tabName = this.#destination.fields.find(
 			(f) => f.tab && f.tab.toLowerCase().replace(/\s+/g, '-') === this._activeTab
 		)?.tab;
 
-		if (tabName) {
-			return this.#renderFieldsForTab(tabName);
-		}
+		// Check if this tab has block containers
+		const hasContainers = getAllBlockContainers(this.#destination).some((c) => {
+			const cTab = c.tab ?? 'Page Content';
+			return cTab.toLowerCase().replace(/\s+/g, '-') === this._activeTab;
+		});
 
-		return nothing;
+		return html`
+			${tabName ? this.#renderFieldsForTab(tabName) : nothing}
+			${hasContainers ? this.#renderBlockContainersForTab(this._activeTab) : nothing}
+		`;
 	}
 
 	override render() {

@@ -8,7 +8,7 @@ const o = [
     alias: "UpDoc.EntityAction",
     name: "UpDoc Entity Action",
     weight: 1100,
-    api: () => import("./up-doc-action-CmSCNZmU.js"),
+    api: () => import("./up-doc-action-B69TsjaD.js"),
     forEntityTypes: ["document"],
     meta: {
       icon: "icon-document",
@@ -40,7 +40,7 @@ const o = [
     kind: "button",
     alias: "UpDoc.CollectionAction",
     name: "UpDoc Collection Action",
-    element: () => import("./up-doc-collection-action.element-BPz9vL1C.js"),
+    element: () => import("./up-doc-collection-action.element-CvNBd0hS.js"),
     weight: 50,
     meta: {
       label: "Create from Source"
@@ -59,7 +59,7 @@ const o = [
     type: "modal",
     alias: "UpDoc.Modal",
     name: "UpDoc Modal",
-    element: () => import("./up-doc-modal.element-3UMs0tGd.js")
+    element: () => import("./up-doc-modal.element-GsuTPMbJ.js")
   },
   {
     type: "modal",
@@ -77,13 +77,13 @@ const o = [
     type: "modal",
     alias: "UpDoc.WorkflowDetailModal",
     name: "Workflow Detail Modal",
-    element: () => import("./up-doc-workflow-detail-modal.element-DLEojqS9.js")
+    element: () => import("./up-doc-workflow-detail-modal.element-DPdxcdEo.js")
   },
   {
     type: "modal",
     alias: "UpDoc.DestinationPickerModal",
     name: "Destination Picker Modal",
-    element: () => import("./destination-picker-modal.element-Dm-J9k3P.js")
+    element: () => import("./destination-picker-modal.element-ChMfzV_j.js")
   },
   {
     type: "modal",
@@ -120,7 +120,7 @@ const o = [
     type: "workspaceView",
     alias: "UpDoc.WorkflowWorkspaceView.Destination",
     name: "Destination",
-    element: () => import("./up-doc-workflow-destination-view.element-DTv9LtUT.js"),
+    element: () => import("./up-doc-workflow-destination-view.element-DfYyP6mR.js"),
     weight: 300,
     meta: {
       label: "Destination",
@@ -138,7 +138,7 @@ const o = [
     type: "workspaceView",
     alias: "UpDoc.WorkflowWorkspaceView.Source",
     name: "UpDoc Workflow Source View",
-    element: () => import("./up-doc-workflow-source-view.element-CVib24mK.js"),
+    element: () => import("./up-doc-workflow-source-view.element-CmE-YqwV.js"),
     weight: 200,
     meta: {
       label: "Source",
@@ -156,7 +156,7 @@ const o = [
     type: "workspaceView",
     alias: "UpDoc.WorkflowWorkspaceView.Map",
     name: "UpDoc Workflow Map View",
-    element: () => import("./up-doc-workflow-map-view.element-BdAa0Bwy.js"),
+    element: () => import("./up-doc-workflow-map-view.element-BATTFFzk.js"),
     weight: 100,
     meta: {
       label: "Map",

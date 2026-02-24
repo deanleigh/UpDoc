@@ -18,24 +18,14 @@ using Umbraco.Extensions;
 
 namespace Umbraco.Cms.Web.Common.PublishedModels
 {
-	// Mixin Content Type with alias "tourProperties"
-	/// <summary>Tour Properties</summary>
-	public partial interface ITourProperties : IPublishedElement
-	{
-		/// <summary>Organisers</summary>
-		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "17.1.0+2832436")]
-		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
-		global::Umbraco.Cms.Core.Models.Blocks.BlockListModel Organisers { get; }
-	}
-
-	/// <summary>Tour Properties</summary>
-	[PublishedModel("tourProperties")]
-	public partial class TourProperties : PublishedElementModel, ITourProperties
+	/// <summary>Tour Organiser</summary>
+	[PublishedModel("tourOrganiser")]
+	public partial class TourOrganiser : PublishedElementModel
 	{
 		// helpers
 #pragma warning disable 0109 // new is redundant
 		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "17.1.0+2832436")]
-		public new const string ModelTypeAlias = "tourProperties";
+		public new const string ModelTypeAlias = "tourOrganiser";
 		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "17.1.0+2832436")]
 		public new const PublishedItemType ModelItemType = PublishedItemType.Content;
 		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "17.1.0+2832436")]
@@ -44,14 +34,14 @@ namespace Umbraco.Cms.Web.Common.PublishedModels
 			=> PublishedModelUtility.GetModelContentType(contentTypeCache, ModelItemType, ModelTypeAlias);
 		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "17.1.0+2832436")]
 		[return: global::System.Diagnostics.CodeAnalysis.MaybeNull]
-		public static IPublishedPropertyType GetModelPropertyType<TValue>(IPublishedContentTypeCache contentTypeCache, Expression<Func<TourProperties, TValue>> selector)
+		public static IPublishedPropertyType GetModelPropertyType<TValue>(IPublishedContentTypeCache contentTypeCache, Expression<Func<TourOrganiser, TValue>> selector)
 			=> PublishedModelUtility.GetModelPropertyType(GetModelContentType(contentTypeCache), selector);
 #pragma warning restore 0109
 
 		private IPublishedValueFallback _publishedValueFallback;
 
 		// ctor
-		public TourProperties(IPublishedElement content, IPublishedValueFallback publishedValueFallback)
+		public TourOrganiser(IPublishedElement content, IPublishedValueFallback publishedValueFallback)
 			: base(content, publishedValueFallback)
 		{
 			_publishedValueFallback = publishedValueFallback;
@@ -60,16 +50,43 @@ namespace Umbraco.Cms.Web.Common.PublishedModels
 		// properties
 
 		///<summary>
-		/// Organisers
+		/// Organiser Address
 		///</summary>
 		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "17.1.0+2832436")]
 		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
-		[ImplementPropertyType("organisers")]
-		public virtual global::Umbraco.Cms.Core.Models.Blocks.BlockListModel Organisers => GetOrganisers(this, _publishedValueFallback);
+		[ImplementPropertyType("organiserAddress")]
+		public virtual string OrganiserAddress => this.Value<string>(_publishedValueFallback, "organiserAddress");
 
-		/// <summary>Static getter for Organisers</summary>
+		///<summary>
+		/// Organiser Email
+		///</summary>
 		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "17.1.0+2832436")]
-		[return: global::System.Diagnostics.CodeAnalysis.MaybeNull]
-		public static global::Umbraco.Cms.Core.Models.Blocks.BlockListModel GetOrganisers(ITourProperties that, IPublishedValueFallback publishedValueFallback) => that.Value<global::Umbraco.Cms.Core.Models.Blocks.BlockListModel>(publishedValueFallback, "organisers");
+		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
+		[ImplementPropertyType("organiserEmail")]
+		public virtual string OrganiserEmail => this.Value<string>(_publishedValueFallback, "organiserEmail");
+
+		///<summary>
+		/// Organiser Name: The full name of the organiser
+		///</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "17.1.0+2832436")]
+		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
+		[ImplementPropertyType("organiserName")]
+		public virtual string OrganiserName => this.Value<string>(_publishedValueFallback, "organiserName");
+
+		///<summary>
+		/// Organisation: Which organisation does this organiser belong to if any
+		///</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "17.1.0+2832436")]
+		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
+		[ImplementPropertyType("organiserOrganisation")]
+		public virtual string OrganiserOrganisation => this.Value<string>(_publishedValueFallback, "organiserOrganisation");
+
+		///<summary>
+		/// Organiser Telephone
+		///</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "17.1.0+2832436")]
+		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
+		[ImplementPropertyType("organiserTelephone")]
+		public virtual string OrganiserTelephone => this.Value<string>(_publishedValueFallback, "organiserTelephone");
 	}
 }

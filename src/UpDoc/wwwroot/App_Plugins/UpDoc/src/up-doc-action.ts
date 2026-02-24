@@ -103,8 +103,6 @@ export class UpDocEntityAction extends UmbEntityActionBase<never> {
 			const selectedDocType = documentTypeOptions.find((dt) => dt.documentTypeUnique === documentTypeUnique);
 			const selectedBlueprint = selectedDocType?.blueprints.find((bp) => bp.blueprintUnique === blueprintUnique);
 
-			console.log('Selected blueprint:', blueprintUnique, 'Document type:', documentTypeUnique);
-
 			// Step 5: Open source sidebar modal (passes blueprintId for map file lookup)
 			let modalValue;
 			try {
@@ -153,8 +151,6 @@ export class UpDocEntityAction extends UmbEntityActionBase<never> {
 			}
 
 			const scaffold = await scaffoldResponse.json();
-			console.log('Scaffold response:', scaffold);
-			console.log('Scaffold values aliases:', scaffold.values?.map((v: { alias: string }) => v.alias));
 
 			// Step 7: Apply property mappings from the map file
 			// Deep clone to avoid modifying the original scaffold
@@ -197,8 +193,6 @@ export class UpDocEntityAction extends UmbEntityActionBase<never> {
 				],
 			};
 
-			console.log('Create request:', JSON.stringify(createRequest, null, 2));
-
 			// Step 8: Create the document
 			const createResponse = await fetch('/umbraco/management/api/v1/document', {
 				method: 'POST',
@@ -222,8 +216,6 @@ export class UpDocEntityAction extends UmbEntityActionBase<never> {
 			const locationHeader = createResponse.headers.get('Location');
 			const newDocumentId = locationHeader?.split('/').pop();
 
-			console.log('Document created successfully! ID:', newDocumentId);
-
 			// Step 9: Save the document to properly persist it and trigger cache updates
 			if (newDocumentId) {
 				const getResponse = await fetch(`/umbraco/management/api/v1/document/${newDocumentId}`, {
@@ -236,7 +228,6 @@ export class UpDocEntityAction extends UmbEntityActionBase<never> {
 
 				if (getResponse.ok) {
 					const documentData = await getResponse.json();
-					console.log('Fetched document for save:', documentData);
 
 					const saveResponse = await fetch(`/umbraco/management/api/v1/document/${newDocumentId}`, {
 						method: 'PUT',
@@ -247,9 +238,7 @@ export class UpDocEntityAction extends UmbEntityActionBase<never> {
 						body: JSON.stringify(documentData),
 					});
 
-					if (saveResponse.ok) {
-						console.log('Document saved successfully');
-					} else {
+					if (!saveResponse.ok) {
 						console.warn('Document save failed, but document was created:', await saveResponse.text());
 					}
 				} else {
@@ -294,10 +283,18 @@ export class UpDocEntityAction extends UmbEntityActionBase<never> {
 
 		// Block property with blockKey — find the specific block instance
 		if (dest.blockKey) {
-			for (const grid of config.destination.blockGrids ?? []) {
-				const block = grid.blocks.find((b) => b.key === dest.blockKey);
-				if (block?.identifyBy) {
-					this.#applyBlockGridValue(values, grid.alias, block.identifyBy, dest.target, transformedValue, mappedFields);
+			for (const container of [...(config.destination.blockGrids ?? []), ...(config.destination.blockLists ?? [])]) {
+				const block = container.blocks.find((b) => b.key === dest.blockKey);
+				if (block) {
+					// Match by contentTypeKey — Umbraco regenerates block instance keys when
+					// creating documents from blueprints, so the blueprint key won't match.
+					// contentTypeKey (element type GUID) is stable across all documents.
+					const contentTypeKey = block.contentTypeKey;
+					if (contentTypeKey) {
+						this.#applyBlockValueByContentType(values, container.alias, contentTypeKey, dest.target, transformedValue, mappedFields);
+					} else if (block.identifyBy) {
+						this.#applyBlockGridValue(values, container.alias, block.identifyBy, dest.target, transformedValue, mappedFields);
+					}
 					return;
 				}
 			}
@@ -327,11 +324,12 @@ export class UpDocEntityAction extends UmbEntityActionBase<never> {
 			}
 			mappedFields.add(alias);
 		} else if (pathParts.length === 3) {
-			// Block grid mapping: "contentGrid.itineraryBlock.richTextContent"
+			// Legacy dot-path: "contentGrid.itineraryBlock.richTextContent"
 			const [gridKey, blockKey, propertyKey] = pathParts;
 
 			// Look up block info from destination config
-			const blockGrid = config.destination.blockGrids?.find((g) => g.key === gridKey);
+			const allContainers = [...(config.destination.blockGrids ?? []), ...(config.destination.blockLists ?? [])];
+			const blockGrid = allContainers.find((g) => g.key === gridKey);
 			const block = blockGrid?.blocks.find((b) => b.key === blockKey);
 
 			if (!blockGrid || !block) return;
@@ -360,10 +358,7 @@ export class UpDocEntityAction extends UmbEntityActionBase<never> {
 		mappedFields: Set<string>
 	) {
 		const contentGridValue = values.find((v) => v.alias === gridAlias);
-		if (!contentGridValue || !contentGridValue.value) {
-			console.log(`No ${gridAlias} found in scaffold values`);
-			return;
-		}
+		if (!contentGridValue || !contentGridValue.value) return;
 
 		try {
 			const wasString = typeof contentGridValue.value === 'string';
@@ -377,49 +372,85 @@ export class UpDocEntityAction extends UmbEntityActionBase<never> {
 				values: Array<{ alias: string; value: unknown }>;
 			}>;
 
-			if (!contentData) {
-				console.log(`No contentData in ${gridAlias}`);
-				return;
-			}
+			if (!contentData) return;
 
-			// Search for the matching block
-			let foundBlock = false;
 			for (const block of contentData) {
 				const searchValue = block.values?.find((v) => v.alias === blockSearch.property);
 
 				if (searchValue && typeof searchValue.value === 'string' &&
 					searchValue.value.toLowerCase().includes(blockSearch.value.toLowerCase())) {
 
-					console.log(`Found matching block for "${blockSearch.value}":`, block.key);
-					foundBlock = true;
-
 					const targetValue = block.values?.find((v) => v.alias === targetProperty);
 					if (targetValue) {
-						// Use compound key for block property tracking
 						const fieldKey = `${block.key}:${targetProperty}`;
 
 						if (mappedFields.has(fieldKey)) {
-							// Already written — concatenate with newline
 							const currentValue = typeof targetValue.value === 'string' ? targetValue.value : '';
 							targetValue.value = `${currentValue}\n${value}`;
 						} else {
-							// First write — replace the blueprint default
 							targetValue.value = value;
 						}
 						mappedFields.add(fieldKey);
-						console.log(`Updated ${targetProperty} in block`);
 					}
 					break;
 				}
 			}
 
-			if (!foundBlock) {
-				console.log(`WARNING: Did not find a block matching ${blockSearch.property} = "${blockSearch.value}"`);
-			}
-
 			contentGridValue.value = wasString ? JSON.stringify(contentGrid) : contentGrid;
 		} catch (error) {
 			console.error(`Failed to apply block mapping to ${gridAlias}:`, error);
+		}
+	}
+
+	/**
+	 * Applies a value to a block property by matching the block's contentTypeKey in contentData.
+	 * Umbraco regenerates block instance keys when creating documents from blueprints,
+	 * so we match by element type GUID (contentTypeKey) which is stable across all documents.
+	 */
+	#applyBlockValueByContentType(
+		values: Array<{ alias: string; value: unknown }>,
+		containerAlias: string,
+		contentTypeKey: string,
+		targetProperty: string,
+		value: string,
+		mappedFields: Set<string>
+	) {
+		const containerValue = values.find((v) => v.alias === containerAlias);
+		if (!containerValue || !containerValue.value) return;
+
+		try {
+			const wasString = typeof containerValue.value === 'string';
+			const containerData = wasString
+				? JSON.parse(containerValue.value as string)
+				: containerValue.value;
+
+			const contentData = containerData.contentData as Array<{
+				contentTypeKey: string;
+				key: string;
+				values: Array<{ alias: string; value: unknown }>;
+			}>;
+
+			if (!contentData) return;
+
+			const block = contentData.find((b) => b.contentTypeKey === contentTypeKey);
+			if (!block) return;
+
+			const targetValue = block.values?.find((v) => v.alias === targetProperty);
+			if (targetValue) {
+				const fieldKey = `${block.key}:${targetProperty}`;
+
+				if (mappedFields.has(fieldKey)) {
+					const currentValue = typeof targetValue.value === 'string' ? targetValue.value : '';
+					targetValue.value = `${currentValue}\n${value}`;
+				} else {
+					targetValue.value = value;
+				}
+				mappedFields.add(fieldKey);
+			}
+
+			containerValue.value = wasString ? JSON.stringify(containerData) : containerData;
+		} catch (error) {
+			console.error(`Failed to apply block mapping by content type to ${containerAlias}:`, error);
 		}
 	}
 
@@ -454,28 +485,33 @@ export class UpDocEntityAction extends UmbEntityActionBase<never> {
 			}
 		}
 
-		// Convert block grid richText properties
-		for (const grid of config.destination.blockGrids ?? []) {
-			const gridVal = values.find((v) => v.alias === grid.alias);
-			if (!gridVal?.value) continue;
+		// Convert block container (grid + list) richText properties
+		const allContainers = [...(config.destination.blockGrids ?? []), ...(config.destination.blockLists ?? [])];
+		for (const container of allContainers) {
+			const containerVal = values.find((v) => v.alias === container.alias);
+			if (!containerVal?.value) continue;
 
-			const wasString = typeof gridVal.value === 'string';
-			const gridData = wasString ? JSON.parse(gridVal.value as string) : gridVal.value;
-			const contentData = gridData.contentData as Array<{
+			const wasString = typeof containerVal.value === 'string';
+			const containerData = wasString ? JSON.parse(containerVal.value as string) : containerVal.value;
+			const contentData = containerData.contentData as Array<{
 				key: string;
 				values: Array<{ alias: string; value: unknown }>;
 			}> | undefined;
 			if (!contentData) continue;
 
 			for (const block of contentData) {
-				for (const destBlock of grid.blocks) {
-					if (!destBlock.identifyBy) continue;
-					const searchVal = block.values?.find((v) => v.alias === destBlock.identifyBy!.property);
-					if (
-						searchVal &&
-						typeof searchVal.value === 'string' &&
-						searchVal.value.toLowerCase().includes(destBlock.identifyBy.value.toLowerCase())
-					) {
+				for (const destBlock of container.blocks) {
+					// Match by identifyBy text search, or by key directly for blocks without identifyBy
+					const matched = destBlock.identifyBy
+						? (() => {
+								const searchVal = block.values?.find((v) => v.alias === destBlock.identifyBy!.property);
+								return searchVal &&
+									typeof searchVal.value === 'string' &&
+									searchVal.value.toLowerCase().includes(destBlock.identifyBy!.value.toLowerCase());
+							})()
+						: block.key === destBlock.key;
+
+					if (matched) {
 						for (const prop of destBlock.properties ?? []) {
 							const fieldKey = `${block.key}:${prop.alias}`;
 							if ((prop.type === 'text' || prop.type === 'textArea') && mappedFields.has(fieldKey)) {
@@ -496,7 +532,7 @@ export class UpDocEntityAction extends UmbEntityActionBase<never> {
 				}
 			}
 
-			gridVal.value = wasString ? JSON.stringify(gridData) : gridData;
+			containerVal.value = wasString ? JSON.stringify(containerData) : containerData;
 		}
 	}
 }

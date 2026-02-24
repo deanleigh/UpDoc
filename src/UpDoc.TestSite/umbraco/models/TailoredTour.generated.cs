@@ -98,43 +98,11 @@ namespace Umbraco.Cms.Web.Common.PublishedModels
 		public virtual global::Umbraco.Cms.Core.Models.MediaWithCrops PageSettingsBackgroundImagePicker => global::Umbraco.Cms.Web.Common.PublishedModels.ContentHeadingDefault1.GetPageSettingsBackgroundImagePicker(this, _publishedValueFallback);
 
 		///<summary>
-		/// Organiser Address
+		/// Organisers
 		///</summary>
 		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "17.1.0+2832436")]
 		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
-		[ImplementPropertyType("organiserAddress")]
-		public virtual string OrganiserAddress => global::Umbraco.Cms.Web.Common.PublishedModels.TourProperties.GetOrganiserAddress(this, _publishedValueFallback);
-
-		///<summary>
-		/// Organiser Email
-		///</summary>
-		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "17.1.0+2832436")]
-		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
-		[ImplementPropertyType("organiserEmail")]
-		public virtual string OrganiserEmail => global::Umbraco.Cms.Web.Common.PublishedModels.TourProperties.GetOrganiserEmail(this, _publishedValueFallback);
-
-		///<summary>
-		/// Organiser Name
-		///</summary>
-		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "17.1.0+2832436")]
-		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
-		[ImplementPropertyType("organiserName")]
-		public virtual string OrganiserName => global::Umbraco.Cms.Web.Common.PublishedModels.TourProperties.GetOrganiserName(this, _publishedValueFallback);
-
-		///<summary>
-		/// Organisation
-		///</summary>
-		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "17.1.0+2832436")]
-		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
-		[ImplementPropertyType("organiserOrganisation")]
-		public virtual string OrganiserOrganisation => global::Umbraco.Cms.Web.Common.PublishedModels.TourProperties.GetOrganiserOrganisation(this, _publishedValueFallback);
-
-		///<summary>
-		/// Organiser Telephone
-		///</summary>
-		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "17.1.0+2832436")]
-		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
-		[ImplementPropertyType("organiserTelephone")]
-		public virtual string OrganiserTelephone => global::Umbraco.Cms.Web.Common.PublishedModels.TourProperties.GetOrganiserTelephone(this, _publishedValueFallback);
+		[ImplementPropertyType("organisers")]
+		public virtual global::Umbraco.Cms.Core.Models.Blocks.BlockListModel Organisers => global::Umbraco.Cms.Web.Common.PublishedModels.TourProperties.GetOrganisers(this, _publishedValueFallback);
 	}
 }

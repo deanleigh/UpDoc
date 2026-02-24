@@ -194,19 +194,17 @@ public class WorkflowService : IWorkflowService
             validDestinationKeys.Add(field.Alias);
         }
 
-        // Add block property aliases
-        if (config.Destination.BlockGrids != null)
+        // Add block property aliases (Block Grids + Block Lists)
+        foreach (var container in (config.Destination.BlockGrids ?? Enumerable.Empty<DestinationBlockGrid>())
+            .Concat(config.Destination.BlockLists ?? Enumerable.Empty<DestinationBlockGrid>()))
         {
-            foreach (var grid in config.Destination.BlockGrids)
+            foreach (var block in container.Blocks)
             {
-                foreach (var block in grid.Blocks)
+                if (block.Properties != null)
                 {
-                    if (block.Properties != null)
+                    foreach (var prop in block.Properties)
                     {
-                        foreach (var prop in block.Properties)
-                        {
-                            validDestinationKeys.Add(prop.Alias);
-                        }
+                        validDestinationKeys.Add(prop.Alias);
                     }
                 }
             }

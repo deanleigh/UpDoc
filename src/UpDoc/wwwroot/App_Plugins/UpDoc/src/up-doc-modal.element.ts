@@ -1,7 +1,7 @@
 import type { UmbUpDocModalData, UmbUpDocModalValue, SourceType } from './up-doc-modal.token.js';
 import { allTransformSections, type DocumentTypeConfig } from './workflow.types.js';
 import { fetchConfig, transformAdhoc } from './workflow.service.js';
-import { getDestinationTabs, resolveDestinationTab, resolveBlockLabel } from './destination-utils.js';
+import { getDestinationTabs, resolveDestinationTab, resolveBlockLabel, getAllBlockContainers } from './destination-utils.js';
 import { stripMarkdown } from './transforms.js';
 import { html, customElement, css, state, nothing } from '@umbraco-cms/backoffice/external/lit';
 import { UmbTextStyles } from '@umbraco-cms/backoffice/style';
@@ -585,9 +585,9 @@ export class UpDocModalElement extends UmbModalBaseElement<
 
 			// Resolve the field-level label (without block prefix for block properties)
 			let fieldLabel = alias;
-			if (blockKey && destination.blockGrids) {
-				for (const grid of destination.blockGrids) {
-					const block = grid.blocks.find((b) => b.key === blockKey);
+			if (blockKey) {
+				for (const container of getAllBlockContainers(destination)) {
+					const block = container.blocks.find((b) => b.key === blockKey);
 					if (block) {
 						const prop = block.properties?.find((p) => p.alias === alias);
 						if (prop) fieldLabel = prop.label || prop.alias;

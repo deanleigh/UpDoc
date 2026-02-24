@@ -30,6 +30,9 @@ public class DestinationConfig
 
     [JsonPropertyName("blockGrids")]
     public List<DestinationBlockGrid>? BlockGrids { get; set; }
+
+    [JsonPropertyName("blockLists")]
+    public List<DestinationBlockGrid>? BlockLists { get; set; }
 }
 
 /// <summary>
@@ -63,7 +66,7 @@ public class DestinationField
 }
 
 /// <summary>
-/// A block grid property with its nested block structure.
+/// A block container property (Block Grid or Block List) with its nested block structure.
 /// </summary>
 public class DestinationBlockGrid
 {
@@ -78,6 +81,9 @@ public class DestinationBlockGrid
 
     [JsonPropertyName("description")]
     public string? Description { get; set; }
+
+    [JsonPropertyName("tab")]
+    public string? Tab { get; set; }
 
     [JsonPropertyName("blocks")]
     public List<DestinationBlock> Blocks { get; set; } = new();

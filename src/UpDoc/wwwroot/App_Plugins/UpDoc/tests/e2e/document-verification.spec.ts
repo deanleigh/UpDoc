@@ -92,10 +92,10 @@ function getFieldValue(doc: any, alias: string): string | null {
 	return null;
 }
 
-function getBlockGridBlocks(doc: any, gridAlias: string): any[] {
-	const gridVal = doc.values?.find((v: any) => v.alias === gridAlias);
-	if (!gridVal?.value) return [];
-	const parsed = typeof gridVal.value === 'string' ? JSON.parse(gridVal.value) : gridVal.value;
+function getBlockContainerBlocks(doc: any, containerAlias: string): any[] {
+	const containerVal = doc.values?.find((v: any) => v.alias === containerAlias);
+	if (!containerVal?.value) return [];
+	const parsed = typeof containerVal.value === 'string' ? JSON.parse(containerVal.value) : containerVal.value;
 	return parsed?.contentData ?? [];
 }
 
@@ -282,8 +282,12 @@ test.describe('Document Verification — Tailored Tours', () => {
 			expect(pageDescription, 'pageDescription should be populated').toBeTruthy();
 			assertNoMarkdown(pageDescription!, 'pageDescription');
 
-			// ── Step 6: Verify organiser fields ─────────────────────────
+			// ── Step 6: Verify organiser Block List ─────────────────────
 
+			const organiserBlocks = getBlockContainerBlocks(doc, 'organisers');
+			expect(organiserBlocks.length, 'Organisers Block List should have at least one block').toBeGreaterThan(0);
+
+			const organiserBlock = organiserBlocks[0];
 			const organiserFields = [
 				'organiserOrganisation',
 				'organiserName',
@@ -293,15 +297,23 @@ test.describe('Document Verification — Tailored Tours', () => {
 			];
 
 			for (const alias of organiserFields) {
-				const value = getFieldValue(doc, alias);
-				if (value && value.trim()) {
+				const value = getBlockProperty(organiserBlock, alias);
+				if (value && typeof value === 'string' && value.trim()) {
+					// Verify it's not the blueprint dummy data
+					expect(value, `${alias} should not be blueprint dummy "Organisation Test"`).not.toBe('Organisation Test');
+					expect(value, `${alias} should not be blueprint dummy "Organiser Name Test"`).not.toBe('Organiser Name Test');
 					assertNoMarkdown(value, alias);
 				}
 			}
 
+			// organiserOrganisation specifically must be populated (it's the primary field)
+			const orgValue = getBlockProperty(organiserBlock, 'organiserOrganisation');
+			expect(orgValue, 'organiserOrganisation should be populated with PDF content').toBeTruthy();
+			expect(orgValue, 'organiserOrganisation should not be blueprint dummy').not.toBe('Organisation Test');
+
 			// ── Step 7: Verify block grid ───────────────────────────────
 
-			const blocks = getBlockGridBlocks(doc, 'blockGridGroupTour');
+			const blocks = getBlockContainerBlocks(doc, 'blockGridTailoredTour');
 			expect(blocks.length, 'Block grid should have blocks').toBeGreaterThan(0);
 
 			// Features block

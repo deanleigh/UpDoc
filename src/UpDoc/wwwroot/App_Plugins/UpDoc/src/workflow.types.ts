@@ -322,6 +322,7 @@ export interface DestinationConfig {
 	blueprintName?: string;
 	fields: DestinationField[];
 	blockGrids?: DestinationBlockGrid[];
+	blockLists?: DestinationBlockGrid[];
 }
 
 export interface DestinationField {
@@ -354,6 +355,7 @@ export interface DestinationBlockGrid {
 	alias: string;
 	label: string;
 	description?: string;
+	tab?: string;
 	blocks: DestinationBlock[];
 }
 

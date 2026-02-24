@@ -38,7 +38,7 @@
       "destinations": [
         {
           "target": "organiserOrganisation",
-          "blockKey": null,
+          "blockKey": "7ee351d1-8894-4052-bbce-b5fbd8c224f8",
           "transforms": null
         }
       ],
@@ -50,7 +50,7 @@
       "destinations": [
         {
           "target": "organiserName",
-          "blockKey": null,
+          "blockKey": "7ee351d1-8894-4052-bbce-b5fbd8c224f8",
           "transforms": null
         }
       ],
@@ -62,7 +62,7 @@
       "destinations": [
         {
           "target": "organiserTelephone",
-          "blockKey": null,
+          "blockKey": "7ee351d1-8894-4052-bbce-b5fbd8c224f8",
           "transforms": null
         }
       ],
@@ -74,7 +74,7 @@
       "destinations": [
         {
           "target": "organiserEmail",
-          "blockKey": null,
+          "blockKey": "7ee351d1-8894-4052-bbce-b5fbd8c224f8",
           "transforms": null
         }
       ],
@@ -86,7 +86,7 @@
       "destinations": [
         {
           "target": "organiserAddress",
-          "blockKey": null,
+          "blockKey": "7ee351d1-8894-4052-bbce-b5fbd8c224f8",
           "transforms": null
         }
       ],

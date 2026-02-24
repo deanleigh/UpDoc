@@ -1,6 +1,7 @@
 import type { UmbWorkflowDetailModalData, UmbWorkflowDetailModalValue } from './up-doc-workflow-detail-modal.token.js';
 import type { DocumentTypeConfig, DestinationField, DestinationBlockGrid, SourceConfig, SourceSection } from './workflow.types.js';
 import { fetchWorkflowByName } from './workflow.service.js';
+import { getAllBlockContainers } from './destination-utils.js';
 import { html, customElement, css, state, nothing } from '@umbraco-cms/backoffice/external/lit';
 import { UmbTextStyles } from '@umbraco-cms/backoffice/style';
 import { UmbModalBaseElement } from '@umbraco-cms/backoffice/modal';
@@ -93,9 +94,14 @@ export class UpDocWorkflowDetailModalElement extends UmbModalBaseElement<
 			});
 		}
 
-		if (this._config.destination.blockGrids?.length) {
-			if (!tabNames.has('Page Content')) {
-				tabs.push({ id: 'page-content', label: 'Page Content' });
+		for (const container of getAllBlockContainers(this._config.destination)) {
+			const containerTab = container.tab ?? 'Page Content';
+			if (!tabNames.has(containerTab)) {
+				tabNames.add(containerTab);
+				tabs.push({
+					id: containerTab.toLowerCase().replace(/\s+/g, '-'),
+					label: containerTab,
+				});
 			}
 		}
 
@@ -140,16 +146,23 @@ export class UpDocWorkflowDetailModalElement extends UmbModalBaseElement<
 	}
 
 	// =========================================================================
-	// Destination rendering — Page Content (Block Grids)
+	// Destination rendering — Block Containers (Grids + Lists)
 	// =========================================================================
 
-	#renderBlockGrids() {
-		if (!this._config?.destination.blockGrids?.length) {
-			return html`<p class="empty-message">No block grids configured.</p>`;
+	#renderBlockContainersForTab(tabId: string) {
+		if (!this._config) return nothing;
+
+		const containers = getAllBlockContainers(this._config.destination).filter((c) => {
+			const cTab = c.tab ?? 'Page Content';
+			return cTab.toLowerCase().replace(/\s+/g, '-') === tabId;
+		});
+
+		if (!containers.length) {
+			return html`<p class="empty-message">No blocks configured.</p>`;
 		}
 
 		return html`
-			${this._config.destination.blockGrids.map((grid) => this.#renderBlockGrid(grid))}
+			${containers.map((container) => this.#renderBlockGrid(container))}
 		`;
 	}
 
@@ -309,21 +322,19 @@ export class UpDocWorkflowDetailModalElement extends UmbModalBaseElement<
 	#renderDestinationTabContent() {
 		if (!this._config) return nothing;
 
-		// Block grids tab
-		if (this._activeDestinationTab === 'page-content') {
-			return this.#renderBlockGrids();
-		}
-
-		// Field tabs — find the original tab name from the ID
 		const tabName = this._config.destination.fields.find(
 			(f) => f.tab && f.tab.toLowerCase().replace(/\s+/g, '-') === this._activeDestinationTab
 		)?.tab;
 
-		if (tabName) {
-			return this.#renderFieldsForTab(tabName);
-		}
+		const hasContainers = getAllBlockContainers(this._config.destination).some((c) => {
+			const cTab = c.tab ?? 'Page Content';
+			return cTab.toLowerCase().replace(/\s+/g, '-') === this._activeDestinationTab;
+		});
 
-		return nothing;
+		return html`
+			${tabName ? this.#renderFieldsForTab(tabName) : nothing}
+			${hasContainers ? this.#renderBlockContainersForTab(this._activeDestinationTab) : nothing}
+		`;
 	}
 
 	// =========================================================================

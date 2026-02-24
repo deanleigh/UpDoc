@@ -1,4 +1,4 @@
-import type { DestinationConfig, MappingDestination } from './workflow.types.js';
+import type { DestinationBlockGrid, DestinationConfig, MappingDestination } from './workflow.types.js';
 
 export interface DestinationTab {
 	id: string;
@@ -6,8 +6,16 @@ export interface DestinationTab {
 }
 
 /**
+ * Returns all block containers (grids + lists) from a destination config.
+ * Use this instead of iterating blockGrids and blockLists separately.
+ */
+export function getAllBlockContainers(destination: DestinationConfig): DestinationBlockGrid[] {
+	return [...(destination.blockGrids ?? []), ...(destination.blockLists ?? [])];
+}
+
+/**
  * Extracts the tab structure from a destination config.
- * Returns tabs in document order, with "Page Content" appended if blockGrids exist.
+ * Returns tabs in document order, with additional tabs for block containers.
  */
 export function getDestinationTabs(destination: DestinationConfig): DestinationTab[] {
 	const tabs: DestinationTab[] = [];
@@ -20,9 +28,15 @@ export function getDestinationTabs(destination: DestinationConfig): DestinationT
 		});
 	}
 
-	if (destination.blockGrids?.length) {
-		if (!tabNames.has('Page Content')) {
-			tabs.push({ id: 'page-content', label: 'Page Content' });
+	// Add tabs from block containers (grids default to "Page Content", lists use their tab)
+	for (const container of getAllBlockContainers(destination)) {
+		const containerTab = container.tab ?? 'Page Content';
+		if (!tabNames.has(containerTab)) {
+			tabNames.add(containerTab);
+			tabs.push({
+				id: containerTab.toLowerCase().replace(/\s+/g, '-'),
+				label: containerTab,
+			});
 		}
 	}
 
@@ -31,7 +45,7 @@ export function getDestinationTabs(destination: DestinationConfig): DestinationT
 
 /**
  * Resolves which destination tab a mapping destination belongs to.
- * Block properties always resolve to 'page-content'.
+ * Block properties resolve to their container's tab (or "page-content" for grids).
  * Top-level fields resolve to their field's tab (kebab-case ID).
  * Returns null if the destination can't be matched.
  */
@@ -40,6 +54,12 @@ export function resolveDestinationTab(
 	destination: DestinationConfig,
 ): string | null {
 	if (dest.blockKey) {
+		for (const container of getAllBlockContainers(destination)) {
+			if (container.blocks.find((b) => b.key === dest.blockKey)) {
+				const tab = container.tab ?? 'Page Content';
+				return tab.toLowerCase().replace(/\s+/g, '-');
+			}
+		}
 		return 'page-content';
 	}
 
@@ -53,14 +73,14 @@ export function resolveDestinationTab(
 
 /**
  * Finds the block's display label given its key.
- * Used for sub-grouping block properties within the Page Content tab.
+ * Searches both block grids and block lists.
  */
 export function resolveBlockLabel(
 	blockKey: string,
 	destination: DestinationConfig,
 ): string | null {
-	for (const grid of destination.blockGrids ?? []) {
-		const block = grid.blocks.find((b) => b.key === blockKey);
+	for (const container of getAllBlockContainers(destination)) {
+		const block = container.blocks.find((b) => b.key === blockKey);
 		if (block) return block.label;
 	}
 	return null;

@@ -1,6 +1,6 @@
 import type { DocumentTypeConfig, SectionMapping, MappingDestination, RichExtractionResult } from './workflow.types.js';
 import { fetchWorkflowByName, fetchSampleExtraction, saveMapConfig } from './workflow.service.js';
-import { getDestinationTabs, resolveDestinationTab, resolveBlockLabel } from './destination-utils.js';
+import { getDestinationTabs, resolveDestinationTab, resolveBlockLabel, getAllBlockContainers } from './destination-utils.js';
 import { html, customElement, css, state, nothing } from '@umbraco-cms/backoffice/external/lit';
 import { UmbLitElement } from '@umbraco-cms/backoffice/lit-element';
 import { UmbTextStyles } from '@umbraco-cms/backoffice/style';
@@ -56,9 +56,9 @@ export class UpDocWorkflowMapViewElement extends UmbLitElement {
 		if (!this._config) return dest.target;
 
 		// If blockKey present, find the specific block
-		if (dest.blockKey && this._config.destination.blockGrids) {
-			for (const grid of this._config.destination.blockGrids) {
-				const block = grid.blocks.find((b) => b.key === dest.blockKey);
+		if (dest.blockKey) {
+			for (const container of getAllBlockContainers(this._config.destination)) {
+				const block = container.blocks.find((b) => b.key === dest.blockKey);
 				if (block) {
 					const prop = block.properties?.find((p) => p.alias === dest.target);
 					return `${block.label} > ${prop?.label || dest.target}`;
@@ -72,8 +72,8 @@ export class UpDocWorkflowMapViewElement extends UmbLitElement {
 		}
 
 		// Fall back: first block match (backwards compat for old mappings without blockKey)
-		for (const grid of this._config.destination.blockGrids ?? []) {
-			for (const block of grid.blocks) {
+		for (const container of getAllBlockContainers(this._config.destination)) {
+			for (const block of container.blocks) {
 				for (const prop of block.properties ?? []) {
 					if (prop.alias === dest.target) {
 						return `${block.label} > ${prop.label || prop.alias}`;
@@ -208,8 +208,8 @@ export class UpDocWorkflowMapViewElement extends UmbLitElement {
 		const result: typeof groupMap extends Map<string, infer V> ? V[] : never = [];
 		const blockOrder = new Map<string, number>();
 		let blockIdx = 0;
-		for (const grid of destination.blockGrids ?? []) {
-			for (const block of grid.blocks) {
+		for (const container of getAllBlockContainers(destination)) {
+			for (const block of container.blocks) {
 				blockOrder.set(block.key, blockIdx++);
 			}
 		}

@@ -1,25 +1,25 @@
-import { b as z } from "./workflow.service-DSRz0gSB.js";
-import { g as x } from "./destination-utils-CEQ5Lbpg.js";
-import { html as a, nothing as o, css as $, state as d, customElement as w } from "@umbraco-cms/backoffice/external/lit";
-import { UmbLitElement as T } from "@umbraco-cms/backoffice/lit-element";
-import { UmbTextStyles as C } from "@umbraco-cms/backoffice/style";
-import { UMB_AUTH_CONTEXT as E } from "@umbraco-cms/backoffice/auth";
-import { UMB_WORKSPACE_CONTEXT as D } from "@umbraco-cms/backoffice/workspace";
-var U = Object.defineProperty, W = Object.getOwnPropertyDescriptor, v = (i) => {
-  throw TypeError(i);
-}, u = (i, e, t, n) => {
-  for (var c = n > 1 ? void 0 : n ? W(e, t) : e, p = i.length - 1, f; p >= 0; p--)
-    (f = i[p]) && (c = (n ? f(e, t, c) : f(c)) || c);
-  return n && c && U(e, t, c), c;
-}, B = (i, e, t) => e.has(i) || v("Cannot " + t), F = (i, e, t) => e.has(i) ? v("Cannot add the same private member more than once") : e instanceof WeakSet ? e.add(i) : e.set(i, t), r = (i, e, t) => (B(i, e, "access private method"), t), s, m, b, h, g, _, y, k;
-let l = class extends T {
+import { b as x } from "./workflow.service-DSRz0gSB.js";
+import { b as $, g as v } from "./destination-utils-DUfOJy5W.js";
+import { html as a, nothing as s, css as w, state as d, customElement as T } from "@umbraco-cms/backoffice/external/lit";
+import { UmbLitElement as C } from "@umbraco-cms/backoffice/lit-element";
+import { UmbTextStyles as E } from "@umbraco-cms/backoffice/style";
+import { UMB_AUTH_CONTEXT as D } from "@umbraco-cms/backoffice/auth";
+import { UMB_WORKSPACE_CONTEXT as U } from "@umbraco-cms/backoffice/workspace";
+var B = Object.defineProperty, F = Object.getOwnPropertyDescriptor, m = (e) => {
+  throw TypeError(e);
+}, u = (e, i, t, r) => {
+  for (var c = r > 1 ? void 0 : r ? F(i, t) : i, p = e.length - 1, f; p >= 0; p--)
+    (f = e[p]) && (c = (r ? f(i, t, c) : f(c)) || c);
+  return r && c && B(i, t, c), c;
+}, W = (e, i, t) => i.has(e) || m("Cannot " + t), O = (e, i, t) => i.has(e) ? m("Cannot add the same private member more than once") : i instanceof WeakSet ? i.add(e) : i.set(e, t), l = (e, i, t) => (W(e, i, "access private method"), t), o, g, b, h, _, y, k, z;
+let n = class extends C {
   constructor() {
-    super(...arguments), F(this, s), this._config = null, this._loading = !0, this._error = null, this._activeTab = "";
+    super(...arguments), O(this, o), this._config = null, this._loading = !0, this._error = null, this._activeTab = "";
   }
   connectedCallback() {
-    super.connectedCallback(), this.consumeContext(D, (i) => {
-      i && this.observe(i.unique, (e) => {
-        e && r(this, s, m).call(this, decodeURIComponent(e));
+    super.connectedCallback(), this.consumeContext(U, (e) => {
+      e && this.observe(e.unique, (i) => {
+        i && l(this, o, g).call(this, decodeURIComponent(i));
       });
     });
   }
@@ -28,107 +28,109 @@ let l = class extends T {
       return a`<div class="loading"><uui-loader-bar></uui-loader-bar></div>`;
     if (this._error)
       return a`<p style="color: var(--uui-color-danger);">${this._error}</p>`;
-    const i = r(this, s, b).call(this);
+    const e = l(this, o, b).call(this);
     return a`
 			<umb-body-layout header-fit-height>
 				<uui-tab-group slot="header" dropdown-content-direction="vertical">
-					${i.map(
-      (e) => a`
+					${e.map(
+      (i) => a`
 							<uui-tab
-								label=${e.label}
-								?active=${this._activeTab === e.id}
+								label=${i.label}
+								?active=${this._activeTab === i.id}
 								@click=${() => {
-        this._activeTab = e.id;
+        this._activeTab = i.id;
       }}>
-								${e.label}
+								${i.label}
 							</uui-tab>
 						`
     )}
 				</uui-tab-group>
 				<uui-box>
-					${r(this, s, k).call(this)}
+					${l(this, o, z).call(this)}
 				</uui-box>
 			</umb-body-layout>
 		`;
   }
 };
-s = /* @__PURE__ */ new WeakSet();
-m = async function(i) {
+o = /* @__PURE__ */ new WeakSet();
+g = async function(e) {
   this._loading = !0, this._error = null;
   try {
-    const t = await (await this.getContext(E)).getLatestToken();
-    if (this._config = await z(i, t), !this._config) {
-      this._error = `Workflow "${i}" not found`;
+    const t = await (await this.getContext(D)).getLatestToken();
+    if (this._config = await x(e, t), !this._config) {
+      this._error = `Workflow "${e}" not found`;
       return;
     }
-    const n = r(this, s, b).call(this);
-    n.length > 0 && (this._activeTab = n[0].id);
-  } catch (e) {
-    this._error = e instanceof Error ? e.message : "Failed to load workflow", console.error("Failed to load workflow config:", e);
+    const r = l(this, o, b).call(this);
+    r.length > 0 && (this._activeTab = r[0].id);
+  } catch (i) {
+    this._error = i instanceof Error ? i.message : "Failed to load workflow", console.error("Failed to load workflow config:", i);
   } finally {
     this._loading = !1;
   }
 };
 b = function() {
-  return this._config ? x(this._config.destination) : [];
+  return this._config ? $(this._config.destination) : [];
 };
-h = function(i) {
-  if (!this._config) return o;
-  const e = this._config.destination.fields.filter((t) => t.tab === i);
-  return e.length === 0 ? a`<p class="empty-message">No fields in this tab.</p>` : a`
+h = function(e) {
+  if (!this._config) return s;
+  const i = this._config.destination.fields.filter((t) => t.tab === e);
+  return i.length === 0 ? a`<p class="empty-message">No fields in this tab.</p>` : a`
 			<div class="field-list">
-				${e.map((t) => r(this, s, g).call(this, t))}
+				${i.map((t) => l(this, o, _).call(this, t))}
 			</div>
 		`;
 };
-g = function(i) {
+_ = function(e) {
   return a`
 			<div class="field-item">
 				<div class="field-header">
-					<span class="field-label">${i.label}</span>
-					<span class="field-type">${i.type}</span>
-					${i.mandatory ? a`<uui-tag look="primary" color="danger" class="field-badge">Required</uui-tag>` : o}
+					<span class="field-label">${e.label}</span>
+					<span class="field-type">${e.type}</span>
+					${e.mandatory ? a`<uui-tag look="primary" color="danger" class="field-badge">Required</uui-tag>` : s}
 					<uui-button compact look="outline" label="Map" class="map-button" disabled>
 						<uui-icon name="icon-nodes"></uui-icon>
 					</uui-button>
 				</div>
 				<div class="field-meta">
-					<span class="field-alias">${i.alias}</span>
-					${i.description ? a`<span class="field-description">${i.description}</span>` : o}
+					<span class="field-alias">${e.alias}</span>
+					${e.description ? a`<span class="field-description">${e.description}</span>` : s}
 				</div>
 			</div>
 		`;
 };
-_ = function() {
-  return this._config?.destination.blockGrids?.length ? a`
-			${this._config.destination.blockGrids.map((i) => r(this, s, y).call(this, i))}
-		` : a`<p class="empty-message">No block grids configured.</p>`;
+y = function(e) {
+  if (!this._config) return s;
+  const i = v(this._config.destination).filter((t) => (t.tab ?? "Page Content").toLowerCase().replace(/\s+/g, "-") === e);
+  return i.length ? a`
+			${i.map((t) => l(this, o, k).call(this, t))}
+		` : a`<p class="empty-message">No blocks configured.</p>`;
 };
-y = function(i) {
+k = function(e) {
   return a`
 			<div class="block-grid">
 				<div class="block-grid-header">
-					<span class="block-grid-label">${i.label}</span>
-					<span class="field-alias">${i.alias}</span>
+					<span class="block-grid-label">${e.label}</span>
+					<span class="field-alias">${e.alias}</span>
 				</div>
-				${i.description ? a`<p class="block-grid-description">${i.description}</p>` : o}
+				${e.description ? a`<p class="block-grid-description">${e.description}</p>` : s}
 				<div class="block-list">
-					${i.blocks.map(
-    (e) => a`
+					${e.blocks.map(
+    (i) => a`
 							<div class="block-item">
 								<div class="block-header">
 									<umb-icon name="icon-box"></umb-icon>
-									<span class="block-label">${e.label}</span>
-									${e.identifyBy ? a`<span class="block-identify">identified by: "${e.identifyBy.value}"</span>` : o}
+									<span class="block-label">${i.label}</span>
+									${i.identifyBy ? a`<span class="block-identify">identified by: "${i.identifyBy.value}"</span>` : s}
 								</div>
-								${e.properties?.length ? a`
+								${i.properties?.length ? a`
 										<div class="block-properties">
-											${e.properties.map(
+											${i.properties.map(
       (t) => a`
 													<div class="block-property">
 														<span class="block-property-label">${t.label || t.alias}</span>
 														<span class="field-type">${t.type}</span>
-														${t.acceptsFormats?.length ? a`<span class="accepts-formats">${t.acceptsFormats.join(", ")}</span>` : o}
+														${t.acceptsFormats?.length ? a`<span class="accepts-formats">${t.acceptsFormats.join(", ")}</span>` : s}
 														<uui-button compact look="outline" label="Map" class="map-button" disabled>
 															<uui-icon name="icon-nodes"></uui-icon>
 														</uui-button>
@@ -136,7 +138,7 @@ y = function(i) {
 												`
     )}
 										</div>
-									` : o}
+									` : s}
 							</div>
 						`
   )}
@@ -144,18 +146,19 @@ y = function(i) {
 			</div>
 		`;
 };
-k = function() {
-  if (!this._config) return o;
-  if (this._activeTab === "page-content")
-    return r(this, s, _).call(this);
-  const i = this._config.destination.fields.find(
-    (e) => e.tab && e.tab.toLowerCase().replace(/\s+/g, "-") === this._activeTab
-  )?.tab;
-  return i ? r(this, s, h).call(this, i) : o;
+z = function() {
+  if (!this._config) return s;
+  const e = this._config.destination.fields.find(
+    (t) => t.tab && t.tab.toLowerCase().replace(/\s+/g, "-") === this._activeTab
+  )?.tab, i = v(this._config.destination).some((t) => (t.tab ?? "Page Content").toLowerCase().replace(/\s+/g, "-") === this._activeTab);
+  return a`
+			${e ? l(this, o, h).call(this, e) : s}
+			${i ? l(this, o, y).call(this, this._activeTab) : s}
+		`;
 };
-l.styles = [
-  C,
-  $`
+n.styles = [
+  E,
+  w`
 			:host {
 				display: block;
 				height: 100%;
@@ -309,22 +312,22 @@ l.styles = [
 ];
 u([
   d()
-], l.prototype, "_config", 2);
+], n.prototype, "_config", 2);
 u([
   d()
-], l.prototype, "_loading", 2);
+], n.prototype, "_loading", 2);
 u([
   d()
-], l.prototype, "_error", 2);
+], n.prototype, "_error", 2);
 u([
   d()
-], l.prototype, "_activeTab", 2);
-l = u([
-  w("up-doc-workflow-destination-view")
-], l);
-const L = l;
+], n.prototype, "_activeTab", 2);
+n = u([
+  T("up-doc-workflow-destination-view")
+], n);
+const V = n;
 export {
-  l as UpDocWorkflowDestinationViewElement,
-  L as default
+  n as UpDocWorkflowDestinationViewElement,
+  V as default
 };
-//# sourceMappingURL=up-doc-workflow-destination-view.element-DTv9LtUT.js.map
+//# sourceMappingURL=up-doc-workflow-destination-view.element-DfYyP6mR.js.map
