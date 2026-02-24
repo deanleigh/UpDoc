@@ -1,40 +1,45 @@
-# Next Session: Persist Area Exclusions + Polish
+# Next Session: Block Grid Separation + Organiser Block List
 
 ## Where We Are
 
-Branch `feature/consistent-source-tabs` — web area detection complete, Refresh button added, ready to commit and merge.
+Branch `feature/organiser-block-list` — mockup committed. Main is up to date with consistent source tabs merged.
 
-All three source types have consistent UI: Extracted/Transformed tabs, hierarchy rendering, info boxes, include/exclude toggles, and a dedicated Refresh button in the bottom bar.
+## Priority 1: Split Shared Block Grid Data Type
 
-## Priority: Persist Area Exclusions to source.json
+**Problem:** Both "Group Tour - Content" and "Tailored Tour - Content" compositions use the same Block Grid data type (`Block Grid - Group Tour`, alias `contentGridTour`). As the two tour types diverge, they need different allowed blocks — e.g., Tailored Tours will need an Organiser block that Group Tours don't.
 
-**Problem:** Area include/exclude toggles are currently browser-only state (`_excludedAreas` Set in the TypeScript component). When the user excludes Navigation/Footer/Sidebar areas, those exclusions are lost on page reload. This makes the toggles feel broken.
+**Steps:**
+1. Duplicate `Block Grid - Group Tour` → `Block Grid - Tailored Tour` (new data type)
+2. Update "Tailored Tour - Content" composition to use the new data type
+3. Verify existing Tailored Tour content still renders correctly
 
-**Solution:** Save excluded areas to `source.json` (same pattern as PDF page exclusion). When user toggles an area off:
-1. Persist to `source.json` via API call
-2. On page load, read exclusions from `source.json` and populate `_excludedAreas`
-3. Transform pipeline should respect exclusions (only process included areas)
+This is a manual task in the Umbraco backoffice (Settings > Data Types), not a code change.
 
-**Applies to:** Web sources (area exclusion) and potentially PDF sources (if not already persisted).
+## Priority 2: Organiser Block List on Tour Properties
 
-## Other Items
+**Design decided (see mockup `mockups/tour-properties-organiser.html` and Figma file `ZE8800trGvmQldnKeDq1Hy` node `30:2`):**
 
-### Web-Specific Rules (planning notes in `WEB_AREA_DETECTION.md`)
-- **Parent container class/ID as metadata** — capture `featuring_col1` / `featuring_col2` so rules can distinguish elements by container context
-- **Heading-scoped content rules** — "all paragraphs after this heading, before the next heading"
-- See `planning/WEB_AREA_DETECTION.md` > "Future: Web-Specific Rules" for details
+- **Repeatable Block List** on Tour Properties tab (replacing current flat fields)
+- Each block has 5 fields: Organisation (text, required), Contact Name (text, optional), Telephone (text, optional), Email (email with validation, optional), Address (textarea, optional)
+- Block title shows org name + contact name when present
+- **Red icon** when contact name is missing (validation indicator — designed in Figma)
+- Single organiser extracted from PDF automatically; editor manually adds second for ~2% multi-organiser edge case
+- Template handles "Organiser" vs "Organisers" heading based on block count
 
-### Polish
-- Button label consistency across source types
-- Transformed heading cleanup
-- Strategy badge contrast (pink-on-pink)
+**Steps:**
+1. Create Organiser element type with the 5 fields
+2. Remove the old flat fields from Tour Properties composition
+3. Add Block List property using the Organiser element type
+4. Re-enter the one test document's data into the new block
 
-### Destination-Driven Mapping (Phases 2-5)
-- See `planning/DESTINATION_DRIVEN_MAPPING.md`
-- Destination tab: click field → pick source content → mapping created
-- Remaining Phase 4 work
+## Also Note
 
-## Key Files
-- `src/UpDoc/wwwroot/App_Plugins/UpDoc/src/up-doc-workflow-source-view.element.ts` — `_excludedAreas` Set needs persistence
-- `src/UpDoc/Controllers/WorkflowController.cs` — needs endpoint for saving/reading area exclusions
-- `src/UpDoc/wwwroot/App_Plugins/UpDoc/src/workflow.service.ts` — needs API call for exclusion persistence
+- Some PDF transform rules (Tel:/Email: text replacements on organiser fields) were lost during a git merge — may need re-creating in the rules editor
+- The `source.json` file contains the rules (`areaRules` property) — be careful with git operations overwriting browser-saved rule changes
+
+## Parked Items
+
+- Persist area exclusions to source.json (web sources)
+- Web-specific rules (parent container context, heading-scoped content)
+- Button label consistency, Transformed heading cleanup, strategy badge contrast
+- Destination-driven mapping (Phases 2-5) — see `planning/DESTINATION_DRIVEN_MAPPING.md`
