@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tour Properties — Organiser Block List Mockup</title>
+  <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+  <style>
+    /* === UUI Variable Approximations === */
+    :root {
+      --uui-font-family: "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --uui-color-surface: #fff;
+      --uui-color-border: #e0e0e0;
+      --uui-color-border-standalone: #c4c4c4;
+      --uui-color-text: #1b264f;
+      --uui-color-text-alt: #666;
+      --uui-color-interactive: #3544b1;
+      --uui-color-interactive-emphasis: #2d3a9e;
+      --uui-color-default: #1b264f;
+      --uui-color-header-contrast: #1b264f;
+      --uui-color-disabled: #c4c4c4;
+      --uui-color-focus: #3544b1;
+      --uui-color-selected: #f0f1ff;
+      --uui-color-positive: #4caf50;
+      --uui-color-danger: #d32f2f;
+      --uui-color-current: #1b264f;
+      --uui-size-space-1: 3px;
+      --uui-size-space-2: 6px;
+      --uui-size-space-3: 9px;
+      --uui-size-space-4: 12px;
+      --uui-size-space-5: 15px;
+      --uui-size-space-6: 18px;
+      --uui-border-radius: 3px;
+      --uui-type-small-size: 12px;
+      --uui-type-default-size: 14px;
+      --uui-type-h5-size: 16px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--uui-font-family);
+      background: #f3f3f5;
+      padding: 32px;
+      color: var(--uui-color-text);
+    }
+
+    /* === Page-level layout === */
+    .page-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 24px;
+      background: var(--uui-color-surface);
+      border-bottom: 1px solid var(--uui-color-border);
+      margin-bottom: 0;
+    }
+
+    .page-header .doc-icon {
+      width: 20px;
+      height: 20px;
+      color: var(--uui-color-interactive);
+    }
+
+    .page-header .doc-name {
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .page-header .actions {
+      margin-left: auto;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .page-header .actions button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 18px;
+      color: var(--uui-color-text-alt);
+    }
+
+    /* === Tabs === */
+    .tabs-bar {
+      display: flex;
+      gap: 0;
+      background: var(--uui-color-surface);
+      border-bottom: 1px solid var(--uui-color-border);
+      padding: 0 24px;
+    }
+
+    .tab {
+      padding: 12px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--uui-color-text-alt);
+      text-decoration: none;
+      border-bottom: 3px solid transparent;
+      cursor: pointer;
+    }
+
+    .tab.active {
+      color: var(--uui-color-interactive);
+      border-bottom-color: var(--uui-color-interactive);
+    }
+
+    .tab:hover {
+      color: var(--uui-color-text);
+    }
+
+    /* === Content area === */
+    .content-area {
+      background: #f3f3f5;
+      padding: 24px;
+      max-width: 1200px;
+    }
+
+    /* === Property group (fieldset) === */
+    .property-group {
+      background: var(--uui-color-surface);
+      border: 1px solid var(--uui-color-border);
+      border-radius: var(--uui-border-radius);
+      margin-bottom: 24px;
+    }
+
+    .property-group-header {
+      padding: 12px 20px;
+      font-size: var(--uui-type-default-size);
+      font-weight: 700;
+      color: var(--uui-color-text);
+      border-bottom: 1px solid var(--uui-color-border);
+    }
+
+    /* === Property row (label + input) === */
+    .property-row {
+      display: flex;
+      align-items: flex-start;
+      padding: 16px 20px;
+      border-bottom: 1px solid #f0f0f0;
+      gap: 20px;
+    }
+
+    .property-row:last-child {
+      border-bottom: none;
+    }
+
+    .property-label {
+      flex: 0 0 200px;
+      font-size: var(--uui-type-default-size);
+      font-weight: 700;
+      color: var(--uui-color-text);
+      padding-top: 8px;
+    }
+
+    .property-label .description {
+      font-weight: 400;
+      font-size: var(--uui-type-small-size);
+      color: var(--uui-color-text-alt);
+      margin-top: 2px;
+    }
+
+    .property-input {
+      flex: 1;
+    }
+
+    /* === Text input === */
+    .text-input {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid var(--uui-color-border-standalone);
+      border-radius: var(--uui-border-radius);
+      font-family: var(--uui-font-family);
+      font-size: var(--uui-type-default-size);
+      color: var(--uui-color-text);
+      background: var(--uui-color-surface);
+      outline: none;
+    }
+
+    .text-input:focus {
+      border-color: var(--uui-color-focus);
+    }
+
+    .text-input--textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+
+    /* === Block List === */
+    .block-list {
+      border: 1px solid var(--uui-color-border);
+      border-radius: var(--uui-border-radius);
+      background: #fafafa;
+    }
+
+    .block-list-item {
+      background: var(--uui-color-surface);
+      border: 1px solid var(--uui-color-border);
+      border-radius: var(--uui-border-radius);
+      margin: 8px;
+    }
+
+    .block-list-item-header {
+      display: flex;
+      align-items: center;
+      padding: 10px 16px;
+      gap: 10px;
+      cursor: pointer;
+      background: #fafafa;
+      border-radius: var(--uui-border-radius) var(--uui-border-radius) 0 0;
+      border-bottom: 1px solid var(--uui-color-border);
+    }
+
+    .block-list-item-header .drag-handle {
+      color: var(--uui-color-disabled);
+      font-size: 16px;
+      cursor: grab;
+    }
+
+    .block-list-item-header .block-icon {
+      width: 16px;
+      height: 16px;
+      color: var(--uui-color-interactive);
+    }
+
+    .block-list-item-header .block-icon--danger {
+      color: var(--uui-color-danger);
+    }
+
+    .block-list-item-header .block-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--uui-color-text);
+      flex: 1;
+    }
+
+    .block-list-item-header .block-actions {
+      display: flex;
+      gap: 4px;
+    }
+
+    .block-list-item-header .block-actions button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--uui-color-text-alt);
+      font-size: 14px;
+      padding: 2px 4px;
+      border-radius: 2px;
+    }
+
+    .block-list-item-header .block-actions button:hover {
+      background: #eee;
+    }
+
+    .block-list-item-content {
+      padding: 12px 16px;
+    }
+
+    .block-list-item-content .property-row {
+      padding: 10px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .block-list-item-content .property-row:last-child {
+      border-bottom: none;
+    }
+
+    .block-list-item-content .property-label {
+      flex: 0 0 160px;
+      font-size: 13px;
+      padding-top: 6px;
+    }
+
+    /* === Add block button === */
+    .add-block-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      width: calc(100% - 16px);
+      margin: 8px;
+      padding: 10px;
+      border: 2px dashed var(--uui-color-border-standalone);
+      border-radius: var(--uui-border-radius);
+      background: none;
+      font-family: var(--uui-font-family);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--uui-color-interactive);
+      cursor: pointer;
+    }
+
+    .add-block-btn:hover {
+      border-color: var(--uui-color-interactive);
+      background: var(--uui-color-selected);
+    }
+
+    .add-block-btn .plus-icon {
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    /* === Section label === */
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--uui-color-text-alt);
+      padding: 24px 0 12px 0;
+    }
+
+    /* === Side-by-side comparison === */
+    .comparison {
+      display: flex;
+      gap: 32px;
+      align-items: flex-start;
+    }
+
+    .comparison-panel {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .comparison-panel-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--uui-color-text-alt);
+      padding: 8px 0 16px;
+      text-align: center;
+    }
+
+    .comparison-panel-title span {
+      background: #e8e8e8;
+      padding: 4px 12px;
+      border-radius: 12px;
+    }
+
+    /* === Full width wrapper === */
+    .workspace {
+      background: var(--uui-color-surface);
+      border-radius: 6px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="comparison">
+
+    <!-- LEFT: Current flat fields -->
+    <div class="comparison-panel">
+      <div class="comparison-panel-title"><span>Current — Flat Fields</span></div>
+      <div class="workspace">
+        <div class="page-header">
+          <svg class="doc-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M6 2a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6H6zm7 1.5L18.5 9H13V3.5zM8 13h8v1H8v-1zm0 3h8v1H8v-1z"/></svg>
+          <span class="doc-name">The Moorish Treasures of Andalucia</span>
+        </div>
+        <div class="tabs-bar">
+          <span class="tab">Page Properties</span>
+          <span class="tab active">Tour Properties</span>
+          <span class="tab">Page Content</span>
+          <span class="tab">Page Settings</span>
+        </div>
+        <div class="content-area">
+          <div class="property-group">
+            <div class="property-group-header">Organiser Details</div>
+            <div class="property-row">
+              <div class="property-label">Organisation</div>
+              <div class="property-input">
+                <input class="text-input" type="text" value="The Art Fund (Devon) presents">
+              </div>
+            </div>
+            <div class="property-row">
+              <div class="property-label">Organiser Name</div>
+              <div class="property-input">
+                <input class="text-input" type="text" value="John Hitchins">
+              </div>
+            </div>
+            <div class="property-row">
+              <div class="property-label">Organiser Telephone</div>
+              <div class="property-input">
+                <input class="text-input" type="text" value="01803 732173">
+              </div>
+            </div>
+            <div class="property-row">
+              <div class="property-label">Organiser Email</div>
+              <div class="property-input">
+                <input class="text-input" type="text" value="john@frogmorecottage.org.uk">
+              </div>
+            </div>
+            <div class="property-row">
+              <div class="property-label">Organiser Address</div>
+              <div class="property-input">
+                <textarea class="text-input text-input--textarea">Frogmore Cottage, Ashprington, Totnes TQ9 7UL</textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Proposed Block List -->
+    <div class="comparison-panel">
+      <div class="comparison-panel-title"><span>Proposed — Block List</span></div>
+      <div class="workspace">
+        <div class="page-header">
+          <svg class="doc-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M6 2a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6H6zm7 1.5L18.5 9H13V3.5zM8 13h8v1H8v-1zm0 3h8v1H8v-1z"/></svg>
+          <span class="doc-name">Oberammergau Passion Play 2020</span>
+        </div>
+        <div class="tabs-bar">
+          <span class="tab">Page Properties</span>
+          <span class="tab active">Tour Properties</span>
+          <span class="tab">Page Content</span>
+          <span class="tab">Page Settings</span>
+        </div>
+        <div class="content-area">
+          <div class="property-group">
+            <div class="property-group-header">Organiser Details</div>
+            <div class="property-row">
+              <div class="property-label">
+                Organisers
+                <div class="description">Tour organiser contact details</div>
+              </div>
+              <div class="property-input">
+                <div class="block-list">
+                  <!-- Block 1: Holy Trinity (missing contact name — red icon) -->
+                  <div class="block-list-item">
+                    <div class="block-list-item-header">
+                      <span class="drag-handle">⠿</span>
+                      <svg class="block-icon block-icon--danger" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                      <span class="block-title">Holy Trinity, Sunningdale</span>
+                      <div class="block-actions">
+                        <button title="Edit">✏️</button>
+                        <button title="Delete">🗑️</button>
+                      </div>
+                    </div>
+                    <div class="block-list-item-content">
+                      <div class="property-row">
+                        <div class="property-label">Organisation</div>
+                        <div class="property-input">
+                          <input class="text-input" type="text" value="Holy Trinity, Sunningdale">
+                        </div>
+                      </div>
+                      <div class="property-row">
+                        <div class="property-label">Contact Name</div>
+                        <div class="property-input">
+                          <input class="text-input" type="text" value="" title="Contact Name">
+                        </div>
+                      </div>
+                      <div class="property-row">
+                        <div class="property-label">Telephone</div>
+                        <div class="property-input">
+                          <input class="text-input" type="text" value="07889 292122">
+                        </div>
+                      </div>
+                      <div class="property-row">
+                        <div class="property-label">Email</div>
+                        <div class="property-input">
+                          <input class="text-input" type="text" value="" placeholder="Optional">
+                        </div>
+                      </div>
+                      <div class="property-row">
+                        <div class="property-label">Address</div>
+                        <div class="property-input">
+                          <textarea class="text-input text-input--textarea" placeholder="Optional"></textarea>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Block 2: All Saints -->
+                  <div class="block-list-item">
+                    <div class="block-list-item-header">
+                      <span class="drag-handle">⠿</span>
+                      <svg class="block-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                      <span class="block-title">All Saints, Ascot — Jayne Strand</span>
+                      <div class="block-actions">
+                        <button title="Edit">✏️</button>
+                        <button title="Delete">🗑️</button>
+                      </div>
+                    </div>
+                    <div class="block-list-item-content">
+                      <div class="property-row">
+                        <div class="property-label">Organisation</div>
+                        <div class="property-input">
+                          <input class="text-input" type="text" value="All Saints, Ascot">
+                        </div>
+                      </div>
+                      <div class="property-row">
+                        <div class="property-label">Contact Name</div>
+                        <div class="property-input">
+                          <input class="text-input" type="text" value="Jayne Strand">
+                        </div>
+                      </div>
+                      <div class="property-row">
+                        <div class="property-label">Telephone</div>
+                        <div class="property-input">
+                          <input class="text-input" type="text" value="07567 507122">
+                        </div>
+                      </div>
+                      <div class="property-row">
+                        <div class="property-label">Email</div>
+                        <div class="property-input">
+                          <input class="text-input" type="text" value="jaynestrand@yahoo.co.uk">
+                        </div>
+                      </div>
+                      <div class="property-row">
+                        <div class="property-label">Address</div>
+                        <div class="property-input">
+                          <textarea class="text-input text-input--textarea">7 Woodside Road, Winkfield, Windsor SL4 2DP</textarea>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Add button -->
+                  <button class="add-block-btn">
+                    <span class="plus-icon">+</span>
+                    Add Organiser
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>
