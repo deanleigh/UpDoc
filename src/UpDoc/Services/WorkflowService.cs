@@ -301,21 +301,16 @@ public class WorkflowService : IWorkflowService
                 }
             }
 
-            // Format detection: source.json exists → new format, else → old prefixed format
-            var isNewFormat = File.Exists(Path.Combine(folderPath, "source.json"));
+            // Resolve file paths (subfolder-first, root-fallback for pre-migration compat)
+            var destinationFile = ResolveFilePath(folderPath, "destination", "destination.json");
+            var mapFile = ResolveFilePath(folderPath, "map", "map.json");
 
-            string destinationFile;
-            string mapFile;
-
-            if (isNewFormat)
+            // Read source types from source.json (if not already set from workflow.json)
+            if (summary.SourceTypes.Length == 0)
             {
-                destinationFile = Path.Combine(folderPath, "destination.json");
-                mapFile = Path.Combine(folderPath, "map.json");
-
-                // Read source types from source.json (if not already set from workflow.json)
-                if (summary.SourceTypes.Length == 0)
+                var sourceFile = ResolveFilePath(folderPath, "source", "source.json");
+                if (File.Exists(sourceFile))
                 {
-                    var sourceFile = Path.Combine(folderPath, "source.json");
                     try
                     {
                         var json = File.ReadAllText(sourceFile);
@@ -330,26 +325,6 @@ public class WorkflowService : IWorkflowService
                         _logger.LogWarning(ex, "Failed to read source config for {Folder}", folderName);
                     }
                 }
-            }
-            else
-            {
-                destinationFile = Path.Combine(folderPath, $"{folderName}-destination-blueprint.json");
-                mapFile = Path.Combine(folderPath, $"{folderName}-map.json");
-
-                // Discover source types from prefixed source files
-                var sourcePattern = $"{folderName}-source-*.json";
-                var sourceFiles = Directory.GetFiles(folderPath, sourcePattern);
-                var sourceTypes = new List<string>();
-                foreach (var sf in sourceFiles)
-                {
-                    var fileName = Path.GetFileNameWithoutExtension(sf);
-                    var prefix = $"{folderName}-source-";
-                    if (fileName.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
-                    {
-                        sourceTypes.Add(fileName[prefix.Length..]);
-                    }
-                }
-                summary.SourceTypes = sourceTypes.ToArray();
             }
 
             // Read destination config for metadata (fills in anything workflow.json didn't provide)
@@ -434,9 +409,17 @@ public class WorkflowService : IWorkflowService
 
         Directory.CreateDirectory(folderPath);
 
+        // Create subfolders
+        var sourceFolder = GetSourceSubfolder(folderPath);
+        var destinationFolder = GetDestinationSubfolder(folderPath);
+        var mapFolder = GetMapSubfolder(folderPath);
+        Directory.CreateDirectory(sourceFolder);
+        Directory.CreateDirectory(destinationFolder);
+        Directory.CreateDirectory(mapFolder);
+
         var writeOptions = new JsonSerializerOptions { WriteIndented = true };
 
-        // Create workflow.json identity file
+        // Create workflow.json identity file (at root)
         var identity = new WorkflowIdentity
         {
             Name = displayName,
@@ -450,7 +433,7 @@ public class WorkflowService : IWorkflowService
         var identityJson = JsonSerializer.Serialize(identity, writeOptions);
         File.WriteAllText(Path.Combine(folderPath, "workflow.json"), identityJson);
 
-        // Create stub source.json
+        // Create stub source/source.json
         var source = new
         {
             version = "1.0",
@@ -458,9 +441,9 @@ public class WorkflowService : IWorkflowService
             sections = Array.Empty<object>()
         };
         var sourceJson = JsonSerializer.Serialize(source, writeOptions);
-        File.WriteAllText(Path.Combine(folderPath, "source.json"), sourceJson);
+        File.WriteAllText(Path.Combine(sourceFolder, "source.json"), sourceJson);
 
-        // Create stub destination.json
+        // Create stub destination/destination.json
         var destination = new
         {
             version = "1.0",
@@ -471,18 +454,16 @@ public class WorkflowService : IWorkflowService
             blockGrids = Array.Empty<object>()
         };
         var destinationJson = JsonSerializer.Serialize(destination, writeOptions);
-        File.WriteAllText(Path.Combine(folderPath, "destination.json"), destinationJson);
+        File.WriteAllText(Path.Combine(destinationFolder, "destination.json"), destinationJson);
 
-        // Create stub map.json
+        // Create stub map/map.json
         var map = new
         {
             version = "1.0",
-            name = $"{displayName} Mapping",
-            description = $"Mapping configuration for {displayName}",
             mappings = Array.Empty<object>()
         };
         var mapJson = JsonSerializer.Serialize(map, writeOptions);
-        File.WriteAllText(Path.Combine(folderPath, "map.json"), mapJson);
+        File.WriteAllText(Path.Combine(mapFolder, "map.json"), mapJson);
 
         _logger.LogInformation("Created workflow: {Alias} (name: {DisplayName}, docType: {DocType}, sourceType: {SourceType}, blueprint: {Blueprint})",
             alias, displayName, documentTypeAlias, sourceType, blueprintId ?? "none");
@@ -575,7 +556,9 @@ public class WorkflowService : IWorkflowService
             throw new DirectoryNotFoundException($"Workflow folder '{workflowAlias}' does not exist.");
         }
 
-        var filePath = Path.Combine(folderPath, "sample-extraction.json");
+        var sourceFolder = GetSourceSubfolder(folderPath);
+        Directory.CreateDirectory(sourceFolder);
+        var filePath = Path.Combine(sourceFolder, "sample-extraction.json");
         var writeOptions = new JsonSerializerOptions { WriteIndented = true };
         var json = JsonSerializer.Serialize(extraction, writeOptions);
         File.WriteAllText(filePath, json);
@@ -592,7 +575,9 @@ public class WorkflowService : IWorkflowService
             throw new DirectoryNotFoundException($"Workflow folder '{workflowAlias}' does not exist.");
         }
 
-        var filePath = Path.Combine(folderPath, "destination.json");
+        var destFolder = GetDestinationSubfolder(folderPath);
+        Directory.CreateDirectory(destFolder);
+        var filePath = Path.Combine(destFolder, "destination.json");
         var writeOptions = new JsonSerializerOptions { WriteIndented = true };
         var json = JsonSerializer.Serialize(config, writeOptions);
         File.WriteAllText(filePath, json);
@@ -611,7 +596,9 @@ public class WorkflowService : IWorkflowService
             throw new DirectoryNotFoundException($"Workflow folder '{workflowAlias}' does not exist.");
         }
 
-        var filePath = Path.Combine(folderPath, "map.json");
+        var mapFolder = GetMapSubfolder(folderPath);
+        Directory.CreateDirectory(mapFolder);
+        var filePath = Path.Combine(mapFolder, "map.json");
         var writeOptions = new JsonSerializerOptions { WriteIndented = true };
         var json = JsonSerializer.Serialize(config, writeOptions);
         File.WriteAllText(filePath, json);
@@ -642,7 +629,7 @@ public class WorkflowService : IWorkflowService
     public RichExtractionResult? GetSampleExtraction(string workflowAlias)
     {
         var folderPath = GetWorkflowFolderPath(workflowAlias);
-        var filePath = Path.Combine(folderPath, "sample-extraction.json");
+        var filePath = ResolveFilePath(folderPath, "source", "sample-extraction.json");
 
         if (!File.Exists(filePath))
             return null;
@@ -659,7 +646,9 @@ public class WorkflowService : IWorkflowService
             throw new DirectoryNotFoundException($"Workflow folder '{workflowAlias}' does not exist.");
         }
 
-        var filePath = Path.Combine(folderPath, "area-detection.json");
+        var sourceFolder = GetSourceSubfolder(folderPath);
+        Directory.CreateDirectory(sourceFolder);
+        var filePath = Path.Combine(sourceFolder, "area-detection.json");
         var writeOptions = new JsonSerializerOptions { WriteIndented = true };
         var json = JsonSerializer.Serialize(result, writeOptions);
         File.WriteAllText(filePath, json);
@@ -671,18 +660,10 @@ public class WorkflowService : IWorkflowService
     public AreaDetectionResult? GetAreaDetection(string workflowAlias)
     {
         var folderPath = GetWorkflowFolderPath(workflowAlias);
-        var filePath = Path.Combine(folderPath, "area-detection.json");
+        var filePath = ResolveFilePath(folderPath, "source", "area-detection.json");
 
         if (!File.Exists(filePath))
-        {
-            // Backwards compatibility: try old filename
-            var legacyPath = Path.Combine(folderPath, "zone-detection.json");
-            if (!File.Exists(legacyPath))
-                return null;
-
-            var legacyJson = File.ReadAllText(legacyPath);
-            return JsonSerializer.Deserialize<AreaDetectionResult>(legacyJson, JsonOptions);
-        }
+            return null;
 
         var json = File.ReadAllText(filePath);
         return JsonSerializer.Deserialize<AreaDetectionResult>(json, JsonOptions);
@@ -696,7 +677,9 @@ public class WorkflowService : IWorkflowService
             throw new DirectoryNotFoundException($"Workflow folder '{workflowAlias}' does not exist.");
         }
 
-        var filePath = Path.Combine(folderPath, "transform.json");
+        var sourceFolder = GetSourceSubfolder(folderPath);
+        Directory.CreateDirectory(sourceFolder);
+        var filePath = Path.Combine(sourceFolder, "transform.json");
         var writeOptions = new JsonSerializerOptions { WriteIndented = true };
         var json = JsonSerializer.Serialize(result, writeOptions);
         File.WriteAllText(filePath, json);
@@ -708,7 +691,7 @@ public class WorkflowService : IWorkflowService
     public TransformResult? GetTransformResult(string workflowAlias)
     {
         var folderPath = GetWorkflowFolderPath(workflowAlias);
-        var filePath = Path.Combine(folderPath, "transform.json");
+        var filePath = ResolveFilePath(folderPath, "source", "transform.json");
 
         if (!File.Exists(filePath))
             return null;
@@ -747,7 +730,7 @@ public class WorkflowService : IWorkflowService
     public SourceConfig? GetSourceConfig(string workflowAlias)
     {
         var folderPath = GetWorkflowFolderPath(workflowAlias);
-        var filePath = Path.Combine(folderPath, "source.json");
+        var filePath = ResolveFilePath(folderPath, "source", "source.json");
 
         if (!File.Exists(filePath))
             return null;
@@ -777,7 +760,9 @@ public class WorkflowService : IWorkflowService
             throw new DirectoryNotFoundException($"Workflow folder '{workflowAlias}' does not exist.");
         }
 
-        var filePath = Path.Combine(folderPath, "source.json");
+        var sourceFolder = GetSourceSubfolder(folderPath);
+        Directory.CreateDirectory(sourceFolder);
+        var filePath = Path.Combine(sourceFolder, "source.json");
         var writeOptions = new JsonSerializerOptions { WriteIndented = true };
         var json = JsonSerializer.Serialize(config, writeOptions);
         File.WriteAllText(filePath, json);
@@ -795,7 +780,9 @@ public class WorkflowService : IWorkflowService
             throw new DirectoryNotFoundException($"Workflow folder '{workflowAlias}' does not exist.");
         }
 
-        var filePath = Path.Combine(folderPath, "area-template.json");
+        var sourceFolder = GetSourceSubfolder(folderPath);
+        Directory.CreateDirectory(sourceFolder);
+        var filePath = Path.Combine(sourceFolder, "area-template.json");
         var writeOptions = new JsonSerializerOptions { WriteIndented = true };
         var json = JsonSerializer.Serialize(template, writeOptions);
         File.WriteAllText(filePath, json);
@@ -807,18 +794,10 @@ public class WorkflowService : IWorkflowService
     public AreaTemplate? GetAreaTemplate(string workflowAlias)
     {
         var folderPath = GetWorkflowFolderPath(workflowAlias);
-        var filePath = Path.Combine(folderPath, "area-template.json");
+        var filePath = ResolveFilePath(folderPath, "source", "area-template.json");
 
         if (!File.Exists(filePath))
-        {
-            // Backwards compatibility: try old filename
-            var legacyPath = Path.Combine(folderPath, "zone-template.json");
-            if (!File.Exists(legacyPath))
-                return null;
-
-            var legacyJson = File.ReadAllText(legacyPath);
-            return JsonSerializer.Deserialize<AreaTemplate>(legacyJson, JsonOptions);
-        }
+            return null;
 
         var json = File.ReadAllText(filePath);
         return JsonSerializer.Deserialize<AreaTemplate>(json, JsonOptions);
@@ -827,6 +806,26 @@ public class WorkflowService : IWorkflowService
     private string GetWorkflowFolderPath(string workflowAlias)
     {
         return Path.Combine(_webHostEnvironment.ContentRootPath, "updoc", "workflows", workflowAlias);
+    }
+
+    private static string GetSourceSubfolder(string folderPath) => Path.Combine(folderPath, "source");
+    private static string GetDestinationSubfolder(string folderPath) => Path.Combine(folderPath, "destination");
+    private static string GetMapSubfolder(string folderPath) => Path.Combine(folderPath, "map");
+
+    /// <summary>
+    /// Resolves a file path checking subfolder first, falling back to root (pre-migration compat).
+    /// </summary>
+    private static string ResolveFilePath(string folderPath, string subfolder, string fileName)
+    {
+        var subfolderFile = Path.Combine(folderPath, subfolder, fileName);
+        if (File.Exists(subfolderFile))
+            return subfolderFile;
+
+        var rootFile = Path.Combine(folderPath, fileName);
+        if (File.Exists(rootFile))
+            return rootFile;
+
+        return subfolderFile; // Default to subfolder path (even if not exists — callers check)
     }
 
     private List<DocumentTypeConfig> LoadConfigs()
@@ -893,22 +892,10 @@ public class WorkflowService : IWorkflowService
     {
         var folderName = Path.GetFileName(folderPath);
 
-        // Format detection: source.json exists → new format, else → old prefixed format
-        var isNewFormat = File.Exists(Path.Combine(folderPath, "source.json"));
-
-        string destinationFile;
-        string mapFile;
-
-        if (isNewFormat)
-        {
-            destinationFile = Path.Combine(folderPath, "destination.json");
-            mapFile = Path.Combine(folderPath, "map.json");
-        }
-        else
-        {
-            destinationFile = Path.Combine(folderPath, $"{folderName}-destination-blueprint.json");
-            mapFile = Path.Combine(folderPath, $"{folderName}-map.json");
-        }
+        // Resolve file paths (subfolder-first, root-fallback for pre-migration compat)
+        var destinationFile = ResolveFilePath(folderPath, "destination", "destination.json");
+        var mapFile = ResolveFilePath(folderPath, "map", "map.json");
+        var sourceFile = ResolveFilePath(folderPath, "source", "source.json");
 
         if (!File.Exists(destinationFile))
         {
@@ -922,53 +909,23 @@ public class WorkflowService : IWorkflowService
             return null;
         }
 
-        // Load source configs
+        // Load source config
         var sources = new Dictionary<string, SourceConfig>(StringComparer.OrdinalIgnoreCase);
 
-        if (isNewFormat)
+        if (File.Exists(sourceFile))
         {
-            // New format: single source.json with sourceTypes array
-            var sourceFile = Path.Combine(folderPath, "source.json");
             var sourceJson = File.ReadAllText(sourceFile);
             var source = JsonSerializer.Deserialize<SourceConfig>(sourceJson, JsonOptions);
             if (source != null && source.SourceTypes.Count > 0)
             {
                 sources[source.SourceTypes[0]] = source;
-                _logger.LogInformation("  Loaded source config: {SourceType} from source.json", source.SourceTypes[0]);
-            }
-        }
-        else
-        {
-            // Old format: discover {folderName}-source-*.json files
-            var sourcePattern = $"{folderName}-source-*.json";
-            var sourceFiles = Directory.GetFiles(folderPath, sourcePattern);
-
-            if (sourceFiles.Length == 0)
-            {
-                _logger.LogWarning("Config folder {Folder} has no source files matching {Pattern}, skipping.", folderName, sourcePattern);
-                return null;
-            }
-
-            foreach (var sourceFile in sourceFiles)
-            {
-                var fileName = Path.GetFileNameWithoutExtension(sourceFile);
-                var prefix = $"{folderName}-source-";
-                if (!fileName.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)) continue;
-                var sourceType = fileName[prefix.Length..];
-
-                var sourceJson = File.ReadAllText(sourceFile);
-                var source = JsonSerializer.Deserialize<SourceConfig>(sourceJson, JsonOptions);
-                if (source != null)
-                {
-                    sources[sourceType] = source;
-                    _logger.LogInformation("  Loaded source config: {SourceType} from {FileName}", sourceType, Path.GetFileName(sourceFile));
-                }
+                _logger.LogInformation("  Loaded source config: {SourceType} from {Path}", source.SourceTypes[0], sourceFile);
             }
         }
 
         if (sources.Count == 0)
         {
-            _logger.LogWarning("Config folder {Folder} had source files but none deserialized, skipping.", folderName);
+            _logger.LogWarning("Config folder {Folder} has no source config, skipping.", folderName);
             return null;
         }
 
@@ -1208,5 +1165,65 @@ public class WorkflowService : IWorkflowService
             _logger.LogInformation("Migration: renamed {Count} workflow folder(s) to camelCase", renamed);
             ClearCache();
         }
+
+        // Pass 3: Move files from flat root into source/, destination/, map/ subfolders
+        var moved = 0;
+        foreach (var folderPath in Directory.GetDirectories(workflowsDirectory))
+        {
+            var folderName = Path.GetFileName(folderPath);
+
+            // Check if files are still at root (flat layout) — source.json at root means not yet migrated
+            var rootSourceFile = Path.Combine(folderPath, "source.json");
+            var subfolderSourceFile = Path.Combine(GetSourceSubfolder(folderPath), "source.json");
+            if (!File.Exists(rootSourceFile) || File.Exists(subfolderSourceFile))
+                continue; // Already migrated or no source.json
+
+            try
+            {
+                // Create subfolders
+                var sourceFolder = GetSourceSubfolder(folderPath);
+                var destinationFolder = GetDestinationSubfolder(folderPath);
+                var mapFolder = GetMapSubfolder(folderPath);
+                Directory.CreateDirectory(sourceFolder);
+                Directory.CreateDirectory(destinationFolder);
+                Directory.CreateDirectory(mapFolder);
+
+                // Move source files
+                MoveFileIfExists(folderPath, sourceFolder, "source.json");
+                MoveFileIfExists(folderPath, sourceFolder, "sample-extraction.json");
+                MoveFileIfExists(folderPath, sourceFolder, "area-detection.json");
+                MoveFileIfExists(folderPath, sourceFolder, "area-template.json");
+                MoveFileIfExists(folderPath, sourceFolder, "transform.json");
+
+                // Move destination file
+                MoveFileIfExists(folderPath, destinationFolder, "destination.json");
+
+                // Move map file
+                MoveFileIfExists(folderPath, mapFolder, "map.json");
+
+                moved++;
+                _logger.LogInformation("Migration: moved files into subfolders for '{Folder}'", folderName);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Migration: failed to move files into subfolders for '{Folder}'", folderName);
+            }
+        }
+
+        if (moved > 0)
+        {
+            _logger.LogInformation("Migration: restructured {Count} workflow(s) into subfolders", moved);
+            ClearCache();
+        }
+    }
+
+    private static void MoveFileIfExists(string sourceDir, string targetDir, string fileName)
+    {
+        var sourcePath = Path.Combine(sourceDir, fileName);
+        if (!File.Exists(sourcePath))
+            return;
+
+        var targetPath = Path.Combine(targetDir, fileName);
+        File.Move(sourcePath, targetPath);
     }
 }

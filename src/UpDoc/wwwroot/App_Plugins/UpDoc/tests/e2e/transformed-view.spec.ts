@@ -12,7 +12,7 @@ test.describe('Transformed View', () => {
 
 		// Navigate to Settings → UpDoc
 		await umbracoUi.goToBackOffice();
-		await umbracoUi.settings.goToSection(ConstantHelper.sections.settings);
+		await umbracoUi.content.goToSection(ConstantHelper.sections.settings);
 
 		// Expand UpDoc tree and click the workflow
 		const expandUpDoc = page.getByRole('button', { name: 'Expand child items for UpDoc' });
