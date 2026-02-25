@@ -48,7 +48,7 @@ public interface IWorkflowService
     /// <summary>
     /// Creates a new workflow folder with stub source, destination, and map files.
     /// </summary>
-    void CreateWorkflow(string name, string documentTypeAlias, string sourceType, string? blueprintId, string? blueprintName);
+    void CreateWorkflow(string name, string documentTypeAlias, string sourceType, string? blueprintId, string? blueprintName, string? documentTypeName = null);
 
     /// <summary>
     /// Deletes a workflow folder and all its files.
@@ -131,7 +131,9 @@ public interface IWorkflowService
 public class WorkflowSummary
 {
     public string Name { get; set; } = string.Empty;
+    public string? DisplayName { get; set; }
     public string DocumentTypeAlias { get; set; } = string.Empty;
+    public string? DocumentTypeName { get; set; }
     public string? BlueprintId { get; set; }
     public string? BlueprintName { get; set; }
     public string[] SourceTypes { get; set; } = [];
@@ -158,6 +160,9 @@ public class WorkflowService : IWorkflowService
     {
         _webHostEnvironment = webHostEnvironment;
         _logger = logger;
+
+        // Migrate existing workflows that don't have workflow.json yet
+        MigrateExistingWorkflows();
     }
 
     public DocumentTypeConfig? GetConfigForBlueprint(Guid blueprintId)
@@ -272,6 +277,21 @@ public class WorkflowService : IWorkflowService
             var folderName = Path.GetFileName(folderPath);
             var summary = new WorkflowSummary { Name = folderName };
 
+            // Try workflow.json first (new identity file)
+            var identity = ReadWorkflowIdentity(folderPath);
+            if (identity != null)
+            {
+                summary.DisplayName = identity.Name;
+                summary.DocumentTypeAlias = identity.DocumentTypeAlias;
+                summary.DocumentTypeName = identity.DocumentTypeName;
+                summary.BlueprintId = identity.BlueprintId;
+                summary.BlueprintName = identity.BlueprintName;
+                if (!string.IsNullOrEmpty(identity.SourceType))
+                {
+                    summary.SourceTypes = [identity.SourceType];
+                }
+            }
+
             // Format detection: source.json exists → new format, else → old prefixed format
             var isNewFormat = File.Exists(Path.Combine(folderPath, "source.json"));
 
@@ -283,20 +303,23 @@ public class WorkflowService : IWorkflowService
                 destinationFile = Path.Combine(folderPath, "destination.json");
                 mapFile = Path.Combine(folderPath, "map.json");
 
-                // Read source types from source.json
-                var sourceFile = Path.Combine(folderPath, "source.json");
-                try
+                // Read source types from source.json (if not already set from workflow.json)
+                if (summary.SourceTypes.Length == 0)
                 {
-                    var json = File.ReadAllText(sourceFile);
-                    var source = JsonSerializer.Deserialize<SourceConfig>(json, JsonOptions);
-                    if (source?.SourceTypes.Count > 0)
+                    var sourceFile = Path.Combine(folderPath, "source.json");
+                    try
                     {
-                        summary.SourceTypes = source.SourceTypes.ToArray();
+                        var json = File.ReadAllText(sourceFile);
+                        var source = JsonSerializer.Deserialize<SourceConfig>(json, JsonOptions);
+                        if (source?.SourceTypes.Count > 0)
+                        {
+                            summary.SourceTypes = source.SourceTypes.ToArray();
+                        }
                     }
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogWarning(ex, "Failed to read source config for {Folder}", folderName);
+                    catch (Exception ex)
+                    {
+                        _logger.LogWarning(ex, "Failed to read source config for {Folder}", folderName);
+                    }
                 }
             }
             else
@@ -320,8 +343,8 @@ public class WorkflowService : IWorkflowService
                 summary.SourceTypes = sourceTypes.ToArray();
             }
 
-            // Read destination config for metadata
-            if (File.Exists(destinationFile))
+            // Read destination config for metadata (fills in anything workflow.json didn't provide)
+            if (string.IsNullOrEmpty(summary.DocumentTypeAlias) && File.Exists(destinationFile))
             {
                 try
                 {
@@ -390,7 +413,7 @@ public class WorkflowService : IWorkflowService
         }
     }
 
-    public void CreateWorkflow(string name, string documentTypeAlias, string sourceType, string? blueprintId, string? blueprintName)
+    public void CreateWorkflow(string name, string documentTypeAlias, string sourceType, string? blueprintId, string? blueprintName, string? documentTypeName = null)
     {
         var workflowsDirectory = Path.Combine(_webHostEnvironment.ContentRootPath, "updoc", "workflows");
         var folderPath = Path.Combine(workflowsDirectory, name);
@@ -403,6 +426,21 @@ public class WorkflowService : IWorkflowService
         Directory.CreateDirectory(folderPath);
 
         var writeOptions = new JsonSerializerOptions { WriteIndented = true };
+
+        // Create workflow.json identity file
+        var displayName = GenerateDisplayName(blueprintName, sourceType);
+        var identity = new WorkflowIdentity
+        {
+            Name = displayName,
+            Alias = name,
+            DocumentTypeAlias = documentTypeAlias,
+            DocumentTypeName = documentTypeName,
+            BlueprintId = blueprintId,
+            BlueprintName = blueprintName,
+            SourceType = sourceType,
+        };
+        var identityJson = JsonSerializer.Serialize(identity, writeOptions);
+        File.WriteAllText(Path.Combine(folderPath, "workflow.json"), identityJson);
 
         // Create stub source.json (new simple naming convention)
         var source = new
@@ -438,8 +476,8 @@ public class WorkflowService : IWorkflowService
         var mapJson = JsonSerializer.Serialize(map, writeOptions);
         File.WriteAllText(Path.Combine(folderPath, "map.json"), mapJson);
 
-        _logger.LogInformation("Created workflow folder: {Name} (docType: {DocType}, sourceType: {SourceType}, blueprint: {Blueprint})",
-            name, documentTypeAlias, sourceType, blueprintId ?? "none");
+        _logger.LogInformation("Created workflow folder: {Name} (displayName: {DisplayName}, docType: {DocType}, sourceType: {SourceType}, blueprint: {Blueprint})",
+            name, displayName, documentTypeAlias, sourceType, blueprintId ?? "none");
 
         ClearCache();
     }
@@ -901,5 +939,151 @@ public class WorkflowService : IWorkflowService
             Destination = destination,
             Map = map
         };
+    }
+
+    /// <summary>
+    /// Reads workflow.json from a workflow folder, if it exists.
+    /// </summary>
+    private WorkflowIdentity? ReadWorkflowIdentity(string folderPath)
+    {
+        var identityFile = Path.Combine(folderPath, "workflow.json");
+        if (!File.Exists(identityFile))
+            return null;
+
+        try
+        {
+            var json = File.ReadAllText(identityFile);
+            return JsonSerializer.Deserialize<WorkflowIdentity>(json, JsonOptions);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to read workflow.json in {Folder}", Path.GetFileName(folderPath));
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// Generates a display name from blueprint name and source type.
+    /// e.g. "Group Tour" + "pdf" → "Group Tour - PDF"
+    /// </summary>
+    internal static string GenerateDisplayName(string? blueprintName, string sourceType)
+    {
+        var sourceLabel = FormatSourceTypeLabel(sourceType);
+        return string.IsNullOrEmpty(blueprintName)
+            ? sourceLabel
+            : $"{blueprintName} - {sourceLabel}";
+    }
+
+    /// <summary>
+    /// Formats a source type key into a human-readable label.
+    /// "pdf" → "PDF", "web" → "Web Page", "markdown" → "Markdown"
+    /// </summary>
+    private static string FormatSourceTypeLabel(string sourceType)
+    {
+        return sourceType.ToLowerInvariant() switch
+        {
+            "pdf" => "PDF",
+            "web" => "Web Page",
+            "web page" => "Web Page",
+            "markdown" => "Markdown",
+            "doc" => "Word Document",
+            _ => System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(sourceType)
+        };
+    }
+
+    /// <summary>
+    /// Scans all workflow folders and generates workflow.json for any that don't have one.
+    /// Called on first access to ensure existing workflows are migrated.
+    /// </summary>
+    internal void MigrateExistingWorkflows()
+    {
+        var workflowsDirectory = Path.Combine(_webHostEnvironment.ContentRootPath, "updoc", "workflows");
+        if (!Directory.Exists(workflowsDirectory))
+            return;
+
+        var writeOptions = new JsonSerializerOptions { WriteIndented = true };
+        var migrated = 0;
+
+        foreach (var folderPath in Directory.GetDirectories(workflowsDirectory))
+        {
+            var identityFile = Path.Combine(folderPath, "workflow.json");
+            if (File.Exists(identityFile))
+                continue;
+
+            var folderName = Path.GetFileName(folderPath);
+
+            // Read metadata from existing files
+            string? documentTypeAlias = null;
+            string? blueprintId = null;
+            string? blueprintName = null;
+            string? sourceType = null;
+
+            // Try destination.json for blueprint/doctype info
+            var destinationFile = Path.Combine(folderPath, "destination.json");
+            if (File.Exists(destinationFile))
+            {
+                try
+                {
+                    var json = File.ReadAllText(destinationFile);
+                    var dest = JsonSerializer.Deserialize<DestinationConfig>(json, JsonOptions);
+                    if (dest != null)
+                    {
+                        documentTypeAlias = dest.DocumentTypeAlias;
+                        blueprintId = dest.BlueprintId;
+                        blueprintName = dest.BlueprintName;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Migration: failed to read destination.json in {Folder}", folderName);
+                }
+            }
+
+            // Try source.json for source type
+            var sourceFile = Path.Combine(folderPath, "source.json");
+            if (File.Exists(sourceFile))
+            {
+                try
+                {
+                    var json = File.ReadAllText(sourceFile);
+                    var source = JsonSerializer.Deserialize<SourceConfig>(json, JsonOptions);
+                    sourceType = source?.SourceTypes?.FirstOrDefault();
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Migration: failed to read source.json in {Folder}", folderName);
+                }
+            }
+
+            // Generate identity
+            var identity = new WorkflowIdentity
+            {
+                Name = GenerateDisplayName(blueprintName, sourceType ?? "unknown"),
+                Alias = folderName,
+                DocumentTypeAlias = documentTypeAlias ?? string.Empty,
+                DocumentTypeName = null, // Resolved at API level via IContentTypeService
+                BlueprintId = blueprintId,
+                BlueprintName = blueprintName,
+                SourceType = sourceType ?? string.Empty,
+            };
+
+            try
+            {
+                var identityJson = JsonSerializer.Serialize(identity, writeOptions);
+                File.WriteAllText(identityFile, identityJson);
+                migrated++;
+                _logger.LogInformation("Migration: generated workflow.json for '{Folder}' (name: {Name})",
+                    folderName, identity.Name);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Migration: failed to write workflow.json for '{Folder}'", folderName);
+            }
+        }
+
+        if (migrated > 0)
+        {
+            _logger.LogInformation("Migration: generated workflow.json for {Count} existing workflow(s)", migrated);
+        }
     }
 }

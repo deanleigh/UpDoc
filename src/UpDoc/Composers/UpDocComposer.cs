@@ -1,6 +1,8 @@
 using UpDoc.Services;
+using UpDoc.NotificationHandlers;
 using Umbraco.Cms.Core.Composing;
 using Umbraco.Cms.Core.DependencyInjection;
+using Umbraco.Cms.Core.Notifications;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace UpDoc.Composers;
@@ -21,5 +23,6 @@ public class UpDocComposer : IComposer
         builder.Services.AddSingleton<IWorkflowService, WorkflowService>();
         builder.Services.AddScoped<IDestinationStructureService, DestinationStructureService>();
         builder.Services.AddSingleton<IContentTransformService, ContentTransformService>();
+        builder.AddNotificationHandler<UmbracoApplicationStartedNotification, WorkflowMigrationHandler>();
     }
 }

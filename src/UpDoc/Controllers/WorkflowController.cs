@@ -26,6 +26,7 @@ public class WorkflowController : ControllerBase
     private readonly IMarkdownExtractionService _markdownExtractionService;
     private readonly IHtmlExtractionService _htmlExtractionService;
     private readonly IContentTransformService _contentTransformService;
+    private readonly IContentTypeService _contentTypeService;
     private readonly IMediaService _mediaService;
     private readonly IWebHostEnvironment _webHostEnvironment;
     private readonly ILogger<WorkflowController> _logger;
@@ -37,6 +38,7 @@ public class WorkflowController : ControllerBase
         IMarkdownExtractionService markdownExtractionService,
         IHtmlExtractionService htmlExtractionService,
         IContentTransformService contentTransformService,
+        IContentTypeService contentTypeService,
         IMediaService mediaService,
         IWebHostEnvironment webHostEnvironment,
         ILogger<WorkflowController> logger)
@@ -47,6 +49,7 @@ public class WorkflowController : ControllerBase
         _markdownExtractionService = markdownExtractionService;
         _htmlExtractionService = htmlExtractionService;
         _contentTransformService = contentTransformService;
+        _contentTypeService = contentTypeService;
         _mediaService = mediaService;
         _webHostEnvironment = webHostEnvironment;
         _logger = logger;
@@ -56,6 +59,20 @@ public class WorkflowController : ControllerBase
     public IActionResult GetAll()
     {
         var summaries = _workflowService.GetAllWorkflowSummaries();
+
+        // Resolve document type names for any summaries missing them
+        foreach (var summary in summaries)
+        {
+            if (summary.DocumentTypeName == null && !string.IsNullOrEmpty(summary.DocumentTypeAlias))
+            {
+                var contentType = _contentTypeService.Get(summary.DocumentTypeAlias);
+                if (contentType != null)
+                {
+                    summary.DocumentTypeName = contentType.Name;
+                }
+            }
+        }
+
         return Ok(summaries);
     }
 
@@ -133,12 +150,21 @@ public class WorkflowController : ControllerBase
 
         try
         {
+            // Resolve document type name from alias
+            string? documentTypeName = null;
+            var contentType = _contentTypeService.Get(request.DocumentTypeAlias);
+            if (contentType != null)
+            {
+                documentTypeName = contentType.Name;
+            }
+
             _workflowService.CreateWorkflow(
                 request.Name,
                 request.DocumentTypeAlias,
                 request.SourceType,
                 request.BlueprintId,
-                request.BlueprintName);
+                request.BlueprintName,
+                documentTypeName);
 
             // Auto-populate destination.json from document type structure
             try
