@@ -2,7 +2,7 @@ import { UmbModalToken } from '@umbraco-cms/backoffice/modal';
 import type { AreaTemplate } from './workflow.types.js';
 
 export interface AreaEditorModalData {
-	workflowName: string;
+	workflowAlias: string;
 	existingTemplate?: AreaTemplate | null;
 	selectedPages?: number[] | null;
 }

@@ -8,6 +8,8 @@ import { UmbModalBaseElement, UMB_MODAL_MANAGER_CONTEXT } from '@umbraco-cms/bac
 import { UMB_AUTH_CONTEXT } from '@umbraco-cms/backoffice/auth';
 import type { UUIInputEvent } from '@umbraco-cms/backoffice/external/uui';
 import type { UmbInputMediaElement } from '@umbraco-cms/backoffice/media';
+import { generateAlias } from '@umbraco-cms/backoffice/utils';
+import type { UmbInputWithAliasElement } from '@umbraco-cms/backoffice/components';
 
 const SOURCE_TYPE_OPTIONS = [
 	{ value: 'pdf', name: 'PDF Document' },
@@ -15,6 +17,13 @@ const SOURCE_TYPE_OPTIONS = [
 	{ value: 'web', name: 'Web Page' },
 	{ value: 'doc', name: 'Word Document' },
 ];
+
+const SOURCE_TYPE_LABELS: Record<string, string> = {
+	pdf: 'PDF',
+	markdown: 'Markdown',
+	web: 'Web Page',
+	doc: 'Word Document',
+};
 
 type TabType = 'source' | 'destination';
 
@@ -25,6 +34,8 @@ export class CreateWorkflowSidebarElement extends UmbModalBaseElement<
 > {
 	@state() private _activeTab: TabType = 'source';
 	@state() private _name = '';
+	@state() private _alias = '';
+	@state() private _aliasLocked = true;
 	@state() private _sourceType = '';
 	@state() private _selectedMediaUnique: string | null = null;
 	@state() private _sourceUrl = '';
@@ -33,14 +44,6 @@ export class CreateWorkflowSidebarElement extends UmbModalBaseElement<
 	@state() private _elementCount = 0;
 	@state() private _fileName = '';
 	@state() private _selectedPages: number[] | null = null;
-	private _nameManuallyEdited = false;
-
-	#toKebabCase(value: string): string {
-		return value
-			.replace(/([a-z])([A-Z])/g, '$1-$2')
-			.replace(/[\s_]+/g, '-')
-			.toLowerCase();
-	}
 
 	#handleSourceTypeChange(e: Event) {
 		const target = e.target as Element & { value: string };
@@ -53,9 +56,11 @@ export class CreateWorkflowSidebarElement extends UmbModalBaseElement<
 
 		this._sourceType = newSourceType;
 
-		// Auto-generate name if not manually edited
-		if (!this._nameManuallyEdited && this.data?.blueprintName && this._sourceType) {
-			this._name = `${this.#toKebabCase(this.data.blueprintName)}-${this._sourceType}`;
+		// Auto-generate name and alias when source type changes (if alias is still locked)
+		if (this._aliasLocked && this.data?.blueprintName && this._sourceType) {
+			const sourceLabel = SOURCE_TYPE_LABELS[this._sourceType] ?? this._sourceType;
+			this._name = `${this.data.blueprintName} - ${sourceLabel}`;
+			this._alias = generateAlias(this._name);
 		}
 
 		this.requestUpdate();
@@ -112,9 +117,11 @@ export class CreateWorkflowSidebarElement extends UmbModalBaseElement<
 		this._selectedMediaUnique = selection.length > 0 ? selection[0] : null;
 	}
 
-	#handleNameInput(e: UUIInputEvent) {
-		this._name = e.target.value as string;
-		this._nameManuallyEdited = true;
+	#handleNameAliasChange(e: Event) {
+		const target = e.target as UmbInputWithAliasElement;
+		this._name = target.value as string;
+		this._alias = target.alias;
+		this._aliasLocked = target.autoGenerateAlias ?? false;
 	}
 
 	#handleTabClick(tab: TabType) {
@@ -122,7 +129,7 @@ export class CreateWorkflowSidebarElement extends UmbModalBaseElement<
 	}
 
 	get #canCreate(): boolean {
-		return this._name.trim().length > 0 && this._sourceType.length > 0;
+		return this._name.trim().length > 0 && this._alias.trim().length > 0 && this._sourceType.length > 0;
 	}
 
 	#handleSave() {
@@ -130,6 +137,7 @@ export class CreateWorkflowSidebarElement extends UmbModalBaseElement<
 
 		this.value = {
 			name: this._name.trim(),
+			alias: this._alias.trim(),
 			sourceType: this._sourceType,
 			mediaUnique: this._selectedMediaUnique,
 			sourceUrl: this._sourceUrl || null,
@@ -245,13 +253,13 @@ export class CreateWorkflowSidebarElement extends UmbModalBaseElement<
 	#renderSourceTab() {
 		return html`
 			<uui-box headline="Workflow Name">
-				<uui-input
-					id="name"
-					label="name"
-					placeholder="e.g. group-tour-pdf"
+				<umb-input-with-alias
+					label="Workflow name"
 					.value=${this._name}
-					@input=${this.#handleNameInput}>
-				</uui-input>
+					.alias=${this._alias}
+					?auto-generate-alias=${this._aliasLocked}
+					@change=${this.#handleNameAliasChange}>
+				</umb-input-with-alias>
 			</uui-box>
 
 			<uui-box headline="Format">
@@ -335,7 +343,8 @@ export class CreateWorkflowSidebarElement extends UmbModalBaseElement<
 				gap: var(--uui-size-space-3);
 			}
 
-			uui-input {
+			uui-input,
+			umb-input-with-alias {
 				width: 100%;
 			}
 

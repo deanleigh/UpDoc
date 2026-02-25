@@ -1,6 +1,6 @@
 import type { UmbWorkflowDetailModalData, UmbWorkflowDetailModalValue } from './up-doc-workflow-detail-modal.token.js';
 import type { DocumentTypeConfig, DestinationField, DestinationBlockGrid, SourceConfig, SourceSection } from './workflow.types.js';
-import { fetchWorkflowByName } from './workflow.service.js';
+import { fetchWorkflowByAlias } from './workflow.service.js';
 import { getAllBlockContainers } from './destination-utils.js';
 import { html, customElement, css, state, nothing } from '@umbraco-cms/backoffice/external/lit';
 import { UmbTextStyles } from '@umbraco-cms/backoffice/style';
@@ -27,18 +27,18 @@ export class UpDocWorkflowDetailModalElement extends UmbModalBaseElement<
 		this._error = null;
 
 		try {
-			const workflowName = this.data?.workflowName;
-			if (!workflowName) {
+			const workflowAlias = this.data?.workflowAlias;
+			if (!workflowAlias) {
 				this._error = 'No workflow name provided';
 				return;
 			}
 
 			const authContext = await this.getContext(UMB_AUTH_CONTEXT);
 			const token = await authContext.getLatestToken();
-			this._config = await fetchWorkflowByName(workflowName, token);
+			this._config = await fetchWorkflowByAlias(workflowAlias, token);
 
 			if (!this._config) {
-				this._error = `Workflow "${workflowName}" not found`;
+				this._error = `Workflow "${workflowAlias}" not found`;
 				return;
 			}
 
@@ -344,7 +344,7 @@ export class UpDocWorkflowDetailModalElement extends UmbModalBaseElement<
 	override render() {
 		if (this._loading) {
 			return html`
-				<umb-body-layout headline=${this.data?.workflowName ?? 'Workflow'}>
+				<umb-body-layout headline=${this.data?.workflowAlias ?? 'Workflow'}>
 					<div class="loading"><uui-loader-bar></uui-loader-bar></div>
 				</umb-body-layout>
 			`;
@@ -352,7 +352,7 @@ export class UpDocWorkflowDetailModalElement extends UmbModalBaseElement<
 
 		if (this._error) {
 			return html`
-				<umb-body-layout headline=${this.data?.workflowName ?? 'Workflow'}>
+				<umb-body-layout headline=${this.data?.workflowAlias ?? 'Workflow'}>
 					<p style="color: var(--uui-color-danger);">${this._error}</p>
 					<div slot="actions">
 						<uui-button label="Close" @click=${this.#handleClose}></uui-button>
@@ -364,7 +364,7 @@ export class UpDocWorkflowDetailModalElement extends UmbModalBaseElement<
 		const tabs = this.#getTopTabs();
 
 		return html`
-			<umb-body-layout headline=${this.data?.workflowName ?? 'Workflow'}>
+			<umb-body-layout headline=${this.data?.workflowAlias ?? 'Workflow'}>
 				<uui-tab-group slot="navigation">
 					${tabs.map(
 						(tab) => html`

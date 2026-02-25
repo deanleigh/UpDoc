@@ -1,5 +1,5 @@
 import type { DocumentTypeConfig, SectionMapping, MappingDestination, RichExtractionResult } from './workflow.types.js';
-import { fetchWorkflowByName, fetchSampleExtraction, saveMapConfig } from './workflow.service.js';
+import { fetchWorkflowByAlias, fetchSampleExtraction, saveMapConfig } from './workflow.service.js';
 import { getDestinationTabs, resolveDestinationTab, resolveBlockLabel, getAllBlockContainers } from './destination-utils.js';
 import { html, customElement, css, state, nothing } from '@umbraco-cms/backoffice/external/lit';
 import { UmbLitElement } from '@umbraco-cms/backoffice/lit-element';
@@ -13,7 +13,7 @@ export class UpDocWorkflowMapViewElement extends UmbLitElement {
 	@state() private _extraction: RichExtractionResult | null = null;
 	@state() private _loading = true;
 	@state() private _error: string | null = null;
-	#workflowName = '';
+	#workflowAlias = '';
 	#token = '';
 
 	override connectedCallback() {
@@ -22,7 +22,7 @@ export class UpDocWorkflowMapViewElement extends UmbLitElement {
 			if (!context) return;
 			this.observe((context as any).unique, (unique: string | null) => {
 				if (unique) {
-					this.#workflowName = decodeURIComponent(unique);
+					this.#workflowAlias = decodeURIComponent(unique);
 					this.#loadData();
 				}
 			});
@@ -36,14 +36,14 @@ export class UpDocWorkflowMapViewElement extends UmbLitElement {
 		try {
 			const authContext = await this.getContext(UMB_AUTH_CONTEXT);
 			this.#token = await authContext.getLatestToken();
-			this._config = await fetchWorkflowByName(this.#workflowName, this.#token);
+			this._config = await fetchWorkflowByAlias(this.#workflowAlias, this.#token);
 
 			if (!this._config) {
-				this._error = `Workflow "${this.#workflowName}" not found`;
+				this._error = `Workflow "${this.#workflowAlias}" not found`;
 				return;
 			}
 
-			this._extraction = await fetchSampleExtraction(this.#workflowName, this.#token);
+			this._extraction = await fetchSampleExtraction(this.#workflowAlias, this.#token);
 		} catch (err) {
 			this._error = err instanceof Error ? err.message : 'Failed to load workflow';
 			console.error('Failed to load workflow config:', err);
@@ -103,7 +103,7 @@ export class UpDocWorkflowMapViewElement extends UmbLitElement {
 			mappings: this._config.map.mappings.filter((_, i) => i !== index),
 		};
 
-		const result = await saveMapConfig(this.#workflowName, updatedMap, this.#token);
+		const result = await saveMapConfig(this.#workflowAlias, updatedMap, this.#token);
 		if (result) {
 			this._config = { ...this._config, map: updatedMap };
 		}

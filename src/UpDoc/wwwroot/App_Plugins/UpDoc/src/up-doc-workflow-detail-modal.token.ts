@@ -1,7 +1,7 @@
 import { UmbModalToken } from '@umbraco-cms/backoffice/modal';
 
 export interface UmbWorkflowDetailModalData {
-	workflowName: string;
+	workflowAlias: string;
 }
 
 export type UmbWorkflowDetailModalValue = undefined;

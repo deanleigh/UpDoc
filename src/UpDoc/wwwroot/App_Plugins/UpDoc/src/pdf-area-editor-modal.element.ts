@@ -84,8 +84,8 @@ export class PdfAreaEditorModalElement extends UmbModalBaseElement<
 	}
 
 	async #loadPdf() {
-		const workflowName = this.data?.workflowName;
-		if (!workflowName) {
+		const workflowAlias = this.data?.workflowAlias;
+		if (!workflowAlias) {
 			this._error = 'No workflow name provided.';
 			this._loading = false;
 			return;
@@ -93,7 +93,7 @@ export class PdfAreaEditorModalElement extends UmbModalBaseElement<
 
 		try {
 			const token = await this.#getAuthToken();
-			const blob = await fetchPdfBlob(workflowName, token);
+			const blob = await fetchPdfBlob(workflowAlias, token);
 			if (!blob) {
 				this._error = 'Could not load PDF file.';
 				this._loading = false;
@@ -507,7 +507,7 @@ export class PdfAreaEditorModalElement extends UmbModalBaseElement<
 
 	#onSave() {
 		const template: AreaTemplate = {
-			templateName: this.data?.existingTemplate?.templateName || this.data?.workflowName || 'Area Template',
+			templateName: this.data?.existingTemplate?.templateName || this.data?.workflowAlias || 'Area Template',
 			sourceFile: this.data?.existingTemplate?.sourceFile || '',
 			pageSize: {
 				width: this._pageWidth / this._scale,

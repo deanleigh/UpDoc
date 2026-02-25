@@ -1,6 +1,6 @@
 import type { RichExtractionResult, DocumentTypeConfig, MappingDestination, AreaDetectionResult, DetectedArea, DetectedSection, AreaElement, TransformResult, TransformedSection, SourceConfig, AreaTemplate, AreaRules, InferSectionPatternResponse, MapConfig, SectionMapping } from './workflow.types.js';
 import { allTransformSections } from './workflow.types.js';
-import { fetchSampleExtraction, triggerSampleExtraction, fetchWorkflowByName, fetchAreaDetection, triggerTransform, fetchTransformResult, updateSectionInclusion, savePageSelection, fetchSourceConfig, fetchAreaTemplate, saveAreaTemplate, saveAreaRules, inferSectionPattern, saveMapConfig } from './workflow.service.js';
+import { fetchSampleExtraction, triggerSampleExtraction, fetchWorkflowByAlias, fetchAreaDetection, triggerTransform, fetchTransformResult, updateSectionInclusion, savePageSelection, fetchSourceConfig, fetchAreaTemplate, saveAreaTemplate, saveAreaRules, inferSectionPattern, saveMapConfig } from './workflow.service.js';
 import { normalizeToKebabCase, markdownToHtml } from './transforms.js';
 import { getAllBlockContainers } from './destination-utils.js';
 import { UMB_AREA_EDITOR_MODAL } from './pdf-area-editor-modal.token.js';
@@ -21,7 +21,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 	@state() private _extraction: RichExtractionResult | null = null;
 	@state() private _areaDetection: AreaDetectionResult | null = null;
 	@state() private _config: DocumentTypeConfig | null = null;
-	@state() private _workflowName: string | null = null;
+	@state() private _workflowAlias: string | null = null;
 	@state() private _loading = true;
 	@state() private _extracting = false;
 	@state() private _error: string | null = null;
@@ -58,7 +58,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 			(context as any).setRefreshHandler(() => this.#onReExtract());
 			this.observe((context as any).unique, (unique: string | null) => {
 				if (unique) {
-					this._workflowName = decodeURIComponent(unique);
+					this._workflowAlias = decodeURIComponent(unique);
 					this.#loadData();
 				}
 			});
@@ -66,7 +66,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 	}
 
 	async #loadData() {
-		if (!this._workflowName) return;
+		if (!this._workflowAlias) return;
 
 		this._loading = true;
 		this._error = null;
@@ -77,9 +77,9 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 
 			// Always load source config first to determine source type
 			const [extraction, config, sourceConfig] = await Promise.all([
-				fetchSampleExtraction(this._workflowName, this.#token),
-				fetchWorkflowByName(this._workflowName, this.#token),
-				fetchSourceConfig(this._workflowName, this.#token),
+				fetchSampleExtraction(this._workflowAlias, this.#token),
+				fetchWorkflowByAlias(this._workflowAlias, this.#token),
+				fetchSourceConfig(this._workflowAlias, this.#token),
 			]);
 			this._extraction = extraction;
 			this._config = config;
@@ -91,9 +91,9 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 			if (isPdf) {
 				// PDF-specific: load area detection, transform, area template
 				const [areaDetection, transformResult, areaTemplate] = await Promise.all([
-					fetchAreaDetection(this._workflowName, this.#token),
-					fetchTransformResult(this._workflowName, this.#token),
-					fetchAreaTemplate(this._workflowName, this.#token),
+					fetchAreaDetection(this._workflowAlias, this.#token),
+					fetchTransformResult(this._workflowAlias, this.#token),
+					fetchAreaTemplate(this._workflowAlias, this.#token),
 				]);
 				this._areaDetection = areaDetection;
 				this._transformResult = transformResult;
@@ -102,7 +102,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				// Always re-trigger transform on load to ensure fresh data
 				const mediaKey = extraction?.source.mediaKey;
 				if (mediaKey && areaDetection) {
-					const freshTransform = await triggerTransform(this._workflowName, mediaKey, this.#token);
+					const freshTransform = await triggerTransform(this._workflowAlias, mediaKey, this.#token);
 					if (freshTransform) {
 						this._transformResult = freshTransform;
 					}
@@ -119,16 +119,16 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 			} else if (isWeb) {
 				// Web: load area detection (auto-generated from extraction) + transform
 				const [areaDetection, transformResult] = await Promise.all([
-					fetchAreaDetection(this._workflowName, this.#token),
-					fetchTransformResult(this._workflowName, this.#token),
+					fetchAreaDetection(this._workflowAlias, this.#token),
+					fetchTransformResult(this._workflowAlias, this.#token),
 				]);
 				this._areaDetection = areaDetection;
 				this._transformResult = transformResult;
 			} else {
 				// Markdown: load area detection + transform (both auto-generated from extraction)
 				const [areaDetection, transformResult] = await Promise.all([
-					fetchAreaDetection(this._workflowName, this.#token),
-					fetchTransformResult(this._workflowName, this.#token),
+					fetchAreaDetection(this._workflowAlias, this.#token),
+					fetchTransformResult(this._workflowAlias, this.#token),
 				]);
 				this._areaDetection = areaDetection;
 				this._transformResult = transformResult;
@@ -196,9 +196,9 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 
 
 	async #savePageSelection() {
-		if (!this._workflowName) return;
+		if (!this._workflowAlias) return;
 		const pages = this.#getSelectedPages();
-		await savePageSelection(this._workflowName, pages, this.#token);
+		await savePageSelection(this._workflowAlias, pages, this.#token);
 	}
 
 	/** Get all collapse keys for a given level. */
@@ -298,7 +298,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 	}
 
 	async #onPickMedia() {
-		if (!this._workflowName) return;
+		if (!this._workflowAlias) return;
 
 		const modalManager = await this.getContext(UMB_MODAL_MANAGER_CONTEXT);
 		const modal = modalManager.open(this, UMB_MEDIA_PICKER_MODAL, {
@@ -318,12 +318,12 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 
 	/** Opens the area editor modal to define/edit extraction areas. */
 	async #onEditAreas() {
-		if (!this._workflowName) return;
+		if (!this._workflowAlias) return;
 
 		const modalManager = await this.getContext(UMB_MODAL_MANAGER_CONTEXT);
 		const modal = modalManager.open(this, UMB_AREA_EDITOR_MODAL, {
 			data: {
-				workflowName: this._workflowName,
+				workflowAlias: this._workflowAlias,
 				existingTemplate: this._areaTemplate,
 				selectedPages: this._sourceConfig?.pages && Array.isArray(this._sourceConfig.pages)
 					? this._sourceConfig.pages
@@ -335,7 +335,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 			const result = await modal.onSubmit();
 			if (result?.template) {
 				// Save the area template
-				const saved = await saveAreaTemplate(this._workflowName, result.template, this.#token);
+				const saved = await saveAreaTemplate(this._workflowAlias, result.template, this.#token);
 				if (saved) {
 					this._areaTemplate = saved;
 					// Re-extract with the new area template applied
@@ -376,7 +376,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 
 	/** Saves area rules for a specific area key and re-triggers transform. */
 	async #saveAreaRulesForKey(areaKey: string, rules: AreaRules) {
-		if (!this._workflowName) return;
+		if (!this._workflowAlias) return;
 
 		const allRules: Record<string, AreaRules> = {
 			...(this._sourceConfig?.areaRules ?? {}),
@@ -389,7 +389,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 			delete allRules[areaKey];
 		}
 
-		const saved = await saveAreaRules(this._workflowName, allRules, this.#token);
+		const saved = await saveAreaRules(this._workflowAlias, allRules, this.#token);
 		if (saved && this._sourceConfig) {
 			this._sourceConfig = { ...this._sourceConfig, areaRules: saved };
 		}
@@ -397,7 +397,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		// Re-trigger transform so the Extracted view reflects composed sections
 		const mediaKey = this._extraction?.source.mediaKey;
 		if (mediaKey) {
-			const updatedTransform = await triggerTransform(this._workflowName, mediaKey, this.#token);
+			const updatedTransform = await triggerTransform(this._workflowAlias, mediaKey, this.#token);
 			if (updatedTransform) {
 				this._transformResult = updatedTransform;
 			}
@@ -406,14 +406,14 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 
 	/** Opens the rules editor modal for a specific area. */
 	async #onEditAreaRules(areaKey: string, areaName: string, elements: AreaElement[]) {
-		if (!this._workflowName) return;
+		if (!this._workflowAlias) return;
 
 		const existingRules = this._sourceConfig?.areaRules?.[areaKey] ?? null;
 
 		const modalManager = await this.getContext(UMB_MODAL_MANAGER_CONTEXT);
 		const modal = modalManager.open(this, UMB_SECTION_RULES_EDITOR_MODAL, {
 			data: {
-				workflowName: this._workflowName,
+				workflowAlias: this._workflowAlias,
 				sectionId: areaKey,
 				sectionHeading: areaName,
 				elements,
@@ -483,7 +483,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 	}
 
 	async #runExtraction(mediaKey: string) {
-		if (!this._workflowName) return;
+		if (!this._workflowAlias) return;
 
 		this._extracting = true;
 		this._error = null;
@@ -497,8 +497,8 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 			if (isPdf) {
 				// PDF: trigger sample extraction and transform (which includes area detection) in parallel
 				const [extraction, transformResult] = await Promise.all([
-					triggerSampleExtraction(this._workflowName, mediaKey, token),
-					triggerTransform(this._workflowName, mediaKey, token),
+					triggerSampleExtraction(this._workflowAlias, mediaKey, token),
+					triggerTransform(this._workflowAlias, mediaKey, token),
 				]);
 
 				if (extraction) {
@@ -507,7 +507,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				if (transformResult) {
 					this._transformResult = transformResult;
 					// Transform endpoint also saved area detection — fetch it
-					const areaDetection = await fetchAreaDetection(this._workflowName, token);
+					const areaDetection = await fetchAreaDetection(this._workflowAlias, token);
 					this._areaDetection = areaDetection;
 					const d = transformResult.diagnostics;
 					const rolePart = d.roleSections > 0 ? `, ${d.roleSections} role` : '';
@@ -521,12 +521,12 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				}
 			} else {
 				// Non-PDF (markdown, web, etc.): trigger sample extraction, then fetch auto-generated transform
-				const extraction = await triggerSampleExtraction(this._workflowName, mediaKey, token);
+				const extraction = await triggerSampleExtraction(this._workflowAlias, mediaKey, token);
 
 				if (extraction) {
 					this._extraction = extraction;
 					// Backend auto-generated transform.json — fetch it
-					const transformResult = await fetchTransformResult(this._workflowName!, token);
+					const transformResult = await fetchTransformResult(this._workflowAlias!, token);
 					this._transformResult = transformResult;
 					this._successMessage = `Content extracted — ${extraction.elements.length} elements`;
 					setTimeout(() => { this._successMessage = null; }, 5000);
@@ -563,8 +563,8 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 	}
 
 	async #onToggleInclusion(sectionId: string, included: boolean) {
-		if (!this._workflowName) return;
-		const result = await updateSectionInclusion(this._workflowName, sectionId, included, this.#token);
+		if (!this._workflowAlias) return;
+		const result = await updateSectionInclusion(this._workflowAlias, sectionId, included, this.#token);
 		if (result) {
 			this._transformResult = result;
 		}
@@ -647,14 +647,14 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 
 	/** User clicked an element in teach mode. Call the inference API. */
 	async #onTeachElementClick(elementId: string) {
-		if (this._teachingAreaIndex === null || !this._workflowName || this._inferring) return;
+		if (this._teachingAreaIndex === null || !this._workflowAlias || this._inferring) return;
 
 		this._inferring = true;
 		this._inferenceResult = null;
 
 		try {
 			const result = await inferSectionPattern(
-				this._workflowName,
+				this._workflowAlias,
 				this._teachingAreaIndex,
 				elementId,
 				this.#token,
@@ -670,7 +670,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 
 	/** Confirm the inferred pattern — save to area template and re-extract. */
 	async #onConfirmPattern() {
-		if (this._teachingAreaIndex === null || !this._inferenceResult || !this._workflowName || !this._areaTemplate) return;
+		if (this._teachingAreaIndex === null || !this._inferenceResult || !this._workflowAlias || !this._areaTemplate) return;
 
 		const idx = this._teachingAreaIndex;
 		if (idx < 0 || idx >= this._areaTemplate.areas.length) return;
@@ -680,7 +680,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		updatedAreas[idx] = { ...updatedAreas[idx], sectionPattern: this._inferenceResult.pattern };
 		const updatedTemplate: AreaTemplate = { ...this._areaTemplate, areas: updatedAreas };
 
-		const saved = await saveAreaTemplate(this._workflowName, updatedTemplate, this.#token);
+		const saved = await saveAreaTemplate(this._workflowAlias, updatedTemplate, this.#token);
 		if (saved) {
 			this._areaTemplate = saved;
 			// Exit teach mode
@@ -693,7 +693,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 
 	/** Save empty conditions (no section headings) for the current teach area. */
 	async #onNoSections() {
-		if (this._teachingAreaIndex === null || !this._workflowName || !this._areaTemplate) return;
+		if (this._teachingAreaIndex === null || !this._workflowAlias || !this._areaTemplate) return;
 
 		const idx = this._teachingAreaIndex;
 		if (idx < 0 || idx >= this._areaTemplate.areas.length) return;
@@ -703,7 +703,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		updatedAreas[idx] = { ...updatedAreas[idx], sectionPattern: { conditions: [] } };
 		const updatedTemplate: AreaTemplate = { ...this._areaTemplate, areas: updatedAreas };
 
-		const saved = await saveAreaTemplate(this._workflowName, updatedTemplate, this.#token);
+		const saved = await saveAreaTemplate(this._workflowAlias, updatedTemplate, this.#token);
 		if (saved) {
 			this._areaTemplate = saved;
 			this._teachingAreaIndex = null;
@@ -751,7 +751,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 	}
 
 	async #onMapSection(section: TransformedSection, partSuffix: string = 'content') {
-		if (!this._workflowName || !this._config?.destination) return;
+		if (!this._workflowAlias || !this._config?.destination) return;
 
 		const modalManager = await this.getContext(UMB_MODAL_MANAGER_CONTEXT);
 		const modal = modalManager.open(this, UMB_DESTINATION_PICKER_MODAL, {
@@ -789,7 +789,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 			mappings: updatedMappings,
 		};
 
-		const saved = await saveMapConfig(this._workflowName, updatedMap, this.#token);
+		const saved = await saveMapConfig(this._workflowAlias, updatedMap, this.#token);
 		if (saved) {
 			this._config = { ...this._config, map: saved };
 		}
@@ -797,7 +797,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 
 	/** Remove a specific mapping destination from a source key. */
 	async #onUnmap(sourceKey: string, dest: MappingDestination) {
-		if (!this._workflowName || !this._config?.map) return;
+		if (!this._workflowAlias || !this._config?.map) return;
 
 		const existingMappings = this._config.map.mappings;
 		const mappingIndex = existingMappings.findIndex((m) => m.source === sourceKey);
@@ -819,7 +819,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		}
 
 		const updatedMap: MapConfig = { ...this._config.map, mappings: updatedMappings };
-		const saved = await saveMapConfig(this._workflowName, updatedMap, this.#token);
+		const saved = await saveMapConfig(this._workflowAlias, updatedMap, this.#token);
 		if (saved) {
 			this._config = { ...this._config, map: saved };
 		}
@@ -1707,7 +1707,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 	}
 
 	async #runUrlExtraction(url: string) {
-		if (!this._workflowName || !url) return;
+		if (!this._workflowAlias || !url) return;
 
 		this._extracting = true;
 		this._error = null;
@@ -1716,14 +1716,14 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 			const authContext = await this.getContext(UMB_AUTH_CONTEXT);
 			const token = await authContext.getLatestToken();
 
-			const extraction = await triggerSampleExtraction(this._workflowName, '', token, url);
+			const extraction = await triggerSampleExtraction(this._workflowAlias, '', token, url);
 
 			if (extraction) {
 				this._extraction = extraction;
 				// Backend auto-generated area-detection.json and transform.json — fetch both
 				const [areaDetection, transformResult] = await Promise.all([
-					fetchAreaDetection(this._workflowName!, token),
-					fetchTransformResult(this._workflowName!, token),
+					fetchAreaDetection(this._workflowAlias!, token),
+					fetchTransformResult(this._workflowAlias!, token),
 				]);
 				this._areaDetection = areaDetection;
 				this._transformResult = transformResult;

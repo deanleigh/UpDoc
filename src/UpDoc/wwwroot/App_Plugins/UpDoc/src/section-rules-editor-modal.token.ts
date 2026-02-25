@@ -2,7 +2,7 @@ import { UmbModalToken } from '@umbraco-cms/backoffice/modal';
 import type { AreaElement, AreaRules } from './workflow.types.js';
 
 export interface SectionRulesEditorModalData {
-	workflowName: string;
+	workflowAlias: string;
 	sectionId: string;
 	sectionHeading: string;
 	/** The elements belonging to this section (from area detection). */
