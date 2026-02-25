@@ -1,0 +1,10 @@
+{
+  "Name": "Test Basic Markdown - Markdown",
+  "Alias": "testBasicMarkdownMarkdown",
+  "DocumentTypeAlias": "webPage",
+  "DocumentTypeName": null,
+  "BlueprintId": "f1c24bc7-342b-4e53-b693-57e54c6f80c7",
+  "BlueprintName": "Test Basic Markdown",
+  "SourceType": "markdown",
+  "Version": "1.0"
+}

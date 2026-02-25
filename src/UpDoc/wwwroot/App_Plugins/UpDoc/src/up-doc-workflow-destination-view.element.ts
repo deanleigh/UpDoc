@@ -1,5 +1,5 @@
 import type { DocumentTypeConfig, DestinationField, DestinationBlockGrid } from './workflow.types.js';
-import { fetchWorkflowByName } from './workflow.service.js';
+import { fetchWorkflowByAlias } from './workflow.service.js';
 import { getDestinationTabs, getAllBlockContainers } from './destination-utils.js';
 import { html, customElement, css, state, nothing } from '@umbraco-cms/backoffice/external/lit';
 import { UmbLitElement } from '@umbraco-cms/backoffice/lit-element';
@@ -26,17 +26,17 @@ export class UpDocWorkflowDestinationViewElement extends UmbLitElement {
 		});
 	}
 
-	async #loadConfig(workflowName: string) {
+	async #loadConfig(workflowAlias: string) {
 		this._loading = true;
 		this._error = null;
 
 		try {
 			const authContext = await this.getContext(UMB_AUTH_CONTEXT);
 			const token = await authContext.getLatestToken();
-			this._config = await fetchWorkflowByName(workflowName, token);
+			this._config = await fetchWorkflowByAlias(workflowAlias, token);
 
 			if (!this._config) {
-				this._error = `Workflow "${workflowName}" not found`;
+				this._error = `Workflow "${workflowAlias}" not found`;
 				return;
 			}
 

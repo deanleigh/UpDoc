@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
 using UpDoc.Models;
@@ -23,10 +24,10 @@ public interface IWorkflowService
     IReadOnlyList<DocumentTypeConfig> GetAllConfigs();
 
     /// <summary>
-    /// Gets a workflow config by folder name, loading directly without validation.
+    /// Gets a workflow config by alias, loading directly without validation.
     /// Used by workspace views that need to load partially-complete workflows.
     /// </summary>
-    DocumentTypeConfig? GetConfigByName(string name);
+    DocumentTypeConfig? GetConfigByAlias(string alias);
 
     /// <summary>
     /// Validates cross-file references in a document type config.
@@ -48,80 +49,87 @@ public interface IWorkflowService
     /// <summary>
     /// Creates a new workflow folder with stub source, destination, and map files.
     /// </summary>
-    void CreateWorkflow(string name, string documentTypeAlias, string sourceType, string? blueprintId, string? blueprintName, string? documentTypeName = null);
+    void CreateWorkflow(string alias, string displayName, string documentTypeAlias, string sourceType, string? blueprintId, string? blueprintName, string? documentTypeName = null);
+
+    /// <summary>
+    /// Updates the name and/or alias of an existing workflow.
+    /// If the alias changes, the folder is renamed on disk.
+    /// Returns the new alias (which may differ from the old one).
+    /// </summary>
+    string UpdateWorkflowIdentity(string currentAlias, string newName, string newAlias);
 
     /// <summary>
     /// Deletes a workflow folder and all its files.
     /// </summary>
-    void DeleteWorkflow(string name);
+    void DeleteWorkflow(string alias);
 
     /// <summary>
     /// Saves a DestinationConfig as destination.json in the workflow folder, replacing the existing file.
     /// </summary>
-    void SaveDestinationConfig(string workflowName, DestinationConfig config);
+    void SaveDestinationConfig(string workflowAlias, DestinationConfig config);
 
     /// <summary>
     /// Saves a rich extraction result as sample-extraction.json in the workflow folder.
     /// </summary>
-    void SaveSampleExtraction(string workflowName, RichExtractionResult extraction);
+    void SaveSampleExtraction(string workflowAlias, RichExtractionResult extraction);
 
     /// <summary>
     /// Loads the stored sample-extraction.json from a workflow folder, if it exists.
     /// </summary>
-    RichExtractionResult? GetSampleExtraction(string workflowName);
+    RichExtractionResult? GetSampleExtraction(string workflowAlias);
 
     /// <summary>
     /// Saves a MapConfig as map.json in the workflow folder, replacing the existing file.
     /// </summary>
-    void SaveMapConfig(string workflowName, MapConfig config);
+    void SaveMapConfig(string workflowAlias, MapConfig config);
 
     /// <summary>
     /// Saves an area detection result as area-detection.json in the workflow folder.
     /// </summary>
-    void SaveAreaDetection(string workflowName, AreaDetectionResult result);
+    void SaveAreaDetection(string workflowAlias, AreaDetectionResult result);
 
     /// <summary>
     /// Loads the stored area-detection.json from a workflow folder, if it exists.
     /// Falls back to zone-detection.json for backwards compatibility.
     /// </summary>
-    AreaDetectionResult? GetAreaDetection(string workflowName);
+    AreaDetectionResult? GetAreaDetection(string workflowAlias);
 
     /// <summary>
     /// Saves a transform result as transform.json in the workflow folder.
     /// </summary>
-    void SaveTransformResult(string workflowName, TransformResult result);
+    void SaveTransformResult(string workflowAlias, TransformResult result);
 
     /// <summary>
     /// Loads the stored transform.json from a workflow folder, if it exists.
     /// </summary>
-    TransformResult? GetTransformResult(string workflowName);
+    TransformResult? GetTransformResult(string workflowAlias);
 
     /// <summary>
     /// Updates the Included flag for a single section in transform.json.
     /// Returns the updated TransformResult, or null if the workflow or section was not found.
     /// </summary>
-    TransformResult? UpdateSectionInclusion(string workflowName, string sectionId, bool included);
+    TransformResult? UpdateSectionInclusion(string workflowAlias, string sectionId, bool included);
 
     /// <summary>
     /// Loads the source.json from a workflow folder.
     /// </summary>
-    SourceConfig? GetSourceConfig(string workflowName);
+    SourceConfig? GetSourceConfig(string workflowAlias);
 
     /// <summary>
     /// Saves a SourceConfig as source.json in the workflow folder, replacing the existing file.
     /// </summary>
-    void SaveSourceConfig(string workflowName, SourceConfig config);
+    void SaveSourceConfig(string workflowAlias, SourceConfig config);
 
     /// <summary>
     /// Saves an area template as area-template.json in the workflow folder.
     /// </summary>
-    void SaveAreaTemplate(string workflowName, AreaTemplate template);
+    void SaveAreaTemplate(string workflowAlias, AreaTemplate template);
 
     /// <summary>
     /// Loads the stored area-template.json from a workflow folder, if it exists.
     /// Falls back to zone-template.json for backwards compatibility.
     /// </summary>
-    AreaTemplate? GetAreaTemplate(string workflowName);
+    AreaTemplate? GetAreaTemplate(string workflowAlias);
 }
 
 /// <summary>
@@ -131,7 +139,7 @@ public interface IWorkflowService
 public class WorkflowSummary
 {
     public string Name { get; set; } = string.Empty;
-    public string? DisplayName { get; set; }
+    public string Alias { get; set; } = string.Empty;
     public string DocumentTypeAlias { get; set; } = string.Empty;
     public string? DocumentTypeName { get; set; }
     public string? BlueprintId { get; set; }
@@ -275,13 +283,14 @@ public class WorkflowService : IWorkflowService
         foreach (var folderPath in Directory.GetDirectories(workflowsDirectory))
         {
             var folderName = Path.GetFileName(folderPath);
-            var summary = new WorkflowSummary { Name = folderName };
+            var summary = new WorkflowSummary { Alias = folderName };
 
             // Try workflow.json first (new identity file)
             var identity = ReadWorkflowIdentity(folderPath);
             if (identity != null)
             {
-                summary.DisplayName = identity.Name;
+                summary.Name = identity.Name;
+                summary.Alias = identity.Alias;
                 summary.DocumentTypeAlias = identity.DocumentTypeAlias;
                 summary.DocumentTypeName = identity.DocumentTypeName;
                 summary.BlueprintId = identity.BlueprintId;
@@ -413,14 +422,14 @@ public class WorkflowService : IWorkflowService
         }
     }
 
-    public void CreateWorkflow(string name, string documentTypeAlias, string sourceType, string? blueprintId, string? blueprintName, string? documentTypeName = null)
+    public void CreateWorkflow(string alias, string displayName, string documentTypeAlias, string sourceType, string? blueprintId, string? blueprintName, string? documentTypeName = null)
     {
         var workflowsDirectory = Path.Combine(_webHostEnvironment.ContentRootPath, "updoc", "workflows");
-        var folderPath = Path.Combine(workflowsDirectory, name);
+        var folderPath = Path.Combine(workflowsDirectory, alias);
 
         if (Directory.Exists(folderPath))
         {
-            throw new InvalidOperationException($"Workflow folder '{name}' already exists.");
+            throw new InvalidOperationException($"Workflow '{alias}' already exists.");
         }
 
         Directory.CreateDirectory(folderPath);
@@ -428,11 +437,10 @@ public class WorkflowService : IWorkflowService
         var writeOptions = new JsonSerializerOptions { WriteIndented = true };
 
         // Create workflow.json identity file
-        var displayName = GenerateDisplayName(blueprintName, sourceType);
         var identity = new WorkflowIdentity
         {
             Name = displayName,
-            Alias = name,
+            Alias = alias,
             DocumentTypeAlias = documentTypeAlias,
             DocumentTypeName = documentTypeName,
             BlueprintId = blueprintId,
@@ -442,7 +450,7 @@ public class WorkflowService : IWorkflowService
         var identityJson = JsonSerializer.Serialize(identity, writeOptions);
         File.WriteAllText(Path.Combine(folderPath, "workflow.json"), identityJson);
 
-        // Create stub source.json (new simple naming convention)
+        // Create stub source.json
         var source = new
         {
             version = "1.0",
@@ -452,7 +460,7 @@ public class WorkflowService : IWorkflowService
         var sourceJson = JsonSerializer.Serialize(source, writeOptions);
         File.WriteAllText(Path.Combine(folderPath, "source.json"), sourceJson);
 
-        // Create stub destination.json (new simple naming convention)
+        // Create stub destination.json
         var destination = new
         {
             version = "1.0",
@@ -465,31 +473,83 @@ public class WorkflowService : IWorkflowService
         var destinationJson = JsonSerializer.Serialize(destination, writeOptions);
         File.WriteAllText(Path.Combine(folderPath, "destination.json"), destinationJson);
 
-        // Create stub map.json (new simple naming convention)
+        // Create stub map.json
         var map = new
         {
             version = "1.0",
-            name = $"{name} Mapping",
-            description = $"Mapping configuration for {name}",
+            name = $"{displayName} Mapping",
+            description = $"Mapping configuration for {displayName}",
             mappings = Array.Empty<object>()
         };
         var mapJson = JsonSerializer.Serialize(map, writeOptions);
         File.WriteAllText(Path.Combine(folderPath, "map.json"), mapJson);
 
-        _logger.LogInformation("Created workflow folder: {Name} (displayName: {DisplayName}, docType: {DocType}, sourceType: {SourceType}, blueprint: {Blueprint})",
-            name, displayName, documentTypeAlias, sourceType, blueprintId ?? "none");
+        _logger.LogInformation("Created workflow: {Alias} (name: {DisplayName}, docType: {DocType}, sourceType: {SourceType}, blueprint: {Blueprint})",
+            alias, displayName, documentTypeAlias, sourceType, blueprintId ?? "none");
 
         ClearCache();
     }
 
-    public void DeleteWorkflow(string name)
+    public string UpdateWorkflowIdentity(string currentAlias, string newName, string newAlias)
     {
         var workflowsDirectory = Path.Combine(_webHostEnvironment.ContentRootPath, "updoc", "workflows");
-        var folderPath = Path.Combine(workflowsDirectory, name);
+        var folderPath = Path.Combine(workflowsDirectory, currentAlias);
 
         if (!Directory.Exists(folderPath))
         {
-            throw new DirectoryNotFoundException($"Workflow folder '{name}' does not exist.");
+            throw new DirectoryNotFoundException($"Workflow '{currentAlias}' does not exist.");
+        }
+
+        // Read existing identity
+        var identity = ReadWorkflowIdentity(folderPath)
+            ?? throw new InvalidOperationException($"Workflow '{currentAlias}' has no workflow.json.");
+
+        // Update name
+        identity.Name = newName;
+
+        // If alias changed, rename the folder
+        if (!currentAlias.Equals(newAlias, StringComparison.Ordinal))
+        {
+            var newFolderPath = Path.Combine(workflowsDirectory, newAlias);
+
+            // Safety: ensure paths are inside the workflows directory
+            var fullNewPath = Path.GetFullPath(newFolderPath);
+            var fullWorkflowsPath = Path.GetFullPath(workflowsDirectory);
+            if (!fullNewPath.StartsWith(fullWorkflowsPath, StringComparison.OrdinalIgnoreCase))
+            {
+                throw new InvalidOperationException("Invalid workflow alias.");
+            }
+
+            if (Directory.Exists(newFolderPath))
+            {
+                throw new InvalidOperationException($"A workflow with alias '{newAlias}' already exists.");
+            }
+
+            Directory.Move(folderPath, newFolderPath);
+            folderPath = newFolderPath;
+            identity.Alias = newAlias;
+
+            _logger.LogInformation("Renamed workflow folder '{OldAlias}' → '{NewAlias}'", currentAlias, newAlias);
+        }
+
+        // Write updated identity
+        var writeOptions = new JsonSerializerOptions { WriteIndented = true };
+        var identityJson = JsonSerializer.Serialize(identity, writeOptions);
+        File.WriteAllText(Path.Combine(folderPath, "workflow.json"), identityJson);
+
+        ClearCache();
+
+        return identity.Alias;
+    }
+
+    public void DeleteWorkflow(string alias)
+    {
+        var workflowsDirectory = Path.Combine(_webHostEnvironment.ContentRootPath, "updoc", "workflows");
+        var folderPath = Path.Combine(workflowsDirectory, alias);
+
+        if (!Directory.Exists(folderPath))
+        {
+            throw new DirectoryNotFoundException($"Workflow '{alias}' does not exist.");
         }
 
         // Safety: ensure the folder is actually inside the workflows directory
@@ -502,17 +562,17 @@ public class WorkflowService : IWorkflowService
 
         Directory.Delete(folderPath, recursive: true);
 
-        _logger.LogInformation("Deleted workflow folder: {Name}", name);
+        _logger.LogInformation("Deleted workflow: {Alias}", alias);
 
         ClearCache();
     }
 
-    public void SaveSampleExtraction(string workflowName, RichExtractionResult extraction)
+    public void SaveSampleExtraction(string workflowAlias, RichExtractionResult extraction)
     {
-        var folderPath = GetWorkflowFolderPath(workflowName);
+        var folderPath = GetWorkflowFolderPath(workflowAlias);
         if (!Directory.Exists(folderPath))
         {
-            throw new DirectoryNotFoundException($"Workflow folder '{workflowName}' does not exist.");
+            throw new DirectoryNotFoundException($"Workflow folder '{workflowAlias}' does not exist.");
         }
 
         var filePath = Path.Combine(folderPath, "sample-extraction.json");
@@ -524,12 +584,12 @@ public class WorkflowService : IWorkflowService
             filePath, extraction.Elements.Count);
     }
 
-    public void SaveDestinationConfig(string workflowName, DestinationConfig config)
+    public void SaveDestinationConfig(string workflowAlias, DestinationConfig config)
     {
-        var folderPath = GetWorkflowFolderPath(workflowName);
+        var folderPath = GetWorkflowFolderPath(workflowAlias);
         if (!Directory.Exists(folderPath))
         {
-            throw new DirectoryNotFoundException($"Workflow folder '{workflowName}' does not exist.");
+            throw new DirectoryNotFoundException($"Workflow folder '{workflowAlias}' does not exist.");
         }
 
         var filePath = Path.Combine(folderPath, "destination.json");
@@ -543,12 +603,12 @@ public class WorkflowService : IWorkflowService
         ClearCache();
     }
 
-    public void SaveMapConfig(string workflowName, MapConfig config)
+    public void SaveMapConfig(string workflowAlias, MapConfig config)
     {
-        var folderPath = GetWorkflowFolderPath(workflowName);
+        var folderPath = GetWorkflowFolderPath(workflowAlias);
         if (!Directory.Exists(folderPath))
         {
-            throw new DirectoryNotFoundException($"Workflow folder '{workflowName}' does not exist.");
+            throw new DirectoryNotFoundException($"Workflow folder '{workflowAlias}' does not exist.");
         }
 
         var filePath = Path.Combine(folderPath, "map.json");
@@ -562,9 +622,9 @@ public class WorkflowService : IWorkflowService
         ClearCache();
     }
 
-    public DocumentTypeConfig? GetConfigByName(string name)
+    public DocumentTypeConfig? GetConfigByAlias(string alias)
     {
-        var folderPath = GetWorkflowFolderPath(name);
+        var folderPath = GetWorkflowFolderPath(alias);
         if (!Directory.Exists(folderPath))
             return null;
 
@@ -574,14 +634,14 @@ public class WorkflowService : IWorkflowService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to load config for workflow '{Name}'", name);
+            _logger.LogError(ex, "Failed to load config for workflow '{Alias}'", alias);
             return null;
         }
     }
 
-    public RichExtractionResult? GetSampleExtraction(string workflowName)
+    public RichExtractionResult? GetSampleExtraction(string workflowAlias)
     {
-        var folderPath = GetWorkflowFolderPath(workflowName);
+        var folderPath = GetWorkflowFolderPath(workflowAlias);
         var filePath = Path.Combine(folderPath, "sample-extraction.json");
 
         if (!File.Exists(filePath))
@@ -591,12 +651,12 @@ public class WorkflowService : IWorkflowService
         return JsonSerializer.Deserialize<RichExtractionResult>(json, JsonOptions);
     }
 
-    public void SaveAreaDetection(string workflowName, AreaDetectionResult result)
+    public void SaveAreaDetection(string workflowAlias, AreaDetectionResult result)
     {
-        var folderPath = GetWorkflowFolderPath(workflowName);
+        var folderPath = GetWorkflowFolderPath(workflowAlias);
         if (!Directory.Exists(folderPath))
         {
-            throw new DirectoryNotFoundException($"Workflow folder '{workflowName}' does not exist.");
+            throw new DirectoryNotFoundException($"Workflow folder '{workflowAlias}' does not exist.");
         }
 
         var filePath = Path.Combine(folderPath, "area-detection.json");
@@ -608,9 +668,9 @@ public class WorkflowService : IWorkflowService
             filePath, result.Diagnostics.AreasDetected, result.Diagnostics.ElementsInAreas);
     }
 
-    public AreaDetectionResult? GetAreaDetection(string workflowName)
+    public AreaDetectionResult? GetAreaDetection(string workflowAlias)
     {
-        var folderPath = GetWorkflowFolderPath(workflowName);
+        var folderPath = GetWorkflowFolderPath(workflowAlias);
         var filePath = Path.Combine(folderPath, "area-detection.json");
 
         if (!File.Exists(filePath))
@@ -628,12 +688,12 @@ public class WorkflowService : IWorkflowService
         return JsonSerializer.Deserialize<AreaDetectionResult>(json, JsonOptions);
     }
 
-    public void SaveTransformResult(string workflowName, TransformResult result)
+    public void SaveTransformResult(string workflowAlias, TransformResult result)
     {
-        var folderPath = GetWorkflowFolderPath(workflowName);
+        var folderPath = GetWorkflowFolderPath(workflowAlias);
         if (!Directory.Exists(folderPath))
         {
-            throw new DirectoryNotFoundException($"Workflow folder '{workflowName}' does not exist.");
+            throw new DirectoryNotFoundException($"Workflow folder '{workflowAlias}' does not exist.");
         }
 
         var filePath = Path.Combine(folderPath, "transform.json");
@@ -645,9 +705,9 @@ public class WorkflowService : IWorkflowService
             filePath, result.AllSections.Count());
     }
 
-    public TransformResult? GetTransformResult(string workflowName)
+    public TransformResult? GetTransformResult(string workflowAlias)
     {
-        var folderPath = GetWorkflowFolderPath(workflowName);
+        var folderPath = GetWorkflowFolderPath(workflowAlias);
         var filePath = Path.Combine(folderPath, "transform.json");
 
         if (!File.Exists(filePath))
@@ -659,16 +719,16 @@ public class WorkflowService : IWorkflowService
         // v1.0 files have flat "sections" array, no "areas". Return null to force re-transform.
         if (result != null && result.Areas.Count == 0 && result.Version != "2.0")
         {
-            _logger.LogInformation("Transform result for '{Name}' is v1.0 format, needs re-transform", workflowName);
+            _logger.LogInformation("Transform result for '{Name}' is v1.0 format, needs re-transform", workflowAlias);
             return null;
         }
 
         return result;
     }
 
-    public TransformResult? UpdateSectionInclusion(string workflowName, string sectionId, bool included)
+    public TransformResult? UpdateSectionInclusion(string workflowAlias, string sectionId, bool included)
     {
-        var result = GetTransformResult(workflowName);
+        var result = GetTransformResult(workflowAlias);
         if (result == null) return null;
 
         var section = result.AllSections.FirstOrDefault(s =>
@@ -676,17 +736,17 @@ public class WorkflowService : IWorkflowService
         if (section == null) return null;
 
         section.Included = included;
-        SaveTransformResult(workflowName, result);
+        SaveTransformResult(workflowAlias, result);
 
         _logger.LogInformation("Updated section '{SectionId}' in workflow '{Name}' to Included={Included}",
-            sectionId, workflowName, included);
+            sectionId, workflowAlias, included);
 
         return result;
     }
 
-    public SourceConfig? GetSourceConfig(string workflowName)
+    public SourceConfig? GetSourceConfig(string workflowAlias)
     {
-        var folderPath = GetWorkflowFolderPath(workflowName);
+        var folderPath = GetWorkflowFolderPath(workflowAlias);
         var filePath = Path.Combine(folderPath, "source.json");
 
         if (!File.Exists(filePath))
@@ -709,12 +769,12 @@ public class WorkflowService : IWorkflowService
         return config;
     }
 
-    public void SaveSourceConfig(string workflowName, SourceConfig config)
+    public void SaveSourceConfig(string workflowAlias, SourceConfig config)
     {
-        var folderPath = GetWorkflowFolderPath(workflowName);
+        var folderPath = GetWorkflowFolderPath(workflowAlias);
         if (!Directory.Exists(folderPath))
         {
-            throw new DirectoryNotFoundException($"Workflow folder '{workflowName}' does not exist.");
+            throw new DirectoryNotFoundException($"Workflow folder '{workflowAlias}' does not exist.");
         }
 
         var filePath = Path.Combine(folderPath, "source.json");
@@ -727,12 +787,12 @@ public class WorkflowService : IWorkflowService
         ClearCache();
     }
 
-    public void SaveAreaTemplate(string workflowName, AreaTemplate template)
+    public void SaveAreaTemplate(string workflowAlias, AreaTemplate template)
     {
-        var folderPath = GetWorkflowFolderPath(workflowName);
+        var folderPath = GetWorkflowFolderPath(workflowAlias);
         if (!Directory.Exists(folderPath))
         {
-            throw new DirectoryNotFoundException($"Workflow folder '{workflowName}' does not exist.");
+            throw new DirectoryNotFoundException($"Workflow folder '{workflowAlias}' does not exist.");
         }
 
         var filePath = Path.Combine(folderPath, "area-template.json");
@@ -744,9 +804,9 @@ public class WorkflowService : IWorkflowService
             filePath, template.Areas.Count);
     }
 
-    public AreaTemplate? GetAreaTemplate(string workflowName)
+    public AreaTemplate? GetAreaTemplate(string workflowAlias)
     {
-        var folderPath = GetWorkflowFolderPath(workflowName);
+        var folderPath = GetWorkflowFolderPath(workflowAlias);
         var filePath = Path.Combine(folderPath, "area-template.json");
 
         if (!File.Exists(filePath))
@@ -764,9 +824,9 @@ public class WorkflowService : IWorkflowService
         return JsonSerializer.Deserialize<AreaTemplate>(json, JsonOptions);
     }
 
-    private string GetWorkflowFolderPath(string workflowName)
+    private string GetWorkflowFolderPath(string workflowAlias)
     {
-        return Path.Combine(_webHostEnvironment.ContentRootPath, "updoc", "workflows", workflowName);
+        return Path.Combine(_webHostEnvironment.ContentRootPath, "updoc", "workflows", workflowAlias);
     }
 
     private List<DocumentTypeConfig> LoadConfigs()
@@ -992,6 +1052,19 @@ public class WorkflowService : IWorkflowService
     }
 
     /// <summary>
+    /// Converts a friendly name to a camelCase alias, matching Umbraco's frontend toCamelCase() logic.
+    /// e.g. "Group Tour - PDF" → "groupTourPdf", "Test Basic Markdown" → "testBasicMarkdown"
+    /// </summary>
+    internal static string ToCamelCase(string text)
+    {
+        var matches = Regex.Matches(text, @"[A-Z]{2,}(?=[A-Z][a-z]+[0-9]*|\b)|[A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+");
+        if (matches.Count == 0) return string.Empty;
+        var parts = matches.Select(m => char.ToUpperInvariant(m.Value[0]) + m.Value[1..].ToLowerInvariant());
+        var joined = string.Concat(parts);
+        return char.ToLowerInvariant(joined[0]) + joined[1..];
+    }
+
+    /// <summary>
     /// Scans all workflow folders and generates workflow.json for any that don't have one.
     /// Called on first access to ensure existing workflows are migrated.
     /// </summary>
@@ -1084,6 +1157,56 @@ public class WorkflowService : IWorkflowService
         if (migrated > 0)
         {
             _logger.LogInformation("Migration: generated workflow.json for {Count} existing workflow(s)", migrated);
+        }
+
+        // Pass 2: Rename folders from kebab-case to camelCase and update workflow.json alias
+        var renamed = 0;
+        foreach (var folderPath in Directory.GetDirectories(workflowsDirectory))
+        {
+            var folderName = Path.GetFileName(folderPath);
+            var identity = ReadWorkflowIdentity(folderPath);
+            if (identity == null) continue;
+
+            var expectedAlias = ToCamelCase(identity.Name);
+            if (string.IsNullOrEmpty(expectedAlias)) continue;
+
+            // Skip if folder already matches the expected camelCase alias
+            if (folderName.Equals(expectedAlias, StringComparison.Ordinal)) continue;
+
+            var newFolderPath = Path.Combine(workflowsDirectory, expectedAlias);
+
+            // Skip if target folder already exists (avoid collision)
+            if (Directory.Exists(newFolderPath))
+            {
+                _logger.LogWarning("Migration: cannot rename '{OldFolder}' → '{NewFolder}' — target already exists",
+                    folderName, expectedAlias);
+                continue;
+            }
+
+            try
+            {
+                Directory.Move(folderPath, newFolderPath);
+
+                // Update workflow.json with the new alias
+                identity.Alias = expectedAlias;
+                var identityJson = JsonSerializer.Serialize(identity, writeOptions);
+                File.WriteAllText(Path.Combine(newFolderPath, "workflow.json"), identityJson);
+
+                renamed++;
+                _logger.LogInformation("Migration: renamed folder '{OldFolder}' → '{NewFolder}' (alias: {Alias})",
+                    folderName, expectedAlias, expectedAlias);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Migration: failed to rename folder '{OldFolder}' → '{NewFolder}'",
+                    folderName, expectedAlias);
+            }
+        }
+
+        if (renamed > 0)
+        {
+            _logger.LogInformation("Migration: renamed {Count} workflow folder(s) to camelCase", renamed);
+            ClearCache();
         }
     }
 }

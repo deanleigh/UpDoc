@@ -143,14 +143,14 @@ export class UpDocModalElement extends UmbModalBaseElement<
 				return;
 			}
 
-			const workflowName = this._config.folderPath.replace(/\\/g, '/').split('/').pop() ?? '';
-			if (!workflowName) {
+			const workflowAlias = this._config.folderPath.replace(/\\/g, '/').split('/').pop() ?? '';
+			if (!workflowAlias) {
 				this._extractionError = 'Could not determine workflow name';
 				return;
 			}
 
 			// Run area-aware transform — produces section IDs matching map.json
-			const transformResult = await transformAdhoc(workflowName, mediaUnique, token);
+			const transformResult = await transformAdhoc(workflowAlias, mediaUnique, token);
 
 			const allSections = allTransformSections(transformResult);
 			if (!allSections.length) {
@@ -209,14 +209,14 @@ export class UpDocModalElement extends UmbModalBaseElement<
 				return;
 			}
 
-			const workflowName = this._config.folderPath.replace(/\\/g, '/').split('/').pop() ?? '';
-			if (!workflowName) {
+			const workflowAlias = this._config.folderPath.replace(/\\/g, '/').split('/').pop() ?? '';
+			if (!workflowAlias) {
 				this._extractionError = 'Could not determine workflow name';
 				return;
 			}
 
 			// Run transform with URL — no media key needed
-			const transformResult = await transformAdhoc(workflowName, '', token, this._sourceUrl);
+			const transformResult = await transformAdhoc(workflowAlias, '', token, this._sourceUrl);
 
 			const allSections = allTransformSections(transformResult);
 			if (!allSections.length) {

@@ -105,12 +105,12 @@ export async function extractSections(
 }
 
 /**
- * Fetches the full config for a workflow by its folder name.
+ * Fetches the full config for a workflow by its alias.
  * Returns source, destination, and map configs.
  */
-export async function fetchWorkflowByName(name: string, token: string): Promise<DocumentTypeConfig | null> {
+export async function fetchWorkflowByAlias(alias: string, token: string): Promise<DocumentTypeConfig | null> {
 	const response = await fetch(
-		`/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(name)}`,
+		`/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(alias)}`,
 		{
 			method: 'GET',
 			headers: {
@@ -121,7 +121,7 @@ export async function fetchWorkflowByName(name: string, token: string): Promise<
 	);
 
 	if (!response.ok) {
-		console.warn(`No workflow found with name "${name}"`);
+		console.warn(`No workflow found with alias "${alias}"`);
 		return null;
 	}
 
@@ -132,11 +132,11 @@ export async function fetchWorkflowByName(name: string, token: string): Promise<
  * Fetches the sample extraction for a workflow, if it exists.
  */
 export async function fetchSampleExtraction(
-	workflowName: string,
+	workflowAlias: string,
 	token: string
 ): Promise<RichExtractionResult | null> {
 	const response = await fetch(
-		`/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(workflowName)}/sample-extraction`,
+		`/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(workflowAlias)}/sample-extraction`,
 		{
 			method: 'GET',
 			headers: {
@@ -155,7 +155,7 @@ export async function fetchSampleExtraction(
  * The extraction is saved to sample-extraction.json in the workflow folder.
  */
 export async function triggerSampleExtraction(
-	workflowName: string,
+	workflowAlias: string,
 	mediaKey: string,
 	token: string,
 	url?: string
@@ -165,7 +165,7 @@ export async function triggerSampleExtraction(
 	if (url) body.url = url;
 
 	const response = await fetch(
-		`/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(workflowName)}/sample-extraction`,
+		`/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(workflowAlias)}/sample-extraction`,
 		{
 			method: 'POST',
 			headers: {
@@ -212,11 +212,11 @@ export async function extractRich(
  * Fetches the area detection result for a workflow, if it exists.
  */
 export async function fetchAreaDetection(
-	workflowName: string,
+	workflowAlias: string,
 	token: string
 ): Promise<AreaDetectionResult | null> {
 	const response = await fetch(
-		`/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(workflowName)}/area-detection`,
+		`/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(workflowAlias)}/area-detection`,
 		{
 			method: 'GET',
 			headers: {
@@ -235,12 +235,12 @@ export async function fetchAreaDetection(
  * The result is saved to area-detection.json in the workflow folder.
  */
 export async function triggerAreaDetection(
-	workflowName: string,
+	workflowAlias: string,
 	mediaKey: string,
 	token: string
 ): Promise<AreaDetectionResult | null> {
 	const response = await fetch(
-		`/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(workflowName)}/area-detection`,
+		`/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(workflowAlias)}/area-detection`,
 		{
 			method: 'POST',
 			headers: {
@@ -264,11 +264,11 @@ export async function triggerAreaDetection(
  * Fetches the transform result for a workflow, if it exists.
  */
 export async function fetchTransformResult(
-	workflowName: string,
+	workflowAlias: string,
 	token: string
 ): Promise<TransformResult | null> {
 	const response = await fetch(
-		`/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(workflowName)}/transform`,
+		`/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(workflowAlias)}/transform`,
 		{
 			method: 'GET',
 			headers: {
@@ -287,12 +287,12 @@ export async function fetchTransformResult(
  * The result is saved to transform.json (and area-detection.json) in the workflow folder.
  */
 export async function triggerTransform(
-	workflowName: string,
+	workflowAlias: string,
 	mediaKey: string,
 	token: string
 ): Promise<TransformResult | null> {
 	const response = await fetch(
-		`/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(workflowName)}/transform`,
+		`/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(workflowAlias)}/transform`,
 		{
 			method: 'POST',
 			headers: {
@@ -317,7 +317,7 @@ export async function triggerTransform(
  * Returns a TransformResult with include/exclude state from the stored transform.
  */
 export async function transformAdhoc(
-	workflowName: string,
+	workflowAlias: string,
 	mediaKey: string,
 	token: string,
 	url?: string
@@ -327,7 +327,7 @@ export async function transformAdhoc(
 	if (url) body.url = url;
 
 	const response = await fetch(
-		`/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(workflowName)}/transform-adhoc`,
+		`/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(workflowAlias)}/transform-adhoc`,
 		{
 			method: 'POST',
 			headers: {
@@ -346,13 +346,13 @@ export async function transformAdhoc(
  * Updates the include/exclude state for a single section in transform.json.
  */
 export async function updateSectionInclusion(
-	workflowName: string,
+	workflowAlias: string,
 	sectionId: string,
 	included: boolean,
 	token: string
 ): Promise<TransformResult | null> {
 	const response = await fetch(
-		`/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(workflowName)}/transform/sections/${encodeURIComponent(sectionId)}/included`,
+		`/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(workflowAlias)}/transform/sections/${encodeURIComponent(sectionId)}/included`,
 		{
 			method: 'PATCH',
 			headers: {
@@ -371,12 +371,12 @@ export async function updateSectionInclusion(
  * Saves the map config for a workflow.
  */
 export async function saveMapConfig(
-	workflowName: string,
+	workflowAlias: string,
 	config: MapConfig,
 	token: string
 ): Promise<MapConfig | null> {
 	const response = await fetch(
-		`/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(workflowName)}/map`,
+		`/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(workflowAlias)}/map`,
 		{
 			method: 'PUT',
 			headers: {
@@ -401,12 +401,12 @@ export async function saveMapConfig(
  * Saves page selection for a workflow. Pass null or empty array for "all pages".
  */
 export async function savePageSelection(
-	workflowName: string,
+	workflowAlias: string,
 	pages: number[] | null,
 	token: string
 ): Promise<boolean> {
 	const response = await fetch(
-		`/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(workflowName)}/pages`,
+		`/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(workflowAlias)}/pages`,
 		{
 			method: 'PUT',
 			headers: {
@@ -431,11 +431,11 @@ export async function savePageSelection(
  * Fetches the source config for a workflow.
  */
 export async function fetchSourceConfig(
-	workflowName: string,
+	workflowAlias: string,
 	token: string
 ): Promise<import('./workflow.types.js').SourceConfig | null> {
 	const response = await fetch(
-		`/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(workflowName)}/source`,
+		`/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(workflowAlias)}/source`,
 		{
 			headers: {
 				Authorization: `Bearer ${token}`,
@@ -451,11 +451,11 @@ export async function fetchSourceConfig(
  * Fetches the area template for a workflow, if it exists.
  */
 export async function fetchAreaTemplate(
-	workflowName: string,
+	workflowAlias: string,
 	token: string
 ): Promise<AreaTemplate | null> {
 	const response = await fetch(
-		`/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(workflowName)}/area-template`,
+		`/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(workflowAlias)}/area-template`,
 		{
 			headers: {
 				Authorization: `Bearer ${token}`,
@@ -471,12 +471,12 @@ export async function fetchAreaTemplate(
  * Saves an area template for a workflow.
  */
 export async function saveAreaTemplate(
-	workflowName: string,
+	workflowAlias: string,
 	template: AreaTemplate,
 	token: string
 ): Promise<AreaTemplate | null> {
 	const response = await fetch(
-		`/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(workflowName)}/area-template`,
+		`/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(workflowAlias)}/area-template`,
 		{
 			method: 'PUT',
 			headers: {
@@ -501,11 +501,11 @@ export async function saveAreaTemplate(
  * Returns a Blob that can be used with PDF.js.
  */
 export async function fetchPdfBlob(
-	workflowName: string,
+	workflowAlias: string,
 	token: string
 ): Promise<Blob | null> {
 	const response = await fetch(
-		`/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(workflowName)}/pdf`,
+		`/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(workflowAlias)}/pdf`,
 		{
 			headers: {
 				Authorization: `Bearer ${token}`,
@@ -521,12 +521,12 @@ export async function fetchPdfBlob(
  * Saves section rules for a workflow. Patches source.json's sectionRules key.
  */
 export async function saveSectionRules(
-	workflowName: string,
+	workflowAlias: string,
 	sectionRules: Record<string, SectionRuleSet>,
 	token: string
 ): Promise<Record<string, SectionRuleSet> | null> {
 	const response = await fetch(
-		`/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(workflowName)}/section-rules`,
+		`/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(workflowAlias)}/section-rules`,
 		{
 			method: 'PUT',
 			headers: {
@@ -551,12 +551,12 @@ export async function saveSectionRules(
  * Saves area rules for a workflow. Patches source.json's areaRules key.
  */
 export async function saveAreaRules(
-	workflowName: string,
+	workflowAlias: string,
 	areaRules: Record<string, AreaRules>,
 	token: string
 ): Promise<Record<string, AreaRules> | null> {
 	const response = await fetch(
-		`/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(workflowName)}/area-rules`,
+		`/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(workflowAlias)}/area-rules`,
 		{
 			method: 'PUT',
 			headers: {
@@ -582,13 +582,13 @@ export async function saveAreaRules(
  * The backend examines the element's metadata and finds minimum distinguishing conditions.
  */
 export async function inferSectionPattern(
-	workflowName: string,
+	workflowAlias: string,
 	areaIndex: number,
 	elementId: string,
 	token: string
 ): Promise<InferSectionPatternResponse | null> {
 	const response = await fetch(
-		`/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(workflowName)}/infer-section-pattern`,
+		`/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(workflowAlias)}/infer-section-pattern`,
 		{
 			method: 'POST',
 			headers: {

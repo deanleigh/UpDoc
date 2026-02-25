@@ -10,7 +10,9 @@ import { clearConfigCache, triggerSampleExtraction } from './workflow.service.js
 
 interface WorkflowSummary {
 	name: string;
+	alias: string;
 	documentTypeAlias: string;
+	documentTypeName: string | null;
 	blueprintId: string | null;
 	blueprintName: string | null;
 	sourceTypes: string[];
@@ -148,6 +150,7 @@ export class UpDocWorkflowsViewElement extends UmbLitElement {
 				},
 				body: JSON.stringify({
 					name: sidebarResult.name,
+					alias: sidebarResult.alias,
 					documentTypeAlias: sidebarResult.documentTypeAlias,
 					sourceType: sidebarResult.sourceType,
 					blueprintId: sidebarResult.blueprintId,
@@ -164,7 +167,7 @@ export class UpDocWorkflowsViewElement extends UmbLitElement {
 			if (sidebarResult.mediaUnique || sidebarResult.sourceUrl) {
 				try {
 					await triggerSampleExtraction(
-						sidebarResult.name,
+						sidebarResult.alias,
 						sidebarResult.mediaUnique ?? '',
 						token,
 						sidebarResult.sourceUrl ?? undefined
@@ -185,8 +188,8 @@ export class UpDocWorkflowsViewElement extends UmbLitElement {
 	}
 
 	#handleViewWorkflow(workflow: WorkflowSummary) {
-		const encodedName = encodeURIComponent(workflow.name);
-		window.history.pushState({}, '', `section/settings/workspace/updoc-workflow/edit/${encodedName}`);
+		const encodedAlias = encodeURIComponent(workflow.alias);
+		window.history.pushState({}, '', `section/settings/workspace/updoc-workflow/edit/${encodedAlias}`);
 		window.dispatchEvent(new PopStateEvent('popstate'));
 	}
 
@@ -212,7 +215,7 @@ export class UpDocWorkflowsViewElement extends UmbLitElement {
 			const authContext = await this.getContext(UMB_AUTH_CONTEXT);
 			const token = await authContext.getLatestToken();
 
-			const response = await fetch(`/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(workflow.name)}`, {
+			const response = await fetch(`/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(workflow.alias)}`, {
 				method: 'DELETE',
 				headers: {
 					Authorization: `Bearer ${token}`,
@@ -295,6 +298,7 @@ export class UpDocWorkflowsViewElement extends UmbLitElement {
 				<uui-table>
 					<uui-table-head>
 						<uui-table-head-cell>Workflow</uui-table-head-cell>
+						<uui-table-head-cell>Alias</uui-table-head-cell>
 						<uui-table-head-cell>Document Type</uui-table-head-cell>
 						<uui-table-head-cell>Blueprint</uui-table-head-cell>
 						<uui-table-head-cell>Source</uui-table-head-cell>
@@ -306,7 +310,8 @@ export class UpDocWorkflowsViewElement extends UmbLitElement {
 						(w) => html`
 							<uui-table-row class="clickable-row" @click=${() => this.#handleViewWorkflow(w)}>
 								<uui-table-cell>${w.name}</uui-table-cell>
-								<uui-table-cell>${w.documentTypeAlias}</uui-table-cell>
+								<uui-table-cell class="alias-cell">${w.alias}</uui-table-cell>
+								<uui-table-cell>${w.documentTypeName ?? w.documentTypeAlias}</uui-table-cell>
 								<uui-table-cell>${w.blueprintName ?? w.blueprintId ?? '—'}</uui-table-cell>
 								<uui-table-cell>${this.#formatSourceTypes(w.sourceTypes)}</uui-table-cell>
 								<uui-table-cell>${w.mappingCount}</uui-table-cell>
@@ -355,6 +360,12 @@ export class UpDocWorkflowsViewElement extends UmbLitElement {
 
 			.clickable-row:hover {
 				background: var(--uui-color-surface-alt);
+			}
+
+			.alias-cell {
+				font-family: monospace;
+				font-size: var(--uui-type-small-size);
+				color: var(--uui-color-text-alt);
 			}
 		`,
 	];

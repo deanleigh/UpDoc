@@ -10,6 +10,7 @@ export interface CreateWorkflowSidebarData {
 
 export interface CreateWorkflowSidebarValue {
 	name: string;
+	alias: string;
 	sourceType: string;
 	mediaUnique: string | null;
 	sourceUrl: string | null;
