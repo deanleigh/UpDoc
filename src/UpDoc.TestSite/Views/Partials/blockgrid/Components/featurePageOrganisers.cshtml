@@ -1,0 +1,47 @@
+﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<Umbraco.Cms.Core.Models.Blocks.BlockGridItem>
+@using Umbraco.Cms.Web.Common.PublishedModels
+
+@{
+    Layout = "_Layout_Features.cshtml";
+    if (Umbraco.AssignedContentItem is not ITourProperties currentPage) return;
+    var organisers = currentPage.Organisers;
+    if (organisers == null || !organisers.Any()) return;
+
+    var typed = organisers
+        .Where(b => b.Content is TourOrganiser)
+        .Select(b => (TourOrganiser)b.Content)
+        .ToList();
+
+    var grouped = typed
+        .GroupBy(o => o.OrganiserOrganisation ?? "")
+        .ToList();
+}
+
+@foreach (var group in grouped)
+{
+    if (!string.IsNullOrWhiteSpace(group.Key))
+    {
+        <p class="mb-1"><strong>@group.Key</strong></p>
+    }
+    @foreach (var organiser in group)
+    {
+        <div class="mb-4">
+            @if (!string.IsNullOrWhiteSpace(organiser.OrganiserName))
+            {
+                <p class="mb-1">Contact: @organiser.OrganiserName</p>
+            }
+            @if (!string.IsNullOrWhiteSpace(organiser.OrganiserTelephone))
+            {
+                <p class="mb-1">Tel: <a href="tel:@organiser.OrganiserTelephone">@organiser.OrganiserTelephone</a></p>
+            }
+            @if (!string.IsNullOrWhiteSpace(organiser.OrganiserEmail))
+            {
+                <p class="mb-1">Email: <a href="mailto:@organiser.OrganiserEmail">@organiser.OrganiserEmail</a></p>
+            }
+            @if (!string.IsNullOrWhiteSpace(organiser.OrganiserAddress))
+            {
+                <p class="mb-0" style="white-space: pre-line">@organiser.OrganiserAddress</p>
+            }
+        </div>
+    }
+}
