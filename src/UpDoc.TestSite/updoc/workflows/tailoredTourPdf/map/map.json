@@ -164,6 +164,30 @@
       ],
       "enabled": true,
       "comment": null
+    },
+    {
+      "source": "what-we-will-see.title",
+      "destinations": [
+        {
+          "target": "featurePropertyFeatureTitle",
+          "blockKey": "80c09624-0a96-4e5f-a3af-497feec573ab",
+          "transforms": null
+        }
+      ],
+      "enabled": true,
+      "comment": null
+    },
+    {
+      "source": "what-we-will-see.content",
+      "destinations": [
+        {
+          "target": "richTextContent",
+          "blockKey": "80c09624-0a96-4e5f-a3af-497feec573ab",
+          "transforms": null
+        }
+      ],
+      "enabled": true,
+      "comment": null
     }
   ]
 }

@@ -53,7 +53,7 @@
       "tab": "Page Content",
       "blocks": [
         {
-          "key": "d6428c5f-df29-422b-89be-1dae13e8b8a2",
+          "key": "110aaad3-5e7e-4f7c-9560-4c05e0e8a2fb",
           "contentTypeAlias": "featurePageTitleDescription",
           "contentTypeKey": "1e6ac523-7122-4994-9f51-7ca67065222a",
           "label": "Feature - Page - Title and Description",
@@ -72,13 +72,35 @@
           ]
         },
         {
-          "key": "8d27c3da-f600-4e12-9e02-98294afb3d3f",
-          "contentTypeAlias": "featureNavigationDescendants",
-          "contentTypeKey": "c345e5ce-768f-47e0-968a-e7859dbe0b07",
-          "label": "Feature - Navigation - Descendants",
+          "key": "d477251f-6928-40c3-a1c0-f52fe497036f",
+          "contentTypeAlias": "featurePageOrganisers",
+          "contentTypeKey": "a00f052f-2581-4b24-a04e-a49db5a87615",
+          "label": "Organiser",
           "description": null,
-          "identifyBy": null,
+          "identifyBy": {
+            "property": "featurePropertyFeatureTitle",
+            "value": "Organiser"
+          },
           "properties": [
+            {
+              "key": "1dad35be-ede4-4a57-8a19-ea34cb428481",
+              "alias": "featurePropertyFeatureTitle",
+              "label": "Title",
+              "type": "text",
+              "acceptsFormats": [
+                "text"
+              ]
+            },
+            {
+              "key": "44968294-5acd-4fb0-8e86-bff95e27ce91",
+              "alias": "featurePropertyFeatureDescription",
+              "label": "Description",
+              "type": "textArea",
+              "acceptsFormats": [
+                "text",
+                "markdown"
+              ]
+            },
             {
               "key": "4f869718-23a1-4e4d-93bf-3e63e31352b7",
               "alias": "noConfiguration",
@@ -86,6 +108,16 @@
               "type": "text",
               "acceptsFormats": [
                 "text"
+              ]
+            },
+            {
+              "key": "51c9327a-cebe-49b9-bd12-373df2e4bdc0",
+              "alias": "featurePropertyFeatureSummary",
+              "label": "Summary",
+              "type": "textArea",
+              "acceptsFormats": [
+                "text",
+                "markdown"
               ]
             }
           ]
@@ -205,6 +237,59 @@
           "identifyBy": {
             "property": "featurePropertyFeatureTitle",
             "value": "Accommodation"
+          },
+          "properties": [
+            {
+              "key": "1dad35be-ede4-4a57-8a19-ea34cb428481",
+              "alias": "featurePropertyFeatureTitle",
+              "label": "Title",
+              "type": "text",
+              "acceptsFormats": [
+                "text"
+              ]
+            },
+            {
+              "key": "44968294-5acd-4fb0-8e86-bff95e27ce91",
+              "alias": "featurePropertyFeatureDescription",
+              "label": "Description",
+              "type": "textArea",
+              "acceptsFormats": [
+                "text",
+                "markdown"
+              ]
+            },
+            {
+              "key": "9293baf5-f5c5-4443-a43b-c14593c8446f",
+              "alias": "richTextContent",
+              "label": "Rich Text",
+              "type": "richText",
+              "acceptsFormats": [
+                "html",
+                "markdown",
+                "text"
+              ]
+            },
+            {
+              "key": "51c9327a-cebe-49b9-bd12-373df2e4bdc0",
+              "alias": "featurePropertyFeatureSummary",
+              "label": "Summary",
+              "type": "textArea",
+              "acceptsFormats": [
+                "text",
+                "markdown"
+              ]
+            }
+          ]
+        },
+        {
+          "key": "80c09624-0a96-4e5f-a3af-497feec573ab",
+          "contentTypeAlias": "featureRichTextEditorSights",
+          "contentTypeKey": "2d9b0603-29ef-423a-8d3e-d9c039d3d7b1",
+          "label": "Sights",
+          "description": null,
+          "identifyBy": {
+            "property": "featurePropertyFeatureTitle",
+            "value": "Sights"
           },
           "properties": [
             {
