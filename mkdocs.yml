@@ -99,6 +99,7 @@ nav:
     - errors/index.md
     - Distributed cache error: common-errors.md
     - Blueprint block grid preview: errors/blueprint-block-grid-preview.md
+    - Block property conversion skipped: errors/convert-block-matching.md
 
 markdown_extensions:
   - pymdownx.highlight:

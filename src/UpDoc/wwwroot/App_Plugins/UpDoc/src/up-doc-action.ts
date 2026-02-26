@@ -494,6 +494,7 @@ export class UpDocEntityAction extends UmbEntityActionBase<never> {
 			const wasString = typeof containerVal.value === 'string';
 			const containerData = wasString ? JSON.parse(containerVal.value as string) : containerVal.value;
 			const contentData = containerData.contentData as Array<{
+				contentTypeKey: string;
 				key: string;
 				values: Array<{ alias: string; value: unknown }>;
 			}> | undefined;
@@ -501,14 +502,11 @@ export class UpDocEntityAction extends UmbEntityActionBase<never> {
 
 			for (const block of contentData) {
 				for (const destBlock of container.blocks) {
-					// Match by identifyBy text search, or by key directly for blocks without identifyBy
-					const matched = destBlock.identifyBy
-						? (() => {
-								const searchVal = block.values?.find((v) => v.alias === destBlock.identifyBy!.property);
-								return searchVal &&
-									typeof searchVal.value === 'string' &&
-									searchVal.value.toLowerCase().includes(destBlock.identifyBy!.value.toLowerCase());
-							})()
+					// Match by contentTypeKey (element type GUID) — stable across all documents.
+					// identifyBy text search is unreliable here because mapped values may have
+					// already overwritten the blueprint defaults during the apply pass.
+					const matched = destBlock.contentTypeKey
+						? block.contentTypeKey === destBlock.contentTypeKey
 						: block.key === destBlock.key;
 
 					if (matched) {
