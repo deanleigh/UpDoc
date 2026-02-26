@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Workflow Destination Tab — Info Boxes with Real Icons</title>
+  <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+  <style>
+    :root {
+      --uui-font-family: "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --uui-color-surface: #fff;
+      --uui-color-border: #e0e0e0;
+      --uui-color-text: #1b264f;
+      --uui-color-text-alt: #666;
+      --uui-color-default: #1b264f;
+      --uui-color-default-emphasis: #2b3a6b;
+      --uui-size-space-4: 12px;
+      --uui-size-space-5: 15px;
+      --uui-border-radius: 3px;
+      --uui-type-default-size: 14px;
+      --uui-type-h3-size: 20px;
+      --umb-header-layout-height: 70px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--uui-font-family);
+      background: #f3f3f5;
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 50px;
+      align-items: center;
+    }
+
+    .option-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #999;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+      width: 100%;
+      max-width: 1200px;
+    }
+
+    .workspace {
+      width: 100%;
+      max-width: 1200px;
+      background: var(--uui-color-surface);
+      border: 1px solid var(--uui-color-border);
+      border-radius: var(--uui-border-radius);
+      overflow: hidden;
+    }
+
+    /* Header bar — unchanged */
+    .header-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: var(--umb-header-layout-height);
+      padding: 0 var(--uui-size-space-5);
+      border-bottom: 1px solid var(--uui-color-border);
+    }
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: var(--uui-size-space-4);
+      flex: 1;
+      min-width: 0;
+    }
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+    .headline {
+      font-size: var(--uui-type-h3-size);
+      font-weight: 700;
+      color: var(--uui-color-text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .alias-badge {
+      font-size: 11px;
+      color: #999;
+      font-family: monospace;
+      white-space: nowrap;
+    }
+
+    /* Tab buttons */
+    .tab-group { display: flex; }
+    .tab-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 10px 18px;
+      border: none;
+      background: transparent;
+      color: var(--uui-color-text-alt);
+      font-size: 11px;
+      font-family: var(--uui-font-family);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+    }
+    .tab-btn.active {
+      color: var(--uui-color-text);
+      border-bottom-color: var(--uui-color-text);
+    }
+    .tab-btn svg { width: 18px; height: 18px; }
+
+    /* Inner tabs */
+    .inner-tabs {
+      display: flex;
+      padding: 0 var(--uui-size-space-5);
+      border-bottom: 1px solid var(--uui-color-border);
+    }
+    .inner-tab {
+      padding: 10px 16px;
+      border: none;
+      background: transparent;
+      color: var(--uui-color-text-alt);
+      font-size: var(--uui-type-default-size);
+      font-family: var(--uui-font-family);
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -1px;
+    }
+    .inner-tab.active {
+      color: var(--uui-color-text);
+      border-bottom-color: #d42054;
+    }
+
+    /* Info boxes */
+    .info-boxes {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      margin: var(--uui-size-space-5);
+      border: 1px solid var(--uui-color-border);
+      border-radius: var(--uui-border-radius);
+      overflow: hidden;
+    }
+    .info-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 16px 16px;
+      background: var(--uui-color-surface);
+      border-right: 1px solid var(--uui-color-border);
+    }
+    .info-box:last-child { border-right: none; }
+
+    .info-box-header {
+      font-size: 11px;
+      font-weight: 600;
+      color: #999;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+      align-self: flex-start;
+    }
+    .info-box-icon {
+      width: 36px;
+      height: 36px;
+      color: #bbb;
+      margin-bottom: 10px;
+    }
+    .info-box-value {
+      font-size: var(--uui-type-default-size);
+      font-weight: 600;
+      color: var(--uui-color-text);
+      margin-bottom: 4px;
+      text-align: center;
+    }
+    .info-box-sub {
+      font-size: 11px;
+      color: #999;
+      margin-bottom: 14px;
+    }
+    .info-box-number {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--uui-color-text);
+      margin-bottom: 4px;
+    }
+    .info-box-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border: none;
+      border-radius: var(--uui-border-radius);
+      background: var(--uui-color-default);
+      color: #fff;
+      font-size: 12px;
+      font-family: var(--uui-font-family);
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: auto;
+    }
+    .info-box-btn svg { width: 14px; height: 14px; }
+    .info-box-spacer { margin-top: auto; }
+
+    /* Field list */
+    .field-list { padding: 0 var(--uui-size-space-5) var(--uui-size-space-5); }
+    .field-item { padding: 14px 0; border-bottom: 1px solid #f0f0f0; }
+    .field-item:last-child { border-bottom: none; }
+    .field-header { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+    .field-label { font-size: var(--uui-type-default-size); font-weight: 600; color: var(--uui-color-text); }
+    .field-type { font-size: 11px; color: #999; background: #f3f3f5; padding: 2px 6px; border-radius: 2px; }
+    .field-badge-required { font-size: 11px; color: #fff; background: #d42054; padding: 2px 8px; border-radius: 10px; font-weight: 600; }
+    .field-meta { display: flex; align-items: center; gap: 12px; font-size: 12px; color: #999; }
+    .field-alias { font-family: monospace; font-size: 11px; }
+    .map-icon { color: #ccc; font-size: 16px; margin-left: auto; }
+  </style>
+</head>
+<body>
+
+  <!-- ============================================================
+       DESTINATION TAB — with real Umbraco icons
+       ============================================================ -->
+  <div class="option-label">Destination tab — info boxes with Umbraco icons</div>
+  <div class="workspace">
+    <div class="header-bar">
+      <div class="header-left">
+        <span class="headline">Group Tour - PDF</span>
+        <span class="alias-badge">groupTourPdf</span>
+      </div>
+      <div class="header-right">
+        <div class="tab-group">
+          <button type="button" class="tab-btn active">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 512 512"><path d="M334.622 326.082h-23.67v23.678h23.67v13.785h21.311v-49.528h-21.311zM156.138 183.827h12.922v23.68h23.678v-23.68h12.924v-21.311h-49.524zm12.922 47.359h23.679v23.679H169.06zm0 47.357h23.679v23.68H169.06zm0 71.217h23.678v-23.858H169.06zm94.535-23.678h23.68v23.678h-23.68zm-47.359 0h23.68v23.678h-23.68zm173.77-180.749L310.575 65.9l-6.937-6.936H115.06v394.07h281.88V152.268zm-16.744 284.026-234.524-.002V82.644h133.921c35.181 0 18.229 83.393 18.229 83.393s81.329-19.766 82.374 17.526zM232.367 286.082h123.566L232.367 162.516z"/></svg>
+            Destination
+          </button>
+          <button type="button" class="tab-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>
+            Source
+          </button>
+          <button type="button" class="tab-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewBox="0 0 24 24"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z"/><path d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12"/><path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17"/></svg>
+            Map
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="inner-tabs">
+      <button type="button" class="inner-tab active">Page Properties</button>
+      <button type="button" class="inner-tab">Page Content</button>
+    </div>
+    <div class="info-boxes">
+      <!-- Blueprint -->
+      <div class="info-box">
+        <div class="info-box-header">Blueprint</div>
+        <svg class="info-box-icon" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 512 512"><path d="M334.622 326.082h-23.67v23.678h23.67v13.785h21.311v-49.528h-21.311zM156.138 183.827h12.922v23.68h23.678v-23.68h12.924v-21.311h-49.524zm12.922 47.359h23.679v23.679H169.06zm0 47.357h23.679v23.68H169.06zm0 71.217h23.678v-23.858H169.06zm94.535-23.678h23.68v23.678h-23.68zm-47.359 0h23.68v23.678h-23.68zm173.77-180.749L310.575 65.9l-6.937-6.936H115.06v394.07h281.88V152.268zm-16.744 284.026-234.524-.002V82.644h133.921c35.181 0 18.229 83.393 18.229 83.393s81.329-19.766 82.374 17.526zM232.367 286.082h123.566L232.367 162.516z"/></svg>
+        <div class="info-box-value">Group Tour</div>
+        <div class="info-box-sub">&nbsp;</div>
+        <button type="button" class="info-box-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 512 512"><path d="M334.622 326.082h-23.67v23.678h23.67v13.785h21.311v-49.528h-21.311zM156.138 183.827h12.922v23.68h23.678v-23.68h12.924v-21.311h-49.524zm12.922 47.359h23.679v23.679H169.06zm0 47.357h23.679v23.68H169.06zm0 71.217h23.678v-23.858H169.06zm94.535-23.678h23.68v23.678h-23.68zm-47.359 0h23.68v23.678h-23.68zm173.77-180.749L310.575 65.9l-6.937-6.936H115.06v394.07h281.88V152.268zm-16.744 284.026-234.524-.002V82.644h133.921c35.181 0 18.229 83.393 18.229 83.393s81.329-19.766 82.374 17.526zM232.367 286.082h123.566L232.367 162.516z"/></svg>
+          Choose Blueprint
+        </button>
+      </div>
+      <!-- Document Type -->
+      <div class="info-box">
+        <div class="info-box-header">Document Type</div>
+        <svg class="info-box-icon" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>
+        <div class="info-box-value">Group Tour</div>
+        <div class="info-box-sub">groupTour</div>
+        <div class="info-box-spacer">&nbsp;</div>
+      </div>
+      <!-- Fields -->
+      <div class="info-box">
+        <div class="info-box-header">Fields</div>
+        <svg class="info-box-icon" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewBox="0 0 24 24"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z"/><path d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12"/><path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17"/></svg>
+        <div class="info-box-number">3</div>
+        <div class="info-box-sub">text-mappable</div>
+        <div class="info-box-spacer">&nbsp;</div>
+      </div>
+      <!-- Blocks -->
+      <div class="info-box">
+        <div class="info-box-header">Blocks</div>
+        <svg class="info-box-icon" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewBox="0 0 24 24"><path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73zM12 22V12"/><path d="M3.29 7 12 12l8.71-5M7.5 4.27l9 5.15"/></svg>
+        <div class="info-box-number">6</div>
+        <div class="info-box-sub">in blueprint</div>
+        <div class="info-box-spacer">&nbsp;</div>
+      </div>
+    </div>
+    <!-- Existing field list -->
+    <div class="field-list">
+      <div class="field-item">
+        <div class="field-header">
+          <span class="field-label">Page Title</span>
+          <span class="field-type">text</span>
+          <span class="field-badge-required">Required</span>
+          <span class="map-icon">&#x2B95;</span>
+        </div>
+        <div class="field-meta">
+          <span class="field-alias">pageTitle</span>
+          <span>This will appear in pages</span>
+        </div>
+      </div>
+      <div class="field-item">
+        <div class="field-header">
+          <span class="field-label">Page Title Short</span>
+          <span class="field-type">text</span>
+          <span class="field-badge-required">Required</span>
+          <span class="map-icon">&#x2B95;</span>
+        </div>
+        <div class="field-meta">
+          <span class="field-alias">pageTitleShort</span>
+          <span>This will appear in navigation</span>
+        </div>
+      </div>
+      <div class="field-item">
+        <div class="field-header">
+          <span class="field-label">Page Description</span>
+          <span class="field-type">textArea</span>
+          <span class="field-badge-required">Required</span>
+          <span class="map-icon">&#x2B95;</span>
+        </div>
+        <div class="field-meta">
+          <span class="field-alias">pageDescription</span>
+          <span>This will appear in pages</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

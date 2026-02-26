@@ -126,11 +126,11 @@
           "key": "0d955991-3330-4b58-8028-d6845c909183",
           "contentTypeAlias": "featureRichTextEditorItinery",
           "contentTypeKey": "365fd365-6ec4-4fbb-9434-1df366aa77f8",
-          "label": "Suggested Itinerary",
+          "label": "Itinerary",
           "description": null,
           "identifyBy": {
             "property": "featurePropertyFeatureTitle",
-            "value": "Suggested Itinerary"
+            "value": "Itinerary"
           },
           "properties": [
             {
