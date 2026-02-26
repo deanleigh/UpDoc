@@ -276,14 +276,19 @@ export class UpDocCollectionActionElement extends UmbLitElement {
 	) {
 		const transformedValue = sectionValue;
 
-		// Block property with blockKey — find the specific block instance
+		// Block property — use contentTypeKey directly if available (resilient to stale blockKeys)
+		if (dest.contentTypeKey) {
+			for (const container of [...(config.destination.blockGrids ?? []), ...(config.destination.blockLists ?? [])]) {
+				this.#applyBlockValueByContentType(values, container.alias, dest.contentTypeKey, dest.target, transformedValue, mappedFields);
+			}
+			return;
+		}
+
+		// Fallback: blockKey lookup in destination.json (for mappings without contentTypeKey)
 		if (dest.blockKey) {
 			for (const container of [...(config.destination.blockGrids ?? []), ...(config.destination.blockLists ?? [])]) {
 				const block = container.blocks.find((b) => b.key === dest.blockKey);
 				if (block) {
-					// Match by contentTypeKey — Umbraco regenerates block instance keys when
-					// creating documents from blueprints, so the blueprint key won't match.
-					// contentTypeKey (element type GUID) is stable across all documents.
 					const contentTypeKey = block.contentTypeKey;
 					if (contentTypeKey) {
 						this.#applyBlockValueByContentType(values, container.alias, contentTypeKey, dest.target, transformedValue, mappedFields);

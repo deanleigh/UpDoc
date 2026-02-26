@@ -10,11 +10,13 @@
         {
           "target": "pageTitle",
           "blockKey": null,
+          "contentTypeKey": null,
           "transforms": null
         },
         {
           "target": "pageTitleShort",
           "blockKey": null,
+          "contentTypeKey": null,
           "transforms": null
         }
       ],
@@ -27,6 +29,7 @@
         {
           "target": "pageDescription",
           "blockKey": null,
+          "contentTypeKey": null,
           "transforms": null
         }
       ],
@@ -38,7 +41,8 @@
       "destinations": [
         {
           "target": "organiserOrganisation",
-          "blockKey": "7ee351d1-8894-4052-bbce-b5fbd8c224f8",
+          "blockKey": "00000000-0000-0000-0000-000000000000",
+          "contentTypeKey": "e91b6cf0-0a92-4b3f-a1c9-b17aca85e345",
           "transforms": null
         }
       ],
@@ -50,7 +54,8 @@
       "destinations": [
         {
           "target": "organiserName",
-          "blockKey": "7ee351d1-8894-4052-bbce-b5fbd8c224f8",
+          "blockKey": "00000000-0000-0000-0000-000000000000",
+          "contentTypeKey": "e91b6cf0-0a92-4b3f-a1c9-b17aca85e345",
           "transforms": null
         }
       ],
@@ -62,7 +67,8 @@
       "destinations": [
         {
           "target": "organiserTelephone",
-          "blockKey": "7ee351d1-8894-4052-bbce-b5fbd8c224f8",
+          "blockKey": "00000000-0000-0000-0000-000000000000",
+          "contentTypeKey": "e91b6cf0-0a92-4b3f-a1c9-b17aca85e345",
           "transforms": null
         }
       ],
@@ -74,7 +80,8 @@
       "destinations": [
         {
           "target": "organiserEmail",
-          "blockKey": "7ee351d1-8894-4052-bbce-b5fbd8c224f8",
+          "blockKey": "00000000-0000-0000-0000-000000000000",
+          "contentTypeKey": "e91b6cf0-0a92-4b3f-a1c9-b17aca85e345",
           "transforms": null
         }
       ],
@@ -86,7 +93,8 @@
       "destinations": [
         {
           "target": "organiserAddress",
-          "blockKey": "7ee351d1-8894-4052-bbce-b5fbd8c224f8",
+          "blockKey": "00000000-0000-0000-0000-000000000000",
+          "contentTypeKey": "e91b6cf0-0a92-4b3f-a1c9-b17aca85e345",
           "transforms": null
         }
       ],
@@ -98,7 +106,8 @@
       "destinations": [
         {
           "target": "featurePropertyFeatureTitle",
-          "blockKey": "06cbdd26-e9f9-41d7-8cfb-9eaa6cf45db9",
+          "blockKey": "00000000-0000-0000-0000-000000000000",
+          "contentTypeKey": "34e5aa3b-db10-40a1-893d-79e98cd3f2f4",
           "transforms": null
         }
       ],
@@ -110,7 +119,8 @@
       "destinations": [
         {
           "target": "richTextContent",
-          "blockKey": "06cbdd26-e9f9-41d7-8cfb-9eaa6cf45db9",
+          "blockKey": "00000000-0000-0000-0000-000000000000",
+          "contentTypeKey": "34e5aa3b-db10-40a1-893d-79e98cd3f2f4",
           "transforms": null
         }
       ],
@@ -122,7 +132,8 @@
       "destinations": [
         {
           "target": "featurePropertyFeatureTitle",
-          "blockKey": "e7dba20d-ab15-4f9b-b78c-a049c267ff48",
+          "blockKey": "00000000-0000-0000-0000-000000000000",
+          "contentTypeKey": "1d09b5af-b95a-4af5-b8f2-323db029e817",
           "transforms": null
         }
       ],
@@ -134,7 +145,8 @@
       "destinations": [
         {
           "target": "richTextContent",
-          "blockKey": "e7dba20d-ab15-4f9b-b78c-a049c267ff48",
+          "blockKey": "00000000-0000-0000-0000-000000000000",
+          "contentTypeKey": "1d09b5af-b95a-4af5-b8f2-323db029e817",
           "transforms": null
         }
       ],
@@ -146,7 +158,8 @@
       "destinations": [
         {
           "target": "richTextContent",
-          "blockKey": "0d955991-3330-4b58-8028-d6845c909183",
+          "blockKey": "00000000-0000-0000-0000-000000000000",
+          "contentTypeKey": "365fd365-6ec4-4fbb-9434-1df366aa77f8",
           "transforms": null
         }
       ],
@@ -158,7 +171,8 @@
       "destinations": [
         {
           "target": "featurePropertyFeatureSummary",
-          "blockKey": "0d955991-3330-4b58-8028-d6845c909183",
+          "blockKey": "00000000-0000-0000-0000-000000000000",
+          "contentTypeKey": "365fd365-6ec4-4fbb-9434-1df366aa77f8",
           "transforms": null
         }
       ],
@@ -170,7 +184,8 @@
       "destinations": [
         {
           "target": "featurePropertyFeatureTitle",
-          "blockKey": "80c09624-0a96-4e5f-a3af-497feec573ab",
+          "blockKey": "00000000-0000-0000-0000-000000000000",
+          "contentTypeKey": "2d9b0603-29ef-423a-8d3e-d9c039d3d7b1",
           "transforms": null
         }
       ],
@@ -182,7 +197,8 @@
       "destinations": [
         {
           "target": "richTextContent",
-          "blockKey": "80c09624-0a96-4e5f-a3af-497feec573ab",
+          "blockKey": "00000000-0000-0000-0000-000000000000",
+          "contentTypeKey": "2d9b0603-29ef-423a-8d3e-d9c039d3d7b1",
           "transforms": null
         }
       ],

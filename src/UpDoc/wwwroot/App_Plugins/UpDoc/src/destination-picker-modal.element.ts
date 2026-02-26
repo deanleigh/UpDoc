@@ -11,7 +11,7 @@ export class UpDocDestinationPickerModalElement extends UmbModalBaseElement<
 	DestinationPickerModalValue
 > {
 	@state() private _activeTab = '';
-	@state() private _selectedTargets = new Map<string, { target: string; blockKey?: string }>();
+	@state() private _selectedTargets = new Map<string, { target: string; blockKey?: string; contentTypeKey?: string }>();
 
 	override connectedCallback() {
 		super.connectedCallback();
@@ -78,13 +78,13 @@ export class UpDocDestinationPickerModalElement extends UmbModalBaseElement<
 		return blockKey ? `${blockKey}:${alias}` : alias;
 	}
 
-	#toggleTarget(alias: string, blockKey?: string) {
+	#toggleTarget(alias: string, blockKey?: string, contentTypeKey?: string) {
 		const key = this.#makeKey(alias, blockKey);
 		const next = new Map(this._selectedTargets);
 		if (next.has(key)) {
 			next.delete(key);
 		} else {
-			next.set(key, { target: alias, blockKey });
+			next.set(key, { target: alias, blockKey, contentTypeKey });
 		}
 		this._selectedTargets = next;
 	}
@@ -170,12 +170,12 @@ export class UpDocDestinationPickerModalElement extends UmbModalBaseElement<
 												const checked = this._selectedTargets.has(compoundKey);
 												const mappedSource = this.#alreadyMapped.get(compoundKey);
 												return html`
-													<div class="block-property ${checked ? 'field-selected' : ''}" @click=${() => this.#toggleTarget(prop.alias, block.key)}>
+													<div class="block-property ${checked ? 'field-selected' : ''}" @click=${() => this.#toggleTarget(prop.alias, block.key, block.contentTypeKey)}>
 														<uui-checkbox
 															label="Select ${prop.label || prop.alias}"
 															?checked=${checked}
 															@click=${(e: Event) => e.stopPropagation()}
-															@change=${() => this.#toggleTarget(prop.alias, block.key)}>
+															@change=${() => this.#toggleTarget(prop.alias, block.key, block.contentTypeKey)}>
 														</uui-checkbox>
 														<span class="block-property-label">${prop.label || prop.alias}</span>
 														${mappedSource ? html`<span class="field-mapped" title="Mapped from: ${this.#formatSourceLabel(mappedSource)}">${this.#formatSourceLabel(mappedSource)}</span>` : nothing}

@@ -403,6 +403,7 @@ export interface SectionMapping {
 export interface MappingDestination {
 	target: string;
 	blockKey?: string;
+	contentTypeKey?: string;
 	transforms?: MappingTransform[];
 }
 

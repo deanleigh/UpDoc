@@ -52,6 +52,9 @@ public class MappingDestination
     [JsonPropertyName("blockKey")]
     public string? BlockKey { get; set; }
 
+    [JsonPropertyName("contentTypeKey")]
+    public string? ContentTypeKey { get; set; }
+
     [JsonPropertyName("transforms")]
     public List<MappingTransform>? Transforms { get; set; }
 }

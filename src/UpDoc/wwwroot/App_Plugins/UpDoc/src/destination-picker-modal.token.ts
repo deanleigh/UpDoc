@@ -8,7 +8,7 @@ export interface DestinationPickerModalData {
 }
 
 export interface DestinationPickerModalValue {
-	selectedTargets: Array<{ target: string; blockKey?: string }>;
+	selectedTargets: Array<{ target: string; blockKey?: string; contentTypeKey?: string }>;
 }
 
 export const UMB_DESTINATION_PICKER_MODAL = new UmbModalToken<
