@@ -92,6 +92,9 @@ nav:
       - tooling/playwright/index.md
     - Umbraco Claude Skills:
       - tooling/umbraco-skills/index.md
+  - Deployment:
+    - deployment/index.md
+    - uSync Migration: deployment/usync-migration.md
   - Common Errors:
     - errors/index.md
     - Distributed cache error: common-errors.md
