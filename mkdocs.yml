@@ -98,6 +98,7 @@ nav:
   - Common Errors:
     - errors/index.md
     - Distributed cache error: common-errors.md
+    - Blueprint block grid preview: errors/blueprint-block-grid-preview.md
 
 markdown_extensions:
   - pymdownx.highlight:
