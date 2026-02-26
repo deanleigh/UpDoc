@@ -20,15 +20,15 @@
               "children": [
                 {
                   "id": "p1-e1",
-                  "text": "The Art Fund (Devon) presents",
-                  "fontSize": 11.4,
-                  "fontName": "LGPHPC\u002BHelveticaNeue-Medium",
+                  "text": "Surrey Heath DFAS presents",
+                  "fontSize": 10.8,
+                  "fontName": "BFPPFL\u002BHelveticaNeue-Medium",
                   "color": "#FFD200",
                   "boundingBox": {
                     "left": 31.7,
-                    "top": 816.7,
-                    "width": 149.7,
-                    "height": 8.3
+                    "top": 813,
+                    "width": 141.9,
+                    "height": 7.9
                   }
                 }
               ]
@@ -36,15 +36,15 @@
             {
               "heading": {
                 "id": "p1-e2",
-                "text": "The Moorish Treasures of Andaluc\u00EDa",
-                "fontSize": 28,
-                "fontName": "LGPHPF\u002BClarendon",
+                "text": "The Art \u0026 History of Dresden, Leipzig \u0026 Mei\u03B2en",
+                "fontSize": 31,
+                "fontName": "BFPPGN\u002BClarendon",
                 "color": "#FFFFFF",
                 "boundingBox": {
-                  "left": 33.2,
-                  "top": 794.4,
-                  "width": 314,
-                  "height": 49.6
+                  "left": 31.7,
+                  "top": 791.2,
+                  "width": 292.3,
+                  "height": 79.2
                 }
               },
               "children": []
@@ -52,14 +52,14 @@
             {
               "heading": {
                 "id": "p1-e3",
-                "text": "6 days from \u00A31,099 Departing 8th November 2018",
+                "text": "6 days from \u00A3994 Departing 29th September 2015",
                 "fontSize": 14.4,
-                "fontName": "LGPHPC\u002BHelveticaNeue-Medium",
+                "fontName": "BFPPFL\u002BHelveticaNeue-Medium",
                 "color": "#FFD200",
                 "boundingBox": {
-                  "left": 30.1,
-                  "top": 722.1,
-                  "width": 338.3,
+                  "left": 31.7,
+                  "top": 684.9,
+                  "width": 330.4,
                   "height": 10.5
                 }
               },
@@ -84,60 +84,85 @@
               "children": [
                 {
                   "id": "p1-e4",
-                  "text": "John Hitchins",
-                  "fontSize": 23,
-                  "fontName": "LGPHPF\u002BClarendon",
-                  "color": "#FFD200",
-                  "boundingBox": {
-                    "left": 26.9,
-                    "top": 131.1,
-                    "width": 159,
-                    "height": 15.5
-                  }
-                },
-                {
-                  "id": "p1-e5",
-                  "text": "Tel: 01803 732173",
-                  "fontSize": 18,
-                  "fontName": "LGPHPF\u002BClarendon",
+                  "text": "For more information on this tour contact your Group Organiser",
+                  "fontSize": 9,
+                  "fontName": "BFPPGO\u002BHelveticaNeue",
                   "color": "#FFFFFF",
                   "boundingBox": {
-                    "left": 26.9,
-                    "top": 108.5,
-                    "width": 161.7,
-                    "height": 11.9
-                  }
-                },
-                {
-                  "id": "p1-e6",
-                  "text": "Email: john@frogmorecottage.org.uk ...............................................................",
-                  "fontSize": 14,
-                  "fontName": "LGPHPF\u002BClarendon",
-                  "color": "#FFD200",
-                  "boundingBox": {
-                    "left": 26.9,
-                    "top": 90.2,
-                    "width": 264.7,
-                    "height": 25.6
-                  }
-                },
-                {
-                  "id": "p1-e7",
-                  "text": "Frogmore Cottage, Ashprington, Totnes TQ9 7UL",
-                  "fontSize": 12,
-                  "fontName": "LGPHPF\u002BClarendon",
-                  "color": "#FFFFFF",
-                  "boundingBox": {
-                    "left": 26.9,
-                    "top": 58.8,
-                    "width": 188.8,
-                    "height": 22.2
+                    "left": 26.7,
+                    "top": 131.8,
+                    "width": 254.3,
+                    "height": 6.6
                   }
                 }
               ]
+            },
+            {
+              "heading": {
+                "id": "p1-e5",
+                "text": "Margaret Wilson",
+                "fontSize": 24,
+                "fontName": "BFPPGN\u002BClarendon",
+                "color": "#FFD200",
+                "boundingBox": {
+                  "left": 26.7,
+                  "top": 117.4,
+                  "width": 196.6,
+                  "height": 16.2
+                }
+              },
+              "children": []
+            },
+            {
+              "heading": {
+                "id": "p1-e6",
+                "text": "Tel: 01344 622768",
+                "fontSize": 18,
+                "fontName": "BFPPGN\u002BClarendon",
+                "color": "#FFFFFF",
+                "boundingBox": {
+                  "left": 26.7,
+                  "top": 92.1,
+                  "width": 161.4,
+                  "height": 11.9
+                }
+              },
+              "children": []
+            },
+            {
+              "heading": {
+                "id": "p1-e7",
+                "text": "Email: hatton@onetel.net",
+                "fontSize": 14,
+                "fontName": "BFPPGN\u002BClarendon",
+                "color": "#FFD200",
+                "boundingBox": {
+                  "left": 26.7,
+                  "top": 72.7,
+                  "width": 162.8,
+                  "height": 9.5
+                }
+              },
+              "children": []
+            },
+            {
+              "heading": {
+                "id": "p1-e8",
+                "text": "5 Hamilton Drive, Ascot SL5 9PP",
+                "fontSize": 12,
+                "fontName": "BFPPGN\u002BClarendon",
+                "color": "#FFFFFF",
+                "boundingBox": {
+                  "left": 26.9,
+                  "top": 42.8,
+                  "width": 193.3,
+                  "height": 8.2
+                }
+              },
+              "children": []
             }
           ],
-          "totalElements": 4
+          "totalElements": 5
         },
         {
           "name": "Tour Details",
@@ -152,403 +177,360 @@
           "sections": [
             {
               "heading": {
-                "id": "p1-e8",
+                "id": "p1-e9",
                 "text": "FEATURES",
                 "fontSize": 12,
-                "fontName": "LGPHPF\u002BClarendon",
+                "fontName": "BFPPGN\u002BClarendon",
                 "color": "#16549D",
                 "boundingBox": {
                   "left": 409.4,
-                  "top": 742,
-                  "width": 67.6,
+                  "top": 693.1,
+                  "width": 67.5,
                   "height": 8.2
                 }
               },
               "children": [
                 {
-                  "id": "p1-e9",
-                  "text": "\u2022 4* hotels throughout",
-                  "fontSize": 8.5,
-                  "fontName": "LGPHPE\u002BHelveticaNeue",
-                  "color": "#16549D",
-                  "boundingBox": {
-                    "left": 409.3,
-                    "top": 724.8,
-                    "width": 82.3,
-                    "height": 6.1
-                  }
-                },
-                {
                   "id": "p1-e10",
-                  "text": "\u2022 2 dinners included",
+                  "text": "\u2022 4* central Dresden hotel",
                   "fontSize": 8.5,
-                  "fontName": "LGPHPE\u002BHelveticaNeue",
+                  "fontName": "BFPPGO\u002BHelveticaNeue",
                   "color": "#16549D",
                   "boundingBox": {
                     "left": 409.3,
-                    "top": 713,
-                    "width": 75.2,
+                    "top": 676.4,
+                    "width": 95.4,
                     "height": 6.1
                   }
                 },
                 {
                   "id": "p1-e11",
-                  "text": "\u2022 A full programme of included excursions \u0026 guided tours",
+                  "text": "\u2022 All excursions, entrance fees \u0026 guided tours included",
                   "fontSize": 8.5,
-                  "fontName": "LGPHPE\u002BHelveticaNeue",
+                  "fontName": "BFPPGO\u002BHelveticaNeue",
                   "color": "#16549D",
                   "boundingBox": {
                     "left": 409.3,
-                    "top": 701.2,
-                    "width": 158.4,
-                    "height": 15.8
+                    "top": 665.2,
+                    "width": 148.8,
+                    "height": 14.5
                   }
                 },
                 {
                   "id": "p1-e12",
-                  "text": "\u2022 All entrance fees included",
+                  "text": "\u2022 Three dinners included",
                   "fontSize": 8.5,
-                  "fontName": "LGPHPE\u002BHelveticaNeue",
+                  "fontName": "BFPPGO\u002BHelveticaNeue",
                   "color": "#16549D",
                   "boundingBox": {
                     "left": 409.3,
-                    "top": 679.8,
-                    "width": 103.2,
+                    "top": 645.5,
+                    "width": 91,
                     "height": 6.1
                   }
                 },
                 {
                   "id": "p1-e13",
-                  "text": "\u2022 Return UK airport coach transfers included",
+                  "text": "\u2022 Direct scheduled British Airways flights from Heathrow to Berli",
                   "fontSize": 8.5,
-                  "fontName": "LGPHPE\u002BHelveticaNeue",
+                  "fontName": "BFPPGO\u002BHelveticaNeue",
                   "color": "#16549D",
                   "boundingBox": {
                     "left": 409.3,
-                    "top": 668,
-                    "width": 133.2,
-                    "height": 15.8
+                    "top": 634.4,
+                    "width": 151.4,
+                    "height": 14.5
                   }
                 },
                 {
                   "id": "p1-e14",
-                  "text": "\u2022 Direct scheduled flights from Bristol to Malaga",
+                  "text": "\u2022 Professional guide",
                   "fontSize": 8.5,
-                  "fontName": "LGPHPE\u002BHelveticaNeue",
+                  "fontName": "BFPPGO\u002BHelveticaNeue",
                   "color": "#16549D",
                   "boundingBox": {
                     "left": 409.3,
-                    "top": 646.5,
-                    "width": 150.7,
-                    "height": 15.8
+                    "top": 614.7,
+                    "width": 74.6,
+                    "height": 6.1
                   }
                 },
                 {
                   "id": "p1-e15",
-                  "text": "\u2022 Professional tour manager",
+                  "text": "\u2022 Executive coach (as detailed in the itinerary)",
                   "fontSize": 8.5,
-                  "fontName": "LGPHPE\u002BHelveticaNeue",
+                  "fontName": "BFPPGO\u002BHelveticaNeue",
                   "color": "#16549D",
                   "boundingBox": {
                     "left": 409.3,
-                    "top": 625,
-                    "width": 105.1,
-                    "height": 6.1
+                    "top": 603.6,
+                    "width": 164.1,
+                    "height": 6.2
                   }
                 },
                 {
                   "id": "p1-e16",
-                  "text": "\u2022 Executive coach throughout",
+                  "text": "\u2022 Gratuities \u0026 audio headsets included",
                   "fontSize": 8.5,
-                  "fontName": "LGPHPE\u002BHelveticaNeue",
+                  "fontName": "BFPPGO\u002BHelveticaNeue",
                   "color": "#16549D",
                   "boundingBox": {
                     "left": 409.3,
-                    "top": 613.1,
-                    "width": 111.7,
-                    "height": 6.1
-                  }
-                },
-                {
-                  "id": "p1-e17",
-                  "text": "\u2022 Audio headsets included on Days 2 to 5",
-                  "fontSize": 8.5,
-                  "fontName": "LGPHPE\u002BHelveticaNeue",
-                  "color": "#16549D",
-                  "boundingBox": {
-                    "left": 409.3,
-                    "top": 601.3,
-                    "width": 156.6,
-                    "height": 6.1
+                    "top": 592.4,
+                    "width": 143.3,
+                    "height": 6.2
                   }
                 }
               ]
             },
             {
               "heading": {
-                "id": "p1-e18",
+                "id": "p1-e17",
                 "text": "WHAT WE WILL SEE",
                 "fontSize": 12,
-                "fontName": "LGPHPF\u002BClarendon",
+                "fontName": "BFPPGN\u002BClarendon",
                 "color": "#16549D",
                 "boundingBox": {
                   "left": 409.4,
-                  "top": 581.9,
-                  "width": 127.2,
+                  "top": 573.4,
+                  "width": 127.1,
                   "height": 8.2
                 }
               },
               "children": [
                 {
-                  "id": "p1-e19",
-                  "text": "\u2022 Granada \u2013 orientation tour",
+                  "id": "p1-e18",
+                  "text": "\u2022 Dresden \u2013 guided city walking tour",
                   "fontSize": 8.5,
-                  "fontName": "LGPHPE\u002BHelveticaNeue",
+                  "fontName": "BFPPGO\u002BHelveticaNeue",
                   "color": "#16549D",
                   "boundingBox": {
                     "left": 409.3,
-                    "top": 564.8,
-                    "width": 104.8,
-                    "height": 6.2
-                  }
-                },
-                {
-                  "id": "p1-e20",
-                  "text": "\u2022 14th century Alhambra Palace \u2013 guided tour",
-                  "fontSize": 8.5,
-                  "fontName": "LGPHPE\u002BHelveticaNeue",
-                  "color": "#16549D",
-                  "boundingBox": {
-                    "left": 409.3,
-                    "top": 552.9,
-                    "width": 126.2,
-                    "height": 15.7
-                  }
-                },
-                {
-                  "id": "p1-e21",
-                  "text": "\u2022 Cordoba \u0026 The Mezquita \u2013 guided tour",
-                  "fontSize": 8.5,
-                  "fontName": "LGPHPE\u002BHelveticaNeue",
-                  "color": "#16549D",
-                  "boundingBox": {
-                    "left": 409.3,
-                    "top": 531.6,
-                    "width": 152.6,
-                    "height": 6.2
-                  }
-                },
-                {
-                  "id": "p1-e22",
-                  "text": "\u2022 Seville \u2013 guided tour",
-                  "fontSize": 8.5,
-                  "fontName": "LGPHPE\u002BHelveticaNeue",
-                  "color": "#16549D",
-                  "boundingBox": {
-                    "left": 409.3,
-                    "top": 519.8,
-                    "width": 82.4,
-                    "height": 6.2
-                  }
-                },
-                {
-                  "id": "p1-e23",
-                  "text": "\u2022 Reales Alcazares \u2013 guided tour",
-                  "fontSize": 8.5,
-                  "fontName": "LGPHPE\u002BHelveticaNeue",
-                  "color": "#16549D",
-                  "boundingBox": {
-                    "left": 409.3,
-                    "top": 507.8,
-                    "width": 122.5,
+                    "top": 556.7,
+                    "width": 135.1,
                     "height": 6.1
                   }
                 },
                 {
-                  "id": "p1-e24",
-                  "text": "\u2022 Italica remains",
+                  "id": "p1-e19",
+                  "text": "\u2022 Frauenkirche",
                   "fontSize": 8.5,
-                  "fontName": "LGPHPE\u002BHelveticaNeue",
+                  "fontName": "BFPPGO\u002BHelveticaNeue",
                   "color": "#16549D",
                   "boundingBox": {
                     "left": 409.3,
-                    "top": 496,
-                    "width": 59.9,
+                    "top": 545.5,
+                    "width": 53.9,
+                    "height": 6.1
+                  }
+                },
+                {
+                  "id": "p1-e20",
+                  "text": "\u2022 Zwinger Palace \u0026 Old Masters Picture Gallery \u2013 guided tour",
+                  "fontSize": 8.5,
+                  "fontName": "BFPPGO\u002BHelveticaNeue",
+                  "color": "#16549D",
+                  "boundingBox": {
+                    "left": 409.3,
+                    "top": 534.4,
+                    "width": 147.6,
+                    "height": 14.6
+                  }
+                },
+                {
+                  "id": "p1-e21",
+                  "text": "\u2022 Pillnitz Castle, Gardens \u0026 the Museum of Decorative Arts \u2013 guided tour",
+                  "fontSize": 8.5,
+                  "fontName": "BFPPGO\u002BHelveticaNeue",
+                  "color": "#16549D",
+                  "boundingBox": {
+                    "left": 409.3,
+                    "top": 514.8,
+                    "width": 158.7,
+                    "height": 14.6
+                  }
+                },
+                {
+                  "id": "p1-e22",
+                  "text": "\u2022 Paddle Steamer Cruise from K\u00F6nigstein to Pillnitz",
+                  "fontSize": 8.5,
+                  "fontName": "BFPPGO\u002BHelveticaNeue",
+                  "color": "#16549D",
+                  "boundingBox": {
+                    "left": 409.3,
+                    "top": 495.2,
+                    "width": 111.6,
+                    "height": 14.6
+                  }
+                },
+                {
+                  "id": "p1-e23",
+                  "text": "\u2022 Royal Palace \u2013 Old Green Vault \u0026 New Green Vault",
+                  "fontSize": 8.5,
+                  "fontName": "BFPPGO\u002BHelveticaNeue",
+                  "color": "#16549D",
+                  "boundingBox": {
+                    "left": 409.3,
+                    "top": 475.5,
+                    "width": 129.7,
+                    "height": 14.6
+                  }
+                },
+                {
+                  "id": "p1-e24",
+                  "text": "\u2022 Leipzig \u2013 guided city walking tour",
+                  "fontSize": 8.5,
+                  "fontName": "BFPPGO\u002BHelveticaNeue",
+                  "color": "#16549D",
+                  "boundingBox": {
+                    "left": 409.3,
+                    "top": 455.8,
+                    "width": 130.4,
                     "height": 6.1
                   }
                 },
                 {
                   "id": "p1-e25",
-                  "text": "\u2022 Museo de Bellas Artes",
+                  "text": "\u2022 Tomaskirche",
                   "fontSize": 8.5,
-                  "fontName": "LGPHPE\u002BHelveticaNeue",
+                  "fontName": "BFPPGO\u002BHelveticaNeue",
                   "color": "#16549D",
                   "boundingBox": {
                     "left": 409.3,
-                    "top": 484.2,
-                    "width": 90.6,
+                    "top": 444.5,
+                    "width": 52.5,
                     "height": 6.1
                   }
                 },
                 {
                   "id": "p1-e26",
-                  "text": "\u2022 Ronda \u2013 guided tour",
+                  "text": "\u2022 Museum der Bildenden K\u00FCnste \u2013 guided tour",
                   "fontSize": 8.5,
-                  "fontName": "LGPHPE\u002BHelveticaNeue",
+                  "fontName": "BFPPGO\u002BHelveticaNeue",
                   "color": "#16549D",
                   "boundingBox": {
                     "left": 409.3,
-                    "top": 472.4,
-                    "width": 82.9,
-                    "height": 6.1
+                    "top": 433.3,
+                    "width": 128,
+                    "height": 14.5
                   }
-                }
-              ]
-            },
-            {
-              "heading": {
-                "id": "p1-e27",
-                "text": "OPTIONAL",
-                "fontSize": 12,
-                "fontName": "LGPHPF\u002BClarendon",
-                "color": "#16549D",
-                "boundingBox": {
-                  "left": 409.4,
-                  "top": 453,
-                  "width": 66.7,
-                  "height": 8.2
-                }
-              },
-              "children": [
+                },
                 {
-                  "id": "p1-e28",
-                  "text": "\u2022 Flamenco evening",
+                  "id": "p1-e27",
+                  "text": "\u2022 Mei\u00DFen Porcelain Museum \u2013 guided tour",
                   "fontSize": 8.5,
-                  "fontName": "LGPHPE\u002BHelveticaNeue",
+                  "fontName": "BFPPGO\u002BHelveticaNeue",
                   "color": "#16549D",
                   "boundingBox": {
                     "left": 409.3,
-                    "top": 435.8,
-                    "width": 74.5,
-                    "height": 6.1
+                    "top": 413.8,
+                    "width": 157.1,
+                    "height": 6.2
                   }
                 }
               ]
             },
             {
               "heading": {
-                "id": "p1-e29",
+                "id": "p1-e28",
                 "text": "ACCOMMODATION",
                 "fontSize": 12,
-                "fontName": "LGPHPF\u002BClarendon",
+                "fontName": "BFPPGN\u002BClarendon",
                 "color": "#16549D",
                 "boundingBox": {
                   "left": 409.4,
-                  "top": 416.4,
+                  "top": 394.9,
                   "width": 116.2,
                   "height": 8.2
                 }
               },
               "children": [
                 {
-                  "id": "p1-e30",
-                  "text": "We stay two nights in Granada at the 4* Gran Hotel Luna (www.sercotelhotels.co.uk/hotels/spain/Gr anada/gran-hotel-luna-de-granada), located a ten minute walk from the historical centre, and three nights in Seville at the 4* Hotel MA Sevilla Congreso (www.hotelsevillacongresos.com), just a short bus or taxi ride from the centre. Facilities at both hotels include a restaurant and a bar and all rooms are en suite. Dinner is served on the first night at each hotel and the remaining three nights are on bed and breakfast basis.",
+                  "id": "p1-e29",
+                  "text": "We stay five nights at the centrally located 4* Maritim Hotel (www.maritim.de) in Dresden. Located by the River Elbe, and under a five minute walk from the Semper Opera House, facilities at the hotel include a restaurant, bar, swimming pool, gymnasium, steam room and a sauna. All rooms are en suite and feature television, telephone, hairdryer and a mini bar. Dinner is included in our hotel on the first and second evenings, and at a carefully selected restaurant which is a 10 minute walk from our hotel on the last night. The remaining two evenings are on bed and breakfast basis.",
                   "fontSize": 8.5,
-                  "fontName": "LGPHPE\u002BHelveticaNeue",
+                  "fontName": "BFPPGO\u002BHelveticaNeue",
                   "color": "#16549D",
                   "boundingBox": {
                     "left": 409.3,
-                    "top": 399.3,
-                    "width": 164.2,
-                    "height": 132
+                    "top": 378.3,
+                    "width": 159.1,
+                    "height": 123.7
                   }
                 }
               ]
             },
             {
               "heading": {
-                "id": "p1-e31",
+                "id": "p1-e30",
                 "text": "EXTRAS TO YOUR TOUR",
                 "fontSize": 12,
-                "fontName": "LGPHPF\u002BClarendon",
+                "fontName": "BFPPGN\u002BClarendon",
                 "color": "#16549D",
                 "boundingBox": {
                   "left": 409.4,
-                  "top": 254,
-                  "width": 154.3,
+                  "top": 241.8,
+                  "width": 154.2,
                   "height": 8.2
                 }
               },
               "children": [
                 {
-                  "id": "p1-e32",
-                  "text": "\u2022 Single room supplement \u00A3149",
+                  "id": "p1-e31",
+                  "text": "\u2022 Insurance \u00A336",
                   "fontSize": 8.5,
-                  "fontName": "LGPHPE\u002BHelveticaNeue",
+                  "fontName": "BFPPGO\u002BHelveticaNeue",
                   "color": "#16549D",
                   "boundingBox": {
                     "left": 409.3,
-                    "top": 236.9,
-                    "width": 119.1,
+                    "top": 225.3,
+                    "width": 58.4,
+                    "height": 6.2
+                  }
+                },
+                {
+                  "id": "p1-e32",
+                  "text": "\u2022 Single room supplement \u00A389",
+                  "fontSize": 8.5,
+                  "fontName": "BFPPGO\u002BHelveticaNeue",
+                  "color": "#16549D",
+                  "boundingBox": {
+                    "left": 409.3,
+                    "top": 214.1,
+                    "width": 113.3,
                     "height": 6.2
                   }
                 },
                 {
                   "id": "p1-e33",
-                  "text": "\u2022 Insurance \u00A344",
+                  "text": "\u2022 Local accommodation tax to be paid directly to the hotel (approximately \u20AC1.30 per person per night)",
                   "fontSize": 8.5,
-                  "fontName": "LGPHPE\u002BHelveticaNeue",
+                  "fontName": "BFPPGO\u002BHelveticaNeue",
                   "color": "#16549D",
                   "boundingBox": {
                     "left": 409.3,
-                    "top": 225.1,
-                    "width": 58.9,
-                    "height": 6.2
+                    "top": 202.7,
+                    "width": 158.3,
+                    "height": 22.9
                   }
                 },
                 {
                   "id": "p1-e34",
-                  "text": "\u2022 Optional Flamenco evening on Day 5",
-                  "fontSize": 8.5,
-                  "fontName": "LGPHPE\u002BHelveticaNeue",
-                  "color": "#16549D",
-                  "boundingBox": {
-                    "left": 409.3,
-                    "top": 213.3,
-                    "width": 145.2,
-                    "height": 6.2
-                  }
-                },
-                {
-                  "id": "p1-e35",
-                  "text": "\u2022 Gratuities",
-                  "fontSize": 8.5,
-                  "fontName": "LGPHPE\u002BHelveticaNeue",
-                  "color": "#16549D",
-                  "boundingBox": {
-                    "left": 409.3,
-                    "top": 201.5,
-                    "width": 41.8,
-                    "height": 6.2
-                  }
-                },
-                {
-                  "id": "p1-e36",
-                  "text": "Flight details may be subject to change. Price based on twin share. Minimum numbers required. Normal booking conditions apply.",
+                  "text": "Flight details may be subject to change. Price based on twin share. Minimum numbers",
                   "fontSize": 8,
-                  "fontName": "LGPHPC\u002BHelveticaNeue-Medium",
+                  "fontName": "BFPPFL\u002BHelveticaNeue-Medium",
                   "color": "#16549D",
                   "boundingBox": {
                     "left": 408.6,
-                    "top": 186.7,
+                    "top": 173.1,
                     "width": 157.5,
-                    "height": 21.7
+                    "height": 13.7
                   }
                 }
               ]
             }
           ],
-          "totalElements": 29
+          "totalElements": 26
         }
       ]
     },
@@ -567,194 +549,206 @@
           "page": 2,
           "sections": [
             {
-              "heading": null,
+              "heading": {
+                "id": "p2-e35",
+                "text": "6 days from \u00A3994 Departing 29th September 2015",
+                "fontSize": 14.4,
+                "fontName": "BFPPFL\u002BHelveticaNeue-Medium",
+                "color": "#16549D",
+                "boundingBox": {
+                  "left": 212.3,
+                  "top": 689.9,
+                  "width": 330.4,
+                  "height": 10.5
+                }
+              },
               "children": [
                 {
-                  "id": "p2-e37",
+                  "id": "p2-e36",
                   "text": "Day 1",
-                  "fontSize": 10,
-                  "fontName": "LGPHPC\u002BHelveticaNeue-Medium",
+                  "fontSize": 11,
+                  "fontName": "BFPPFL\u002BHelveticaNeue-Medium",
                   "color": "#16549D",
                   "boundingBox": {
-                    "left": 212,
-                    "top": 698.8,
-                    "width": 26.3,
-                    "height": 7.1
+                    "left": 212.3,
+                    "top": 665.3,
+                    "width": 28.3,
+                    "height": 7.9
+                  }
+                },
+                {
+                  "id": "p2-e37",
+                  "text": "We meet at Heathrow Airport for our direct scheduled British Airways flight to Berlin. On arrival in Berlin we are met by our guide and transfer by coach to the centrally located 4* Maritim Hotel in Dresden for a five night stay. Dinner is included in our hotel the first and second evenings, and at a carefully selected restaurant on the last night. The remaining two evenings are on bed and breakfast basis.",
+                  "fontSize": 11,
+                  "fontName": "BFPPGO\u002BHelveticaNeue",
+                  "color": "#221F1F",
+                  "boundingBox": {
+                    "left": 212.3,
+                    "top": 653.9,
+                    "width": 338,
+                    "height": 65
                   }
                 },
                 {
                   "id": "p2-e38",
-                  "text": "We meet at our designated pick up points and transfer by coach to Bristol Airport for our direct scheduled flight to Malaga. On arrival in Malaga we are met by our tour manager who will accompany us throughout our tour. We transfer in our private executive coach to Granada where we enjoy a short orientation tour before checking in at the centrally located 4* Gran Hotel Luna for a two night stay. Dinner is served in our hotel this evening, and the second night is on bed and breakfast basis.",
-                  "fontSize": 10,
-                  "fontName": "LGPHPE\u002BHelveticaNeue",
-                  "color": "#221F1F",
+                  "text": "Day 2",
+                  "fontSize": 11,
+                  "fontName": "BFPPFL\u002BHelveticaNeue-Medium",
+                  "color": "#16549D",
                   "boundingBox": {
-                    "left": 212,
-                    "top": 685.9,
-                    "width": 338.2,
-                    "height": 84.8
+                    "left": 212.3,
+                    "top": 579.7,
+                    "width": 28.3,
+                    "height": 7.9
                   }
                 },
                 {
                   "id": "p2-e39",
-                  "text": "Day 2",
-                  "fontSize": 10,
-                  "fontName": "LGPHPC\u002BHelveticaNeue-Medium",
-                  "color": "#16549D",
+                  "text": "This morning we enjoy a guided walking tour of Dresden, taking in sights such as the Semper Opera House and the Cathedral. During our guided tour we visit the Frauenkirche, an outstanding example of Protestant sacred architecture and featuring one of the largest domes in Europe. Destroyed during the bombing of Dresden in World War II, the church was rebuilt after the reunification of Dresden. This afternoon we walk to the Zwinger Palace, the old fortress of Dresden. A guided tour of the Old Masters Picture Gallery in the Palace introduces us to works by Rubens, Canaletto, Raphael, Titian, Rembrandt and Vermeer, as well as a wonderful Mei\u03B2en porcelain gallery.",
+                  "fontSize": 11,
+                  "fontName": "BFPPGO\u002BHelveticaNeue",
+                  "color": "#221F1F",
                   "boundingBox": {
-                    "left": 212,
-                    "top": 589.7,
-                    "width": 25.7,
-                    "height": 7.1
+                    "left": 212.3,
+                    "top": 568.4,
+                    "width": 344.6,
+                    "height": 110.7
                   }
                 },
                 {
                   "id": "p2-e40",
-                  "text": "This morning we have a guided tour of the Alhambra Palace. Dating from the 14th century, the Palace is the high point of Moorish culture and is recognised as the world\u2019s greatest Moorish monument. With gardens, fortifications and sumptuous palaces, it was the home of many of the Arabic sultans who ruled the whole province. This afternoon you have the chance to explore Granada with time to visit the Gothic style Cathedral at your leisure.",
-                  "fontSize": 10,
-                  "fontName": "LGPHPE\u002BHelveticaNeue",
-                  "color": "#221F1F",
+                  "text": "Day 3",
+                  "fontSize": 11,
+                  "fontName": "BFPPFL\u002BHelveticaNeue-Medium",
+                  "color": "#16549D",
                   "boundingBox": {
-                    "left": 212,
-                    "top": 576.9,
-                    "width": 341.7,
-                    "height": 84.8
+                    "left": 212.3,
+                    "top": 448.5,
+                    "width": 28.3,
+                    "height": 7.9
                   }
                 },
                 {
                   "id": "p2-e41",
-                  "text": "Day 3",
-                  "fontSize": 10,
-                  "fontName": "LGPHPC\u002BHelveticaNeue-Medium",
-                  "color": "#16549D",
+                  "text": "We visit Pillnitz Castle and Gardens for a morning guided tour. One of the area\u2019s finest summer palaces, the Castle lies picturesquely on the banks of the River Elbe. With its flying buttresses and chimneys ornamented with crowns, this is the only Chinese style castle of its size in Europe. Here we visit the Museum of Decorative Arts. The museum focuses on Saxon and European arts and crafts of the 17th and 18th century. This afternoon we travel to K\u00F6nigstein, a town located by the banks of the River Elbe. We then take an included memorable paddle steamer cruise along the River Elbe from K\u00F6nigstein to Pirna to view the splendour of the Saxony Alps.",
+                  "fontSize": 11,
+                  "fontName": "BFPPGO\u002BHelveticaNeue",
+                  "color": "#221F1F",
                   "boundingBox": {
-                    "left": 212,
-                    "top": 480.7,
-                    "width": 25.7,
-                    "height": 7.1
+                    "left": 212.3,
+                    "top": 437.3,
+                    "width": 346.3,
+                    "height": 110.8
                   }
                 },
                 {
                   "id": "p2-e42",
-                  "text": "We leave Granada and travel to Seville. En route we visit the Moorish capital of Cordoba, once famous for its Jewish community and now known for The Mezquita, the grandest mosque ever constructed by the Moors. There is a guided tour on arrival followed by time at leisure for lunch. We continue to Seville where we stay three nights at the 4* Hotel MA Sevilla Congreso. Dinner is served in our hotel this evening and the remaining two nights are on bed and breakfast basis.",
-                  "fontSize": 10,
-                  "fontName": "LGPHPE\u002BHelveticaNeue",
-                  "color": "#221F1F",
+                  "text": "Day 4",
+                  "fontSize": 11,
+                  "fontName": "BFPPFL\u002BHelveticaNeue-Medium",
+                  "color": "#16549D",
                   "boundingBox": {
-                    "left": 212,
-                    "top": 467.9,
-                    "width": 339.1,
-                    "height": 84.8
+                    "left": 212.3,
+                    "top": 317.3,
+                    "width": 28.3,
+                    "height": 7.9
                   }
                 },
                 {
                   "id": "p2-e43",
-                  "text": "Day 4",
-                  "fontSize": 10,
-                  "fontName": "LGPHPC\u002BHelveticaNeue-Medium",
-                  "color": "#16549D",
+                  "text": "This morning we visit the Royal Palace and visit the Old Green Vault with its collection of fine silver and jewellery followed by the New Green Vault highlighting some of the central pieces from the collection in their original setting including the celebrated Dresden Green Diamond. We then visit the New Green Vault. The rest of the day is at leisure in Dresden.",
+                  "fontSize": 11,
+                  "fontName": "BFPPGO\u002BHelveticaNeue",
+                  "color": "#221F1F",
                   "boundingBox": {
-                    "left": 212,
-                    "top": 371.6,
-                    "width": 25.7,
-                    "height": 7.1
+                    "left": 212.3,
+                    "top": 306.1,
+                    "width": 346.4,
+                    "height": 53.7
                   }
                 },
                 {
                   "id": "p2-e44",
-                  "text": "This morning we have a guided tour of Seville. The capital of Andaluc\u00EDa, made famous by the Conquistadors, was once one of the richest cities in the world and is now home to the world\u2019s largest cathedral. After time for lunch, our guided tour of the Reales Alacazares explores this stunning Moorish palace which was the Spanish kings\u2019 royal residence for seven centuries.",
-                  "fontSize": 10,
-                  "fontName": "LGPHPE\u002BHelveticaNeue",
-                  "color": "#221F1F",
+                  "text": "Day 5",
+                  "fontSize": 11,
+                  "fontName": "BFPPFL\u002BHelveticaNeue-Medium",
+                  "color": "#16549D",
                   "boundingBox": {
-                    "left": 212,
-                    "top": 358.9,
-                    "width": 342.7,
-                    "height": 59
+                    "left": 212.3,
+                    "top": 243.1,
+                    "width": 28.3,
+                    "height": 7.9
                   }
                 },
                 {
                   "id": "p2-e45",
-                  "text": "Day 5",
-                  "fontSize": 10,
-                  "fontName": "LGPHPC\u002BHelveticaNeue-Medium",
-                  "color": "#16549D",
+                  "text": "Our guided walking tour of Leipzig this morning takes in sights such as the Opera House and the Nikolaikirche. We also visit the magnificent late-Gothic Tomaskirche, where Bach was the choirmaster from 1723. This afternoon we enjoy a guided tour at the Museum der Bildenden K\u00FCnste, home to a fine collection of paintings by German masters from the late Middle Ages to the present day. Included are Lucas Cranach, Martin Schongauer, Caspar David Friedrich, Arnold B\u00F6cklin, Max Lieberman and Max Klinger. A farewell dinner is included at a carefully selected restaurant in Dresden this evening.",
+                  "fontSize": 11,
+                  "fontName": "BFPPGO\u002BHelveticaNeue",
+                  "color": "#221F1F",
                   "boundingBox": {
-                    "left": 212,
-                    "top": 288.4,
-                    "width": 25.7,
-                    "height": 7.1
+                    "left": 212.3,
+                    "top": 231.9,
+                    "width": 336,
+                    "height": 99.3
                   }
                 },
                 {
                   "id": "p2-e46",
-                  "text": "This morning we see the remains at Italica, an ancient Roman city that was the birthplace of two Roman emperors, Trajan and Hadrian. This afternoon we visit the Museo de Bellas Artes. Formerly a convent, this is now one of Spain\u2019s finest galleries with a particular focus on artists from Seville including works by Goya, Murillo, Millan, Zurbaran and Ribera. For those who are interested our Tour Manager will make arrangements for an optional Flamenco evening.",
-                  "fontSize": 10,
-                  "fontName": "LGPHPE\u002BHelveticaNeue",
-                  "color": "#221F1F",
+                  "text": "Day 6",
+                  "fontSize": 11,
+                  "fontName": "BFPPFL\u002BHelveticaNeue-Medium",
+                  "color": "#16549D",
                   "boundingBox": {
-                    "left": 212,
-                    "top": 275.5,
-                    "width": 340.2,
-                    "height": 84.7
+                    "left": 212.3,
+                    "top": 123.3,
+                    "width": 28.3,
+                    "height": 7.9
                   }
                 },
                 {
                   "id": "p2-e47",
-                  "text": "Day 6",
-                  "fontSize": 10,
-                  "fontName": "LGPHPC\u002BHelveticaNeue-Medium",
-                  "color": "#16549D",
+                  "text": "A guided tour of the Mei\u00DFen Porcelain Museum this morning gives an insight into the production process at this world renowned manufacturer. We return to Berlin Airport for our direct scheduled British Airways flight back Lacock to Heathrow. Abbey",
+                  "fontSize": 11,
+                  "fontName": "BFPPGO\u002BHelveticaNeue",
+                  "color": "#221F1F",
                   "boundingBox": {
-                    "left": 212,
-                    "top": 179.4,
-                    "width": 25.7,
-                    "height": 7.1
+                    "left": 212.3,
+                    "top": 112.1,
+                    "width": 344.4,
+                    "height": 42.3
                   }
                 },
                 {
                   "id": "p2-e48",
-                  "text": "After checking out of our hotel this morning we travel to Ronda where we enjoy a guided tour on arrival. Lying within an amphitheatre of limestone hills and standing above 120 metre cliffs, Ronda is one of the most dramatically sited towns in Spain. The Moorish part of the town is divided from the modern part by the extraordinary Tajo, a 90 metre gorge with the river flowing below. We continue to Malaga Airport for our direct scheduled flight to Bristol, and onwards coach travel back to our original pick up points.",
-                  "fontSize": 10,
-                  "fontName": "LGPHPE\u002BHelveticaNeue",
-                  "color": "#221F1F",
-                  "boundingBox": {
-                    "left": 212,
-                    "top": 166.5,
-                    "width": 340.8,
-                    "height": 84.8
-                  }
-                },
-                {
-                  "id": "p2-e49",
                   "text": "NB:- Please note we reserve the right to alter the above itinerary if required for operational",
                   "fontSize": 8,
-                  "fontName": "LGPHPC\u002BHelveticaNeue-Medium",
+                  "fontName": "BFPPFL\u002BHelveticaNeue-Medium",
                   "color": "#16549D",
                   "boundingBox": {
                     "left": 212.3,
-                    "top": 71.1,
+                    "top": 57.8,
                     "width": 324.7,
                     "height": 5.7
                   }
                 },
                 {
-                  "id": "p2-e50",
-                  "text": "reasons. Given the historic nature of the places visited, a certain degree of walking will be involved.",
+                  "id": "p2-e49",
+                  "text": "reasons. Given the historic nature of the places visited, a certain degree of walking will",
                   "fontSize": 8,
-                  "fontName": "LGPHPC\u002BHelveticaNeue-Medium",
+                  "fontName": "BFPPFL\u002BHelveticaNeue-Medium",
                   "color": "#16549D",
                   "boundingBox": {
                     "left": 230.8,
-                    "top": 63.3,
+                    "top": 49.9,
                     "width": 311.6,
-                    "height": 13.8
+                    "height": 5.8
                   }
                 }
               ]
             }
           ],
-          "totalElements": 14
+          "totalElements": 15
         }
       ]
     }
@@ -763,6 +757,6 @@
     "totalPathsFound": 0,
     "pathsAfterFiltering": 0,
     "areasDetected": 4,
-    "elementsInAreas": 50
+    "elementsInAreas": 49
   }
 }

@@ -98,7 +98,7 @@
       "destinations": [
         {
           "target": "featurePropertyFeatureTitle",
-          "blockKey": "e8fa3567-798c-427f-8677-58bfd87b19cb",
+          "blockKey": "06cbdd26-e9f9-41d7-8cfb-9eaa6cf45db9",
           "transforms": null
         }
       ],
@@ -110,7 +110,7 @@
       "destinations": [
         {
           "target": "richTextContent",
-          "blockKey": "e8fa3567-798c-427f-8677-58bfd87b19cb",
+          "blockKey": "06cbdd26-e9f9-41d7-8cfb-9eaa6cf45db9",
           "transforms": null
         }
       ],
@@ -122,7 +122,7 @@
       "destinations": [
         {
           "target": "featurePropertyFeatureTitle",
-          "blockKey": "bc5ae5e8-0f80-48b6-acbf-ef6eb7ebd69c",
+          "blockKey": "e7dba20d-ab15-4f9b-b78c-a049c267ff48",
           "transforms": null
         }
       ],
@@ -134,7 +134,7 @@
       "destinations": [
         {
           "target": "richTextContent",
-          "blockKey": "bc5ae5e8-0f80-48b6-acbf-ef6eb7ebd69c",
+          "blockKey": "e7dba20d-ab15-4f9b-b78c-a049c267ff48",
           "transforms": null
         }
       ],
@@ -146,7 +146,7 @@
       "destinations": [
         {
           "target": "richTextContent",
-          "blockKey": "1e424c30-f74a-43fe-8c93-b59a4e52fa8b",
+          "blockKey": "0d955991-3330-4b58-8028-d6845c909183",
           "transforms": null
         }
       ],
@@ -158,7 +158,7 @@
       "destinations": [
         {
           "target": "featurePropertyFeatureSummary",
-          "blockKey": "1e424c30-f74a-43fe-8c93-b59a4e52fa8b",
+          "blockKey": "0d955991-3330-4b58-8028-d6845c909183",
           "transforms": null
         }
       ],
