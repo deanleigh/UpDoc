@@ -1263,11 +1263,11 @@ async #updateBlockGrid(
     ? JSON.parse(gridProp.value) 
     : gridProp.value;
   
-  // Find block matching search criteria
-  const block = gridValue.contentData.find((b: any) => {
-    const searchValue = b.values?.find((v: any) => v.alias === blockSearch.property);
-    return searchValue?.value?.includes(blockSearch.value);
-  });
+  // Find block matching by contentTypeKey (element type GUID) — stable across all documents.
+  // NOTE: The original pseudocode used text-based search (blockSearch.property/value).
+  // This was replaced with contentTypeKey matching because text search fails when
+  // mapped source content overwrites the blueprint label. See docs/errors/convert-block-matching.md.
+  const block = gridValue.contentData.find((b: any) => b.contentTypeKey === targetContentTypeKey);
   
   if (!block) {
     console.warn(`Block not found with ${blockSearch.property} = ${blockSearch.value}`);
