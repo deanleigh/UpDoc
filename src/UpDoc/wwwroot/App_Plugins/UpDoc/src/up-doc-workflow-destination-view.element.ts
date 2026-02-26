@@ -153,6 +153,65 @@ export class UpDocWorkflowDestinationViewElement extends UmbLitElement {
 		`;
 	}
 
+	// =========================================================================
+	// Info Boxes
+	// =========================================================================
+
+	#getFieldsCount(): number {
+		if (!this._config) return 0;
+		return this._config.destination.fields.length;
+	}
+
+	#getBlocksCount(): number {
+		if (!this._config) return 0;
+		return getAllBlockContainers(this._config.destination)
+			.reduce((sum, container) => sum + container.blocks.length, 0);
+	}
+
+	#renderInfoBoxes() {
+		if (!this._config) return nothing;
+		const dest = this._config.destination;
+
+		return html`
+			<div class="info-boxes">
+				<uui-box headline="Document Type" class="info-box-item">
+					<div class="box-content">
+						<uui-icon name="icon-document-dashed-line" class="box-icon"></uui-icon>
+						<span class="box-stat box-filename" title="${dest.documentTypeName ?? dest.documentTypeAlias}">${dest.documentTypeName ?? dest.documentTypeAlias}</span>
+						<span class="box-sub">${dest.documentTypeAlias}</span>
+						<div class="box-buttons"></div>
+					</div>
+				</uui-box>
+
+				<uui-box headline="Blueprint" class="info-box-item">
+					<div class="box-content">
+						<uui-icon name="icon-blueprint" class="box-icon"></uui-icon>
+						<span class="box-stat box-filename" title="${dest.blueprintName ?? '—'}">${dest.blueprintName ?? '—'}</span>
+						<div class="box-buttons"></div>
+					</div>
+				</uui-box>
+
+				<uui-box headline="Fields" class="info-box-item">
+					<div class="box-content">
+						<uui-icon name="icon-layers" class="box-icon"></uui-icon>
+						<span class="box-stat">${this.#getFieldsCount()}</span>
+						<span class="box-sub">text-mappable</span>
+						<div class="box-buttons"></div>
+					</div>
+				</uui-box>
+
+				<uui-box headline="Blocks" class="info-box-item">
+					<div class="box-content">
+						<uui-icon name="icon-box" class="box-icon"></uui-icon>
+						<span class="box-stat">${this.#getBlocksCount()}</span>
+						<span class="box-sub">in blueprint</span>
+						<div class="box-buttons"></div>
+					</div>
+				</uui-box>
+			</div>
+		`;
+	}
+
 	#renderTabContent() {
 		if (!this._config) return nothing;
 
@@ -196,6 +255,7 @@ export class UpDocWorkflowDestinationViewElement extends UmbLitElement {
 						`
 					)}
 				</uui-tab-group>
+				${this.#renderInfoBoxes()}
 				<uui-box>
 					${this.#renderTabContent()}
 				</uui-box>
@@ -354,6 +414,64 @@ export class UpDocWorkflowDestinationViewElement extends UmbLitElement {
 			.map-button {
 				margin-left: auto;
 				--uui-button-font-size: var(--uui-type-small-size);
+			}
+
+			/* Info boxes row (matching Source tab pattern) */
+			.info-boxes {
+				display: flex;
+				gap: var(--uui-size-space-4);
+				flex-wrap: wrap;
+				padding: var(--uui-size-space-4);
+			}
+
+			.info-box-item {
+				flex: 1;
+			}
+
+			.box-content {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				text-align: center;
+				gap: var(--uui-size-space-2);
+				min-height: 180px;
+			}
+
+			.box-buttons {
+				display: flex;
+				gap: var(--uui-size-space-2);
+				margin-top: auto;
+				padding-top: var(--uui-size-space-2);
+			}
+
+			.box-icon {
+				font-size: 48px;
+				color: var(--uui-color-text-alt);
+				margin-top: var(--uui-size-space-3);
+			}
+
+			.box-stat {
+				font-size: var(--uui-type-h4-size);
+				font-weight: 700;
+				color: var(--uui-color-text);
+				flex: 1;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+			}
+
+			.box-filename {
+				font-weight: 600;
+				font-size: var(--uui-type-default-size) !important;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+				max-width: 100%;
+			}
+
+			.box-sub {
+				font-size: 11px;
+				color: var(--uui-color-text-alt);
 			}
 		`,
 	];

@@ -77,7 +77,7 @@ const o = [
     type: "modal",
     alias: "UpDoc.WorkflowDetailModal",
     name: "Workflow Detail Modal",
-    element: () => import("./up-doc-workflow-detail-modal.element-D4oj7Sng.js")
+    element: () => import("./up-doc-workflow-detail-modal.element-B4r_RYLU.js")
   },
   {
     type: "modal",
@@ -120,7 +120,7 @@ const o = [
     type: "workspaceView",
     alias: "UpDoc.WorkflowWorkspaceView.Destination",
     name: "Destination",
-    element: () => import("./up-doc-workflow-destination-view.element-CU2KVefl.js"),
+    element: () => import("./up-doc-workflow-destination-view.element-Bm--7TSK.js"),
     weight: 300,
     meta: {
       label: "Destination",
