@@ -84,6 +84,16 @@ public interface IWorkflowService
     void SaveMapConfig(string workflowAlias, MapConfig config);
 
     /// <summary>
+    /// Loads the map.json from a workflow folder, if it exists.
+    /// </summary>
+    MapConfig? GetMapConfig(string workflowAlias);
+
+    /// <summary>
+    /// Loads the destination.json from a workflow folder, if it exists.
+    /// </summary>
+    DestinationConfig? GetDestinationConfig(string workflowAlias);
+
+    /// <summary>
     /// Saves an area detection result as area-detection.json in the workflow folder.
     /// </summary>
     void SaveAreaDetection(string workflowAlias, AreaDetectionResult result);
@@ -607,6 +617,30 @@ public class WorkflowService : IWorkflowService
             filePath, config.Mappings.Count);
 
         ClearCache();
+    }
+
+    public MapConfig? GetMapConfig(string workflowAlias)
+    {
+        var folderPath = GetWorkflowFolderPath(workflowAlias);
+        var filePath = ResolveFilePath(folderPath, "map", "map.json");
+
+        if (!File.Exists(filePath))
+            return null;
+
+        var json = File.ReadAllText(filePath);
+        return JsonSerializer.Deserialize<MapConfig>(json, JsonOptions);
+    }
+
+    public DestinationConfig? GetDestinationConfig(string workflowAlias)
+    {
+        var folderPath = GetWorkflowFolderPath(workflowAlias);
+        var filePath = ResolveFilePath(folderPath, "destination", "destination.json");
+
+        if (!File.Exists(filePath))
+            return null;
+
+        var json = File.ReadAllText(filePath);
+        return JsonSerializer.Deserialize<DestinationConfig>(json, JsonOptions);
     }
 
     public DocumentTypeConfig? GetConfigByAlias(string alias)

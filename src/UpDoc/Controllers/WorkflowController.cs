@@ -359,18 +359,144 @@ public class WorkflowController : ControllerBase
 
         try
         {
-            var destinationConfig = await _destinationStructureService.BuildDestinationConfigAsync(
+            // Step 1: Load old destination.json before regenerating
+            var oldDestination = _workflowService.GetDestinationConfig(alias);
+
+            // Step 2: Generate new destination.json
+            var newDestination = await _destinationStructureService.BuildDestinationConfigAsync(
                 config.DocumentTypeAlias,
                 config.Destination.BlueprintId,
                 config.Destination.BlueprintName);
-            _workflowService.SaveDestinationConfig(alias, destinationConfig);
 
-            return Ok(destinationConfig);
+            // Step 3: Reconcile map.json blockKeys
+            var reconciliation = ReconcileBlockKeys(alias, oldDestination, newDestination);
+
+            // Step 4: Save new destination.json
+            _workflowService.SaveDestinationConfig(alias, newDestination);
+
+            return Ok(new RegenerateDestinationResponse
+            {
+                Destination = newDestination,
+                Reconciliation = reconciliation,
+            });
         }
         catch (InvalidOperationException ex)
         {
             return BadRequest(new { error = ex.Message });
         }
+    }
+
+    private ReconciliationResult ReconcileBlockKeys(
+        string alias,
+        DestinationConfig? oldDestination,
+        DestinationConfig newDestination)
+    {
+        var result = new ReconciliationResult();
+
+        var mapConfig = _workflowService.GetMapConfig(alias);
+        if (mapConfig == null || oldDestination == null)
+            return result;
+
+        // Build lookup: contentTypeKey → new blockKey from new destination
+        var newBlocksByContentTypeKey = GetAllBlocks(newDestination)
+            .Where(b => !string.IsNullOrEmpty(b.ContentTypeKey))
+            .ToDictionary(b => b.ContentTypeKey!, b => b);
+
+        // Build lookup: old blockKey → contentTypeKey from old destination
+        var oldBlockKeyToContentTypeKey = GetAllBlocks(oldDestination)
+            .Where(b => !string.IsNullOrEmpty(b.ContentTypeKey) && !string.IsNullOrEmpty(b.Key))
+            .ToDictionary(b => b.Key, b => b.ContentTypeKey!);
+
+        var modified = false;
+
+        foreach (var mapping in mapConfig.Mappings)
+        {
+            foreach (var dest in mapping.Destinations)
+            {
+                if (string.IsNullOrEmpty(dest.BlockKey))
+                    continue;
+
+                // Resolve contentTypeKey: prefer existing on the mapping, fall back to old destination lookup
+                var contentTypeKey = dest.ContentTypeKey;
+                if (string.IsNullOrEmpty(contentTypeKey))
+                {
+                    oldBlockKeyToContentTypeKey.TryGetValue(dest.BlockKey, out contentTypeKey);
+                }
+
+                if (string.IsNullOrEmpty(contentTypeKey))
+                {
+                    // Can't resolve — blockKey not found in old destination and no contentTypeKey on mapping
+                    result.Orphaned++;
+                    result.Details.Add(new ReconciliationDetail
+                    {
+                        ContentTypeKey = "",
+                        OldBlockKey = dest.BlockKey,
+                        NewBlockKey = null,
+                        Action = "orphaned",
+                    });
+                    continue;
+                }
+
+                if (newBlocksByContentTypeKey.TryGetValue(contentTypeKey, out var newBlock))
+                {
+                    var oldBlockKey = dest.BlockKey;
+                    dest.BlockKey = newBlock.Key;
+                    dest.ContentTypeKey = contentTypeKey; // backfill if absent
+
+                    if (oldBlockKey != newBlock.Key)
+                    {
+                        result.Updated++;
+                        result.Details.Add(new ReconciliationDetail
+                        {
+                            ContentTypeKey = contentTypeKey,
+                            ContentTypeAlias = newBlock.ContentTypeAlias,
+                            OldBlockKey = oldBlockKey,
+                            NewBlockKey = newBlock.Key,
+                            Action = "updated",
+                        });
+                    }
+                    modified = true;
+                }
+                else
+                {
+                    // contentTypeKey no longer exists in new destination — block removed from blueprint
+                    result.Orphaned++;
+                    result.Details.Add(new ReconciliationDetail
+                    {
+                        ContentTypeKey = contentTypeKey,
+                        OldBlockKey = dest.BlockKey,
+                        NewBlockKey = null,
+                        Action = "orphaned",
+                    });
+                }
+            }
+        }
+
+        if (modified)
+        {
+            _workflowService.SaveMapConfig(alias, mapConfig);
+            _logger.LogInformation(
+                "Reconciled blockKeys for workflow '{Alias}': {Updated} updated, {Orphaned} orphaned",
+                alias, result.Updated, result.Orphaned);
+        }
+
+        return result;
+    }
+
+    private static List<DestinationBlock> GetAllBlocks(DestinationConfig config)
+    {
+        var blocks = new List<DestinationBlock>();
+        if (config.BlockGrids != null)
+        {
+            foreach (var grid in config.BlockGrids)
+                blocks.AddRange(grid.Blocks);
+        }
+        if (config.BlockLists != null)
+        {
+            foreach (var list in config.BlockLists)
+                blocks.AddRange(list.Blocks);
+        }
+        return blocks;
     }
 
     [HttpPut("{alias}/map")]

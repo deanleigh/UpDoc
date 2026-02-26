@@ -75,6 +75,26 @@ async function apiPutJson(page: Page, path: string, body: any): Promise<any> {
 	);
 }
 
+async function apiPost(page: Page, path: string): Promise<any> {
+	return page.evaluate(async (apiPath) => {
+		const tokenJson = localStorage.getItem('umb:userAuthTokenResponse');
+		if (!tokenJson) throw new Error('No auth token in localStorage');
+		const { access_token } = JSON.parse(tokenJson);
+		const resp = await fetch(apiPath, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${access_token}`,
+			},
+		});
+		if (!resp.ok) {
+			const text = await resp.text();
+			throw new Error(`API POST ${apiPath} failed: ${resp.status} — ${text}`);
+		}
+		return resp.json().catch(() => null);
+	}, path);
+}
+
 // ── Sprint 1: contentTypeKey round-trip ─────────────────────────────────────
 
 test.describe('Sprint 1: contentTypeKey model support', () => {
@@ -377,5 +397,85 @@ test.describe('Sprint 3: bridge uses contentTypeKey directly', () => {
 			return title && typeof title === 'string' && title !== 'Accommodation' && title !== 'Features';
 		});
 		expect(accomBlock, 'Accommodation block should have PDF-sourced title').toBeTruthy();
+	});
+});
+
+// ── Sprint 4: auto-reconcile blockKeys on regenerate-destination ────────────
+
+test.describe('Sprint 4: auto-reconcile on regenerate-destination', () => {
+	test.beforeEach(async ({ page }) => {
+		await page.goto('/umbraco');
+		await page.waitForTimeout(2000);
+	});
+
+	test('regenerate-destination reconciles blockKeys and backfills contentTypeKey', async ({ page }) => {
+		// Step 1: Read current state
+		const configBefore = await apiGet(page, `${API_BASE}/${TEST_WORKFLOW}`);
+		const mapBefore = configBefore.map;
+
+		// Collect all block mappings and their current blockKeys
+		const blockMappingsBefore = mapBefore.mappings.flatMap((m: any) =>
+			m.destinations.filter((d: any) => d.blockKey)
+		);
+		expect(blockMappingsBefore.length, 'Should have block mappings to reconcile').toBeGreaterThan(0);
+
+		// Step 2: Call regenerate-destination
+		const response = await apiPost(page, `${API_BASE}/${TEST_WORKFLOW}/regenerate-destination`);
+		expect(response).toBeTruthy();
+		expect(response.destination).toBeTruthy();
+		expect(response.reconciliation).toBeTruthy();
+
+		// Step 3: Verify reconciliation summary
+		const recon = response.reconciliation;
+		expect(typeof recon.updated).toBe('number');
+		expect(typeof recon.orphaned).toBe('number');
+		expect(Array.isArray(recon.details)).toBe(true);
+
+		// Step 4: Read map.json after reconciliation
+		const configAfter = await apiGet(page, `${API_BASE}/${TEST_WORKFLOW}`);
+		const mapAfter = configAfter.map;
+		const destAfter = configAfter.destination;
+
+		// Build set of all valid blockKeys in new destination.json
+		const validBlockKeys = new Set<string>();
+		for (const grid of destAfter.blockGrids ?? []) {
+			for (const block of grid.blocks) {
+				validBlockKeys.add(block.key);
+			}
+		}
+		for (const list of destAfter.blockLists ?? []) {
+			for (const block of list.blocks) {
+				validBlockKeys.add(block.key);
+			}
+		}
+
+		// Step 5: Assert ALL blockKeys in map.json exist in new destination.json
+		const blockMappingsAfter = mapAfter.mappings.flatMap((m: any) =>
+			m.destinations.filter((d: any) => d.blockKey)
+		);
+
+		for (const dest of blockMappingsAfter) {
+			expect(
+				validBlockKeys.has(dest.blockKey),
+				`blockKey ${dest.blockKey} for target "${dest.target}" should exist in destination.json`,
+			).toBe(true);
+		}
+
+		// Step 6: Assert contentTypeKey is present on ALL block mappings (backfilled)
+		for (const dest of blockMappingsAfter) {
+			expect(
+				dest.contentTypeKey,
+				`Mapping to "${dest.target}" should have contentTypeKey after reconciliation`,
+			).toBeTruthy();
+			expect(dest.contentTypeKey).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);
+		}
+	});
+
+	test('reconciliation reports zero orphaned when blueprint unchanged', async ({ page }) => {
+		// Call regenerate-destination twice — second time keys should already match
+		await apiPost(page, `${API_BASE}/${TEST_WORKFLOW}/regenerate-destination`);
+		const response = await apiPost(page, `${API_BASE}/${TEST_WORKFLOW}/regenerate-destination`);
+
+		expect(response.reconciliation.orphaned).toBe(0);
 	});
 });
