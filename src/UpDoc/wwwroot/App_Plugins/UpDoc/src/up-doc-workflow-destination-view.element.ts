@@ -179,7 +179,9 @@ export class UpDocWorkflowDestinationViewElement extends UmbLitElement {
 						<uui-icon name="icon-document-dashed-line" class="box-icon"></uui-icon>
 						<span class="box-stat box-filename" title="${dest.documentTypeName ?? dest.documentTypeAlias}">${dest.documentTypeName ?? dest.documentTypeAlias}</span>
 						<span class="box-sub">${dest.documentTypeAlias}</span>
-						<div class="box-buttons"></div>
+						<div class="box-buttons">
+							<uui-button look="secondary" label="Change" disabled title="Coming soon">Change</uui-button>
+						</div>
 					</div>
 				</uui-box>
 
@@ -187,7 +189,9 @@ export class UpDocWorkflowDestinationViewElement extends UmbLitElement {
 					<div class="box-content">
 						<uui-icon name="icon-blueprint" class="box-icon"></uui-icon>
 						<span class="box-stat box-filename" title="${dest.blueprintName ?? '—'}">${dest.blueprintName ?? '—'}</span>
-						<div class="box-buttons"></div>
+						<div class="box-buttons">
+							<uui-button look="secondary" label="Change" disabled title="Coming soon">Change</uui-button>
+						</div>
 					</div>
 				</uui-box>
 
@@ -196,7 +200,9 @@ export class UpDocWorkflowDestinationViewElement extends UmbLitElement {
 						<uui-icon name="icon-layers" class="box-icon"></uui-icon>
 						<span class="box-stat">${this.#getFieldsCount()}</span>
 						<span class="box-sub">text-mappable</span>
-						<div class="box-buttons"></div>
+						<div class="box-buttons">
+							<uui-button look="secondary" label="Regenerate" disabled title="Coming soon">Regenerate</uui-button>
+						</div>
 					</div>
 				</uui-box>
 
@@ -205,7 +211,9 @@ export class UpDocWorkflowDestinationViewElement extends UmbLitElement {
 						<uui-icon name="icon-box" class="box-icon"></uui-icon>
 						<span class="box-stat">${this.#getBlocksCount()}</span>
 						<span class="box-sub">in blueprint</span>
-						<div class="box-buttons"></div>
+						<div class="box-buttons">
+							<uui-button look="secondary" label="Regenerate" disabled title="Coming soon">Regenerate</uui-button>
+						</div>
 					</div>
 				</uui-box>
 			</div>

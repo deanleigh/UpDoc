@@ -1,17 +1,17 @@
-import { b as T } from "./workflow.service-CWGlGq_3.js";
-import { b as C, g as f } from "./destination-utils-DUfOJy5W.js";
+import { b as C } from "./workflow.service-CWGlGq_3.js";
+import { b as T, g as f } from "./destination-utils-DUfOJy5W.js";
 import { html as a, nothing as s, css as B, state as d, customElement as E } from "@umbraco-cms/backoffice/external/lit";
 import { UmbLitElement as D } from "@umbraco-cms/backoffice/lit-element";
 import { UmbTextStyles as F } from "@umbraco-cms/backoffice/style";
 import { UMB_AUTH_CONTEXT as N } from "@umbraco-cms/backoffice/auth";
 import { UMB_WORKSPACE_CONTEXT as U } from "@umbraco-cms/backoffice/workspace";
-var W = Object.defineProperty, A = Object.getOwnPropertyDescriptor, m = (i) => {
+var W = Object.defineProperty, A = Object.getOwnPropertyDescriptor, v = (i) => {
   throw TypeError(i);
 }, u = (i, e, t, l) => {
   for (var c = l > 1 ? void 0 : l ? A(e, t) : e, p = i.length - 1, b; p >= 0; p--)
     (b = i[p]) && (c = (l ? b(e, t, c) : b(c)) || c);
   return l && c && W(e, t, c), c;
-}, O = (i, e, t) => e.has(i) || m("Cannot " + t), P = (i, e, t) => e.has(i) ? m("Cannot add the same private member more than once") : e instanceof WeakSet ? e.add(i) : e.set(i, t), n = (i, e, t) => (O(i, e, "access private method"), t), o, h, v, g, x, y, _, z, k, $, w;
+}, O = (i, e, t) => e.has(i) || v("Cannot " + t), P = (i, e, t) => e.has(i) ? v("Cannot add the same private member more than once") : e instanceof WeakSet ? e.add(i) : e.set(i, t), n = (i, e, t) => (O(i, e, "access private method"), t), o, g, m, h, x, y, _, k, z, $, w;
 let r = class extends D {
   constructor() {
     super(...arguments), P(this, o), this._config = null, this._loading = !0, this._error = null, this._activeTab = "";
@@ -19,7 +19,7 @@ let r = class extends D {
   connectedCallback() {
     super.connectedCallback(), this.consumeContext(U, (i) => {
       i && this.observe(i.unique, (e) => {
-        e && n(this, o, h).call(this, decodeURIComponent(e));
+        e && n(this, o, g).call(this, decodeURIComponent(e));
       });
     });
   }
@@ -28,7 +28,7 @@ let r = class extends D {
       return a`<div class="loading"><uui-loader-bar></uui-loader-bar></div>`;
     if (this._error)
       return a`<p style="color: var(--uui-color-danger);">${this._error}</p>`;
-    const i = n(this, o, v).call(this);
+    const i = n(this, o, m).call(this);
     return a`
 			<umb-body-layout header-fit-height>
 				<uui-tab-group slot="header" dropdown-content-direction="vertical">
@@ -54,15 +54,15 @@ let r = class extends D {
   }
 };
 o = /* @__PURE__ */ new WeakSet();
-h = async function(i) {
+g = async function(i) {
   this._loading = !0, this._error = null;
   try {
     const t = await (await this.getContext(N)).getLatestToken();
-    if (this._config = await T(i, t), !this._config) {
+    if (this._config = await C(i, t), !this._config) {
       this._error = `Workflow "${i}" not found`;
       return;
     }
-    const l = n(this, o, v).call(this);
+    const l = n(this, o, m).call(this);
     l.length > 0 && (this._activeTab = l[0].id);
   } catch (e) {
     this._error = e instanceof Error ? e.message : "Failed to load workflow", console.error("Failed to load workflow config:", e);
@@ -70,10 +70,10 @@ h = async function(i) {
     this._loading = !1;
   }
 };
-v = function() {
-  return this._config ? C(this._config.destination) : [];
+m = function() {
+  return this._config ? T(this._config.destination) : [];
 };
-g = function(i) {
+h = function(i) {
   if (!this._config) return s;
   const e = this._config.destination.fields.filter((t) => t.tab === i);
   return e.length === 0 ? a`<p class="empty-message">No fields in this tab.</p>` : a`
@@ -147,10 +147,10 @@ _ = function(i) {
 			</div>
 		`;
 };
-z = function() {
+k = function() {
   return this._config ? this._config.destination.fields.length : 0;
 };
-k = function() {
+z = function() {
   return this._config ? f(this._config.destination).reduce((i, e) => i + e.blocks.length, 0) : 0;
 };
 $ = function() {
@@ -163,7 +163,9 @@ $ = function() {
 						<uui-icon name="icon-document-dashed-line" class="box-icon"></uui-icon>
 						<span class="box-stat box-filename" title="${i.documentTypeName ?? i.documentTypeAlias}">${i.documentTypeName ?? i.documentTypeAlias}</span>
 						<span class="box-sub">${i.documentTypeAlias}</span>
-						<div class="box-buttons"></div>
+						<div class="box-buttons">
+							<uui-button look="secondary" label="Change" disabled title="Coming soon">Change</uui-button>
+						</div>
 					</div>
 				</uui-box>
 
@@ -171,25 +173,31 @@ $ = function() {
 					<div class="box-content">
 						<uui-icon name="icon-blueprint" class="box-icon"></uui-icon>
 						<span class="box-stat box-filename" title="${i.blueprintName ?? "—"}">${i.blueprintName ?? "—"}</span>
-						<div class="box-buttons"></div>
+						<div class="box-buttons">
+							<uui-button look="secondary" label="Change" disabled title="Coming soon">Change</uui-button>
+						</div>
 					</div>
 				</uui-box>
 
 				<uui-box headline="Fields" class="info-box-item">
 					<div class="box-content">
 						<uui-icon name="icon-layers" class="box-icon"></uui-icon>
-						<span class="box-stat">${n(this, o, z).call(this)}</span>
+						<span class="box-stat">${n(this, o, k).call(this)}</span>
 						<span class="box-sub">text-mappable</span>
-						<div class="box-buttons"></div>
+						<div class="box-buttons">
+							<uui-button look="secondary" label="Regenerate" disabled title="Coming soon">Regenerate</uui-button>
+						</div>
 					</div>
 				</uui-box>
 
 				<uui-box headline="Blocks" class="info-box-item">
 					<div class="box-content">
 						<uui-icon name="icon-box" class="box-icon"></uui-icon>
-						<span class="box-stat">${n(this, o, k).call(this)}</span>
+						<span class="box-stat">${n(this, o, z).call(this)}</span>
 						<span class="box-sub">in blueprint</span>
-						<div class="box-buttons"></div>
+						<div class="box-buttons">
+							<uui-button look="secondary" label="Regenerate" disabled title="Coming soon">Regenerate</uui-button>
+						</div>
 					</div>
 				</uui-box>
 			</div>
@@ -201,7 +209,7 @@ w = function() {
     (t) => t.tab && t.tab.toLowerCase().replace(/\s+/g, "-") === this._activeTab
   )?.tab, e = f(this._config.destination).some((t) => (t.tab ?? "Page Content").toLowerCase().replace(/\s+/g, "-") === this._activeTab);
   return a`
-			${i ? n(this, o, g).call(this, i) : s}
+			${i ? n(this, o, h).call(this, i) : s}
 			${e ? n(this, o, y).call(this, this._activeTab) : s}
 		`;
 };
@@ -437,4 +445,4 @@ export {
   r as UpDocWorkflowDestinationViewElement,
   X as default
 };
-//# sourceMappingURL=up-doc-workflow-destination-view.element-Bm--7TSK.js.map
+//# sourceMappingURL=up-doc-workflow-destination-view.element-D7lDAlyR.js.map

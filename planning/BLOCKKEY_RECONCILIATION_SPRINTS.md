@@ -151,22 +151,71 @@ Each sprint is the smallest testable unit of work. Every sprint has a Playwright
 
 ---
 
+## Sprint 7: Surface orphaned mappings in the Map tab (UI)
+
+**Problem:** When a blueprint is edited and a block is removed, Sprint 4 flags the affected mappings as orphaned (contentTypeKey no longer exists in destination.json). But the workflow author has no way to see this — the mappings silently fail during document creation.
+
+**What changes:**
+- Map tab renders orphaned mappings with a warning indicator (e.g., orange/red badge, strikethrough, or "Orphaned — block removed from blueprint" label)
+- Orphaned mappings are visually distinct from healthy mappings
+- The bridge code already handles this gracefully (skips missing blocks) — this sprint is purely UI
+
+**What does NOT change:**
+- No C# changes (Sprint 5 already provides validation warnings in the API response)
+- No bridge code changes
+- Orphaned mappings are NOT auto-deleted — the user decides
+
+**Test: Playwright E2E**
+- Write a map.json with a mapping pointing to a non-existent contentTypeKey via API
+- Open the workflow editor → Map tab
+- Assert the orphaned mapping shows a warning indicator
+- Clean up: restore correct map.json
+
+**Files modified:** `up-doc-workflow-map-view.element.ts` (or equivalent Map tab component)
+
+---
+
+## Sprint 8: Delete or re-map orphaned mappings from the Map tab (UI)
+
+**What changes:**
+- Each orphaned mapping gets action buttons:
+  - **Delete** — removes the mapping from map.json
+  - **Re-map** — opens the destination picker to choose a new block/field (creates a new mapping, deletes the orphaned one)
+- Healthy mappings already have Delete — this sprint adds Re-map for orphaned ones specifically
+
+**What does NOT change:**
+- No C# changes
+- No bridge code changes
+
+**Test: Playwright E2E**
+- Write a map.json with an orphaned mapping via API
+- Open Map tab → click Delete on the orphaned mapping
+- Read map.json via API → assert the mapping is removed
+- (Separate test) Click Re-map → pick a new destination → assert new mapping created with correct contentTypeKey
+
+**Files modified:** `up-doc-workflow-map-view.element.ts`, possibly `destination-picker-modal.element.ts` (if re-map reuses it)
+
+---
+
 ## Sprint order and dependencies
 
 ```
-Sprint 1 ──→ Sprint 2 ──→ Sprint 3
+Sprint 1 ──→ Sprint 2 ──→ Sprint 3          (COMPLETE)
                               │
 Sprint 4 (independent of 2/3, but benefits from Sprint 1)
                               │
 Sprint 5 (independent, can run after Sprint 1)
                               │
 Sprint 6 (needs Sprint 1, benefits from Sprint 4)
+                              │
+Sprint 7 ──→ Sprint 8 (need Sprint 5 for orphan detection in API)
 ```
 
 **Minimum viable fix:** Sprints 1 + 3 + 4 = the bug can't recur and existing mappings work.
-**Full resilience:** All 6 sprints.
+**Full resilience:** All 8 sprints.
+**Orphan handling:** Sprints 7 + 8 require Sprint 5 (validation warnings in API response).
 
-**Recommended order:** 1 → 2 → 3 → 4 → 5 → 6 (linear, each building on the last, each independently testable).
+**Recommended order:** 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 (linear, each building on the last, each independently testable).
 
 ---
 
