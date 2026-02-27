@@ -44,6 +44,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 	@state() private _inferring = false;
 	@state() private _sampleUrl = '';
 	#token = '';
+	#orphanedKeys = new Set<string>();
 
 	/** Get the source type for this workflow (pdf, markdown, web, etc.) */
 	get #sourceType(): string {
@@ -84,6 +85,13 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 			this._extraction = extraction;
 			this._config = config;
 			this._sourceConfig = sourceConfig;
+
+			// Build set of orphaned destinations from validation warnings
+			this.#orphanedKeys = new Set<string>();
+			for (const w of config?.validationWarnings ?? []) {
+				const m = w.match(/blockKey '([^']+)' for target '([^']+)'/);
+				if (m) this.#orphanedKeys.add(`${m[1]}:${m[2]}`);
+			}
 
 			const isPdf = (sourceConfig?.sourceTypes?.[0] ?? 'pdf') === 'pdf';
 			const isWeb = (sourceConfig?.sourceTypes?.[0]) === 'web';
@@ -1440,10 +1448,14 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 	#renderPartBadges(sourceKey: string) {
 		const targets = this.#getMappedTargets(sourceKey);
 		if (targets.length === 0) return nothing;
-		return targets.map((dest) => html`<uui-tag color="positive" look="primary" class="mapped-tag" title="${this.#resolveTargetLabel(dest)}">
-			${this.#resolveTargetLabel(dest)}
-			<button class="unmap-x" title="Remove mapping" @click=${(e: Event) => { e.stopPropagation(); this.#onUnmap(sourceKey, dest); }}>&times;</button>
-		</uui-tag>`);
+		return targets.map((dest) => {
+			const orphaned = dest.blockKey && this.#orphanedKeys.has(`${dest.blockKey}:${dest.target}`);
+			const color = orphaned ? 'warning' : 'positive';
+			return html`<uui-tag color="${color}" look="primary" class="mapped-tag" title="${this.#resolveTargetLabel(dest)}">
+				${this.#resolveTargetLabel(dest)}
+				<button class="unmap-x" title="Remove mapping" @click=${(e: Event) => { e.stopPropagation(); this.#onUnmap(sourceKey, dest); }}>&times;</button>
+			</uui-tag>`;
+		});
 	}
 
 	/** Info boxes for markdown sources — Source, Areas, Sections. */

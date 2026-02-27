@@ -306,8 +306,8 @@ test.describe('Sprint 3: bridge uses contentTypeKey directly', () => {
 		}
 	});
 
-	test('precondition: map.json has contentTypeKey with bogus blockKeys', async ({ page }) => {
-		// Verify the map.json is in the expected state: contentTypeKey present, blockKey all-zeroes
+	test('precondition: map.json has contentTypeKey with reconciled blockKeys', async ({ page }) => {
+		// Verify the map.json is in the expected state: contentTypeKey present, blockKeys reconciled (real GUIDs)
 		await page.goto('/umbraco');
 		await page.waitForTimeout(2000);
 
@@ -319,13 +319,15 @@ test.describe('Sprint 3: bridge uses contentTypeKey directly', () => {
 		);
 		expect(blockMappings.length, 'Should have mappings with contentTypeKey').toBeGreaterThan(0);
 
-		// All block mappings should have all-zero blockKey (stale/bogus)
+		// All block mappings should have real reconciled blockKeys (not all-zeroes)
 		for (const dest of blockMappings) {
-			expect(dest.blockKey, `Mapping to ${dest.target} should have bogus blockKey`).toBe('00000000-0000-0000-0000-000000000000');
+			expect(dest.blockKey, `Mapping to ${dest.target} should have a blockKey`).toMatch(
+				/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+			);
+			expect(dest.blockKey, `Mapping to ${dest.target} should not have all-zero blockKey`).not.toBe('00000000-0000-0000-0000-000000000000');
 			expect(dest.contentTypeKey, `Mapping to ${dest.target} should have real contentTypeKey`).toMatch(
 				/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 			);
-			// contentTypeKey should NOT be all-zeroes
 			expect(dest.contentTypeKey).not.toBe('00000000-0000-0000-0000-000000000000');
 		}
 	});
@@ -760,5 +762,77 @@ test.describe('Sprint 7: orphaned mapping indicators on Map tab', () => {
 		// Assert no "Orphaned" tag is visible
 		const orphanedTags = page.locator('uui-tag').filter({ hasText: 'Orphaned' });
 		await expect(orphanedTags).toHaveCount(0);
+	});
+});
+
+// ── Sprint 8: Orphaned mapping badges on Source tab ─────────────────────────
+
+test.describe('Sprint 8: orphaned mapping badges on Source tab', () => {
+	test.beforeEach(async ({ page }) => {
+		await page.goto('/umbraco');
+		await page.waitForTimeout(2000);
+	});
+
+	test('orphaned mapping badge turns warning colour on Source tab', async ({ page }) => {
+		// Step 1: Read current map.json and save original state
+		const config = await apiGet(page, `${API_BASE}/${TEST_WORKFLOW}`);
+		const originalMap = JSON.parse(JSON.stringify(config.map));
+
+		// Step 2: Find a mapping with a blockKey and corrupt it
+		const corruptedMap = JSON.parse(JSON.stringify(config.map));
+		const blockDest = corruptedMap.mappings
+			.flatMap((m: any) => m.destinations)
+			.find((d: any) => d.blockKey);
+		expect(blockDest, 'Should have at least one mapping with a blockKey').toBeTruthy();
+
+		const bogusBlockKey = 'deadbeef-dead-beef-dead-beefdeadbeef';
+		blockDest.blockKey = bogusBlockKey;
+
+		// Step 3: Save the corrupted map.json
+		await apiPutJson(page, `${API_BASE}/${TEST_WORKFLOW}/map`, corruptedMap);
+
+		try {
+			// Step 4: Navigate to the workflow editor Source tab
+			await page.goto(
+				`/umbraco/section/settings/workspace/updoc-workflow/edit/${TEST_WORKFLOW}`,
+			);
+			await page.waitForTimeout(1000);
+
+			// Click the Source tab
+			const sourceTab = page.locator('uui-tab').filter({ hasText: 'Source' });
+			await sourceTab.click();
+			await page.waitForTimeout(2000);
+
+			// Step 5: Assert at least one warning-coloured badge exists
+			const warningBadges = page.locator('uui-tag[color="warning"].mapped-tag');
+			await expect(warningBadges.first()).toBeVisible({ timeout: 5000 });
+
+			// Also verify healthy badges still exist as positive
+			const healthyBadges = page.locator('uui-tag[color="positive"].mapped-tag');
+			await expect(healthyBadges.first()).toBeVisible({ timeout: 5000 });
+		} finally {
+			// Step 6: Cleanup — restore original map.json
+			await apiPutJson(page, `${API_BASE}/${TEST_WORKFLOW}/map`, originalMap);
+		}
+	});
+
+	test('healthy mappings show positive colour badges on Source tab', async ({ page }) => {
+		// Ensure destination is reconciled
+		await apiPost(page, `${API_BASE}/${TEST_WORKFLOW}/regenerate-destination`);
+
+		// Navigate to the workflow editor Source tab
+		await page.goto(
+			`/umbraco/section/settings/workspace/updoc-workflow/edit/${TEST_WORKFLOW}`,
+		);
+		await page.waitForTimeout(1000);
+
+		// Click the Source tab
+		const sourceTab = page.locator('uui-tab').filter({ hasText: 'Source' });
+		await sourceTab.click();
+		await page.waitForTimeout(2000);
+
+		// Assert no warning-coloured badges exist
+		const warningBadges = page.locator('uui-tag[color="warning"].mapped-tag');
+		await expect(warningBadges).toHaveCount(0);
 	});
 });
