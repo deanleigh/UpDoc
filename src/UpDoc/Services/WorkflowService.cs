@@ -59,6 +59,12 @@ public interface IWorkflowService
     string UpdateWorkflowIdentity(string currentAlias, string newName, string newAlias);
 
     /// <summary>
+    /// Updates the document type and blueprint in workflow.json.
+    /// Does NOT rename the folder or regenerate destination/map files.
+    /// </summary>
+    void UpdateWorkflowDestination(string alias, string documentTypeAlias, string? documentTypeName, string blueprintId, string? blueprintName);
+
+    /// <summary>
     /// Deletes a workflow folder and all its files.
     /// </summary>
     void DeleteWorkflow(string alias);
@@ -559,6 +565,33 @@ public class WorkflowService : IWorkflowService
         ClearCache();
 
         return identity.Alias;
+    }
+
+    public void UpdateWorkflowDestination(string alias, string documentTypeAlias, string? documentTypeName, string blueprintId, string? blueprintName)
+    {
+        var workflowsDirectory = Path.Combine(_webHostEnvironment.ContentRootPath, "updoc", "workflows");
+        var folderPath = Path.Combine(workflowsDirectory, alias);
+
+        if (!Directory.Exists(folderPath))
+            throw new DirectoryNotFoundException($"Workflow '{alias}' does not exist.");
+
+        var identity = ReadWorkflowIdentity(folderPath)
+            ?? throw new InvalidOperationException($"Workflow '{alias}' has no workflow.json.");
+
+        identity.DocumentTypeAlias = documentTypeAlias;
+        identity.DocumentTypeName = documentTypeName;
+        identity.BlueprintId = blueprintId;
+        identity.BlueprintName = blueprintName;
+
+        var writeOptions = new JsonSerializerOptions { WriteIndented = true };
+        var identityJson = JsonSerializer.Serialize(identity, writeOptions);
+        File.WriteAllText(Path.Combine(folderPath, "workflow.json"), identityJson);
+
+        _logger.LogInformation(
+            "Updated destination for workflow '{Alias}': docType={DocType}, blueprint={Blueprint}",
+            alias, documentTypeAlias, blueprintId);
+
+        ClearCache();
     }
 
     public void DeleteWorkflow(string alias)

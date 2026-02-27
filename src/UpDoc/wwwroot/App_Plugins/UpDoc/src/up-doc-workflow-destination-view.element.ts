@@ -1,11 +1,14 @@
 import type { DocumentTypeConfig, DestinationField, DestinationBlockGrid } from './workflow.types.js';
-import { fetchWorkflowByAlias } from './workflow.service.js';
+import { fetchWorkflowByAlias, changeWorkflowDestination } from './workflow.service.js';
 import { getDestinationTabs, getAllBlockContainers } from './destination-utils.js';
 import { html, customElement, css, state, nothing } from '@umbraco-cms/backoffice/external/lit';
 import { UmbLitElement } from '@umbraco-cms/backoffice/lit-element';
 import { UmbTextStyles } from '@umbraco-cms/backoffice/style';
 import { UMB_AUTH_CONTEXT } from '@umbraco-cms/backoffice/auth';
 import { UMB_WORKSPACE_CONTEXT } from '@umbraco-cms/backoffice/workspace';
+import { umbOpenModal } from '@umbraco-cms/backoffice/modal';
+import { UMB_BLUEPRINT_PICKER_MODAL } from './blueprint-picker-modal.token.js';
+import type { DocumentTypeOption } from './blueprint-picker-modal.token.js';
 
 @customElement('up-doc-workflow-destination-view')
 export class UpDocWorkflowDestinationViewElement extends UmbLitElement {
@@ -13,6 +16,7 @@ export class UpDocWorkflowDestinationViewElement extends UmbLitElement {
 	@state() private _loading = true;
 	@state() private _error: string | null = null;
 	@state() private _activeTab = '';
+	#workflowAlias: string | null = null;
 
 	override connectedCallback() {
 		super.connectedCallback();
@@ -20,7 +24,8 @@ export class UpDocWorkflowDestinationViewElement extends UmbLitElement {
 			if (!context) return;
 			this.observe((context as any).unique, (unique: string | null) => {
 				if (unique) {
-					this.#loadConfig(decodeURIComponent(unique));
+					this.#workflowAlias = decodeURIComponent(unique);
+					this.#loadConfig(this.#workflowAlias);
 				}
 			});
 		});
@@ -49,6 +54,137 @@ export class UpDocWorkflowDestinationViewElement extends UmbLitElement {
 			console.error('Failed to load workflow config:', err);
 		} finally {
 			this._loading = false;
+		}
+	}
+
+	// =========================================================================
+	// Change Document Type / Blueprint
+	// =========================================================================
+
+	async #fetchDocumentTypeOptions(token: string): Promise<{
+		options: DocumentTypeOption[];
+		aliasMap: Map<string, string>;
+	}> {
+		const docTypesResponse = await fetch('/umbraco/management/api/v1/updoc/document-types', {
+			headers: { Authorization: `Bearer ${token}` },
+		});
+
+		if (!docTypesResponse.ok) return { options: [], aliasMap: new Map() };
+
+		const docTypes: Array<{ alias: string; name: string; icon: string; id: string }> =
+			await docTypesResponse.json();
+
+		const options: DocumentTypeOption[] = [];
+		const aliasMap = new Map<string, string>();
+
+		for (const dt of docTypes) {
+			aliasMap.set(dt.id, dt.alias);
+
+			const bpResponse = await fetch(
+				`/umbraco/management/api/v1/updoc/document-types/${encodeURIComponent(dt.alias)}/blueprints`,
+				{ headers: { Authorization: `Bearer ${token}` } },
+			);
+
+			if (!bpResponse.ok) continue;
+
+			const blueprints: Array<{ id: string; name: string }> = await bpResponse.json();
+			if (blueprints.length > 0) {
+				options.push({
+					documentTypeUnique: dt.id,
+					documentTypeName: dt.name,
+					documentTypeIcon: dt.icon ?? null,
+					blueprints: blueprints.map((bp) => ({
+						blueprintUnique: bp.id,
+						blueprintName: bp.name,
+					})),
+				});
+			}
+		}
+
+		return { options, aliasMap };
+	}
+
+	async #handleChangeDocumentType() {
+		if (!this.#workflowAlias) return;
+
+		const authContext = await this.getContext(UMB_AUTH_CONTEXT);
+		const token = await authContext.getLatestToken();
+
+		const { options, aliasMap } = await this.#fetchDocumentTypeOptions(token);
+		if (!options.length) return;
+
+		let selection;
+		try {
+			selection = await umbOpenModal(this, UMB_BLUEPRINT_PICKER_MODAL, {
+				data: { documentTypes: options },
+			});
+		} catch {
+			return; // Cancelled
+		}
+
+		const { blueprintUnique, documentTypeUnique } = selection;
+		const selectedDocType = options.find((dt) => dt.documentTypeUnique === documentTypeUnique);
+		const selectedBlueprint = selectedDocType?.blueprints.find((bp) => bp.blueprintUnique === blueprintUnique);
+		const docTypeAlias = aliasMap.get(documentTypeUnique) ?? '';
+
+		const result = await changeWorkflowDestination(
+			this.#workflowAlias,
+			docTypeAlias,
+			selectedDocType?.documentTypeName ?? null,
+			blueprintUnique,
+			selectedBlueprint?.blueprintName ?? null,
+			token,
+		);
+
+		if (result) {
+			await this.#loadConfig(this.#workflowAlias);
+		}
+	}
+
+	async #handleChangeBlueprint() {
+		if (!this.#workflowAlias || !this._config) return;
+
+		const authContext = await this.getContext(UMB_AUTH_CONTEXT);
+		const token = await authContext.getLatestToken();
+
+		const dest = this._config.destination;
+		const currentDocTypeAlias = dest.documentTypeAlias;
+
+		// Fetch doc types to find the current one (need its GUID for preSelectedDocTypeUnique)
+		const { options, aliasMap } = await this.#fetchDocumentTypeOptions(token);
+		// Find by alias (aliasMap is GUID → alias, so reverse-lookup)
+		const currentDocTypeUnique = [...aliasMap.entries()].find(([, alias]) => alias === currentDocTypeAlias)?.[0];
+		const currentDocType = options.find((dt) => dt.documentTypeUnique === currentDocTypeUnique);
+
+		if (!currentDocType) return;
+
+		let selection;
+		try {
+			selection = await umbOpenModal(this, UMB_BLUEPRINT_PICKER_MODAL, {
+				data: {
+					documentTypes: [currentDocType],
+					preSelectedDocTypeUnique: currentDocType.documentTypeUnique,
+				},
+			});
+		} catch {
+			return; // Cancelled
+		}
+
+		const selectedBlueprint = currentDocType.blueprints.find(
+			(bp) => bp.blueprintUnique === selection.blueprintUnique,
+		);
+
+		const result = await changeWorkflowDestination(
+			this.#workflowAlias,
+			currentDocTypeAlias,
+			dest.documentTypeName ?? null,
+			selection.blueprintUnique,
+			selectedBlueprint?.blueprintName ?? null,
+			token,
+		);
+
+		if (result) {
+			await this.#loadConfig(this.#workflowAlias);
 		}
 	}
 
@@ -180,7 +316,7 @@ export class UpDocWorkflowDestinationViewElement extends UmbLitElement {
 						<span class="box-stat box-filename" title="${dest.documentTypeName ?? dest.documentTypeAlias}">${dest.documentTypeName ?? dest.documentTypeAlias}</span>
 						<span class="box-sub">${dest.documentTypeAlias}</span>
 						<div class="box-buttons">
-							<uui-button look="secondary" label="Change" disabled title="Coming soon">Change</uui-button>
+							<uui-button look="secondary" label="Change" @click=${this.#handleChangeDocumentType}>Change</uui-button>
 						</div>
 					</div>
 				</uui-box>
@@ -190,7 +326,7 @@ export class UpDocWorkflowDestinationViewElement extends UmbLitElement {
 						<uui-icon name="icon-blueprint" class="box-icon"></uui-icon>
 						<span class="box-stat box-filename" title="${dest.blueprintName ?? '—'}">${dest.blueprintName ?? '—'}</span>
 						<div class="box-buttons">
-							<uui-button look="secondary" label="Change" disabled title="Coming soon">Change</uui-button>
+							<uui-button look="secondary" label="Change" @click=${this.#handleChangeBlueprint}>Change</uui-button>
 						</div>
 					</div>
 				</uui-box>

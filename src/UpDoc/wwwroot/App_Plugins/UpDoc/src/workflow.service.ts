@@ -129,6 +129,46 @@ export async function fetchWorkflowByAlias(alias: string, token: string): Promis
 }
 
 /**
+ * Changes the document type and blueprint for a workflow.
+ * Updates workflow.json, regenerates destination.json, and reconciles map.json blockKeys.
+ */
+export async function changeWorkflowDestination(
+	workflowAlias: string,
+	documentTypeAlias: string,
+	documentTypeName: string | null,
+	blueprintId: string,
+	blueprintName: string | null,
+	token: string,
+): Promise<import('./workflow.types.js').DestinationConfig | null> {
+	const response = await fetch(
+		`/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(workflowAlias)}/destination`,
+		{
+			method: 'PUT',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${token}`,
+			},
+			body: JSON.stringify({
+				documentTypeAlias,
+				documentTypeName,
+				blueprintId,
+				blueprintName,
+			}),
+		}
+	);
+
+	if (!response.ok) {
+		const error = await response.json();
+		console.error('Change destination failed:', error);
+		return null;
+	}
+
+	clearConfigCache();
+	const result = await response.json();
+	return result.destination;
+}
+
+/**
  * Fetches the sample extraction for a workflow, if it exists.
  */
 export async function fetchSampleExtraction(

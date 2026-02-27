@@ -14,6 +14,8 @@ export interface DocumentTypeOption {
 
 export interface BlueprintPickerModalData {
 	documentTypes: DocumentTypeOption[];
+	/** When provided, auto-selects this doc type on open, skipping straight to the blueprint list. */
+	preSelectedDocTypeUnique?: string;
 }
 
 export interface BlueprintPickerModalValue {

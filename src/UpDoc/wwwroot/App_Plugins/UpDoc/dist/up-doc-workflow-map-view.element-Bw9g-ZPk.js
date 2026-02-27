@@ -1,4 +1,4 @@
-import { b as R, d as V, o as F } from "./workflow.service-CWGlGq_3.js";
+import { b as R, g as V, p as F } from "./workflow.service-8opy21oM.js";
 import { b as I, r as X, a as j, g as C } from "./destination-utils-DUfOJy5W.js";
 import { html as s, nothing as w, css as H, state as $, customElement as q } from "@umbraco-cms/backoffice/external/lit";
 import { UmbLitElement as J } from "@umbraco-cms/backoffice/lit-element";
@@ -141,28 +141,28 @@ B = function() {
   if (!this._config?.destination) return [];
   const t = this._config.destination, e = I(t), i = /* @__PURE__ */ new Map();
   for (let l = 0; l < this._config.map.mappings.length; l++) {
-    const d = this._config.map.mappings[l], y = d.destinations[0];
+    const f = this._config.map.mappings[l], y = f.destinations[0];
     if (!y) continue;
-    const c = X(y, t) ?? "unmapped", b = e.find((N) => N.id === c)?.label ?? "Unmapped", f = y.blockKey, z = f ? j(f, t) : void 0, M = f ? `${c}:${f}` : c;
+    const c = X(y, t) ?? "unmapped", b = e.find((N) => N.id === c)?.label ?? "Unmapped", d = y.blockKey, z = d ? j(d, t) : void 0, M = d ? `${c}:${d}` : c;
     i.has(M) || i.set(M, {
       tabId: c,
       tabLabel: b,
-      blockKey: f ?? void 0,
+      blockKey: d ?? void 0,
       blockLabel: z ?? void 0,
       mappings: []
-    }), i.get(M).mappings.push({ mapping: d, index: l });
+    }), i.get(M).mappings.push({ mapping: f, index: l });
   }
   const a = [], o = /* @__PURE__ */ new Map();
   let _ = 0;
   for (const l of C(t))
-    for (const d of l.blocks)
-      o.set(d.key, _++);
+    for (const f of l.blocks)
+      o.set(f.key, _++);
   for (const l of e) {
-    const d = i.get(l.id);
-    d && a.push(d);
+    const f = i.get(l.id);
+    f && a.push(f);
     const y = Array.from(i.entries()).filter(([c, b]) => b.tabId === l.id && b.blockKey).sort(([, c], [, b]) => {
-      const f = o.get(c.blockKey) ?? 999, z = o.get(b.blockKey) ?? 999;
-      return f - z;
+      const d = o.get(c.blockKey) ?? 999, z = o.get(b.blockKey) ?? 999;
+      return d - z;
     }).map(([, c]) => c);
     a.push(...y);
   }
@@ -355,4 +355,4 @@ export {
   p as UpDocWorkflowMapViewElement,
   ct as default
 };
-//# sourceMappingURL=up-doc-workflow-map-view.element-C1zyI2S-.js.map
+//# sourceMappingURL=up-doc-workflow-map-view.element-Bw9g-ZPk.js.map

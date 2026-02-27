@@ -1,66 +1,74 @@
-import { when as p, html as o, repeat as m, css as g, state as $, customElement as B } from "@umbraco-cms/backoffice/external/lit";
-import { UmbTextStyles as k } from "@umbraco-cms/backoffice/style";
-import { UmbModalBaseElement as z } from "@umbraco-cms/backoffice/modal";
-var U = Object.defineProperty, w = Object.getOwnPropertyDescriptor, d = (e) => {
+import { when as p, html as c, repeat as d, css as g, state as $, customElement as B } from "@umbraco-cms/backoffice/external/lit";
+import { UmbTextStyles as U } from "@umbraco-cms/backoffice/style";
+import { UmbModalBaseElement as k } from "@umbraco-cms/backoffice/modal";
+var q = Object.defineProperty, C = Object.getOwnPropertyDescriptor, m = (e) => {
   throw TypeError(e);
 }, h = (e, t, n, s) => {
-  for (var u = s > 1 ? void 0 : s ? w(t, n) : t, r = e.length - 1, a; r >= 0; r--)
-    (a = e[r]) && (u = (s ? a(t, n, u) : a(u)) || u);
-  return s && u && U(t, n, u), u;
-}, x = (e, t, n) => t.has(e) || d("Cannot " + n), C = (e, t, n) => t.has(e) ? d("Cannot add the same private member more than once") : t instanceof WeakSet ? t.add(e) : t.set(e, n), c = (e, t, n) => (x(e, t, "access private method"), n), i, _, f, y, T, b, v, D;
-let l = class extends z {
+  for (var o = s > 1 ? void 0 : s ? C(t, n) : t, a = e.length - 1, r; a >= 0; a--)
+    (r = e[a]) && (o = (s ? r(t, n, o) : r(o)) || o);
+  return s && o && q(t, n, o), o;
+}, S = (e, t, n) => t.has(e) || m("Cannot " + n), z = (e, t, n) => t.has(e) ? m("Cannot add the same private member more than once") : t instanceof WeakSet ? t.add(e) : t.set(e, n), l = (e, t, n) => (S(e, t, "access private method"), n), i, y, _, f, T, b, v, D;
+let u = class extends k {
   constructor() {
-    super(...arguments), C(this, i), this._selectedDocType = null;
+    super(...arguments), z(this, i), this._selectedDocType = null;
+  }
+  connectedCallback() {
+    if (super.connectedCallback(), this.data?.preSelectedDocTypeUnique) {
+      const e = this.data.documentTypes.find(
+        (t) => t.documentTypeUnique === this.data.preSelectedDocTypeUnique
+      );
+      e && (this._selectedDocType = e);
+    }
   }
   render() {
     const e = (this.data?.documentTypes?.length ?? 0) > 0, t = this._selectedDocType !== null, n = t ? this.localize.term("blueprints_selectBlueprint") : "Choose a Document Type";
-    return o`
+    return c`
 			<uui-dialog-layout headline=${n}>
 				${p(
       !e,
-      () => c(this, i, b).call(this),
+      () => l(this, i, b).call(this),
       () => p(
         t,
-        () => c(this, i, D).call(this),
-        () => c(this, i, v).call(this)
+        () => l(this, i, D).call(this),
+        () => l(this, i, v).call(this)
       )
     )}
 				${p(
-      t,
-      () => o`
+      t && !this.data?.preSelectedDocTypeUnique,
+      () => c`
 						<uui-button
 							slot="actions"
 							label="Back"
-							@click=${c(this, i, y)}></uui-button>
+							@click=${l(this, i, f)}></uui-button>
 					`
     )}
 				<uui-button
 					slot="actions"
 					id="cancel"
 					label=${this.localize.term("general_cancel")}
-					@click=${c(this, i, T)}></uui-button>
+					@click=${l(this, i, T)}></uui-button>
 			</uui-dialog-layout>
 		`;
   }
 };
 i = /* @__PURE__ */ new WeakSet();
-_ = function(e) {
+y = function(e) {
   this._selectedDocType = e;
 };
-f = function(e) {
+_ = function(e) {
   this._selectedDocType && (this.value = {
     blueprintUnique: e,
     documentTypeUnique: this._selectedDocType.documentTypeUnique
   }, this._submitModal());
 };
-y = function() {
+f = function() {
   this._selectedDocType = null;
 };
 T = function() {
   this._rejectModal();
 };
 b = function() {
-  return o`
+  return c`
 			<div class="no-blueprints">
 				<uui-icon name="icon-alert"></uui-icon>
 				<p>
@@ -76,14 +84,14 @@ b = function() {
 };
 v = function() {
   const e = this.data?.documentTypes ?? [];
-  return o`
-			${m(
+  return c`
+			${d(
     e,
     (t) => t.documentTypeUnique,
-    (t) => o`
+    (t) => c`
 					<uui-menu-item
 						label=${t.documentTypeName}
-						@click=${() => c(this, i, _).call(this, t)}>
+						@click=${() => l(this, i, y).call(this, t)}>
 						<umb-icon slot="icon" name=${t.documentTypeIcon || "icon-document"}></umb-icon>
 					</uui-menu-item>
 				`
@@ -91,22 +99,22 @@ v = function() {
 		`;
 };
 D = function() {
-  return this._selectedDocType ? o`
-			${m(
+  return this._selectedDocType ? c`
+			${d(
     this._selectedDocType.blueprints,
     (e) => e.blueprintUnique,
-    (e) => o`
+    (e) => c`
 					<uui-menu-item
 						label=${e.blueprintName}
-						@click=${() => c(this, i, f).call(this, e.blueprintUnique)}>
+						@click=${() => l(this, i, _).call(this, e.blueprintUnique)}>
 						<umb-icon slot="icon" name="icon-blueprint"></umb-icon>
 					</uui-menu-item>
 				`
   )}
-		` : o``;
+		` : c``;
 };
-l.styles = [
-  k,
+u.styles = [
+  U,
   g`
 			.no-blueprints {
 				display: flex;
@@ -135,13 +143,13 @@ l.styles = [
 ];
 h([
   $()
-], l.prototype, "_selectedDocType", 2);
-l = h([
+], u.prototype, "_selectedDocType", 2);
+u = h([
   B("blueprint-picker-modal")
-], l);
-const q = l;
+], u);
+const M = u;
 export {
-  l as BlueprintPickerModalElement,
-  q as default
+  u as BlueprintPickerModalElement,
+  M as default
 };
-//# sourceMappingURL=blueprint-picker-modal.element-B7k6RmK5.js.map
+//# sourceMappingURL=blueprint-picker-modal.element-B53buJuY.js.map

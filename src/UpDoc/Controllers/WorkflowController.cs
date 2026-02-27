@@ -257,6 +257,67 @@ public class WorkflowController : ControllerBase
         }
     }
 
+    [HttpPut("{alias}/destination")]
+    public async Task<IActionResult> ChangeDestination(string alias, [FromBody] ChangeDestinationRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(alias))
+            return BadRequest(new { error = "Workflow alias is required." });
+
+        if (string.IsNullOrWhiteSpace(request.DocumentTypeAlias))
+            return BadRequest(new { error = "Document type alias is required." });
+
+        if (string.IsNullOrWhiteSpace(request.BlueprintId))
+            return BadRequest(new { error = "Blueprint ID is required." });
+
+        try
+        {
+            // Resolve document type name if not provided
+            var documentTypeName = request.DocumentTypeName;
+            if (string.IsNullOrEmpty(documentTypeName))
+            {
+                var contentType = _contentTypeService.Get(request.DocumentTypeAlias);
+                documentTypeName = contentType?.Name;
+            }
+
+            // Step 1: Update workflow.json identity
+            _workflowService.UpdateWorkflowDestination(
+                alias,
+                request.DocumentTypeAlias,
+                documentTypeName,
+                request.BlueprintId,
+                request.BlueprintName);
+
+            // Step 2: Load old destination.json before regenerating
+            var oldDestination = _workflowService.GetDestinationConfig(alias);
+
+            // Step 3: Generate new destination.json from the new blueprint
+            var newDestination = await _destinationStructureService.BuildDestinationConfigAsync(
+                request.DocumentTypeAlias,
+                request.BlueprintId,
+                request.BlueprintName);
+
+            // Step 4: Reconcile map.json blockKeys
+            var reconciliation = ReconcileBlockKeys(alias, oldDestination, newDestination);
+
+            // Step 5: Save new destination.json
+            _workflowService.SaveDestinationConfig(alias, newDestination);
+
+            return Ok(new RegenerateDestinationResponse
+            {
+                Destination = newDestination,
+                Reconciliation = reconciliation,
+            });
+        }
+        catch (DirectoryNotFoundException)
+        {
+            return NotFound(new { error = $"Workflow '{alias}' not found." });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+    }
+
     [HttpPost("{alias}/sample-extraction")]
     public async Task<IActionResult> ExtractSample(string alias, [FromBody] SampleExtractionRequest request)
     {
@@ -1441,6 +1502,14 @@ public class UpdateIdentityRequest
 {
     public string Name { get; set; } = string.Empty;
     public string Alias { get; set; } = string.Empty;
+}
+
+public class ChangeDestinationRequest
+{
+    public string DocumentTypeAlias { get; set; } = string.Empty;
+    public string? DocumentTypeName { get; set; }
+    public string BlueprintId { get; set; } = string.Empty;
+    public string? BlueprintName { get; set; }
 }
 
 public class SectionInclusionRequest

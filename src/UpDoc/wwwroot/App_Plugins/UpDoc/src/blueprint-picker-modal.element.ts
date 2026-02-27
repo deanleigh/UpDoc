@@ -11,6 +11,19 @@ export class BlueprintPickerModalElement extends UmbModalBaseElement<
 	@state()
 	private _selectedDocType: DocumentTypeOption | null = null;
 
+	override connectedCallback() {
+		super.connectedCallback();
+		// Auto-select doc type if preSelectedDocTypeUnique is provided
+		if (this.data?.preSelectedDocTypeUnique) {
+			const preSelected = this.data.documentTypes.find(
+				(dt) => dt.documentTypeUnique === this.data!.preSelectedDocTypeUnique,
+			);
+			if (preSelected) {
+				this._selectedDocType = preSelected;
+			}
+		}
+	}
+
 	#handleDocTypeSelect(docType: DocumentTypeOption) {
 		this._selectedDocType = docType;
 	}
@@ -101,7 +114,7 @@ export class BlueprintPickerModalElement extends UmbModalBaseElement<
 					),
 				)}
 				${when(
-					showBlueprints,
+					showBlueprints && !this.data?.preSelectedDocTypeUnique,
 					() => html`
 						<uui-button
 							slot="actions"
