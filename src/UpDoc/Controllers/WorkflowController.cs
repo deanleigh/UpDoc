@@ -392,6 +392,13 @@ public class WorkflowController : ControllerBase
         }
     }
 
+    [HttpPost("{alias}/backfill-content-type-keys")]
+    public IActionResult BackfillContentTypeKeys(string alias)
+    {
+        var count = _workflowService.BackfillContentTypeKeysForWorkflow(alias);
+        return Ok(new { backfilled = count });
+    }
+
     private ReconciliationResult ReconcileBlockKeys(
         string alias,
         DestinationConfig? oldDestination,

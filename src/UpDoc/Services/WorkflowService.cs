@@ -140,6 +140,12 @@ public interface IWorkflowService
     /// Falls back to zone-template.json for backwards compatibility.
     /// </summary>
     AreaTemplate? GetAreaTemplate(string workflowAlias);
+
+    /// <summary>
+    /// Backfills contentTypeKey on map.json destinations that have blockKey but no contentTypeKey.
+    /// Returns the number of mappings backfilled.
+    /// </summary>
+    int BackfillContentTypeKeysForWorkflow(string workflowAlias);
 }
 
 /// <summary>
@@ -859,6 +865,21 @@ public class WorkflowService : IWorkflowService
         return JsonSerializer.Deserialize<AreaTemplate>(json, JsonOptions);
     }
 
+    public int BackfillContentTypeKeysForWorkflow(string workflowAlias)
+    {
+        var folderPath = GetWorkflowFolderPath(workflowAlias);
+        if (!Directory.Exists(folderPath))
+            return 0;
+
+        var count = BackfillContentTypeKeys(folderPath);
+        if (count > 0)
+        {
+            ClearCache();
+            _logger.LogInformation("Backfilled {Count} contentTypeKey(s) for workflow '{Alias}'", count, workflowAlias);
+        }
+        return count;
+    }
+
     private string GetWorkflowFolderPath(string workflowAlias)
     {
         return Path.Combine(_webHostEnvironment.ContentRootPath, "updoc", "workflows", workflowAlias);
@@ -1271,6 +1292,91 @@ public class WorkflowService : IWorkflowService
             _logger.LogInformation("Migration: restructured {Count} workflow(s) into subfolders", moved);
             ClearCache();
         }
+
+        // Pass 4: Backfill contentTypeKey on map.json destinations that have blockKey but no contentTypeKey
+        var backfilled = 0;
+        foreach (var folderPath in Directory.GetDirectories(workflowsDirectory))
+        {
+            var folderName = Path.GetFileName(folderPath);
+            var count = BackfillContentTypeKeys(folderPath);
+            if (count > 0)
+            {
+                backfilled += count;
+                _logger.LogInformation("Migration: backfilled {Count} contentTypeKey(s) in '{Folder}'", count, folderName);
+            }
+        }
+
+        if (backfilled > 0)
+        {
+            _logger.LogInformation("Migration: backfilled contentTypeKey for {Count} mapping(s) total", backfilled);
+            ClearCache();
+        }
+    }
+
+    /// <summary>
+    /// Backfills contentTypeKey on map.json destinations for a specific workflow folder.
+    /// Returns the number of mappings backfilled.
+    /// </summary>
+    internal int BackfillContentTypeKeys(string folderPath)
+    {
+        var mapFile = ResolveFilePath(folderPath, "map", "map.json");
+        var destinationFile = ResolveFilePath(folderPath, "destination", "destination.json");
+
+        if (!File.Exists(mapFile) || !File.Exists(destinationFile))
+            return 0;
+
+        MapConfig? mapConfig;
+        DestinationConfig? destConfig;
+        try
+        {
+            mapConfig = JsonSerializer.Deserialize<MapConfig>(File.ReadAllText(mapFile), JsonOptions);
+            destConfig = JsonSerializer.Deserialize<DestinationConfig>(File.ReadAllText(destinationFile), JsonOptions);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Backfill: failed to read map/destination in {Folder}", Path.GetFileName(folderPath));
+            return 0;
+        }
+
+        if (mapConfig == null || destConfig == null) return 0;
+
+        // Build blockKey → contentTypeKey lookup from destination.json
+        var blockKeyToContentTypeKey = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var container in (destConfig.BlockGrids ?? Enumerable.Empty<DestinationBlockGrid>())
+            .Concat(destConfig.BlockLists ?? Enumerable.Empty<DestinationBlockGrid>()))
+        {
+            foreach (var block in container.Blocks)
+            {
+                if (!string.IsNullOrEmpty(block.Key) && !string.IsNullOrEmpty(block.ContentTypeKey))
+                {
+                    blockKeyToContentTypeKey[block.Key] = block.ContentTypeKey;
+                }
+            }
+        }
+
+        // Backfill contentTypeKey where blockKey exists but contentTypeKey is missing
+        var count = 0;
+        foreach (var mapping in mapConfig.Mappings)
+        {
+            foreach (var dest in mapping.Destinations)
+            {
+                if (!string.IsNullOrEmpty(dest.BlockKey)
+                    && string.IsNullOrEmpty(dest.ContentTypeKey)
+                    && blockKeyToContentTypeKey.TryGetValue(dest.BlockKey, out var ctKey))
+                {
+                    dest.ContentTypeKey = ctKey;
+                    count++;
+                }
+            }
+        }
+
+        if (count > 0)
+        {
+            var writeOptions = new JsonSerializerOptions { WriteIndented = true };
+            File.WriteAllText(mapFile, JsonSerializer.Serialize(mapConfig, writeOptions));
+        }
+
+        return count;
     }
 
     private static void MoveFileIfExists(string sourceDir, string targetDir, string fileName)

@@ -567,3 +567,130 @@ test.describe('Sprint 5: blockKey validation on config load', () => {
 		}
 	});
 });
+
+// ── Sprint 6: backfill contentTypeKey for existing map.json files ───────────
+
+test.describe('Sprint 6: backfill contentTypeKey migration', () => {
+	test.beforeEach(async ({ page }) => {
+		await page.goto('/umbraco');
+		await page.waitForTimeout(2000);
+	});
+
+	test('backfill adds contentTypeKey where blockKey exists but contentTypeKey is missing', async ({ page }) => {
+		// Step 1: Ensure destination is fresh so blockKeys are valid
+		await apiPost(page, `${API_BASE}/${TEST_WORKFLOW}/regenerate-destination`);
+
+		// Step 2: Read current map.json and save original
+		const config = await apiGet(page, `${API_BASE}/${TEST_WORKFLOW}`);
+		const originalMap = JSON.parse(JSON.stringify(config.map));
+
+		// Step 3: Strip contentTypeKey from all block mappings (simulate pre-Sprint-2 state)
+		const strippedMap = JSON.parse(JSON.stringify(config.map));
+		const blockDests = strippedMap.mappings
+			.flatMap((m: any) => m.destinations)
+			.filter((d: any) => d.blockKey);
+		expect(blockDests.length, 'Should have block mappings to strip').toBeGreaterThan(0);
+
+		for (const dest of blockDests) {
+			delete dest.contentTypeKey;
+		}
+
+		await apiPutJson(page, `${API_BASE}/${TEST_WORKFLOW}/map`, strippedMap);
+
+		try {
+			// Step 4: Verify contentTypeKey is gone
+			const configAfterStrip = await apiGet(page, `${API_BASE}/${TEST_WORKFLOW}`);
+			const strippedDests = configAfterStrip.map.mappings
+				.flatMap((m: any) => m.destinations)
+				.filter((d: any) => d.blockKey);
+			for (const dest of strippedDests) {
+				expect(dest.contentTypeKey, `contentTypeKey should be stripped for ${dest.target}`).toBeFalsy();
+			}
+
+			// Step 5: Call backfill endpoint
+			const backfillResult = await apiPost(page, `${API_BASE}/${TEST_WORKFLOW}/backfill-content-type-keys`);
+			expect(backfillResult.backfilled).toBeGreaterThan(0);
+
+			// Step 6: Read map.json again — contentTypeKey should be backfilled
+			const configAfterBackfill = await apiGet(page, `${API_BASE}/${TEST_WORKFLOW}`);
+			const backfilledDests = configAfterBackfill.map.mappings
+				.flatMap((m: any) => m.destinations)
+				.filter((d: any) => d.blockKey);
+
+			for (const dest of backfilledDests) {
+				expect(
+					dest.contentTypeKey,
+					`contentTypeKey should be backfilled for ${dest.target}`,
+				).toBeTruthy();
+				expect(dest.contentTypeKey).toMatch(
+					/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
+				);
+			}
+		} finally {
+			// Cleanup: restore original map.json
+			await apiPutJson(page, `${API_BASE}/${TEST_WORKFLOW}/map`, originalMap);
+		}
+	});
+
+	test('backfill returns zero when contentTypeKey already present', async ({ page }) => {
+		// Ensure destination is fresh and reconciled
+		await apiPost(page, `${API_BASE}/${TEST_WORKFLOW}/regenerate-destination`);
+
+		// Call backfill — should return 0 since Sprint 4 reconciliation already backfills
+		const result = await apiPost(page, `${API_BASE}/${TEST_WORKFLOW}/backfill-content-type-keys`);
+		expect(result.backfilled).toBe(0);
+	});
+
+	test('backfill matches correct contentTypeKey from destination.json', async ({ page }) => {
+		// Ensure destination is fresh
+		await apiPost(page, `${API_BASE}/${TEST_WORKFLOW}/regenerate-destination`);
+
+		const config = await apiGet(page, `${API_BASE}/${TEST_WORKFLOW}`);
+		const originalMap = JSON.parse(JSON.stringify(config.map));
+
+		// Build blockKey → contentTypeKey lookup from destination.json
+		const destBlocks: Record<string, string> = {};
+		for (const grid of config.destination.blockGrids ?? []) {
+			for (const block of grid.blocks) {
+				destBlocks[block.key] = block.contentTypeKey;
+			}
+		}
+		for (const list of config.destination.blockLists ?? []) {
+			for (const block of list.blocks) {
+				destBlocks[block.key] = block.contentTypeKey;
+			}
+		}
+
+		// Strip contentTypeKey from map.json
+		const strippedMap = JSON.parse(JSON.stringify(config.map));
+		for (const mapping of strippedMap.mappings) {
+			for (const dest of mapping.destinations) {
+				if (dest.blockKey) {
+					delete dest.contentTypeKey;
+				}
+			}
+		}
+		await apiPutJson(page, `${API_BASE}/${TEST_WORKFLOW}/map`, strippedMap);
+
+		try {
+			// Backfill
+			await apiPost(page, `${API_BASE}/${TEST_WORKFLOW}/backfill-content-type-keys`);
+
+			// Verify each backfilled contentTypeKey matches what destination.json says
+			const configAfter = await apiGet(page, `${API_BASE}/${TEST_WORKFLOW}`);
+			const blockDests = configAfter.map.mappings
+				.flatMap((m: any) => m.destinations)
+				.filter((d: any) => d.blockKey && d.contentTypeKey);
+
+			for (const dest of blockDests) {
+				const expectedCtk = destBlocks[dest.blockKey];
+				expect(
+					dest.contentTypeKey,
+					`contentTypeKey for blockKey ${dest.blockKey} should match destination.json`,
+				).toBe(expectedCtk);
+			}
+		} finally {
+			await apiPutJson(page, `${API_BASE}/${TEST_WORKFLOW}/map`, originalMap);
+		}
+	});
+});
