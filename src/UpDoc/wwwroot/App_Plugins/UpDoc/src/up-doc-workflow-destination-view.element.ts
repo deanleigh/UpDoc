@@ -484,7 +484,9 @@ export class UpDocWorkflowDestinationViewElement extends UmbLitElement {
 						<span class="box-stat box-filename" title="${dest.documentTypeName ?? dest.documentTypeAlias}">${dest.documentTypeName ?? dest.documentTypeAlias}</span>
 						<span class="box-sub">${dest.documentTypeAlias}</span>
 						<div class="box-buttons">
-							<uui-button look="secondary" label="Change" @click=${this.#handleChangeDocumentType}>Change</uui-button>
+							<uui-button look="primary" color="default" label="Change" @click=${this.#handleChangeDocumentType}>
+								<uui-icon name="icon-document-dashed-line"></uui-icon> Change
+							</uui-button>
 						</div>
 					</div>
 				</uui-box>
@@ -494,7 +496,9 @@ export class UpDocWorkflowDestinationViewElement extends UmbLitElement {
 						<uui-icon name="icon-blueprint" class="box-icon"></uui-icon>
 						<span class="box-stat box-filename" title="${dest.blueprintName ?? '—'}">${dest.blueprintName ?? '—'}</span>
 						<div class="box-buttons">
-							<uui-button look="secondary" label="Change" @click=${this.#handleChangeBlueprint}>Change</uui-button>
+							<uui-button look="primary" color="default" label="Change" @click=${this.#handleChangeBlueprint}>
+								<uui-icon name="icon-blueprint"></uui-icon> Change
+							</uui-button>
 						</div>
 					</div>
 				</uui-box>
@@ -505,7 +509,9 @@ export class UpDocWorkflowDestinationViewElement extends UmbLitElement {
 						<span class="box-stat">${this.#getFieldsCount()}</span>
 						<span class="box-sub">text-mappable</span>
 						<div class="box-buttons">
-							<uui-button look="secondary" label="Regenerate" disabled title="Coming soon">Regenerate</uui-button>
+							<uui-button look="primary" color="default" label="Regenerate" disabled title="Coming soon">
+								<uui-icon name="icon-layers"></uui-icon> Regenerate
+							</uui-button>
 						</div>
 					</div>
 				</uui-box>
@@ -516,7 +522,9 @@ export class UpDocWorkflowDestinationViewElement extends UmbLitElement {
 						<span class="box-stat">${this.#getBlocksCount()}</span>
 						<span class="box-sub">in blueprint</span>
 						<div class="box-buttons">
-							<uui-button look="secondary" label="Regenerate" disabled title="Coming soon">Regenerate</uui-button>
+							<uui-button look="primary" color="default" label="Regenerate" disabled title="Coming soon">
+								<uui-icon name="icon-box"></uui-icon> Regenerate
+							</uui-button>
 						</div>
 					</div>
 				</uui-box>

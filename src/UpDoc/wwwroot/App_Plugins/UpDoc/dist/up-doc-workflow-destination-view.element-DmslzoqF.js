@@ -334,7 +334,9 @@ Y = function() {
 						<span class="box-stat box-filename" title="${t.documentTypeName ?? t.documentTypeAlias}">${t.documentTypeName ?? t.documentTypeAlias}</span>
 						<span class="box-sub">${t.documentTypeAlias}</span>
 						<div class="box-buttons">
-							<uui-button look="secondary" label="Change" @click=${n(this, a, N)}>Change</uui-button>
+							<uui-button look="primary" color="default" label="Change" @click=${n(this, a, N)}>
+								<uui-icon name="icon-document-dashed-line"></uui-icon> Change
+							</uui-button>
 						</div>
 					</div>
 				</uui-box>
@@ -344,7 +346,9 @@ Y = function() {
 						<uui-icon name="icon-blueprint" class="box-icon"></uui-icon>
 						<span class="box-stat box-filename" title="${t.blueprintName ?? "—"}">${t.blueprintName ?? "—"}</span>
 						<div class="box-buttons">
-							<uui-button look="secondary" label="Change" @click=${n(this, a, q)}>Change</uui-button>
+							<uui-button look="primary" color="default" label="Change" @click=${n(this, a, q)}>
+								<uui-icon name="icon-blueprint"></uui-icon> Change
+							</uui-button>
 						</div>
 					</div>
 				</uui-box>
@@ -355,7 +359,9 @@ Y = function() {
 						<span class="box-stat">${n(this, a, J).call(this)}</span>
 						<span class="box-sub">text-mappable</span>
 						<div class="box-buttons">
-							<uui-button look="secondary" label="Regenerate" disabled title="Coming soon">Regenerate</uui-button>
+							<uui-button look="primary" color="default" label="Regenerate" disabled title="Coming soon">
+								<uui-icon name="icon-layers"></uui-icon> Regenerate
+							</uui-button>
 						</div>
 					</div>
 				</uui-box>
@@ -366,7 +372,9 @@ Y = function() {
 						<span class="box-stat">${n(this, a, Q).call(this)}</span>
 						<span class="box-sub">in blueprint</span>
 						<div class="box-buttons">
-							<uui-button look="secondary" label="Regenerate" disabled title="Coming soon">Regenerate</uui-button>
+							<uui-button look="primary" color="default" label="Regenerate" disabled title="Coming soon">
+								<uui-icon name="icon-box"></uui-icon> Regenerate
+							</uui-button>
 						</div>
 					</div>
 				</uui-box>
@@ -711,4 +719,4 @@ export {
   f as UpDocWorkflowDestinationViewElement,
   _t as default
 };
-//# sourceMappingURL=up-doc-workflow-destination-view.element-dhHnZE4S.js.map
+//# sourceMappingURL=up-doc-workflow-destination-view.element-DmslzoqF.js.map
