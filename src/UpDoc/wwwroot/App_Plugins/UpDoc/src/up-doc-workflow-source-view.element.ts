@@ -866,7 +866,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 											${this.#renderPartBadges(`${section.id}.title`)}
 											${this.#renderPartBadges(`${section.id}.heading`)}
 											<uui-button class="md-map-btn" look="outline" compact label="Map"
-												@click=${(e: Event) => { e.stopPropagation(); this.#onMapSection(section, 'title'); }}>Map</uui-button>
+												@click=${(e: Event) => { e.stopPropagation(); this.#onMapSection(section, 'title'); }}><uui-icon name="icon-nodes"></uui-icon> Map</uui-button>
 										</div>
 									</div>
 								</div>
@@ -879,7 +879,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 										<div class="part-box-actions">
 											${this.#renderPartBadges(`${section.id}.content`)}
 											<uui-button class="md-map-btn" look="outline" compact label="Map"
-												@click=${(e: Event) => { e.stopPropagation(); this.#onMapSection(section, 'content'); }}>Map</uui-button>
+												@click=${(e: Event) => { e.stopPropagation(); this.#onMapSection(section, 'content'); }}><uui-icon name="icon-nodes"></uui-icon> Map</uui-button>
 										</div>
 									</div>
 								</div>
@@ -892,7 +892,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 										<div class="part-box-actions">
 											${this.#renderPartBadges(`${section.id}.description`)}
 											<uui-button class="md-map-btn" look="outline" compact label="Map"
-												@click=${(e: Event) => { e.stopPropagation(); this.#onMapSection(section, 'description'); }}>Map</uui-button>
+												@click=${(e: Event) => { e.stopPropagation(); this.#onMapSection(section, 'description'); }}><uui-icon name="icon-nodes"></uui-icon> Map</uui-button>
 										</div>
 									</div>
 								</div>
@@ -905,7 +905,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 										<div class="part-box-actions">
 											${this.#renderPartBadges(`${section.id}.summary`)}
 											<uui-button class="md-map-btn" look="outline" compact label="Map"
-												@click=${(e: Event) => { e.stopPropagation(); this.#onMapSection(section, 'summary'); }}>Map</uui-button>
+												@click=${(e: Event) => { e.stopPropagation(); this.#onMapSection(section, 'summary'); }}><uui-icon name="icon-nodes"></uui-icon> Map</uui-button>
 										</div>
 									</div>
 								</div>
@@ -917,7 +917,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 									<div class="part-box-actions">
 										${suffixes.map((s) => this.#renderPartBadges(`${section.id}.${s}`))}
 										<uui-button class="md-map-btn" look="outline" compact label="Map"
-											@click=${(e: Event) => { e.stopPropagation(); this.#onMapSection(section, 'content'); }}>Map</uui-button>
+											@click=${(e: Event) => { e.stopPropagation(); this.#onMapSection(section, 'content'); }}><uui-icon name="icon-nodes"></uui-icon> Map</uui-button>
 									</div>
 								</div>
 							` : nothing}

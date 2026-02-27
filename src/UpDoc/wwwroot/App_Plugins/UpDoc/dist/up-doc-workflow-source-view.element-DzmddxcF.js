@@ -567,7 +567,7 @@ Fe = function(e) {
 											<uui-button class="md-map-btn" look="outline" compact label="Map"
 												@click=${(u) => {
     u.stopPropagation(), s(this, a, S).call(this, e, "title");
-  }}>Map</uui-button>
+  }}><uui-icon name="icon-nodes"></uui-icon> Map</uui-button>
 										</div>
 									</div>
 								</div>
@@ -582,7 +582,7 @@ Fe = function(e) {
 											<uui-button class="md-map-btn" look="outline" compact label="Map"
 												@click=${(u) => {
     u.stopPropagation(), s(this, a, S).call(this, e, "content");
-  }}>Map</uui-button>
+  }}><uui-icon name="icon-nodes"></uui-icon> Map</uui-button>
 										</div>
 									</div>
 								</div>
@@ -597,7 +597,7 @@ Fe = function(e) {
 											<uui-button class="md-map-btn" look="outline" compact label="Map"
 												@click=${(u) => {
     u.stopPropagation(), s(this, a, S).call(this, e, "description");
-  }}>Map</uui-button>
+  }}><uui-icon name="icon-nodes"></uui-icon> Map</uui-button>
 										</div>
 									</div>
 								</div>
@@ -612,7 +612,7 @@ Fe = function(e) {
 											<uui-button class="md-map-btn" look="outline" compact label="Map"
 												@click=${(u) => {
     u.stopPropagation(), s(this, a, S).call(this, e, "summary");
-  }}>Map</uui-button>
+  }}><uui-icon name="icon-nodes"></uui-icon> Map</uui-button>
 										</div>
 									</div>
 								</div>
@@ -626,7 +626,7 @@ Fe = function(e) {
 										<uui-button class="md-map-btn" look="outline" compact label="Map"
 											@click=${(u) => {
     u.stopPropagation(), s(this, a, S).call(this, e, "content");
-  }}>Map</uui-button>
+  }}><uui-icon name="icon-nodes"></uui-icon> Map</uui-button>
 									</div>
 								</div>
 							` : d}
@@ -2201,4 +2201,4 @@ export {
   m as UpDocWorkflowSourceViewElement,
   Ut as default
 };
-//# sourceMappingURL=up-doc-workflow-source-view.element-CUH9GTxx.js.map
+//# sourceMappingURL=up-doc-workflow-source-view.element-DzmddxcF.js.map

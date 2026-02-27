@@ -120,7 +120,7 @@ const o = [
     type: "workspaceView",
     alias: "UpDoc.WorkflowWorkspaceView.Destination",
     name: "Destination",
-    element: () => import("./up-doc-workflow-destination-view.element-DmslzoqF.js"),
+    element: () => import("./up-doc-workflow-destination-view.element-D2MlYd25.js"),
     weight: 300,
     meta: {
       label: "Destination",
@@ -138,7 +138,7 @@ const o = [
     type: "workspaceView",
     alias: "UpDoc.WorkflowWorkspaceView.Source",
     name: "UpDoc Workflow Source View",
-    element: () => import("./up-doc-workflow-source-view.element-CUH9GTxx.js"),
+    element: () => import("./up-doc-workflow-source-view.element-DzmddxcF.js"),
     weight: 200,
     meta: {
       label: "Source",

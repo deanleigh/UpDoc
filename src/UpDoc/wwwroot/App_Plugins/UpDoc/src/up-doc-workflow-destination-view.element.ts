@@ -361,7 +361,7 @@ export class UpDocWorkflowDestinationViewElement extends UmbLitElement {
 					</div>
 					<div class="part-box-actions">
 						${this.#renderMappingBadges(field.alias)}
-						<uui-button class="md-map-btn" look="outline" compact label="Map">Map</uui-button>
+						<uui-button class="md-map-btn" look="outline" compact label="Map"><uui-icon name="icon-nodes"></uui-icon> Map</uui-button>
 					</div>
 				</div>
 			</div>
@@ -450,7 +450,7 @@ export class UpDocWorkflowDestinationViewElement extends UmbLitElement {
 					</div>
 					<div class="part-box-actions">
 						${this.#renderMappingBadges(prop.alias, blockKey)}
-						<uui-button class="md-map-btn" look="outline" compact label="Map">Map</uui-button>
+						<uui-button class="md-map-btn" look="outline" compact label="Map"><uui-icon name="icon-nodes"></uui-icon> Map</uui-button>
 					</div>
 				</div>
 			</div>

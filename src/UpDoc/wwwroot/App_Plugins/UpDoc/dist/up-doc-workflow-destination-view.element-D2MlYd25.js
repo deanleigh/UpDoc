@@ -249,7 +249,7 @@ j = function(t) {
 					</div>
 					<div class="part-box-actions">
 						${n(this, a, B).call(this, t.alias)}
-						<uui-button class="md-map-btn" look="outline" compact label="Map">Map</uui-button>
+						<uui-button class="md-map-btn" look="outline" compact label="Map"><uui-icon name="icon-nodes"></uui-icon> Map</uui-button>
 					</div>
 				</div>
 			</div>
@@ -311,7 +311,7 @@ K = function(t, e) {
 					</div>
 					<div class="part-box-actions">
 						${n(this, a, B).call(this, t.alias, e)}
-						<uui-button class="md-map-btn" look="outline" compact label="Map">Map</uui-button>
+						<uui-button class="md-map-btn" look="outline" compact label="Map"><uui-icon name="icon-nodes"></uui-icon> Map</uui-button>
 					</div>
 				</div>
 			</div>
@@ -719,4 +719,4 @@ export {
   f as UpDocWorkflowDestinationViewElement,
   _t as default
 };
-//# sourceMappingURL=up-doc-workflow-destination-view.element-DmslzoqF.js.map
+//# sourceMappingURL=up-doc-workflow-destination-view.element-D2MlYd25.js.map
