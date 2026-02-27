@@ -1,4 +1,4 @@
-import type { DocumentTypeConfig, DestinationField, DestinationBlockGrid } from './workflow.types.js';
+import type { DocumentTypeConfig, DestinationField, DestinationBlock, DestinationBlockGrid, BlockProperty, SectionMapping } from './workflow.types.js';
 import { fetchWorkflowByAlias, changeWorkflowDestination } from './workflow.service.js';
 import { getDestinationTabs, getAllBlockContainers } from './destination-utils.js';
 import { html, customElement, css, state, nothing } from '@umbraco-cms/backoffice/external/lit';
@@ -16,6 +16,8 @@ export class UpDocWorkflowDestinationViewElement extends UmbLitElement {
 	@state() private _loading = true;
 	@state() private _error: string | null = null;
 	@state() private _activeTab = '';
+	@state() private _collapsedBlocks = new Set<string>();
+	@state() private _collapsePopoverOpen = false;
 	#workflowAlias: string | null = null;
 
 	override connectedCallback() {
@@ -188,10 +190,149 @@ export class UpDocWorkflowDestinationViewElement extends UmbLitElement {
 		}
 	}
 
+	// =========================================================================
+	// Tabs
+	// =========================================================================
+
 	#getTabs() {
 		if (!this._config) return [];
 		return getDestinationTabs(this._config.destination);
 	}
+
+	// =========================================================================
+	// Mapping badge helpers (reverse-lookup: destination → source)
+	// =========================================================================
+
+	/**
+	 * Find all source mappings that target a specific destination field/property.
+	 * Returns array of { source, mapping } for badge rendering.
+	 */
+	#getSourcesForTarget(targetAlias: string, blockKey?: string): Array<{ source: string; mapping: SectionMapping }> {
+		if (!this._config?.map?.mappings) return [];
+
+		const results: Array<{ source: string; mapping: SectionMapping }> = [];
+		for (const mapping of this._config.map.mappings) {
+			if (mapping.enabled === false) continue;
+			for (const dest of mapping.destinations) {
+				if (dest.target === targetAlias && (blockKey ? dest.blockKey === blockKey : !dest.blockKey)) {
+					results.push({ source: mapping.source, mapping });
+				}
+			}
+		}
+		return results;
+	}
+
+	/**
+	 * Convert a source ID like "tour-title.content" to a human-readable label "Tour Title".
+	 * Strips the .content/.title/.heading/.description/.summary suffix, then title-cases.
+	 */
+	#formatSourceLabel(sourceId: string): string {
+		// Strip the part suffix
+		const parts = sourceId.split('.');
+		const sectionId = parts[0];
+		const partName = parts[1];
+
+		// Convert kebab-case to Title Case
+		const label = sectionId.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+
+		// If there's a meaningful part name that isn't just "content", append it
+		if (partName && partName !== 'content') {
+			const partLabel = partName.replace(/\b\w/g, (c) => c.toUpperCase());
+			return `${label} (${partLabel})`;
+		}
+
+		return label;
+	}
+
+	#renderMappingBadges(targetAlias: string, blockKey?: string) {
+		const sources = this.#getSourcesForTarget(targetAlias, blockKey);
+		if (sources.length === 0) return nothing;
+
+		return sources.map(
+			({ source }) => html`
+				<uui-tag color="positive" look="primary" class="mapped-tag" title="${source}">
+					${this.#formatSourceLabel(source)}
+					<button class="unmap-x" title="Remove mapping" @click=${(e: Event) => { e.stopPropagation(); }}>&times;</button>
+				</uui-tag>
+			`,
+		);
+	}
+
+	#hasAnyMapping(targetAlias: string, blockKey?: string): boolean {
+		return this.#getSourcesForTarget(targetAlias, blockKey).length > 0;
+	}
+
+	/**
+	 * Collect all mapping badges for all properties of a block (for collapsed header display).
+	 */
+	#renderBlockHeaderBadges(block: DestinationBlock) {
+		if (!block.properties?.length) return nothing;
+		const badges: ReturnType<typeof html>[] = [];
+		for (const prop of block.properties) {
+			const sources = this.#getSourcesForTarget(prop.alias, block.key);
+			for (const { source } of sources) {
+				badges.push(html`
+					<uui-tag color="positive" look="primary" class="mapped-tag" title="${source}">
+						${this.#formatSourceLabel(source)}
+						<button class="unmap-x" title="Remove mapping" @click=${(e: Event) => { e.stopPropagation(); }}>&times;</button>
+					</uui-tag>
+				`);
+			}
+		}
+		return badges.length > 0 ? badges : nothing;
+	}
+
+	// =========================================================================
+	// Collapse
+	// =========================================================================
+
+	#toggleBlockCollapse(blockKey: string) {
+		const updated = new Set(this._collapsedBlocks);
+		if (updated.has(blockKey)) {
+			updated.delete(blockKey);
+		} else {
+			updated.add(blockKey);
+		}
+		this._collapsedBlocks = updated;
+	}
+
+	#isBlockCollapsed(blockKey: string): boolean {
+		return this._collapsedBlocks.has(blockKey);
+	}
+
+	#collapseAllBlocks() {
+		if (!this._config) return;
+		const allKeys = new Set<string>();
+		for (const container of getAllBlockContainers(this._config.destination)) {
+			const cTab = container.tab ?? 'Page Content';
+			if (cTab.toLowerCase().replace(/\s+/g, '-') === this._activeTab) {
+				for (const block of container.blocks) {
+					allKeys.add(block.key);
+				}
+			}
+		}
+		this._collapsedBlocks = allKeys;
+	}
+
+	#expandAllBlocks() {
+		this._collapsedBlocks = new Set<string>();
+	}
+
+	#onCollapsePopoverToggle(event: ToggleEvent) {
+		this._collapsePopoverOpen = event.newState === 'open';
+	}
+
+	#activeTabHasBlocks(): boolean {
+		if (!this._config) return false;
+		return getAllBlockContainers(this._config.destination).some((c) => {
+			const cTab = c.tab ?? 'Page Content';
+			return cTab.toLowerCase().replace(/\s+/g, '-') === this._activeTab;
+		});
+	}
+
+	// =========================================================================
+	// Field rendering (part-box pattern)
+	// =========================================================================
 
 	#renderFieldsForTab(tabName: string) {
 		if (!this._config) return nothing;
@@ -200,30 +341,36 @@ export class UpDocWorkflowDestinationViewElement extends UmbLitElement {
 		if (fields.length === 0) return html`<p class="empty-message">No fields in this tab.</p>`;
 
 		return html`
-			<div class="field-list">
-				${fields.map((field) => this.#renderField(field))}
-			</div>
+			${fields.map((field) => this.#renderField(field))}
 		`;
 	}
 
 	#renderField(field: DestinationField) {
+		const isMapped = this.#hasAnyMapping(field.alias);
+
 		return html`
-			<div class="field-item">
-				<div class="field-header">
-					<span class="field-label">${field.label}</span>
-					<span class="field-type">${field.type}</span>
-					${field.mandatory ? html`<uui-tag look="primary" color="danger" class="field-badge">Required</uui-tag>` : nothing}
-					<uui-button compact look="outline" label="Map" class="map-button" disabled>
-						<uui-icon name="icon-nodes"></uui-icon>
-					</uui-button>
-				</div>
-				<div class="field-meta">
-					<span class="field-alias">${field.alias}</span>
-					${field.description ? html`<span class="field-description">${field.description}</span>` : nothing}
+			<div class="part-box ${isMapped ? '' : 'unmapped'}">
+				<div class="part-box-row">
+					<div class="part-box-info">
+						<div class="part-box-field-name">${field.label}</div>
+						<div class="part-box-field-meta">
+							<span class="field-alias">${field.alias}</span>
+							<span class="field-type-badge">${field.type}</span>
+							${field.mandatory ? html`<uui-tag look="primary" color="danger" class="required-badge">Required</uui-tag>` : nothing}
+						</div>
+					</div>
+					<div class="part-box-actions">
+						${this.#renderMappingBadges(field.alias)}
+						<uui-button class="md-map-btn" look="outline" compact label="Map">Map</uui-button>
+					</div>
 				</div>
 			</div>
 		`;
 	}
+
+	// =========================================================================
+	// Block rendering (section-box + part-box pattern)
+	// =========================================================================
 
 	#renderBlockContainersForTab(tabId: string) {
 		if (!this._config) return nothing;
@@ -238,52 +385,73 @@ export class UpDocWorkflowDestinationViewElement extends UmbLitElement {
 		}
 
 		return html`
-			${containers.map((container) => this.#renderBlockGrid(container))}
+			${containers.map((container) => this.#renderBlockContainer(container))}
 		`;
 	}
 
-	#renderBlockGrid(grid: DestinationBlockGrid) {
+	#renderBlockContainer(container: DestinationBlockGrid) {
+		const isGrid = (this._config?.destination.blockGrids ?? []).some((g) => g.key === container.key);
+		const icon = isGrid ? 'icon-grid' : 'icon-thumbnail-list';
+
 		return html`
-			<div class="block-grid">
-				<div class="block-grid-header">
-					<span class="block-grid-label">${grid.label}</span>
-					<span class="field-alias">${grid.alias}</span>
+			<div class="section-box container-box">
+				<div class="section-box-header container-header">
+					<uui-icon name="${icon}" class="level-icon"></uui-icon>
+					<span class="section-box-label">${container.label}</span>
 				</div>
-				${grid.description ? html`<p class="block-grid-description">${grid.description}</p>` : nothing}
-				<div class="block-list">
-					${grid.blocks.map(
-						(block) => html`
-							<div class="block-item">
-								<div class="block-header">
-									<umb-icon name="icon-box"></umb-icon>
-									<span class="block-label">${block.label}</span>
-									${block.identifyBy
-										? html`<span class="block-identify">identified by: "${block.identifyBy.value}"</span>`
-										: nothing}
-								</div>
-								${block.properties?.length
-									? html`
-										<div class="block-properties">
-											${block.properties.map(
-												(prop) => html`
-													<div class="block-property">
-														<span class="block-property-label">${prop.label || prop.alias}</span>
-														<span class="field-type">${prop.type}</span>
-														${prop.acceptsFormats?.length
-															? html`<span class="accepts-formats">${prop.acceptsFormats.join(', ')}</span>`
-															: nothing}
-														<uui-button compact look="outline" label="Map" class="map-button" disabled>
-															<uui-icon name="icon-nodes"></uui-icon>
-														</uui-button>
-													</div>
-												`
-											)}
-										</div>
-									`
-									: nothing}
-							</div>
-						`
-					)}
+				<div class="section-box-content">
+					${container.blocks.map((block) => this.#renderBlock(block))}
+				</div>
+			</div>
+		`;
+	}
+
+	#renderBlock(block: DestinationBlock) {
+		const isCollapsed = this.#isBlockCollapsed(block.key);
+
+		return html`
+			<div class="section-box">
+				<div class="section-box-header" @click=${() => this.#toggleBlockCollapse(block.key)}>
+					<uui-icon class="collapse-chevron" name="${isCollapsed ? 'icon-navigation-right' : 'icon-navigation-down'}"></uui-icon>
+					<uui-icon name="icon-box" class="level-icon"></uui-icon>
+					<span class="section-box-label">${block.label}</span>
+					${block.identifyBy
+						? html`<span class="block-identify">identified by: "${block.identifyBy.value}"</span>`
+						: nothing}
+					<span class="header-spacer"></span>
+					${isCollapsed ? this.#renderBlockHeaderBadges(block) : nothing}
+				</div>
+				${!isCollapsed && block.properties?.length
+					? html`
+						<div class="section-box-content">
+							${block.properties.map((prop) => this.#renderBlockProperty(prop, block.key))}
+						</div>
+					`
+					: nothing}
+			</div>
+		`;
+	}
+
+	#renderBlockProperty(prop: BlockProperty, blockKey: string) {
+		const isMapped = this.#hasAnyMapping(prop.alias, blockKey);
+
+		return html`
+			<div class="part-box ${isMapped ? '' : 'unmapped'}">
+				<div class="part-box-row">
+					<span class="part-box-label">${prop.label || prop.alias}</span>
+					<div class="part-box-info">
+						<div class="part-box-field-meta">
+							<span class="field-alias">${prop.alias}</span>
+							<span class="field-type-badge">${prop.type}</span>
+							${prop.acceptsFormats?.length
+								? html`<span class="accepts-formats">${prop.acceptsFormats.join(', ')}</span>`
+								: nothing}
+						</div>
+					</div>
+					<div class="part-box-actions">
+						${this.#renderMappingBadges(prop.alias, blockKey)}
+						<uui-button class="md-map-btn" look="outline" compact label="Map">Map</uui-button>
+					</div>
 				</div>
 			</div>
 		`;
@@ -356,6 +524,43 @@ export class UpDocWorkflowDestinationViewElement extends UmbLitElement {
 		`;
 	}
 
+	// =========================================================================
+	// Tab content + collapse row
+	// =========================================================================
+
+	#renderCollapseRow() {
+		if (!this.#activeTabHasBlocks()) return nothing;
+		return html`
+			<div class="collapse-row">
+				<uui-button
+					look="outline"
+					compact
+					label="Collapse"
+					popovertarget="dest-collapse-popover">
+					Collapse
+					<uui-symbol-expand .open=${this._collapsePopoverOpen}></uui-symbol-expand>
+				</uui-button>
+				<uui-popover-container
+					id="dest-collapse-popover"
+					placement="bottom-start"
+					@toggle=${this.#onCollapsePopoverToggle}>
+					<umb-popover-layout>
+						<uui-menu-item
+							label="Expand All"
+							@click=${() => this.#expandAllBlocks()}>
+							<uui-icon slot="icon" name="icon-navigation-down"></uui-icon>
+						</uui-menu-item>
+						<uui-menu-item
+							label="Collapse All"
+							@click=${() => this.#collapseAllBlocks()}>
+							<uui-icon slot="icon" name="icon-navigation-right"></uui-icon>
+						</uui-menu-item>
+					</umb-popover-layout>
+				</uui-popover-container>
+			</div>
+		`;
+	}
+
 	#renderTabContent() {
 		if (!this._config) return nothing;
 
@@ -400,6 +605,7 @@ export class UpDocWorkflowDestinationViewElement extends UmbLitElement {
 					)}
 				</uui-tab-group>
 				${this.#renderInfoBoxes()}
+				${this.#renderCollapseRow()}
 				<uui-box class="page-box">
 					${this.#renderTabContent()}
 				</uui-box>
@@ -423,49 +629,133 @@ export class UpDocWorkflowDestinationViewElement extends UmbLitElement {
 			.empty-message {
 				color: var(--uui-color-text-alt);
 				font-style: italic;
+				padding: var(--uui-size-space-4);
 			}
 
-			.field-list {
+			/* Page box (matching Source tab) */
+			.page-box {
+				margin: var(--uui-size-space-4);
+			}
+
+			/* Collapse row */
+			.collapse-row {
 				display: flex;
-				flex-direction: column;
-				gap: var(--uui-size-space-1);
+				justify-content: flex-end;
+				padding: var(--uui-size-space-2) var(--uui-size-space-4);
 			}
 
-			.field-item {
-				padding: var(--uui-size-space-3) var(--uui-size-space-4);
+			/* Section box (collapsible block group — matches Source tab) */
+			.section-box {
+				border: 1px solid var(--uui-color-border);
+				border-radius: var(--uui-border-radius);
+				margin: var(--uui-size-space-3) 0;
+			}
+
+			.section-box:first-child {
+				margin-top: 0;
+			}
+
+			/* Outermost container box (Block Grid / Block List wrapper) */
+			.container-header {
+				cursor: default;
 				border-bottom: 1px solid var(--uui-color-border);
 			}
 
-			.field-item:last-child {
-				border-bottom: none;
+			.container-header:hover {
+				background: transparent;
 			}
 
-			.field-header {
+			.container-box > .section-box-content > .section-box:first-child {
+				margin-top: 0;
+			}
+
+			.section-box-header {
 				display: flex;
 				align-items: center;
-				gap: var(--uui-size-space-3);
+				gap: var(--uui-size-space-2);
+				padding: var(--uui-size-space-3) var(--uui-size-space-4);
+				cursor: pointer;
 			}
 
-			.field-label {
-				font-weight: 600;
-			}
-
-			.field-type {
-				font-size: var(--uui-type-small-size);
-				color: var(--uui-color-text-alt);
-				background: var(--uui-color-surface-alt);
-				padding: 2px 8px;
+			.section-box-header:hover {
+				background: var(--uui-color-surface-emphasis);
 				border-radius: var(--uui-border-radius);
 			}
 
-			.field-badge {
-				font-size: 11px;
+			.section-box-header:hover .collapse-chevron {
+				color: var(--uui-color-text);
 			}
 
-			.field-meta {
+			.collapse-chevron {
+				font-size: 12px;
+				color: var(--uui-color-text-alt);
+			}
+
+			.level-icon {
+				font-size: 14px;
+				color: var(--uui-color-text-alt);
+			}
+
+			.section-box-label {
+				font-weight: 600;
+				color: var(--uui-color-text);
+				flex-shrink: 0;
+			}
+
+			.header-spacer {
+				flex: 1;
+			}
+
+			.section-box-content {
+				padding: 0 var(--uui-size-space-4) var(--uui-size-space-4);
+			}
+
+			/* Part box (individual field/property row — matches Source tab) */
+			.part-box {
+				border: 1px solid var(--uui-color-border);
+				border-radius: var(--uui-border-radius);
+				margin-bottom: var(--uui-size-space-3);
+			}
+
+			.part-box:last-child {
+				margin-bottom: 0;
+			}
+
+			.part-box.unmapped {
+				border-style: dashed;
+			}
+
+			.part-box-row {
 				display: flex;
+				align-items: flex-start;
 				gap: var(--uui-size-space-3);
-				margin-top: var(--uui-size-space-1);
+				padding: var(--uui-size-space-3) var(--uui-size-space-4);
+			}
+
+			.part-box-label {
+				font-size: var(--uui-type-small-size);
+				color: var(--uui-color-text-alt);
+				min-width: 80px;
+				flex-shrink: 0;
+				padding-top: 2px;
+			}
+
+			.part-box-info {
+				flex: 1;
+				min-width: 0;
+			}
+
+			.part-box-field-name {
+				font-size: var(--uui-type-default-size);
+				font-weight: 600;
+				color: var(--uui-color-text);
+			}
+
+			.part-box-field-meta {
+				display: flex;
+				gap: var(--uui-size-space-2);
+				align-items: center;
+				margin-top: 3px;
 			}
 
 			.field-alias {
@@ -474,58 +764,24 @@ export class UpDocWorkflowDestinationViewElement extends UmbLitElement {
 				font-family: monospace;
 			}
 
-			.field-description {
-				font-size: var(--uui-type-small-size);
+			.field-type-badge {
+				font-size: 11px;
 				color: var(--uui-color-text-alt);
-			}
-
-			.block-grid {
-				margin-bottom: var(--uui-size-space-5);
-			}
-
-			.block-grid-header {
-				display: flex;
-				align-items: center;
-				gap: var(--uui-size-space-3);
-				padding: var(--uui-size-space-3) var(--uui-size-space-4);
 				background: var(--uui-color-surface-alt);
-				border-bottom: 1px solid var(--uui-color-border);
+				padding: 1px 6px;
+				border-radius: var(--uui-border-radius);
 			}
 
-			.block-grid-label {
-				font-weight: 600;
+			.required-badge {
+				font-size: 11px;
 			}
 
-			.block-grid-description {
-				padding: var(--uui-size-space-2) var(--uui-size-space-4);
-				font-size: var(--uui-type-small-size);
-				color: var(--uui-color-text-alt);
-				margin: 0;
-			}
-
-			.block-list {
-				display: flex;
-				flex-direction: column;
-			}
-
-			.block-item {
-				padding: var(--uui-size-space-3) var(--uui-size-space-4);
-				padding-left: var(--uui-size-space-6);
-				border-bottom: 1px solid var(--uui-color-border);
-			}
-
-			.block-item:last-child {
-				border-bottom: none;
-			}
-
-			.block-header {
+			.part-box-actions {
 				display: flex;
 				align-items: center;
 				gap: var(--uui-size-space-2);
-			}
-
-			.block-label {
-				font-weight: 600;
+				flex-shrink: 0;
+				padding-top: 2px;
 			}
 
 			.block-identify {
@@ -534,34 +790,39 @@ export class UpDocWorkflowDestinationViewElement extends UmbLitElement {
 				font-style: italic;
 			}
 
-			.block-properties {
-				margin-top: var(--uui-size-space-2);
-				padding-left: var(--uui-size-space-5);
-			}
-
-			.block-property {
-				display: flex;
-				align-items: center;
-				gap: var(--uui-size-space-2);
-				padding: var(--uui-size-space-1) 0;
-			}
-
-			.block-property-label {
-				font-size: var(--uui-type-small-size);
-			}
-
 			.accepts-formats {
 				font-size: 11px;
 				color: var(--uui-color-text-alt);
 			}
 
-			.map-button {
-				margin-left: auto;
-				--uui-button-font-size: var(--uui-type-small-size);
+			/* Mapping badges (matches Source tab) */
+			.mapped-tag {
+				font-size: 12px;
 			}
 
-			.page-box {
-				margin: var(--uui-size-space-4);
+			.unmap-x {
+				all: unset;
+				cursor: pointer;
+				font-size: 14px;
+				line-height: 1;
+				padding: 0 2px;
+				margin-left: 4px;
+				opacity: 0.7;
+				font-weight: 700;
+			}
+
+			.unmap-x:hover {
+				opacity: 1;
+			}
+
+			/* Map button — visible on hover (matches Source tab) */
+			.md-map-btn {
+				opacity: 0;
+				transition: opacity 0.15s;
+			}
+
+			.part-box:hover .md-map-btn {
+				opacity: 1;
 			}
 
 			/* Info boxes row (matching Source tab pattern) */

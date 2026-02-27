@@ -126,6 +126,32 @@
       ],
       "enabled": true,
       "comment": null
+    },
+    {
+      "source": "what-we-will-see.title",
+      "destinations": [
+        {
+          "target": "featurePropertyFeatureTitle",
+          "blockKey": "7fdeab50-dd0e-4fe6-acae-fd111150f35e",
+          "contentTypeKey": "2d9b0603-29ef-423a-8d3e-d9c039d3d7b1",
+          "transforms": null
+        }
+      ],
+      "enabled": true,
+      "comment": null
+    },
+    {
+      "source": "what-we-will-see.content",
+      "destinations": [
+        {
+          "target": "richTextContent",
+          "blockKey": "7fdeab50-dd0e-4fe6-acae-fd111150f35e",
+          "contentTypeKey": "2d9b0603-29ef-423a-8d3e-d9c039d3d7b1",
+          "transforms": null
+        }
+      ],
+      "enabled": true,
+      "comment": null
     }
   ]
 }

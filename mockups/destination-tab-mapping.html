@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Destination Tab Mapping — UpDoc Mockup</title>
+  <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+  <style>
+    /* === UUI Variable Approximations === */
+    :root {
+      --uui-font-family: "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --uui-color-surface: #fff;
+      --uui-color-surface-alt: #f3f3f5;
+      --uui-color-surface-emphasis: #eef0f3;
+      --uui-color-border: #e0e0e0;
+      --uui-color-text: #1b264f;
+      --uui-color-text-alt: #666;
+      --uui-color-positive: #2bc37c;
+      --uui-color-positive-emphasis: #1a9d5c;
+      --uui-color-warning: #f0ac00;
+      --uui-color-danger: #d42054;
+      --uui-size-space-2: 6px;
+      --uui-size-space-3: 9px;
+      --uui-size-space-4: 12px;
+      --uui-size-space-5: 15px;
+      --uui-size-space-6: 18px;
+      --uui-border-radius: 3px;
+      --uui-type-small-size: 12px;
+      --uui-type-default-size: 14px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--uui-font-family);
+      background: #f3f3f5;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    h2 {
+      font-size: 16px;
+      color: var(--uui-color-text-alt);
+      margin-bottom: 16px;
+      font-weight: 400;
+    }
+
+    /* === Tab bar === */
+    .tab-bar {
+      display: flex;
+      gap: 0;
+      border-bottom: 2px solid var(--uui-color-border);
+      margin-bottom: 16px;
+    }
+    .tab {
+      padding: 10px 20px;
+      font-size: var(--uui-type-default-size);
+      color: var(--uui-color-text-alt);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      font-weight: 600;
+    }
+    .tab.active {
+      color: var(--uui-color-text);
+      border-bottom-color: #f5c1bc;
+    }
+
+    /* === Info boxes row === */
+    .info-boxes {
+      display: flex;
+      gap: var(--uui-size-space-4);
+      padding: var(--uui-size-space-4);
+    }
+
+    .info-box {
+      flex: 1;
+      background: var(--uui-color-surface);
+      border: 1px solid var(--uui-color-border);
+      border-radius: var(--uui-border-radius);
+      overflow: hidden;
+    }
+
+    .info-box-headline {
+      padding: 10px 16px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--uui-color-text);
+      border-bottom: 1px solid var(--uui-color-border);
+    }
+
+    .info-box-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: var(--uui-size-space-2);
+      padding: 16px;
+      min-height: 180px;
+    }
+
+    .box-icon {
+      font-size: 40px;
+      color: var(--uui-color-text-alt);
+      margin-top: 8px;
+    }
+
+    .box-stat {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--uui-color-text);
+    }
+
+    .box-filename {
+      font-weight: 600;
+      font-size: var(--uui-type-default-size);
+    }
+
+    .box-sub {
+      font-size: 11px;
+      color: var(--uui-color-text-alt);
+    }
+
+    .box-btn {
+      margin-top: auto;
+      padding: 6px 16px;
+      font-size: 13px;
+      border: 1px solid var(--uui-color-border);
+      background: var(--uui-color-surface);
+      border-radius: var(--uui-border-radius);
+      cursor: pointer;
+      color: var(--uui-color-text);
+    }
+
+    /* === Page box (content area matching Source tab) === */
+    .page-box {
+      margin: var(--uui-size-space-4);
+      background: var(--uui-color-surface);
+      border: 1px solid var(--uui-color-border);
+      border-radius: var(--uui-border-radius);
+      overflow: hidden;
+    }
+
+    /* === Section box (collapsible group) === */
+    .section-box {
+      border: 1px solid var(--uui-color-border);
+      border-radius: var(--uui-border-radius);
+      margin: var(--uui-size-space-3) 0;
+    }
+
+    .section-box:first-child {
+      margin-top: 0;
+    }
+
+    .section-box-header {
+      display: flex;
+      align-items: center;
+      gap: var(--uui-size-space-2);
+      padding: var(--uui-size-space-3) var(--uui-size-space-4);
+      cursor: pointer;
+    }
+
+    .section-box-header:hover {
+      background: var(--uui-color-surface-emphasis);
+    }
+
+    .chevron {
+      font-size: 10px;
+      color: var(--uui-color-text-alt);
+      width: 16px;
+      text-align: center;
+    }
+
+    .section-icon {
+      font-size: 14px;
+      color: var(--uui-color-text-alt);
+    }
+
+    .section-box-label {
+      font-weight: 600;
+      color: var(--uui-color-text);
+    }
+
+    .header-spacer {
+      flex: 1;
+    }
+
+    .section-box-content {
+      padding: 0 var(--uui-size-space-4) var(--uui-size-space-4);
+    }
+
+    /* === Part box (individual property row) === */
+    .part-box {
+      border: 1px solid var(--uui-color-border);
+      border-radius: var(--uui-border-radius);
+      margin-bottom: var(--uui-size-space-3);
+    }
+
+    .part-box:last-child {
+      margin-bottom: 0;
+    }
+
+    .part-box-row {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--uui-size-space-3);
+      padding: var(--uui-size-space-3) var(--uui-size-space-4);
+    }
+
+    .part-box-label {
+      font-size: var(--uui-type-small-size);
+      color: var(--uui-color-text-alt);
+      min-width: 80px;
+      flex-shrink: 0;
+      padding-top: 2px;
+    }
+
+    .part-box-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .part-box-field-name {
+      font-size: var(--uui-type-default-size);
+      font-weight: 600;
+      color: var(--uui-color-text);
+    }
+
+    .part-box-field-meta {
+      display: flex;
+      gap: var(--uui-size-space-2);
+      align-items: center;
+      margin-top: 3px;
+    }
+
+    .field-alias {
+      font-size: var(--uui-type-small-size);
+      color: var(--uui-color-text-alt);
+      font-family: monospace;
+    }
+
+    .field-type-badge {
+      font-size: 11px;
+      color: var(--uui-color-text-alt);
+      background: var(--uui-color-surface-alt);
+      padding: 1px 6px;
+      border-radius: var(--uui-border-radius);
+    }
+
+    .required-badge {
+      font-size: 11px;
+      color: #fff;
+      background: var(--uui-color-danger);
+      padding: 1px 6px;
+      border-radius: var(--uui-border-radius);
+      font-weight: 600;
+    }
+
+    .part-box-actions {
+      display: flex;
+      align-items: center;
+      gap: var(--uui-size-space-2);
+      flex-shrink: 0;
+      padding-top: 2px;
+    }
+
+    /* === Mapping badges === */
+    .mapped-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #fff;
+      padding: 2px 8px;
+      border-radius: var(--uui-border-radius);
+    }
+
+    .mapped-tag.positive {
+      background: var(--uui-color-positive);
+    }
+
+    .mapped-tag.warning {
+      background: var(--uui-color-warning);
+    }
+
+    .unmap-x {
+      cursor: pointer;
+      font-size: 14px;
+      opacity: 0.7;
+      font-weight: 700;
+      border: none;
+      background: none;
+      color: #fff;
+      padding: 0 2px;
+    }
+
+    .unmap-x:hover {
+      opacity: 1;
+    }
+
+    /* === Map button (shows on hover) === */
+    .map-btn {
+      font-size: 12px;
+      padding: 4px 10px;
+      border: 1px solid var(--uui-color-border);
+      background: var(--uui-color-surface);
+      border-radius: var(--uui-border-radius);
+      cursor: pointer;
+      color: var(--uui-color-text);
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+
+    .part-box:hover .map-btn {
+      opacity: 1;
+    }
+
+    /* === Block header (with icon) === */
+    .block-icon {
+      font-size: 16px;
+      color: var(--uui-color-text-alt);
+    }
+
+    .block-identify {
+      font-size: var(--uui-type-small-size);
+      color: var(--uui-color-text-alt);
+      font-style: italic;
+    }
+
+    /* === Unmapped state (dashed border) === */
+    .part-box.unmapped {
+      border-style: dashed;
+    }
+
+    /* === Section divider label === */
+    .fields-section-label {
+      padding: var(--uui-size-space-3) var(--uui-size-space-4);
+      font-size: var(--uui-type-small-size);
+      font-weight: 700;
+      color: var(--uui-color-text-alt);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid var(--uui-color-border);
+      background: var(--uui-color-surface-alt);
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- Tab bar -->
+  <div class="tab-bar">
+    <div class="tab active">Page Properties</div>
+    <div class="tab">Page Content</div>
+    <div class="tab">Tour Organiser</div>
+  </div>
+
+  <!-- Info boxes row (same as current) -->
+  <div class="info-boxes">
+    <div class="info-box">
+      <div class="info-box-headline">Document Type</div>
+      <div class="info-box-content">
+        <div class="box-icon">&#128196;</div>
+        <span class="box-stat box-filename">Tailored Tour</span>
+        <span class="box-sub">tailoredTour</span>
+        <button class="box-btn">Change</button>
+      </div>
+    </div>
+    <div class="info-box">
+      <div class="info-box-headline">Blueprint</div>
+      <div class="info-box-content">
+        <div class="box-icon">&#128203;</div>
+        <span class="box-stat box-filename">[Tailored Tour Blueprint]</span>
+        <button class="box-btn">Change</button>
+      </div>
+    </div>
+    <div class="info-box">
+      <div class="info-box-headline">Fields</div>
+      <div class="info-box-content">
+        <div class="box-icon">&#9776;</div>
+        <span class="box-stat">3</span>
+        <span class="box-sub">text-mappable</span>
+        <button class="box-btn">Regenerate</button>
+      </div>
+    </div>
+    <div class="info-box">
+      <div class="info-box-headline">Blocks</div>
+      <div class="info-box-content">
+        <div class="box-icon">&#9638;</div>
+        <span class="box-stat">6</span>
+        <span class="box-sub">in blueprint</span>
+        <button class="box-btn">Regenerate</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Page Properties tab content in page-box -->
+  <div class="page-box">
+
+    <!-- ====================================================== -->
+    <!-- PAGE PROPERTIES: Top-level fields as a section box -->
+    <!-- ====================================================== -->
+    <div style="padding: var(--uui-size-space-4);">
+
+      <!-- Page Title — mapped -->
+      <div class="part-box">
+        <div class="part-box-row">
+          <div class="part-box-info">
+            <div class="part-box-field-name">Page Title</div>
+            <div class="part-box-field-meta">
+              <span class="field-alias">pageTitle</span>
+              <span class="field-type-badge">text</span>
+              <span class="required-badge">Required</span>
+            </div>
+          </div>
+          <div class="part-box-actions">
+            <span class="mapped-tag positive">Tour Title &times;</span>
+            <button class="map-btn">Map</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Page Title Short — mapped -->
+      <div class="part-box">
+        <div class="part-box-row">
+          <div class="part-box-info">
+            <div class="part-box-field-name">Page Title Short</div>
+            <div class="part-box-field-meta">
+              <span class="field-alias">pageTitleShort</span>
+              <span class="field-type-badge">text</span>
+              <span class="required-badge">Required</span>
+            </div>
+          </div>
+          <div class="part-box-actions">
+            <span class="mapped-tag positive">Tour Title &times;</span>
+            <button class="map-btn">Map</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Page Description — mapped -->
+      <div class="part-box">
+        <div class="part-box-row">
+          <div class="part-box-info">
+            <div class="part-box-field-name">Page Description</div>
+            <div class="part-box-field-meta">
+              <span class="field-alias">pageDescription</span>
+              <span class="field-type-badge">textArea</span>
+              <span class="required-badge">Required</span>
+            </div>
+          </div>
+          <div class="part-box-actions">
+            <span class="mapped-tag positive">Tour Description &times;</span>
+            <button class="map-btn">Map</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ====================================================== -->
+  <!-- PAGE CONTENT TAB EXAMPLE (showing blocks) -->
+  <!-- ====================================================== -->
+
+  <h2 style="margin-top: 32px; border-top: 2px solid var(--uui-color-border); padding-top: 16px;">
+    If you switch to "Page Content" tab, blocks would look like:
+  </h2>
+
+  <div class="page-box">
+    <div style="padding: var(--uui-size-space-4);">
+
+      <!-- Organiser block -->
+      <div class="section-box">
+        <div class="section-box-header">
+          <span class="chevron">&#9660;</span>
+          <span class="section-icon">&#9638;</span>
+          <span class="section-box-label">Organiser</span>
+          <span class="block-identify">identified by: "Organiser"</span>
+          <span class="header-spacer"></span>
+        </div>
+        <div class="section-box-content">
+
+          <!-- Title property — mapped -->
+          <div class="part-box">
+            <div class="part-box-row">
+              <span class="part-box-label">Title</span>
+              <div class="part-box-info">
+                <div class="part-box-field-meta">
+                  <span class="field-alias">featurePropertyFeatureTitle</span>
+                  <span class="field-type-badge">text</span>
+                </div>
+              </div>
+              <div class="part-box-actions">
+                <span class="mapped-tag positive">Features &times;</span>
+                <button class="map-btn">Map</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Description property — unmapped -->
+          <div class="part-box unmapped">
+            <div class="part-box-row">
+              <span class="part-box-label">Description</span>
+              <div class="part-box-info">
+                <div class="part-box-field-meta">
+                  <span class="field-alias">featurePropertyFeatureDescription</span>
+                  <span class="field-type-badge">textArea</span>
+                </div>
+              </div>
+              <div class="part-box-actions">
+                <button class="map-btn">Map</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Summary property — unmapped -->
+          <div class="part-box unmapped">
+            <div class="part-box-row">
+              <span class="part-box-label">Summary</span>
+              <div class="part-box-info">
+                <div class="part-box-field-meta">
+                  <span class="field-alias">featurePropertyFeatureSummary</span>
+                  <span class="field-type-badge">textArea</span>
+                </div>
+              </div>
+              <div class="part-box-actions">
+                <button class="map-btn">Map</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Itinerary block -->
+      <div class="section-box">
+        <div class="section-box-header">
+          <span class="chevron">&#9660;</span>
+          <span class="section-icon">&#9638;</span>
+          <span class="section-box-label">Itinerary</span>
+          <span class="block-identify">identified by: "Itinerary"</span>
+          <span class="header-spacer"></span>
+        </div>
+        <div class="section-box-content">
+
+          <!-- Title — unmapped -->
+          <div class="part-box unmapped">
+            <div class="part-box-row">
+              <span class="part-box-label">Title</span>
+              <div class="part-box-info">
+                <div class="part-box-field-meta">
+                  <span class="field-alias">featurePropertyFeatureTitle</span>
+                  <span class="field-type-badge">text</span>
+                </div>
+              </div>
+              <div class="part-box-actions">
+                <button class="map-btn">Map</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Rich Text — mapped -->
+          <div class="part-box">
+            <div class="part-box-row">
+              <span class="part-box-label">Rich Text</span>
+              <div class="part-box-info">
+                <div class="part-box-field-meta">
+                  <span class="field-alias">richTextContent</span>
+                  <span class="field-type-badge">richText</span>
+                </div>
+              </div>
+              <div class="part-box-actions">
+                <span class="mapped-tag positive">Features &times;</span>
+                <button class="map-btn">Map</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Description — unmapped -->
+          <div class="part-box unmapped">
+            <div class="part-box-row">
+              <span class="part-box-label">Description</span>
+              <div class="part-box-info">
+                <div class="part-box-field-meta">
+                  <span class="field-alias">featurePropertyFeatureDescription</span>
+                  <span class="field-type-badge">textArea</span>
+                </div>
+              </div>
+              <div class="part-box-actions">
+                <button class="map-btn">Map</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Summary — unmapped -->
+          <div class="part-box unmapped">
+            <div class="part-box-row">
+              <span class="part-box-label">Summary</span>
+              <div class="part-box-info">
+                <div class="part-box-field-meta">
+                  <span class="field-alias">featurePropertyFeatureSummary</span>
+                  <span class="field-type-badge">textArea</span>
+                </div>
+              </div>
+              <div class="part-box-actions">
+                <button class="map-btn">Map</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Sights block — collapsed with badges in header -->
+      <div class="section-box">
+        <div class="section-box-header">
+          <span class="chevron">&#9654;</span>
+          <span class="section-icon">&#9638;</span>
+          <span class="section-box-label">Sights</span>
+          <span class="block-identify">identified by: "Sights"</span>
+          <span class="header-spacer"></span>
+          <span class="mapped-tag positive">What We Will See &times;</span>
+          <span class="mapped-tag positive">What We Will See &times;</span>
+        </div>
+        <!-- collapsed: no content visible -->
+      </div>
+
+      <!-- Accommodation block — collapsed, no mappings -->
+      <div class="section-box">
+        <div class="section-box-header">
+          <span class="chevron">&#9654;</span>
+          <span class="section-icon">&#9638;</span>
+          <span class="section-box-label">Accommodation</span>
+          <span class="block-identify">identified by: "Accommodation"</span>
+          <span class="header-spacer"></span>
+        </div>
+        <!-- collapsed: no content visible -->
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
