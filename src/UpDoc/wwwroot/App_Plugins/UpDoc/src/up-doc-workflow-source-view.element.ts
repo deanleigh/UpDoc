@@ -1127,33 +1127,20 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 					<uui-icon class="collapse-chevron" name="${isCollapsed ? 'icon-navigation-right' : 'icon-navigation-down'}"></uui-icon>
 					<uui-icon class="level-icon" name="icon-grid"></uui-icon>
 					<span class="area-name">${area.name || `${areaIndex + 1}`}</span>
-					${hasRules
-						? html`<span class="meta-badge rules-badge">${ruleCount} rule${ruleCount !== 1 ? 's' : ''}</span>`
-						: patternLabel ? html`<span class="meta-badge structure-badge">${patternLabel}</span>` : nothing}
+					${hasRules ? html`<span class="meta-badge rules-info">${ruleCount} rule${ruleCount !== 1 ? 's' : ''}</span>` : nothing}
+					${!hasRules && patternLabel ? html`<span class="meta-badge structure-badge">${patternLabel}</span>` : nothing}
 					<span class="header-spacer"></span>
-					<span class="group-count">${sectionCount} section${sectionCount !== 1 ? 's' : ''}</span>
 					${!isTeaching ? html`
-						${hasRules ? html`
-							<uui-button
-								look="outline"
-								compact
-								label="Edit Rules"
-								@click=${(e: Event) => { e.stopPropagation(); this.#onEditAreaRules(rulesAreaKey, area.name || '', this.#getAreaElements(area)); }}
-								?disabled=${this._teachingAreaIndex !== null}>
-								<uui-icon name="icon-settings"></uui-icon>
-								Edit Rules
-							</uui-button>
-						` : html`
-							<uui-button
-								look="outline"
-								compact
-								label="${hasPattern ? 'Redefine Structure' : 'Define Structure'}"
-								@click=${(e: Event) => { e.stopPropagation(); this.#onDefineStructure(globalIdx, areaKey); }}
-								?disabled=${this._teachingAreaIndex !== null && !isTeaching}>
-								<uui-icon name="icon-axis-rotation"></uui-icon>
-								${hasPattern ? 'Redefine' : 'Define Structure'}
-							</uui-button>
-						`}
+						<uui-button
+							look="primary"
+							color="default"
+							label="Sections"
+							@click=${(e: Event) => { e.stopPropagation(); this.#onEditAreaRules(rulesAreaKey, area.name || '', this.#getAreaElements(area)); }}
+							?disabled=${this._teachingAreaIndex !== null}>
+							<uui-icon name="icon-thumbnail-list"></uui-icon>
+							Sections
+							<uui-badge color="danger" look="primary">${sectionCount}</uui-badge>
+						</uui-button>
 					` : nothing}
 					${!hasRules ? html`
 						<uui-toggle
@@ -2350,11 +2337,11 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				font-weight: 500;
 			}
 
-			/* Rules badge on area header */
-			.rules-badge {
-				background: var(--uui-color-default-emphasis);
-				color: var(--uui-color-default-contrast);
-				font-weight: 500;
+			/* Rules info text on area header */
+			.rules-info {
+				background: var(--uui-color-surface-alt);
+				color: var(--uui-color-text-alt);
+				font-weight: 400;
 			}
 
 			/* Section boxes — bordered containers for each section */
