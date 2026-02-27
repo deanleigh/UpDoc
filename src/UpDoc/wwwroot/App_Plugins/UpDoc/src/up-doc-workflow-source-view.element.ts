@@ -85,7 +85,6 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 			this._extraction = extraction;
 			this._config = config;
 			this._sourceConfig = sourceConfig;
-
 			// Build set of orphaned destinations from validation warnings
 			this.#orphanedKeys = new Set<string>();
 			for (const w of config?.validationWarnings ?? []) {
@@ -1243,9 +1242,12 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 		if (!hasAreas && !hasExtraction) return nothing;
 
 		const totalPages = this._areaDetection?.totalPages ?? (hasExtraction ? this._extraction!.source.totalPages : 0);
-		const extractedPageCount = hasAreas ? this._areaDetection!.pages.length : totalPages;
-		const isFiltered = extractedPageCount < totalPages;
-		const pagesLabel = isFiltered ? `${extractedPageCount} of ${totalPages}` : `${totalPages}`;
+		const savedPages = this._sourceConfig?.pages;
+		const hasSavedPageSelection = Array.isArray(savedPages) && savedPages.length > 0;
+		const selectedCount = hasSavedPageSelection ? savedPages.length : totalPages;
+		const pagesLabel = hasSavedPageSelection && totalPages > 0
+			? `${selectedCount} of ${totalPages}`
+			: `${totalPages}`;
 		const areas = hasAreas ? this._areaDetection!.diagnostics.areasDetected : 0;
 		const sections = hasAreas ? this.#computeSectionCount() : 0;
 		const fileName = hasExtraction ? this._extraction!.source.fileName : '';

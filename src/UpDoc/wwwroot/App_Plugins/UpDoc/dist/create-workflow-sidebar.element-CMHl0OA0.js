@@ -1,27 +1,27 @@
-import { U as G } from "./page-picker-modal.token-B0CgP9f1.js";
-import { e as X } from "./workflow.service-8opy21oM.js";
+import { U as Y } from "./page-picker-modal.token-B0CgP9f1.js";
+import { e as H } from "./workflow.service-8opy21oM.js";
 import "./up-doc-pdf-thumbnail.element-N7K7a6d1.js";
-import { css as P, property as Y, state as l, customElement as k, html as r, nothing as f } from "@umbraco-cms/backoffice/external/lit";
-import { UmbLitElement as H } from "@umbraco-cms/backoffice/lit-element";
-import { UMB_MODAL_MANAGER_CONTEXT as w, UmbModalBaseElement as j } from "@umbraco-cms/backoffice/modal";
-import { UMB_MEDIA_PICKER_MODAL as J } from "@umbraco-cms/backoffice/media";
-import { UMB_AUTH_CONTEXT as $ } from "@umbraco-cms/backoffice/auth";
-import { UmbTextStyles as Q } from "@umbraco-cms/backoffice/style";
-import { generateAlias as V } from "@umbraco-cms/backoffice/utils";
-var Z = Object.defineProperty, ee = Object.getOwnPropertyDescriptor, C = (e) => {
+import { css as C, property as J, state as l, customElement as T, html as r, nothing as f } from "@umbraco-cms/backoffice/external/lit";
+import { UmbLitElement as Q } from "@umbraco-cms/backoffice/lit-element";
+import { UMB_MODAL_MANAGER_CONTEXT as U, UmbModalBaseElement as V } from "@umbraco-cms/backoffice/modal";
+import { UMB_MEDIA_PICKER_MODAL as Z } from "@umbraco-cms/backoffice/media";
+import { UMB_AUTH_CONTEXT as M } from "@umbraco-cms/backoffice/auth";
+import { UmbTextStyles as j } from "@umbraco-cms/backoffice/style";
+import { generateAlias as ee } from "@umbraco-cms/backoffice/utils";
+var te = Object.defineProperty, ae = Object.getOwnPropertyDescriptor, E = (e) => {
   throw TypeError(e);
 }, _ = (e, t, a, s) => {
-  for (var n = s > 1 ? void 0 : s ? ee(t, a) : t, h = e.length - 1, d; h >= 0; h--)
+  for (var n = s > 1 ? void 0 : s ? ae(t, a) : t, h = e.length - 1, d; h >= 0; h--)
     (d = e[h]) && (n = (s ? d(t, a, n) : d(n)) || n);
-  return s && n && Z(t, a, n), n;
-}, te = (e, t, a) => t.has(e) || C("Cannot " + a), ae = (e, t, a) => t.has(e) ? C("Cannot add the same private member more than once") : t instanceof WeakSet ? t.add(e) : t.set(e, a), b = (e, t, a) => (te(e, t, "access private method"), a), p, g, T, U;
-let m = class extends H {
+  return s && n && te(t, a, n), n;
+}, ie = (e, t, a) => t.has(e) || E("Cannot " + a), ne = (e, t, a) => t.has(e) ? E("Cannot add the same private member more than once") : t instanceof WeakSet ? t.add(e) : t.set(e, a), b = (e, t, a) => (ie(e, t, "access private method"), a), p, v, S, D;
+let m = class extends Q {
   constructor() {
-    super(...arguments), ae(this, p), this.label = "", this._mediaKey = null, this._mediaName = "", this._token = "";
+    super(...arguments), ne(this, p), this.label = "", this._mediaKey = null, this._mediaName = "", this._token = "";
   }
   async connectedCallback() {
     super.connectedCallback();
-    const e = await this.getContext($);
+    const e = await this.getContext(M);
     this._token = await e.getLatestToken();
   }
   render() {
@@ -38,14 +38,14 @@ let m = class extends H {
 						label="Remove"
 						look="secondary"
 						compact
-						@click=${b(this, p, U)}>
+						@click=${b(this, p, D)}>
 						<uui-icon name="icon-trash"></uui-icon>
 					</uui-button>
 					<uui-button
 						label="Change"
 						look="secondary"
 						compact
-						@click=${b(this, p, g)}>
+						@click=${b(this, p, v)}>
 						<uui-icon name="icon-edit"></uui-icon>
 					</uui-button>
 				</uui-action-bar>
@@ -54,7 +54,7 @@ let m = class extends H {
 				<uui-button
 					id="btn-add"
 					look="placeholder"
-					@click=${b(this, p, g)}
+					@click=${b(this, p, v)}
 					label="Choose">
 					<uui-icon name="icon-add"></uui-icon>
 					Choose
@@ -63,15 +63,15 @@ let m = class extends H {
   }
 };
 p = /* @__PURE__ */ new WeakSet();
-g = async function() {
-  const a = await (await this.getContext(w)).open(this, J, {
+v = async function() {
+  const a = await (await this.getContext(U)).open(this, Z, {
     data: {
       multiple: !1
     }
   }).onSubmit().catch(() => null);
   if (!a?.selection?.length) return;
   const s = a.selection[0];
-  s && (this._mediaKey = s, this._mediaName = await b(this, p, T).call(this, s), this.dispatchEvent(
+  s && (this._mediaKey = s, this._mediaName = await b(this, p, S).call(this, s), this.dispatchEvent(
     new CustomEvent("change", {
       detail: { mediaKey: s },
       bubbles: !0,
@@ -79,7 +79,7 @@ g = async function() {
     })
   ));
 };
-T = async function(e) {
+S = async function(e) {
   try {
     const t = await fetch(
       `/umbraco/management/api/v1/media/item?id=${e}`,
@@ -90,7 +90,7 @@ T = async function(e) {
     return "PDF";
   }
 };
-U = function() {
+D = function() {
   this._mediaKey = null, this._mediaName = "", this.dispatchEvent(
     new CustomEvent("change", {
       detail: { mediaKey: null },
@@ -100,7 +100,7 @@ U = function() {
   );
 };
 m.styles = [
-  P`
+  C`
 			:host {
 				display: block;
 			}
@@ -122,7 +122,7 @@ m.styles = [
 		`
 ];
 _([
-  Y({ type: String })
+  J({ type: String })
 ], m.prototype, "label", 2);
 _([
   l()
@@ -134,71 +134,72 @@ _([
   l()
 ], m.prototype, "_token", 2);
 m = _([
-  k("up-doc-pdf-picker")
+  T("up-doc-pdf-picker")
 ], m);
-var ie = Object.defineProperty, ne = Object.getOwnPropertyDescriptor, M = (e) => {
+var se = Object.defineProperty, oe = Object.getOwnPropertyDescriptor, N = (e) => {
   throw TypeError(e);
 }, c = (e, t, a, s) => {
-  for (var n = s > 1 ? void 0 : s ? ne(t, a) : t, h = e.length - 1, d; h >= 0; h--)
+  for (var n = s > 1 ? void 0 : s ? oe(t, a) : t, h = e.length - 1, d; h >= 0; h--)
     (d = e[h]) && (n = (s ? d(t, a, n) : d(n)) || n);
-  return s && n && ie(t, a, n), n;
-}, E = (e, t, a) => t.has(e) || M("Cannot " + a), S = (e, t, a) => (E(e, t, "read from private field"), a ? a.call(e) : t.get(e)), se = (e, t, a) => t.has(e) ? M("Cannot add the same private member more than once") : t instanceof WeakSet ? t.add(e) : t.set(e, a), o = (e, t, a) => (E(e, t, "access private method"), a), i, D, N, z, v, A, y, x, O, L, W, q, K, B, R, F, I;
-const oe = [
+  return s && n && se(t, a, n), n;
+}, P = (e, t, a) => t.has(e) || N("Cannot " + a), w = (e, t, a) => (P(e, t, "read from private field"), a ? a.call(e) : t.get(e)), $ = (e, t, a) => t.has(e) ? N("Cannot add the same private member more than once") : t instanceof WeakSet ? t.add(e) : t.set(e, a), ue = (e, t, a, s) => (P(e, t, "write to private field"), t.set(e, a), a), o = (e, t, a) => (P(e, t, "access private method"), a), g, i, z, A, O, y, L, x, k, W, q, K, B, R, F, I, G, X;
+const le = [
   { value: "pdf", name: "PDF Document" },
   { value: "markdown", name: "Markdown" },
   { value: "web", name: "Web Page" },
   { value: "doc", name: "Word Document" }
-], ue = {
+], re = {
   pdf: "PDF",
   markdown: "Markdown",
   web: "Web Page",
   doc: "Word Document"
 };
-let u = class extends j {
+let u = class extends V {
   constructor() {
-    super(...arguments), se(this, i), this._activeTab = "source", this._name = "", this._alias = "", this._aliasLocked = !0, this._sourceType = "", this._selectedMediaUnique = null, this._sourceUrl = "", this._extracting = !1, this._totalPages = 0, this._elementCount = 0, this._fileName = "", this._selectedPages = null;
+    super(...arguments), $(this, i), this._activeTab = "source", this._name = "", this._alias = "", this._aliasLocked = !0, $(this, g, !1), this._sourceType = "", this._selectedMediaUnique = null, this._sourceUrl = "", this._extracting = !1, this._totalPages = 0, this._elementCount = 0, this._fileName = "", this._selectedPages = null;
   }
   render() {
     return r`
 			<umb-body-layout headline="Create Workflow">
-				${o(this, i, W).call(this)}
+				${o(this, i, K).call(this)}
 
 				<div class="tab-content">
-					${o(this, i, I).call(this)}
+					${o(this, i, X).call(this)}
 				</div>
 
 				<uui-button
 					slot="actions"
 					id="close"
 					label=${this.localize.term("general_close")}
-					@click="${o(this, i, L)}"></uui-button>
+					@click="${o(this, i, q)}"></uui-button>
 				<uui-button
 					slot="actions"
 					id="save"
 					look="primary"
 					color="positive"
 					label=${this.localize.term("general_create")}
-					?disabled=${!S(this, i, x)}
-					@click="${o(this, i, O)}"></uui-button>
+					?disabled=${!w(this, i, k)}
+					@click="${o(this, i, W)}"></uui-button>
 			</umb-body-layout>
 		`;
   }
 };
+g = /* @__PURE__ */ new WeakMap();
 i = /* @__PURE__ */ new WeakSet();
-D = function(e) {
+z = function(e) {
   const a = e.target.value;
-  if (a !== this._sourceType && (this._selectedMediaUnique = null, this._sourceUrl = ""), this._sourceType = a, this._aliasLocked && this.data?.blueprintName && this._sourceType) {
-    const s = ue[this._sourceType] ?? this._sourceType;
-    this._name = `${this.data.blueprintName} - ${s}`, this._alias = V(this._name);
+  if (a !== this._sourceType && (this._selectedMediaUnique = null, this._sourceUrl = ""), this._sourceType = a, !w(this, g) && this.data?.blueprintName && this._sourceType) {
+    const s = re[this._sourceType] ?? this._sourceType;
+    this._name = `${this.data.blueprintName} - ${s}`, this._alias = ee(this._name);
   }
   this.requestUpdate();
 };
-N = async function(e) {
+A = async function(e) {
   const t = e.detail;
   if (this._selectedMediaUnique = t?.mediaKey ?? null, this._totalPages = 0, this._elementCount = 0, this._fileName = "", this._selectedPages = null, this._selectedMediaUnique) {
     this._extracting = !0;
     try {
-      const s = await (await this.getContext($)).getLatestToken(), n = await X(this._selectedMediaUnique, s);
+      const s = await (await this.getContext(M)).getLatestToken(), n = await H(this._selectedMediaUnique, s);
       n && (this._totalPages = n.source.totalPages, this._elementCount = n.elements.length, this._fileName = n.source.fileName);
     } catch {
     } finally {
@@ -206,9 +207,9 @@ N = async function(e) {
     }
   }
 };
-z = async function() {
+O = async function() {
   if (!this._selectedMediaUnique || this._totalPages === 0) return;
-  const a = await (await this.getContext(w)).open(this, G, {
+  const a = await (await this.getContext(U)).open(this, Y, {
     data: {
       mediaKey: this._selectedMediaUnique,
       totalPages: this._totalPages,
@@ -217,22 +218,22 @@ z = async function() {
   }).onSubmit().catch(() => null);
   a !== null && (this._selectedPages = a.selectedPages);
 };
-v = async function(e) {
+y = async function(e) {
   const a = e.target.selection;
   this._selectedMediaUnique = a.length > 0 ? a[0] : null;
 };
-A = function(e) {
+L = function(e) {
   const t = e.target;
-  this._name = t.value, this._alias = t.alias, this._aliasLocked = t.autoGenerateAlias ?? !1;
+  this._name = t.value, this._alias = t.alias, this._aliasLocked = t.autoGenerateAlias ?? !1, this._name.trim().length > 0 && ue(this, g, !0);
 };
-y = function(e) {
+x = function(e) {
   this._activeTab = e;
 };
-x = function() {
+k = function() {
   return this._name.trim().length > 0 && this._alias.trim().length > 0 && this._sourceType.length > 0;
 };
-O = function() {
-  S(this, i, x) && (this.value = {
+W = function() {
+  w(this, i, k) && (this.value = {
     name: this._name.trim(),
     alias: this._alias.trim(),
     sourceType: this._sourceType,
@@ -244,17 +245,17 @@ O = function() {
     selectedPages: this._selectedPages
   }, this._submitModal());
 };
-L = function() {
+q = function() {
   this._rejectModal();
 };
-W = function() {
+K = function() {
   return r`
 			<uui-tab-group slot="navigation">
 				<uui-tab
 					label="Source"
 					?active=${this._activeTab === "source"}
 					orientation="horizontal"
-					@click=${() => o(this, i, y).call(this, "source")}>
+					@click=${() => o(this, i, x).call(this, "source")}>
 					<uui-icon slot="icon" name="icon-page-add"></uui-icon>
 					Source
 				</uui-tab>
@@ -262,14 +263,14 @@ W = function() {
 					label="Destination"
 					?active=${this._activeTab === "destination"}
 					orientation="horizontal"
-					@click=${() => o(this, i, y).call(this, "destination")}>
+					@click=${() => o(this, i, x).call(this, "destination")}>
 					<uui-icon slot="icon" name="icon-document"></uui-icon>
 					Destination
 				</uui-tab>
 			</uui-tab-group>
 		`;
 };
-q = function() {
+B = function() {
   return this._fileName ? r`
 			<div class="extraction-stats">
 				<span class="extraction-filename">${this._fileName}</span>
@@ -280,20 +281,20 @@ q = function() {
 			</div>
 		` : f;
 };
-K = function() {
+R = function() {
   switch (this._sourceType) {
     case "pdf":
       return r`
 					<uui-box headline="Sample Document">
-						<up-doc-pdf-picker @change=${o(this, i, N)}></up-doc-pdf-picker>
+						<up-doc-pdf-picker @change=${o(this, i, A)}></up-doc-pdf-picker>
 						${this._extracting ? r`<uui-loader-bar></uui-loader-bar>` : f}
-						${o(this, i, q).call(this)}
+						${o(this, i, B).call(this)}
 					</uui-box>
 				`;
     case "markdown":
       return r`
 					<uui-box headline="Sample File">
-						<umb-input-media max="1" @change=${o(this, i, v)}></umb-input-media>
+						<umb-input-media max="1" @change=${o(this, i, y)}></umb-input-media>
 					</uui-box>
 				`;
     case "web":
@@ -310,14 +311,14 @@ K = function() {
     case "doc":
       return r`
 					<uui-box headline="Sample Document">
-						<umb-input-media max="1" @change=${o(this, i, v)}></umb-input-media>
+						<umb-input-media max="1" @change=${o(this, i, y)}></umb-input-media>
 					</uui-box>
 				`;
     default:
       return f;
   }
 };
-B = function() {
+F = function() {
   if (this._totalPages === 0) return f;
   const e = this._selectedPages ? `${this._selectedPages.length} of ${this._totalPages} pages` : `All ${this._totalPages} pages`;
   return r`
@@ -326,7 +327,7 @@ B = function() {
 				<uui-button
 					look="outline"
 					label="Choose Pages"
-					@click=${o(this, i, z)}
+					@click=${o(this, i, O)}
 					class="full-width-button">
 					<uui-icon name="icon-thumbnails-small"></uui-icon>
 					Choose Pages
@@ -334,7 +335,7 @@ B = function() {
 			</uui-box>
 		`;
 };
-R = function() {
+I = function() {
   return r`
 			<uui-box headline="Workflow Name">
 				<umb-input-with-alias
@@ -342,7 +343,7 @@ R = function() {
 					.value=${this._name}
 					.alias=${this._alias}
 					?auto-generate-alias=${this._aliasLocked}
-					@change=${o(this, i, A)}>
+					@change=${o(this, i, L)}>
 				</umb-input-with-alias>
 			</uui-box>
 
@@ -351,20 +352,20 @@ R = function() {
 					label="Select source format"
 					.options=${[
     { name: "Choose a format...", value: "", selected: this._sourceType === "" },
-    ...oe.map((e) => ({
+    ...le.map((e) => ({
       ...e,
       selected: this._sourceType === e.value
     }))
   ]}
-					@change=${o(this, i, D)}>
+					@change=${o(this, i, z)}>
 				</uui-select>
 			</uui-box>
 
-			${o(this, i, K).call(this)}
-			${o(this, i, B).call(this)}
+			${o(this, i, R).call(this)}
+			${o(this, i, F).call(this)}
 		`;
 };
-F = function() {
+G = function() {
   return r`
 			<uui-box headline="Document Type">
 				<div class="destination-value">
@@ -381,17 +382,17 @@ F = function() {
 			</uui-box>
 		`;
 };
-I = function() {
+X = function() {
   switch (this._activeTab) {
     case "source":
-      return o(this, i, R).call(this);
+      return o(this, i, I).call(this);
     case "destination":
-      return o(this, i, F).call(this);
+      return o(this, i, G).call(this);
   }
 };
 u.styles = [
-  Q,
-  P`
+  j,
+  C`
 			.destination-value {
 				display: flex;
 				align-items: center;
@@ -494,11 +495,11 @@ c([
   l()
 ], u.prototype, "_selectedPages", 2);
 u = c([
-  k("create-workflow-sidebar")
+  T("create-workflow-sidebar")
 ], u);
-const ge = u;
+const ye = u;
 export {
   u as CreateWorkflowSidebarElement,
-  ge as default
+  ye as default
 };
-//# sourceMappingURL=create-workflow-sidebar.element-9JxykYPY.js.map
+//# sourceMappingURL=create-workflow-sidebar.element-CMHl0OA0.js.map

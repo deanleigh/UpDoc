@@ -6,7 +6,7 @@ import { UMB_MODAL_MANAGER_CONTEXT, UMB_CONFIRM_MODAL, umbOpenModal } from '@umb
 import { UMB_BLUEPRINT_PICKER_MODAL } from './blueprint-picker-modal.token.js';
 import type { DocumentTypeOption } from './blueprint-picker-modal.token.js';
 import { UMB_CREATE_WORKFLOW_SIDEBAR } from './create-workflow-sidebar.token.js';
-import { clearConfigCache, triggerSampleExtraction } from './workflow.service.js';
+import { clearConfigCache, triggerSampleExtraction, triggerTransform } from './workflow.service.js';
 
 interface WorkflowSummary {
 	name: string;
@@ -163,7 +163,22 @@ export class UpDocWorkflowsViewElement extends UmbLitElement {
 				throw new Error(error.error || `Failed to create workflow: ${response.statusText}`);
 			}
 
-			// Step 6: If a sample source was provided, trigger extraction
+			// Step 6: Save page selection if user chose specific pages
+			if (sidebarResult.selectedPages && sidebarResult.selectedPages.length > 0) {
+				await fetch(
+					`/umbraco/management/api/v1/updoc/workflows/${encodeURIComponent(sidebarResult.alias)}/pages`,
+					{
+						method: 'PUT',
+						headers: {
+							'Content-Type': 'application/json',
+							Authorization: `Bearer ${token}`,
+						},
+						body: JSON.stringify({ pages: sidebarResult.selectedPages }),
+					},
+				);
+			}
+
+			// Step 7: If a sample source was provided, trigger extraction + transform
 			if (sidebarResult.mediaUnique || sidebarResult.sourceUrl) {
 				try {
 					await triggerSampleExtraction(
@@ -172,6 +187,14 @@ export class UpDocWorkflowsViewElement extends UmbLitElement {
 						token,
 						sidebarResult.sourceUrl ?? undefined
 					);
+					// Step 8: Trigger area detection + transform so content is visible immediately
+					if (sidebarResult.mediaUnique) {
+						await triggerTransform(
+							sidebarResult.alias,
+							sidebarResult.mediaUnique,
+							token,
+						);
+					}
 				} catch (err) {
 					console.warn('Sample extraction during workflow creation failed:', err);
 				}

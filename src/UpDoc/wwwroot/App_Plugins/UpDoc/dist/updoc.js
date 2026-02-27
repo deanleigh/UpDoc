@@ -71,7 +71,7 @@ const o = [
     type: "modal",
     alias: "UpDoc.CreateWorkflowSidebar",
     name: "Create Workflow Sidebar",
-    element: () => import("./create-workflow-sidebar.element-9JxykYPY.js")
+    element: () => import("./create-workflow-sidebar.element-CMHl0OA0.js")
   },
   {
     type: "modal",
@@ -138,7 +138,7 @@ const o = [
     type: "workspaceView",
     alias: "UpDoc.WorkflowWorkspaceView.Source",
     name: "UpDoc Workflow Source View",
-    element: () => import("./up-doc-workflow-source-view.element-D4BCvVlz.js"),
+    element: () => import("./up-doc-workflow-source-view.element-CUH9GTxx.js"),
     weight: 200,
     meta: {
       label: "Source",
@@ -302,7 +302,7 @@ const o = [
     type: "workspaceView",
     alias: "UpDoc.WorkspaceView.Workflows",
     name: "Workflows",
-    element: () => import("./up-doc-workflows-view.element-DlMB2g2X.js"),
+    element: () => import("./up-doc-workflows-view.element-CD8qXk_i.js"),
     weight: 300,
     meta: {
       label: "Workflows",

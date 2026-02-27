@@ -36,6 +36,7 @@ export class CreateWorkflowSidebarElement extends UmbModalBaseElement<
 	@state() private _name = '';
 	@state() private _alias = '';
 	@state() private _aliasLocked = true;
+	#nameManuallyEdited = false;
 	@state() private _sourceType = '';
 	@state() private _selectedMediaUnique: string | null = null;
 	@state() private _sourceUrl = '';
@@ -56,8 +57,8 @@ export class CreateWorkflowSidebarElement extends UmbModalBaseElement<
 
 		this._sourceType = newSourceType;
 
-		// Auto-generate name and alias when source type changes (if alias is still locked)
-		if (this._aliasLocked && this.data?.blueprintName && this._sourceType) {
+		// Auto-generate name and alias when source type changes (only if user hasn't typed a custom name)
+		if (!this.#nameManuallyEdited && this.data?.blueprintName && this._sourceType) {
 			const sourceLabel = SOURCE_TYPE_LABELS[this._sourceType] ?? this._sourceType;
 			this._name = `${this.data.blueprintName} - ${sourceLabel}`;
 			this._alias = generateAlias(this._name);
@@ -122,6 +123,10 @@ export class CreateWorkflowSidebarElement extends UmbModalBaseElement<
 		this._name = target.value as string;
 		this._alias = target.alias;
 		this._aliasLocked = target.autoGenerateAlias ?? false;
+		// Once the user types anything in the name, don't overwrite it on format change
+		if (this._name.trim().length > 0) {
+			this.#nameManuallyEdited = true;
+		}
 	}
 
 	#handleTabClick(tab: TabType) {
