@@ -400,7 +400,7 @@ export class UpDocWorkflowDestinationViewElement extends UmbLitElement {
 					)}
 				</uui-tab-group>
 				${this.#renderInfoBoxes()}
-				<uui-box>
+				<uui-box class="page-box">
 					${this.#renderTabContent()}
 				</uui-box>
 			</umb-body-layout>
@@ -558,6 +558,10 @@ export class UpDocWorkflowDestinationViewElement extends UmbLitElement {
 			.map-button {
 				margin-left: auto;
 				--uui-button-font-size: var(--uui-type-small-size);
+			}
+
+			.page-box {
+				margin: var(--uui-size-space-4);
 			}
 
 			/* Info boxes row (matching Source tab pattern) */

@@ -48,7 +48,7 @@ let h = class extends G {
     )}
 				</uui-tab-group>
 				${s(this, o, W).call(this)}
-				<uui-box>
+				<uui-box class="page-box">
 					${s(this, o, L).call(this)}
 				</uui-box>
 			</umb-body-layout>
@@ -444,6 +444,10 @@ h.styles = [
 				--uui-button-font-size: var(--uui-type-small-size);
 			}
 
+			.page-box {
+				margin: var(--uui-size-space-4);
+			}
+
 			/* Info boxes row (matching Source tab pattern) */
 			.info-boxes {
 				display: flex;
@@ -523,4 +527,4 @@ export {
   h as UpDocWorkflowDestinationViewElement,
   le as default
 };
-//# sourceMappingURL=up-doc-workflow-destination-view.element-BShUy7xC.js.map
+//# sourceMappingURL=up-doc-workflow-destination-view.element-DQ8Tn3Xx.js.map
