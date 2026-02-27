@@ -1,25 +1,25 @@
-import { b as G, d as N, o as R } from "./workflow.service-CWGlGq_3.js";
-import { b as V, r as F, a as I, g as z } from "./destination-utils-DUfOJy5W.js";
-import { html as s, nothing as M, css as X, state as x, customElement as j } from "@umbraco-cms/backoffice/external/lit";
-import { UmbLitElement as H } from "@umbraco-cms/backoffice/lit-element";
-import { UmbTextStyles as q } from "@umbraco-cms/backoffice/style";
-import { UMB_AUTH_CONTEXT as J } from "@umbraco-cms/backoffice/auth";
-import { UMB_WORKSPACE_CONTEXT as Q } from "@umbraco-cms/backoffice/workspace";
-var Y = Object.defineProperty, Z = Object.getOwnPropertyDescriptor, D = (t) => {
+import { b as R, d as V, o as F } from "./workflow.service-CWGlGq_3.js";
+import { b as I, r as X, a as j, g as C } from "./destination-utils-DUfOJy5W.js";
+import { html as s, nothing as w, css as H, state as $, customElement as q } from "@umbraco-cms/backoffice/external/lit";
+import { UmbLitElement as J } from "@umbraco-cms/backoffice/lit-element";
+import { UmbTextStyles as Q } from "@umbraco-cms/backoffice/style";
+import { UMB_AUTH_CONTEXT as Y } from "@umbraco-cms/backoffice/auth";
+import { UMB_WORKSPACE_CONTEXT as Z } from "@umbraco-cms/backoffice/workspace";
+var tt = Object.defineProperty, et = Object.getOwnPropertyDescriptor, E = (t) => {
   throw TypeError(t);
-}, y = (t, e, i, a) => {
-  for (var o = a > 1 ? void 0 : a ? Z(e, i) : e, _ = t.length - 1, h; _ >= 0; _--)
+}, x = (t, e, i, a) => {
+  for (var o = a > 1 ? void 0 : a ? et(e, i) : e, _ = t.length - 1, h; _ >= 0; _--)
     (h = t[_]) && (o = (a ? h(e, i, o) : h(o)) || o);
-  return a && o && Y(e, i, o), o;
-}, C = (t, e, i) => e.has(t) || D("Cannot " + i), d = (t, e, i) => (C(t, e, "read from private field"), i ? i.call(t) : e.get(t)), $ = (t, e, i) => e.has(t) ? D("Cannot add the same private member more than once") : e instanceof WeakSet ? e.add(t) : e.set(t, i), E = (t, e, i, a) => (C(t, e, "write to private field"), e.set(t, i), i), c = (t, e, i) => (C(t, e, "access private method"), i), g, b, n, T, L, U, K, S, W, A, B, O;
-let u = class extends H {
+  return a && o && tt(e, i, o), o;
+}, K = (t, e, i) => e.has(t) || E("Cannot " + i), u = (t, e, i) => (K(t, e, "read from private field"), i ? i.call(t) : e.get(t)), k = (t, e, i) => e.has(t) ? E("Cannot add the same private member more than once") : e instanceof WeakSet ? e.add(t) : e.set(t, i), D = (t, e, i, a) => (K(t, e, "write to private field"), e.set(t, i), i), r = (t, e, i) => (K(t, e, "access private method"), i), v, g, m, n, T, S, W, L, U, O, A, B, P, G;
+let p = class extends J {
   constructor() {
-    super(...arguments), $(this, n), this._config = null, this._extraction = null, this._loading = !0, this._error = null, $(this, g, ""), $(this, b, "");
+    super(...arguments), k(this, n), this._config = null, this._extraction = null, this._loading = !0, this._error = null, k(this, v, /* @__PURE__ */ new Set()), k(this, g, ""), k(this, m, "");
   }
   connectedCallback() {
-    super.connectedCallback(), this.consumeContext(Q, (t) => {
+    super.connectedCallback(), this.consumeContext(Z, (t) => {
       t && this.observe(t.unique, (e) => {
-        e && (E(this, g, decodeURIComponent(e)), c(this, n, T).call(this));
+        e && (D(this, g, decodeURIComponent(e)), r(this, n, T).call(this));
       });
     });
   }
@@ -27,34 +27,40 @@ let u = class extends H {
     return this._loading ? s`<div class="loading"><uui-loader-bar></uui-loader-bar></div>` : this._error ? s`<p style="color: var(--uui-color-danger);">${this._error}</p>` : s`
 			<umb-body-layout header-fit-height>
 				<uui-box>
-					${c(this, n, O).call(this)}
+					${r(this, n, G).call(this)}
 				</uui-box>
 			</umb-body-layout>
 		`;
   }
 };
+v = /* @__PURE__ */ new WeakMap();
 g = /* @__PURE__ */ new WeakMap();
-b = /* @__PURE__ */ new WeakMap();
+m = /* @__PURE__ */ new WeakMap();
 n = /* @__PURE__ */ new WeakSet();
 T = async function() {
   this._loading = !0, this._error = null;
   try {
-    const t = await this.getContext(J);
-    if (E(this, b, await t.getLatestToken()), this._config = await G(d(this, g), d(this, b)), !this._config) {
-      this._error = `Workflow "${d(this, g)}" not found`;
+    const t = await this.getContext(Y);
+    if (D(this, m, await t.getLatestToken()), this._config = await R(u(this, g), u(this, m)), !this._config) {
+      this._error = `Workflow "${u(this, g)}" not found`;
       return;
     }
-    this._extraction = await N(d(this, g), d(this, b));
+    D(this, v, /* @__PURE__ */ new Set());
+    for (const e of this._config.validationWarnings ?? []) {
+      const i = e.match(/blockKey '([^']+)' for target '([^']+)'/);
+      i && u(this, v).add(`${i[1]}:${i[2]}`);
+    }
+    this._extraction = await V(u(this, g), u(this, m));
   } catch (t) {
     this._error = t instanceof Error ? t.message : "Failed to load workflow", console.error("Failed to load workflow config:", t);
   } finally {
     this._loading = !1;
   }
 };
-L = function(t) {
+S = function(t) {
   if (!this._config) return t.target;
   if (t.blockKey)
-    for (const e of z(this._config.destination)) {
+    for (const e of C(this._config.destination)) {
       const i = e.blocks.find((a) => a.key === t.blockKey);
       if (i) {
         const a = i.properties?.find((o) => o.alias === t.target);
@@ -63,27 +69,27 @@ L = function(t) {
     }
   for (const e of this._config.destination.fields)
     if (e.alias === t.target) return e.label;
-  for (const e of z(this._config.destination))
+  for (const e of C(this._config.destination))
     for (const i of e.blocks)
       for (const a of i.properties ?? [])
         if (a.alias === t.target)
           return `${i.label} > ${a.label || a.alias}`;
   return t.target;
 };
-U = function(t) {
+W = function(t) {
   if (!this._extraction) return t;
   const e = this._extraction.elements.find((a) => a.id === t);
   return e ? e.text.length > 60 ? e.text.substring(0, 60) + "..." : e.text : t;
 };
-K = async function(t) {
+L = async function(t) {
   if (!this._config) return;
   const e = {
     ...this._config.map,
     mappings: this._config.map.mappings.filter((a, o) => o !== t)
   };
-  await R(d(this, g), e, d(this, b)) && (this._config = { ...this._config, map: e });
+  await F(u(this, g), e, u(this, m)) && (this._config = { ...this._config, map: e });
 };
-S = function() {
+U = function() {
   return s`
 			<div class="empty-state">
 				<uui-icon name="icon-nodes" class="empty-icon"></uui-icon>
@@ -92,71 +98,78 @@ S = function() {
 			</div>
 		`;
 };
-W = function(t, e) {
+O = function(t) {
+  return t.destinations.some(
+    (e) => e.blockKey && u(this, v).has(`${e.blockKey}:${e.target}`)
+  );
+};
+A = function(t, e) {
+  const i = r(this, n, O).call(this, t);
   return s`
 			<uui-table-row>
 				<uui-table-cell class="source-cell">
 					<span class="source-id">${t.source}</span>
-					<span class="source-text">${c(this, n, U).call(this, t.source)}</span>
+					<span class="source-text">${r(this, n, W).call(this, t.source)}</span>
 				</uui-table-cell>
 				<uui-table-cell class="arrow-cell">
 					<uui-icon name="icon-arrow-right"></uui-icon>
 				</uui-table-cell>
 				<uui-table-cell class="destination-cell">
 					${t.destinations.map(
-    (i) => s`
-							<span class="destination-target">${c(this, n, L).call(this, i)}</span>
-							${i.transforms?.length ? s`<span class="transform-badge">${i.transforms.map((a) => a.type).join(", ")}</span>` : M}
+    (a) => s`
+							<span class="destination-target">${r(this, n, S).call(this, a)}</span>
+							${a.transforms?.length ? s`<span class="transform-badge">${a.transforms.map((o) => o.type).join(", ")}</span>` : w}
 						`
   )}
 				</uui-table-cell>
 				<uui-table-cell class="actions-cell">
-					${t.enabled ? M : s`<uui-tag look="secondary" class="disabled-badge">Disabled</uui-tag>`}
+					${i ? s`<uui-tag color="warning" class="orphaned-badge">Orphaned</uui-tag>` : w}
+					${t.enabled ? w : s`<uui-tag look="secondary" class="disabled-badge">Disabled</uui-tag>`}
 					<uui-button
 						compact
 						look="outline"
 						color="danger"
 						label="Delete"
-						@click=${() => c(this, n, K).call(this, e)}>
+						@click=${() => r(this, n, L).call(this, e)}>
 						<uui-icon name="icon-trash"></uui-icon>
 					</uui-button>
 				</uui-table-cell>
 			</uui-table-row>
 		`;
 };
-A = function() {
+B = function() {
   if (!this._config?.destination) return [];
-  const t = this._config.destination, e = V(t), i = /* @__PURE__ */ new Map();
-  for (let r = 0; r < this._config.map.mappings.length; r++) {
-    const p = this._config.map.mappings[r], v = p.destinations[0];
-    if (!v) continue;
-    const l = F(v, t) ?? "unmapped", m = e.find((P) => P.id === l)?.label ?? "Unmapped", f = v.blockKey, k = f ? I(f, t) : void 0, w = f ? `${l}:${f}` : l;
-    i.has(w) || i.set(w, {
-      tabId: l,
-      tabLabel: m,
+  const t = this._config.destination, e = I(t), i = /* @__PURE__ */ new Map();
+  for (let l = 0; l < this._config.map.mappings.length; l++) {
+    const d = this._config.map.mappings[l], y = d.destinations[0];
+    if (!y) continue;
+    const c = X(y, t) ?? "unmapped", b = e.find((N) => N.id === c)?.label ?? "Unmapped", f = y.blockKey, z = f ? j(f, t) : void 0, M = f ? `${c}:${f}` : c;
+    i.has(M) || i.set(M, {
+      tabId: c,
+      tabLabel: b,
       blockKey: f ?? void 0,
-      blockLabel: k ?? void 0,
+      blockLabel: z ?? void 0,
       mappings: []
-    }), i.get(w).mappings.push({ mapping: p, index: r });
+    }), i.get(M).mappings.push({ mapping: d, index: l });
   }
   const a = [], o = /* @__PURE__ */ new Map();
   let _ = 0;
-  for (const r of z(t))
-    for (const p of r.blocks)
-      o.set(p.key, _++);
-  for (const r of e) {
-    const p = i.get(r.id);
-    p && a.push(p);
-    const v = Array.from(i.entries()).filter(([l, m]) => m.tabId === r.id && m.blockKey).sort(([, l], [, m]) => {
-      const f = o.get(l.blockKey) ?? 999, k = o.get(m.blockKey) ?? 999;
-      return f - k;
-    }).map(([, l]) => l);
-    a.push(...v);
+  for (const l of C(t))
+    for (const d of l.blocks)
+      o.set(d.key, _++);
+  for (const l of e) {
+    const d = i.get(l.id);
+    d && a.push(d);
+    const y = Array.from(i.entries()).filter(([c, b]) => b.tabId === l.id && b.blockKey).sort(([, c], [, b]) => {
+      const f = o.get(c.blockKey) ?? 999, z = o.get(b.blockKey) ?? 999;
+      return f - z;
+    }).map(([, c]) => c);
+    a.push(...y);
   }
   const h = i.get("unmapped");
   return h && a.push(h), a;
 };
-B = function(t) {
+P = function(t) {
   const e = t.blockLabel ? `${t.tabLabel} — ${t.blockLabel}` : t.tabLabel;
   return s`
 			<div class="mapping-group">
@@ -172,27 +185,27 @@ B = function(t) {
 						<uui-table-head-cell style="width: 100px;"></uui-table-head-cell>
 					</uui-table-head>
 					${t.mappings.map(
-    ({ mapping: i, index: a }) => c(this, n, W).call(this, i, a)
+    ({ mapping: i, index: a }) => r(this, n, A).call(this, i, a)
   )}
 				</uui-table>
 			</div>
 		`;
 };
-O = function() {
-  if (!this._config) return M;
+G = function() {
+  if (!this._config) return w;
   const t = this._config.map.mappings;
-  if (t.length === 0) return c(this, n, S).call(this);
-  const e = c(this, n, A).call(this);
+  if (t.length === 0) return r(this, n, U).call(this);
+  const e = r(this, n, B).call(this);
   return s`
 			<div class="mappings-header">
 				<span class="mapping-count">${t.length} mapping${t.length !== 1 ? "s" : ""}</span>
 			</div>
-			${e.map((i) => c(this, n, B).call(this, i))}
+			${e.map((i) => r(this, n, P).call(this, i))}
 		`;
 };
-u.styles = [
-  q,
-  X`
+p.styles = [
+  Q,
+  H`
 			:host {
 				display: block;
 				height: 100%;
@@ -309,7 +322,8 @@ u.styles = [
 				width: fit-content;
 			}
 
-			.disabled-badge {
+			.disabled-badge,
+			.orphaned-badge {
 				font-size: 11px;
 			}
 
@@ -321,24 +335,24 @@ u.styles = [
 			}
 		`
 ];
-y([
-  x()
-], u.prototype, "_config", 2);
-y([
-  x()
-], u.prototype, "_extraction", 2);
-y([
-  x()
-], u.prototype, "_loading", 2);
-y([
-  x()
-], u.prototype, "_error", 2);
-u = y([
-  j("up-doc-workflow-map-view")
-], u);
-const rt = u;
+x([
+  $()
+], p.prototype, "_config", 2);
+x([
+  $()
+], p.prototype, "_extraction", 2);
+x([
+  $()
+], p.prototype, "_loading", 2);
+x([
+  $()
+], p.prototype, "_error", 2);
+p = x([
+  q("up-doc-workflow-map-view")
+], p);
+const ct = p;
 export {
-  u as UpDocWorkflowMapViewElement,
-  rt as default
+  p as UpDocWorkflowMapViewElement,
+  ct as default
 };
-//# sourceMappingURL=up-doc-workflow-map-view.element-DzCcdSha.js.map
+//# sourceMappingURL=up-doc-workflow-map-view.element-C1zyI2S-.js.map

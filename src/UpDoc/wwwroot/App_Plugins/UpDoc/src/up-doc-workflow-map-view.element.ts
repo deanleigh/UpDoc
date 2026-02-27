@@ -13,6 +13,7 @@ export class UpDocWorkflowMapViewElement extends UmbLitElement {
 	@state() private _extraction: RichExtractionResult | null = null;
 	@state() private _loading = true;
 	@state() private _error: string | null = null;
+	#orphanedKeys = new Set<string>();
 	#workflowAlias = '';
 	#token = '';
 
@@ -41,6 +42,13 @@ export class UpDocWorkflowMapViewElement extends UmbLitElement {
 			if (!this._config) {
 				this._error = `Workflow "${this.#workflowAlias}" not found`;
 				return;
+			}
+
+			// Build set of orphaned destinations from validation warnings
+			this.#orphanedKeys = new Set<string>();
+			for (const w of this._config.validationWarnings ?? []) {
+				const m = w.match(/blockKey '([^']+)' for target '([^']+)'/);
+				if (m) this.#orphanedKeys.add(`${m[1]}:${m[2]}`);
 			}
 
 			this._extraction = await fetchSampleExtraction(this.#workflowAlias, this.#token);
@@ -119,7 +127,15 @@ export class UpDocWorkflowMapViewElement extends UmbLitElement {
 		`;
 	}
 
+	#isMappingOrphaned(mapping: SectionMapping): boolean {
+		return mapping.destinations.some(
+			(dest) => dest.blockKey && this.#orphanedKeys.has(`${dest.blockKey}:${dest.target}`)
+		);
+	}
+
 	#renderMappingRow(mapping: SectionMapping, index: number) {
+		const orphaned = this.#isMappingOrphaned(mapping);
+
 		return html`
 			<uui-table-row>
 				<uui-table-cell class="source-cell">
@@ -140,6 +156,7 @@ export class UpDocWorkflowMapViewElement extends UmbLitElement {
 					)}
 				</uui-table-cell>
 				<uui-table-cell class="actions-cell">
+					${orphaned ? html`<uui-tag color="warning" class="orphaned-badge">Orphaned</uui-tag>` : nothing}
 					${!mapping.enabled ? html`<uui-tag look="secondary" class="disabled-badge">Disabled</uui-tag>` : nothing}
 					<uui-button
 						compact
@@ -427,7 +444,8 @@ export class UpDocWorkflowMapViewElement extends UmbLitElement {
 				width: fit-content;
 			}
 
-			.disabled-badge {
+			.disabled-badge,
+			.orphaned-badge {
 				font-size: 11px;
 			}
 

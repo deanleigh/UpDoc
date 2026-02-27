@@ -156,7 +156,7 @@ const o = [
     type: "workspaceView",
     alias: "UpDoc.WorkflowWorkspaceView.Map",
     name: "UpDoc Workflow Map View",
-    element: () => import("./up-doc-workflow-map-view.element-DzCcdSha.js"),
+    element: () => import("./up-doc-workflow-map-view.element-C1zyI2S-.js"),
     weight: 100,
     meta: {
       label: "Map",

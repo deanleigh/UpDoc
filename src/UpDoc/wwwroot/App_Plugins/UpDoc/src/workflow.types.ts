@@ -441,6 +441,7 @@ export interface DocumentTypeConfig {
 	sources: Record<string, SourceConfig>;
 	destination: DestinationConfig;
 	map: MapConfig;
+	validationWarnings?: string[];
 }
 
 // ============================================================================

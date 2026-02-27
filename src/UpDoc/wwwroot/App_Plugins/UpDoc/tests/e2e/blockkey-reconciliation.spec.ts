@@ -694,3 +694,71 @@ test.describe('Sprint 6: backfill contentTypeKey migration', () => {
 		}
 	});
 });
+
+// ── Sprint 7: Surface orphaned mappings on Map tab (UI) ─────────────────────
+
+test.describe('Sprint 7: orphaned mapping indicators on Map tab', () => {
+	test.beforeEach(async ({ page }) => {
+		await page.goto('/umbraco');
+		await page.waitForTimeout(2000);
+	});
+
+	test('orphaned mapping shows Orphaned tag on Map tab', async ({ page }) => {
+		// Step 1: Read current map.json and save original state
+		const config = await apiGet(page, `${API_BASE}/${TEST_WORKFLOW}`);
+		const originalMap = JSON.parse(JSON.stringify(config.map));
+
+		// Step 2: Find a mapping with a blockKey and corrupt it
+		const corruptedMap = JSON.parse(JSON.stringify(config.map));
+		const blockDest = corruptedMap.mappings
+			.flatMap((m: any) => m.destinations)
+			.find((d: any) => d.blockKey);
+		expect(blockDest, 'Should have at least one mapping with a blockKey').toBeTruthy();
+
+		const bogusBlockKey = 'deadbeef-dead-beef-dead-beefdeadbeef';
+		blockDest.blockKey = bogusBlockKey;
+
+		// Step 3: Save the corrupted map.json
+		await apiPutJson(page, `${API_BASE}/${TEST_WORKFLOW}/map`, corruptedMap);
+
+		try {
+			// Step 4: Navigate to the workflow editor Map tab
+			await page.goto(
+				`/umbraco/section/settings/workspace/updoc-workflow/edit/${TEST_WORKFLOW}`,
+			);
+			await page.waitForTimeout(1000);
+
+			// Click the Map tab
+			const mapTab = page.locator('uui-tab').filter({ hasText: 'Map' });
+			await mapTab.click();
+			await page.waitForTimeout(1000);
+
+			// Step 5: Assert the "Orphaned" tag is visible
+			const orphanedTag = page.locator('uui-tag').filter({ hasText: 'Orphaned' });
+			await expect(orphanedTag.first()).toBeVisible({ timeout: 5000 });
+		} finally {
+			// Step 6: Cleanup — restore original map.json
+			await apiPutJson(page, `${API_BASE}/${TEST_WORKFLOW}/map`, originalMap);
+		}
+	});
+
+	test('healthy mappings do not show Orphaned tag', async ({ page }) => {
+		// Ensure destination is reconciled
+		await apiPost(page, `${API_BASE}/${TEST_WORKFLOW}/regenerate-destination`);
+
+		// Navigate to the workflow editor Map tab
+		await page.goto(
+			`/umbraco/section/settings/workspace/updoc-workflow/edit/${TEST_WORKFLOW}`,
+		);
+		await page.waitForTimeout(1000);
+
+		// Click the Map tab
+		const mapTab = page.locator('uui-tab').filter({ hasText: 'Map' });
+		await mapTab.click();
+		await page.waitForTimeout(1000);
+
+		// Assert no "Orphaned" tag is visible
+		const orphanedTags = page.locator('uui-tag').filter({ hasText: 'Orphaned' });
+		await expect(orphanedTags).toHaveCount(0);
+	});
+});
