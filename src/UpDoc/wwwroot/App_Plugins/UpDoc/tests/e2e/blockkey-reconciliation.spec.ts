@@ -119,7 +119,6 @@ test.describe('Sprint 1: contentTypeKey model support', () => {
 		const firstBlock = destConfig.blockGrids[0].blocks[0];
 		expect(firstBlock.contentTypeKey).toBeTruthy();
 		const realContentTypeKey = firstBlock.contentTypeKey;
-		const realBlockKey = firstBlock.key;
 
 		// Step 3: Find a mapping that targets a block property
 		const blockMapping = mapConfig.mappings.find((m: any) =>
@@ -477,5 +476,94 @@ test.describe('Sprint 4: auto-reconcile on regenerate-destination', () => {
 		const response = await apiPost(page, `${API_BASE}/${TEST_WORKFLOW}/regenerate-destination`);
 
 		expect(response.reconciliation.orphaned).toBe(0);
+	});
+});
+
+// ── Sprint 5: validate blockKeys on workflow config load ────────────────────
+
+test.describe('Sprint 5: blockKey validation on config load', () => {
+	test.beforeEach(async ({ page }) => {
+		await page.goto('/umbraco');
+		await page.waitForTimeout(2000);
+	});
+
+	test('orphaned blockKey produces a validation warning in GET response', async ({ page }) => {
+		// Step 1: Read current map.json and save original state
+		const config = await apiGet(page, `${API_BASE}/${TEST_WORKFLOW}`);
+		const originalMap = JSON.parse(JSON.stringify(config.map));
+
+		// Step 2: Find a mapping with a blockKey and corrupt it
+		const corruptedMap = JSON.parse(JSON.stringify(config.map));
+		const blockDest = corruptedMap.mappings
+			.flatMap((m: any) => m.destinations)
+			.find((d: any) => d.blockKey);
+		expect(blockDest, 'Should have at least one mapping with a blockKey').toBeTruthy();
+
+		const bogusBlockKey = 'deadbeef-dead-beef-dead-beefdeadbeef';
+		blockDest.blockKey = bogusBlockKey;
+
+		// Step 3: Save the corrupted map.json
+		await apiPutJson(page, `${API_BASE}/${TEST_WORKFLOW}/map`, corruptedMap);
+
+		try {
+			// Step 4: GET the workflow — should include validation warning
+			const reloaded = await apiGet(page, `${API_BASE}/${TEST_WORKFLOW}`);
+
+			expect(reloaded.validationWarnings).toBeTruthy();
+			expect(Array.isArray(reloaded.validationWarnings)).toBe(true);
+			expect(reloaded.validationWarnings.length).toBeGreaterThan(0);
+
+			// At least one warning should mention the bogus blockKey
+			const orphanWarning = reloaded.validationWarnings.find((w: string) =>
+				w.includes(bogusBlockKey)
+			);
+			expect(orphanWarning, `Should have a warning about orphaned blockKey ${bogusBlockKey}`).toBeTruthy();
+			expect(orphanWarning).toContain('orphaned');
+		} finally {
+			// Step 5: Cleanup — restore original map.json
+			await apiPutJson(page, `${API_BASE}/${TEST_WORKFLOW}/map`, originalMap);
+		}
+	});
+
+	test('valid blockKeys produce no orphan warnings', async ({ page }) => {
+		// Ensure destination is up to date (regenerate first)
+		await apiPost(page, `${API_BASE}/${TEST_WORKFLOW}/regenerate-destination`);
+
+		// GET the workflow — should have no orphan warnings
+		const config = await apiGet(page, `${API_BASE}/${TEST_WORKFLOW}`);
+
+		const orphanWarnings = (config.validationWarnings ?? []).filter((w: string) =>
+			w.includes('orphaned')
+		);
+		expect(orphanWarnings.length, 'Should have no orphaned blockKey warnings after reconciliation').toBe(0);
+	});
+
+	test('validation warning includes the target field name', async ({ page }) => {
+		// Step 1: Read and corrupt a specific mapping
+		const config = await apiGet(page, `${API_BASE}/${TEST_WORKFLOW}`);
+		const originalMap = JSON.parse(JSON.stringify(config.map));
+
+		const corruptedMap = JSON.parse(JSON.stringify(config.map));
+		const blockDest = corruptedMap.mappings
+			.flatMap((m: any) => m.destinations)
+			.find((d: any) => d.blockKey);
+		expect(blockDest).toBeTruthy();
+
+		const targetName = blockDest.target;
+		blockDest.blockKey = 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee';
+
+		await apiPutJson(page, `${API_BASE}/${TEST_WORKFLOW}/map`, corruptedMap);
+
+		try {
+			const reloaded = await apiGet(page, `${API_BASE}/${TEST_WORKFLOW}`);
+			const orphanWarning = reloaded.validationWarnings.find((w: string) =>
+				w.includes('aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee')
+			);
+			expect(orphanWarning).toBeTruthy();
+			// Warning should include the target field name for actionability
+			expect(orphanWarning).toContain(targetName);
+		} finally {
+			await apiPutJson(page, `${API_BASE}/${TEST_WORKFLOW}/map`, originalMap);
+		}
 	});
 });

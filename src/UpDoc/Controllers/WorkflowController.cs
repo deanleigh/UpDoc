@@ -127,6 +127,12 @@ public class WorkflowController : ControllerBase
             }
         }
 
+        // Validate cross-file references and attach warnings
+        var validationErrors = _workflowService.ValidateConfig(config);
+        config.ValidationWarnings = validationErrors
+            .Where(e => e.StartsWith("WARN:"))
+            .ToArray();
+
         return Ok(config);
     }
 

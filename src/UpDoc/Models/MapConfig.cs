@@ -105,4 +105,5 @@ public class DocumentTypeConfig
     public Dictionary<string, SourceConfig> Sources { get; set; } = new();
     public DestinationConfig Destination { get; set; } = new();
     public MapConfig Map { get; set; } = new();
+    public string[] ValidationWarnings { get; set; } = [];
 }

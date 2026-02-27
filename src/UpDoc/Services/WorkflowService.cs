@@ -277,6 +277,28 @@ public class WorkflowService : IWorkflowService
             }
         }
 
+        // Validate blockKeys in map.json against destination.json
+        var validBlockKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var container in (config.Destination.BlockGrids ?? Enumerable.Empty<DestinationBlockGrid>())
+            .Concat(config.Destination.BlockLists ?? Enumerable.Empty<DestinationBlockGrid>()))
+        {
+            foreach (var block in container.Blocks)
+            {
+                validBlockKeys.Add(block.Key);
+            }
+        }
+
+        foreach (var mapping in config.Map.Mappings)
+        {
+            foreach (var dest in mapping.Destinations)
+            {
+                if (!string.IsNullOrEmpty(dest.BlockKey) && !validBlockKeys.Contains(dest.BlockKey))
+                {
+                    errors.Add($"WARN: blockKey '{dest.BlockKey}' for target '{dest.Target}' not found in destination.json (orphaned)");
+                }
+            }
+        }
+
         return errors;
     }
 
