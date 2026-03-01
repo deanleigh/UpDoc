@@ -412,7 +412,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 	}
 
 	/** Opens the rules editor modal for a specific area. */
-	async #onEditAreaRules(areaKey: string, areaName: string, elements: AreaElement[]) {
+	async #onEditAreaRules(areaKey: string, areaName: string, elements: AreaElement[], sectionCount?: number) {
 		if (!this._workflowAlias) return;
 
 		const existingRules = this._sourceConfig?.areaRules?.[areaKey] ?? null;
@@ -425,6 +425,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 				sectionHeading: areaName,
 				elements,
 				existingRules,
+				sectionCount,
 				onSave: async (rules: AreaRules) => {
 					await this.#saveAreaRulesForKey(areaKey, rules);
 				},
@@ -1135,7 +1136,7 @@ export class UpDocWorkflowSourceViewElement extends UmbLitElement {
 							look="primary"
 							color="default"
 							label="Sections"
-							@click=${(e: Event) => { e.stopPropagation(); this.#onEditAreaRules(rulesAreaKey, area.name || '', this.#getAreaElements(area)); }}
+							@click=${(e: Event) => { e.stopPropagation(); this.#onEditAreaRules(rulesAreaKey, area.name || '', this.#getAreaElements(area), sectionCount); }}
 							?disabled=${this._teachingAreaIndex !== null}>
 							<uui-icon name="icon-thumbnail-list"></uui-icon>
 							Sections

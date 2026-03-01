@@ -559,6 +559,7 @@ let h = class extends De {
 			<umb-body-layout headline="Edit Sections: ${f(this, n, K)}">
 				<div id="main">
 					<div class="section-info">
+						${this.data?.sectionCount != null ? u`<span class="meta-badge">${this.data.sectionCount} section${this.data.sectionCount !== 1 ? "s" : ""}</span>` : d}
 						<span class="meta-badge">${f(this, n, m).length} elements</span>
 						<span class="meta-badge">${this._rules.length} rules</span>
 						<span class="meta-badge">${e.size} matched</span>
@@ -1494,4 +1495,4 @@ export {
   h as UpDocSectionRulesEditorModalElement,
   mt as default
 };
-//# sourceMappingURL=section-rules-editor-modal.element-ra2eLY3H.js.map
+//# sourceMappingURL=section-rules-editor-modal.element-DuVJseo3.js.map

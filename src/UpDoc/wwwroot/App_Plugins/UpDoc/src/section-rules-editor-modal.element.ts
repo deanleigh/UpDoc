@@ -1155,6 +1155,9 @@ export class UpDocSectionRulesEditorModalElement extends UmbModalBaseElement<Sec
 			<umb-body-layout headline="Edit Sections: ${this.#sectionHeading}">
 				<div id="main">
 					<div class="section-info">
+						${this.data?.sectionCount != null
+							? html`<span class="meta-badge">${this.data.sectionCount} section${this.data.sectionCount !== 1 ? 's' : ''}</span>`
+							: nothing}
 						<span class="meta-badge">${this.#elements.length} elements</span>
 						<span class="meta-badge">${this._rules.length} rules</span>
 						<span class="meta-badge">${claimed.size} matched</span>

@@ -407,7 +407,6 @@ public class PdfPagePropertiesService : IPdfPagePropertiesService
 
                 foreach (var (element, cx, cy) in pageElements)
                 {
-                    var assigned = false;
                     for (int i = 0; i < areas.Count; i++)
                     {
                         var ab = areas[i].BoundingBox;
@@ -419,7 +418,6 @@ public class PdfPagePropertiesService : IPdfPagePropertiesService
                         if (cx >= areaLeft && cx <= areaRight && cy >= areaBottom && cy <= areaTop)
                         {
                             areaElements[i].Add(element);
-                            assigned = true;
                             break;
                         }
                     }
@@ -1393,7 +1391,7 @@ public class PdfPagePropertiesService : IPdfPagePropertiesService
         if (section.StrategyParams?.Flags?.Contains("i") == true)
             options |= RegexOptions.IgnoreCase;
 
-        var regex = new Regex(section.StrategyParams.Pattern, options);
+        var regex = new Regex(section.StrategyParams!.Pattern, options);
 
         foreach (var line in lines)
         {

@@ -101,7 +101,7 @@ const o = [
     type: "modal",
     alias: "UpDoc.SectionRulesEditorModal",
     name: "Section Rules Editor Modal",
-    element: () => import("./section-rules-editor-modal.element-ra2eLY3H.js")
+    element: () => import("./section-rules-editor-modal.element-DuVJseo3.js")
   },
   // =====================================================================
   // Workflow Workspace — full page for editing individual workflows
@@ -138,7 +138,7 @@ const o = [
     type: "workspaceView",
     alias: "UpDoc.WorkflowWorkspaceView.Source",
     name: "UpDoc Workflow Source View",
-    element: () => import("./up-doc-workflow-source-view.element-CyIgD9fF.js"),
+    element: () => import("./up-doc-workflow-source-view.element-mX53OE8U.js"),
     weight: 200,
     meta: {
       label: "Source",

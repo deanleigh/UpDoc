@@ -257,9 +257,9 @@ public class WorkflowService : IWorkflowService
                 if (!mapping.Enabled) continue;
 
                 // Check source exists in this source config
-                // This is a warning, not an error — map.json is a superset across all source types
-                // A source type may not extract all sections (e.g., markdown may not have accommodation)
-                if (!validSourceKeys.Contains(mapping.Source))
+                // Skip when sections is empty — area-rules workflows produce sections
+                // dynamically via the transform pipeline, not statically in source.json
+                if (validSourceKeys.Count > 0 && !validSourceKeys.Contains(mapping.Source))
                 {
                     errors.Add($"WARN: map.json source '{mapping.Source}' not found in source-{sourceType}.json (will be skipped for this source type)");
                 }
@@ -290,6 +290,7 @@ public class WorkflowService : IWorkflowService
         }
 
         // Validate blockKeys in map.json against destination.json
+        // These warnings are surfaced in the UI, not logged at startup
         var validBlockKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         foreach (var container in (config.Destination.BlockGrids ?? Enumerable.Empty<DestinationBlockGrid>())
             .Concat(config.Destination.BlockLists ?? Enumerable.Empty<DestinationBlockGrid>()))
@@ -976,8 +977,8 @@ public class WorkflowService : IWorkflowService
                             continue;
                         }
 
-                        // Log warnings
-                        foreach (var warning in validationErrors.Where(e => e.StartsWith("WARN:")))
+                        // Log warnings (except orphaned blockKeys — those are surfaced in the UI only)
+                        foreach (var warning in validationErrors.Where(e => e.StartsWith("WARN:") && !e.Contains("orphaned")))
                         {
                             _logger.LogWarning("{Warning}", warning);
                         }
