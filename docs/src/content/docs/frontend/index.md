@@ -22,3 +22,4 @@ All source files are in `src/UpDoc/wwwroot/App_Plugins/UpDoc/src/`.
 | [workflow.service.ts](../source-files/workflow-service-ts.md) | API service for fetching workflows, configs, and extraction results |
 | [up-doc-workflows-view.element.ts](../source-files/up-doc-workflows-view-element.md) | Settings workspace view listing configured workflows |
 | [transforms.ts](../source-files/transforms.md) | Markdown-to-HTML conversion and RTE value building |
+| [create-from-source.ts](../source-files/create-from-source-ts.md) | Scaffold, map and create — shared by both entry points |

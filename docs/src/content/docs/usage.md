@@ -65,6 +65,14 @@ If you're viewing a content collection (list view), there's a toolbar button for
 
 ---
 
+## Option 3: Without the backoffice
+
+Documents can also be created through the API, which is how a scheduled job, a deployment step or an AI assistant would do it.
+
+That is the same workflow, the same mappings and the same result — only the clicks are missing. The source file still has to be in the media library first, and the document is still created as a draft.
+
+See [the UpDoc API](./api/) for the endpoint, or [the MCP server](./mcp/) if you want an AI assistant to do it.
+
 ## After creation
 
 The created document is a normal Umbraco document. You can:
